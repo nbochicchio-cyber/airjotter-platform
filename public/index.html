@@ -163,6 +163,9 @@
 body:not(.dev-auth-enabled) .welcome-divider{display:none!important}
 body:not(.dev-auth-enabled) #devLogin{display:none!important}
 .archive-heading-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}@media(max-width:620px){.archive-heading-actions{justify-content:flex-start;width:100%}}
+
+@keyframes ajRequestBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(233,201,124,.7)}50%{opacity:.45;box-shadow:0 0 0 7px rgba(233,201,124,0)}}
+.aj-request.pending-blink{animation:ajRequestBlink .8s linear infinite}.archive-title-button{border:0;background:none;color:var(--accent-hover);font:inherit;font-weight:700;text-align:left;cursor:pointer;text-decoration:underline;padding:0}.access-manager{max-width:780px!important;text-align:left!important;max-height:88vh;overflow:auto;position:relative}.access-summary{padding:12px;border-radius:11px;background:var(--accent-bg);margin:12px 0 16px}.access-section{margin-top:18px}.access-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color)}.access-person small{display:block;color:var(--text-soft);margin-top:3px}.access-actions{display:flex;gap:7px;flex-wrap:wrap}.access-empty{color:var(--text-soft);padding:10px 0}@media(max-width:620px){.access-row{grid-template-columns:1fr}.access-actions{justify-content:flex-start}}
 </style>
 </head>
 <body>
@@ -327,7 +330,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
     <div id="accessRequestModal" class="modal"><div class="modal-content" style="max-width:480px"><h3 style="margin-bottom:12px;color:var(--accent-color)">Richiesta di modifica</h3><p id="accessRequestText" style="line-height:1.55;margin-bottom:18px"></p><div style="display:flex;gap:10px"><button id="accessDenyBtn" class="btn danger" style="flex:1;justify-content:center">Rifiuta</button><button id="accessApproveBtn" class="btn primary" style="flex:1;justify-content:center">Autorizza</button></div></div></div>
 <div id="jotterArchiveModal" class="modal"><div class="modal-content jotter-archive"><button id="jotterArchiveClose" class="archive-close" aria-label="Chiudi">&#10005;</button><div class="archive-heading"><div><h3>I miei Jotter</h3><p>Le board create come owner, ordinate dall'ultima modifica.</p></div><div class="archive-heading-actions"><button id="archiveNewBtn" class="btn primary">+ Crea nuovo Jotter</button><button id="archiveJoinBtn" class="btn">Entra in un Jotter</button></div></div><div id="jotterArchiveStatus" class="archive-status"></div><div id="jotterArchiveList" class="archive-list"></div></div></div>
-<div id="archiveJoinModal" class="modal"><div class="modal-content" style="max-width:480px;text-align:left;position:relative"><button id="archiveJoinClose" class="archive-close" aria-label="Chiudi">&#10005;</button><h3 style="margin:0 0 8px">Entra in un Jotter</h3><p style="color:var(--text-soft);line-height:1.5;margin-bottom:16px">Inserisci il codice ricevuto dall'owner. Entrerai inizialmente in lettura e potrai richiedere l'accesso in scrittura.</p><input id="archiveJoinCode" maxlength="9" autocomplete="off" placeholder="ABCD-EFGH" aria-label="Codice del Jotter" style="width:100%;margin:0 0 12px;padding:13px 15px;font:600 1rem monospace;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border-color);border-radius:10px"><div id="archiveJoinError" class="aj-error" role="alert"></div><button id="archiveJoinConfirm" class="btn primary aj-full-button">Entra in un Jotter</button></div></div><div id="qrModal" class="modal">
+<div id="boardAccessModal" class="modal"><div class="modal-content access-manager"><button id="boardAccessClose" class="archive-close" aria-label="Chiudi">&#10005;</button><h3 id="boardAccessTitle">Accessi al Jotter</h3><div id="boardAccessSummary" class="access-summary"></div><div id="boardAccessBody"></div></div></div><div id="archiveJoinModal" class="modal"><div class="modal-content" style="max-width:480px;text-align:left;position:relative"><button id="archiveJoinClose" class="archive-close" aria-label="Chiudi">&#10005;</button><h3 style="margin:0 0 8px">Entra in un Jotter</h3><p style="color:var(--text-soft);line-height:1.5;margin-bottom:16px">Inserisci il codice ricevuto dall'owner. Entrerai inizialmente in lettura e potrai richiedere l'accesso in scrittura.</p><input id="archiveJoinCode" maxlength="9" autocomplete="off" placeholder="ABCD-EFGH" aria-label="Codice del Jotter" style="width:100%;margin:0 0 12px;padding:13px 15px;font:600 1rem monospace;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border-color);border-radius:10px"><div id="archiveJoinError" class="aj-error" role="alert"></div><button id="archiveJoinConfirm" class="btn primary aj-full-button">Entra in un Jotter</button></div></div><div id="qrModal" class="modal">
         <div class="modal-content">
             <h3 style="margin-bottom:10px;">Scansiona per unirti</h3>
             <div id="qrcode"></div>
@@ -1368,7 +1371,7 @@ document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById(
         document.getElementById('devBtn').onclick=async()=>{await ajApi('/api/auth/dev',{method:'POST',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});ajReady()};
         
         
-        document.getElementById('ajRequestEdit').onclick=async()=>{await ajApi(`/api/boards/${ajBoard.id}/request-edit`,{method:'POST',body:'{}'});document.getElementById('ajRequestEdit').textContent='Richiesta inviata';document.getElementById('ajRequestEdit').disabled=true};
+        document.getElementById('ajRequestEdit').onclick=()=>window.ajSendEditRequest?.();
         ajSocket.on('board:operation', ajApplyOperation); ajSocket.on('board:reload', ajReload);
         let ajPendingRequest=null;
 function ajShowRequest(r){ajPendingRequest=r;document.getElementById('accessRequestText').textContent=r.name+' ('+r.email+') desidera modificare il Jotter.';document.getElementById('accessRequestModal').style.display='flex';}
@@ -1553,6 +1556,43 @@ document.addEventListener('click', function(event) {
  wire();
  let attempts=0;const timer=setInterval(()=>{wire();refreshLobbyButton();if(++attempts>40)clearInterval(timer)},250);
  document.addEventListener('click',e=>{if(e.target.closest('#userModeModal,#jotterArchiveModal,[data-open-user-mode]'))setTimeout(refreshLobbyButton,0)},true);
+})();
+</script>
+<script id="airjotterAccessV105">
+(function(){
+ let requestTimer=null,requestBoardId=null;
+ const requestButton=document.getElementById('ajRequestEdit');
+ function resetRequestButton(){clearTimeout(requestTimer);requestTimer=null;requestBoardId=null;requestButton.classList.remove('pending-blink');requestButton.disabled=false;requestButton.textContent='Richiedi modifica'}
+ window.ajSendEditRequest=async function(){
+  if(!ajBoard||ajRole!=='viewer')return;resetRequestButton();requestBoardId=ajBoard.id;
+  try{await ajApi('/api/boards/'+ajBoard.id+'/request-edit',{method:'POST',body:'{}'});requestButton.textContent='Richiesta inviata';requestButton.disabled=true;requestButton.classList.add('pending-blink');requestTimer=setTimeout(()=>{if(ajBoard?.id===requestBoardId&&ajRole==='viewer')resetRequestButton()},10000)}
+  catch(error){resetRequestButton();alert('Invio richiesta non riuscito: '+error.message)}
+ };
+ const previousSetRole=ajSetRole;ajSetRole=function(role){previousSetRole(role);if(role==='viewer')resetRequestButton();else{clearTimeout(requestTimer);requestButton.classList.remove('pending-blink');requestButton.disabled=false;requestButton.textContent='Richiedi modifica'}};
+ const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){resetRequestButton();return previousOpen(board)};
+ ajSocket.on('board:access-suspended',e=>{if(e.boardId===ajBoard?.id){alert('Il proprietario ha sospeso il tuo accesso a questo Jotter.');location.href='/'}});
+ ajSocket.on('board:access-removed',e=>{if(e.boardId===ajBoard?.id){alert('Il proprietario ha eliminato il tuo accesso a questo Jotter.');location.href='/'}});
+ ajSocket.on('board:access-restored',e=>{if(e.boardId===ajBoard?.id){ajSetRole(e.role||'viewer');alert('Il tuo accesso a questo Jotter è stato riattivato.')}});
+
+ const manager=document.getElementById('boardAccessModal'),body=document.getElementById('boardAccessBody'),summary=document.getElementById('boardAccessSummary');
+ document.getElementById('boardAccessClose').onclick=()=>manager.style.display='none';
+ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ window.ajOpenBoardAccess=async function(boardId){
+  manager.style.display='flex';body.innerHTML='<div class="access-empty">Caricamento...</div>';
+  try{const d=await ajApi('/api/boards/'+boardId+'/access');document.getElementById('boardAccessTitle').textContent=d.title||'Jotter senza titolo';summary.innerHTML='<b>Codice:</b> '+esc(d.roomCode);
+   const pending=d.requests||[],members=d.members||[];
+   const pendingHtml=pending.length?pending.map(r=>'<div class="access-row"><div class="access-person"><b>'+esc(r.name)+'</b><small>'+esc(r.email)+' · richiesta di scrittura</small></div><div class="access-actions"><button class="btn primary approve-request" data-id="'+r.requestId+'">Consenti modifica</button><button class="btn danger ignore-request" data-id="'+r.requestId+'">Ignora</button></div></div>').join(''):'<div class="access-empty">Nessuna richiesta in attesa.</div>';
+   const memberHtml=members.length?members.map(m=>'<div class="access-row"><div class="access-person"><b>'+esc(m.name)+'</b><small>'+esc(m.email)+' · '+(m.role==='owner'?'Proprietario':m.role==='editor'?'Scrittura':'Lettura')+(m.status==='revoked'?' · Sospeso':'')+'</small></div>'+(m.role==='owner'?'<span class="owner-protected">Proprietario</span>':'<div class="access-actions"><button class="btn toggle-member" data-user="'+m.userId+'" data-suspended="'+(m.status==='revoked')+'">'+(m.status==='revoked'?'Riattiva':'Sospendi')+'</button><button class="btn danger remove-member" data-user="'+m.userId+'" data-name="'+esc(m.name)+'">Elimina</button></div>')+'</div>').join(''):'<div class="access-empty">Nessun collaboratore.</div>';
+   body.innerHTML='<section class="access-section"><h4>Richieste di modifica</h4>'+pendingHtml+'</section><section class="access-section"><h4>Persone con accesso</h4>'+memberHtml+'</section>';
+   body.querySelectorAll('.approve-request,.ignore-request').forEach(btn=>btn.onclick=async()=>{const approved=btn.classList.contains('approve-request');await ajApi('/api/access/'+btn.dataset.id+'/resolve',{method:'POST',body:JSON.stringify({approved})});await window.ajOpenBoardAccess(boardId)});
+   body.querySelectorAll('.toggle-member').forEach(btn=>btn.onclick=async()=>{const suspended=btn.dataset.suspended!=='true';if(!confirm((suspended?'Sospendere':'Riattivare')+' questo collaboratore?'))return;await ajApi('/api/boards/'+boardId+'/members/'+btn.dataset.user+'/suspension',{method:'PATCH',body:JSON.stringify({suspended})});await window.ajOpenBoardAccess(boardId)});
+   body.querySelectorAll('.remove-member').forEach(btn=>btn.onclick=async()=>{if(!confirm('Eliminare '+btn.dataset.name+' dagli accessi a questo Jotter?'))return;await ajApi('/api/boards/'+boardId+'/members/'+btn.dataset.user,{method:'DELETE'});await window.ajOpenBoardAccess(boardId)});
+  }catch(error){body.innerHTML='<div class="aj-error">'+esc(error.message)+'</div>'}
+ };
+
+ // Sostituisce l'archivio per rendere il nome cliccabile e mantenere tutte le azioni esistenti.
+ ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
+ document.getElementById('ajUser').onclick=ajLoadArchive;
 })();
 </script>
 </body>
