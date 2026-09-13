@@ -1495,47 +1495,64 @@ document.addEventListener('click', function(event) {
  new MutationObserver(configure).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
-<script id="airjotterFlowV103">
+<script id="airjotterFlowV104">
 (function(){
- async function ownedBoards(){const list=await ajApi('/api/my/boards');return Array.isArray(list)?list:[]}
- async function createOrOpenLatest(button){
+ const LABEL_CREATE='Crea un nuovo Jotter';
+ const LABEL_OPEN='Apri il mio ultimo Jotter';
+ function planName(){const p=String(ajMe?.plan||ajMe?.planCode||'Free');return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()}
+ function limitValue(){return Number(ajMe?.limits?.boards||2)}
+ async function ownedBoards(){
+  const list=await ajApi('/api/my/boards');
+  return (Array.isArray(list)?list:[]).filter(b=>!b.role||b.role==='owner'||b.isOwner===true);
+ }
+ function latestOf(boards){return [...boards].sort((a,b)=>new Date(b.contentUpdatedAt||b.updatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.updatedAt||a.createdAt))[0]}
+ async function refreshLobbyButton(){
+  const button=document.getElementById('newBtn');if(!button)return;
+  try{const boards=await ownedBoards();button.textContent=boards.length>=limitValue()?LABEL_OPEN:LABEL_CREATE;button.dataset.limitReached=String(boards.length>=limitValue())}catch{}
+ }
+ async function lobbyAction(button){
   const original=button.textContent;button.disabled=true;button.textContent='Attendi...';
   try{
-   const boards=await ownedBoards();
-   const limit=Number(ajMe?.limits?.boards||2);
+   const boards=await ownedBoards(),limit=limitValue();
    if(boards.length>=limit){
-    const latest=[...boards].sort((a,b)=>new Date(b.contentUpdatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.createdAt))[0];
-    if(!latest?.roomCode)throw new Error('Nessun Jotter di proprietà disponibile');
-    document.getElementById('jotterArchiveModal').style.display='none';
-    await ajJoin(latest.roomCode);
+    const latest=latestOf(boards);if(!latest?.roomCode)throw new Error('Nessun Jotter di proprietà disponibile');
+    await ajJoin(latest.roomCode);return;
+   }
+   const board=await ajApi('/api/boards',{method:'POST',body:'{}'});await ajOpenBoard(board);
+  }catch(error){alert('Impossibile aprire o creare il Jotter: '+error.message)}
+  finally{button.disabled=false;await refreshLobbyButton();if(button.textContent==='Attendi...')button.textContent=original}
+ }
+ async function dashboardCreate(button){
+  button.disabled=true;
+  try{
+   const boards=await ownedBoards(),limit=limitValue();
+   if(boards.length>=limit){
+    alert('Hai esaurito il limite di '+limit+' Jotter previsto per il piano '+planName()+'.');
     return;
    }
    const board=await ajApi('/api/boards',{method:'POST',body:'{}'});
-   document.getElementById('jotterArchiveModal').style.display='none';
-   await ajOpenBoard(board);
-  }catch(error){alert('Impossibile aprire o creare il Jotter: '+error.message)}
-  finally{button.disabled=false;button.textContent=original}
+   document.getElementById('jotterArchiveModal').style.display='none';await ajOpenBoard(board);
+  }catch(error){alert('Impossibile creare il Jotter: '+error.message)}finally{button.disabled=false;refreshLobbyButton()}
  }
  async function joinByCode(input,errorBox,modal){
   const code=String(input.value||'').trim();errorBox.textContent='';
   if(!code){errorBox.textContent='Inserisci il codice del Jotter.';input.focus();return}
-  try{await ajJoin(code);if(modal)modal.style.display='none'}
-  catch(error){errorBox.textContent=error.message||'Impossibile entrare nel Jotter.'}
+  try{await ajJoin(code);if(modal)modal.style.display='none'}catch(error){errorBox.textContent=error.message||'Impossibile entrare nel Jotter.'}
  }
- const newBtn=document.getElementById('newBtn');
- const joinBtn=document.getElementById('joinBtn');
- const archiveNew=document.getElementById('archiveNewBtn');
- const archiveJoin=document.getElementById('archiveJoinBtn');
- const joinModal=document.getElementById('archiveJoinModal');
- const joinInput=document.getElementById('archiveJoinCode');
- const joinError=document.getElementById('archiveJoinError');
- if(newBtn)newBtn.onclick=e=>{e.preventDefault();createOrOpenLatest(newBtn)};
- if(joinBtn)joinBtn.onclick=e=>{e.preventDefault();joinByCode(document.getElementById('joinCode'),document.getElementById('joinError'),null)};
- if(archiveNew)archiveNew.onclick=e=>{e.preventDefault();createOrOpenLatest(archiveNew)};
- if(archiveJoin)archiveJoin.onclick=e=>{e.preventDefault();document.getElementById('jotterArchiveModal').style.display='none';joinError.textContent='';joinInput.value='';joinModal.style.display='flex';setTimeout(()=>joinInput.focus(),50)};
- document.getElementById('archiveJoinClose').onclick=()=>joinModal.style.display='none';
- document.getElementById('archiveJoinConfirm').onclick=()=>joinByCode(joinInput,joinError,joinModal);
- joinInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinByCode(joinInput,joinError,joinModal)});
+ function wire(){
+  const newBtn=document.getElementById('newBtn'),joinBtn=document.getElementById('joinBtn'),archiveNew=document.getElementById('archiveNewBtn'),archiveJoin=document.getElementById('archiveJoinBtn'),joinModal=document.getElementById('archiveJoinModal'),joinInput=document.getElementById('archiveJoinCode'),joinError=document.getElementById('archiveJoinError');
+  if(newBtn&&!newBtn.dataset.v104){newBtn.dataset.v104='1';newBtn.onclick=e=>{e.preventDefault();lobbyAction(newBtn)}}
+  if(joinBtn&&!joinBtn.dataset.v104){joinBtn.dataset.v104='1';joinBtn.onclick=e=>{e.preventDefault();joinByCode(document.getElementById('joinCode'),document.getElementById('joinError'),null)}}
+  if(archiveNew&&!archiveNew.dataset.v104){archiveNew.dataset.v104='1';archiveNew.onclick=e=>{e.preventDefault();dashboardCreate(archiveNew)}}
+  if(archiveJoin&&!archiveJoin.dataset.v104){archiveJoin.dataset.v104='1';archiveJoin.onclick=e=>{e.preventDefault();document.getElementById('jotterArchiveModal').style.display='none';joinError.textContent='';joinInput.value='';joinModal.style.display='flex';setTimeout(()=>joinInput.focus(),50)}}
+  const close=document.getElementById('archiveJoinClose'),confirm=document.getElementById('archiveJoinConfirm');
+  if(close&&!close.dataset.v104){close.dataset.v104='1';close.onclick=()=>joinModal.style.display='none'}
+  if(confirm&&!confirm.dataset.v104){confirm.dataset.v104='1';confirm.onclick=()=>joinByCode(joinInput,joinError,joinModal)}
+  if(joinInput&&!joinInput.dataset.v104){joinInput.dataset.v104='1';joinInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinByCode(joinInput,joinError,joinModal)})}
+ }
+ wire();
+ let attempts=0;const timer=setInterval(()=>{wire();refreshLobbyButton();if(++attempts>40)clearInterval(timer)},250);
+ document.addEventListener('click',e=>{if(e.target.closest('#userModeModal,#jotterArchiveModal,[data-open-user-mode]'))setTimeout(refreshLobbyButton,0)},true);
 })();
 </script>
 </body>
