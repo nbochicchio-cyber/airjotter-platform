@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>airjotter.com</title>
+    
+    <!-- External Libraries -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+<style>
+        :root {
+            --bg-color: #EFE9E1;
+            --paper-color: #FFFFFF;
+            --ui-bg: rgba(255, 253, 249, 0.94);
+            --text-color: #3D3A50;
+            --text-soft: #7A7590;
+            --accent-color: #8FA9E0;
+            --accent-hover: #7593D2;
+            --accent-bg: #EEF3FC;
+            --border-color: #EBE4DA;
+            --border-soft: #F4EFE6;
+            --danger-color: #D88579;
+            --danger-bg: #FBEDEA;
+            --success-color: #7DBA95;
+            --success-bg: #EDF6EF;
+            --warning-color: #E9C97C;
+            --warning-bg: #FBF3DE;
+            --shadow-soft: 0 2px 12px rgba(80, 60, 100, 0.06);
+            --shadow-medium: 0 6px 24px rgba(80, 60, 100, 0.10);
+            --shadow-strong: 0 12px 40px rgba(80, 60, 100, 0.16);
+            --border-radius: 14px;
+        
+            --a4-w: 800px;
+            --a4-h: 1131px;
+            --total-pages: 2;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+
+        header {
+            position: fixed; top: 12px; left: 50%; transform: translateX(-50%); transform-origin: top center;
+            width: max-content; max-width: none; background: var(--ui-bg); border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            z-index: 100; display: flex; align-items: center; justify-content: flex-start;
+            padding: 8px 12px; gap: 8px; white-space: nowrap;
+        }
+
+        .brand { display:flex; align-items:center; flex-shrink:0; cursor:pointer; transition:transform 0.1s;}
+        .brand:active { transform: scale(0.95); }
+        .brand-logo { width:142px; height:32px; object-fit:contain; display:block; }
+
+        .tools-group { display: flex; align-items: center; gap: 6px; padding: 0 8px; border-right: 1px solid var(--border-color); flex-shrink: 0; }
+        .tools-group:last-child { border-right: none; padding-right: 0; }
+
+        .tool-color { width: 26px; height: 26px; border: none; border-radius: 50%; cursor: pointer; padding: 0; background: none; flex-shrink: 0; }
+        .tool-color::-webkit-color-swatch-wrapper { padding: 0; }
+        .tool-color::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 50%; box-shadow: var(--shadow-soft); }
+        .tool-thickness { width: 60px; cursor: pointer; accent-color: var(--accent-color); height: 4px; }
+
+        .icon-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-color); opacity: 0.75; transition: all 0.15s ease; padding: 6px; border-radius: 8px; flex-shrink: 0; min-width: 30px; min-height: 30px; }
+        .icon-btn:hover:not(:disabled) { opacity: 1; background: var(--accent-bg); color: var(--accent-hover); }
+        .icon-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .icon-btn svg { width: 16px; height: 16px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+        .btn { display: flex; align-items: center; gap: 4px; background: var(--border-soft); color: var(--text-color); border: 1px solid transparent; padding: 6px 12px; border-radius: 10px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: transform 0.1s, background 0.2s, border-color 0.2s; flex-shrink: 0; }
+        .btn:hover { background: #FFFFFF; border-color: var(--border-color); }
+        .btn:active { transform: scale(0.96); }
+        .btn svg { width: 14px; height: 14px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+        
+        .btn.primary { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+        .btn.danger { color: var(--danger-color); background: var(--danger-bg); }
+        .btn.danger:hover { background: #F7DFDA; }
+        .btn.success { color: var(--success-color); background: var(--success-bg); }
+        .btn.success:hover { background: #DFEEE3; }
+
+        .active-tool { background: var(--accent-bg); color: var(--accent-hover); box-shadow: inset 0 0 0 1px var(--accent-color); }
+        .room-code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; background: var(--accent-bg); color: var(--text-color); padding: 5px 10px; border-radius: 7px; }
+
+        #canvas-wrapper { position: relative; width: var(--a4-w); height: calc(var(--a4-h) * var(--total-pages)); margin: 90px auto 60px auto; background-color: var(--paper-color); box-shadow: var(--shadow-strong); background-image: linear-gradient(to bottom, transparent 0, transparent 39px, rgba(140, 130, 170, 0.05) 40px); background-size: 100% 40px; overflow: hidden; touch-action: none; }
+        #drawingBoard, #draftBoard { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #drawingBoard { z-index: 2; pointer-events: none; }
+        #draftBoard { z-index: 3; cursor: crosshair; touch-action: none; pointer-events: auto; }
+
+        .real-page-break { position: absolute; left: 0; width: 100%; height: 3px; background-color: var(--bg-color); border-top: 1px dashed var(--accent-color); border-bottom: 1px solid var(--border-color); z-index: 4; pointer-events: none; }
+        .real-page-break::after { content: attr(data-page-label); position: absolute; top: -20px; right: 10px; background: var(--bg-color); color: var(--text-soft); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-size: 11px; font-weight: 600; }
+
+        .page-count-display { display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; font-weight: 700; color: var(--text-color); background: var(--border-soft); padding: 5px 10px; border-radius: 8px; min-width: 42px; justify-content: center; }
+        .page-btn { width: 30px; height: 30px; border-radius: 8px; background: var(--border-soft); border: 1px solid transparent; color: var(--text-color); font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; flex-shrink: 0; padding: 0; }
+        .page-btn:hover:not(:disabled) { background: var(--accent-bg); color: var(--accent-hover); border-color: var(--accent-color); }
+
+        .page-delete-btn { position: absolute; right: 20px; width: 36px; height: 36px; background: var(--danger-bg); color: var(--danger-color); border: 1px solid var(--danger-color); border-radius: 10px; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; opacity: 0.6; transition: all 0.2s; box-shadow: var(--shadow-soft); pointer-events: auto; }
+        .page-delete-btn:hover { opacity: 1; transform: scale(1.05); background: #F7DFDA; }
+
+        #stamp-panel { position: fixed; top: 80px; right: 20px; background: var(--ui-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-strong); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 200; display: none; flex-direction: column; gap: 12px; width: 290px; }
+        .stamp-control-group { display: flex; flex-direction: column; gap: 6px; }
+        .stamp-control-label { font-size: 0.72rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.6px; }
+        .stamp-btn { padding: 11px 14px; border: 1px solid transparent; border-radius: 10px; font-weight: 600; font-size: 0.87rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; transition: background 0.2s, transform 0.1s; }
+        .stamp-btn:active { transform: scale(0.98); }
+        .stamp-btn.cancel { background: var(--danger-bg); color: var(--danger-color); margin-top: 8px; }
+        .stamp-btn.fit { background: var(--accent-bg); color: var(--accent-hover); border-color: var(--accent-color); margin-bottom: 6px; }
+        .stamp-btn.apply-under { background: var(--success-bg); color: var(--success-color); border-color: var(--success-color); }
+        .stamp-btn.apply-over { background: var(--success-color); color: white; }
+
+        #stamp-container { position: absolute; display: none; z-index: 150; border: 2px dashed var(--accent-color); background: rgba(143, 169, 224, 0.04); cursor: move; touch-action: none; }
+        #stamp-canvas { width: 100%; height: 100%; pointer-events: none; display: block; }
+        #crop-overlay { display: none; position: absolute; border: 2px dashed red; background: rgba(255, 0, 0, 0.15); pointer-events: none; z-index: 10; }
+        .resize-handle { position: absolute; bottom: -14px; right: -14px; width: 30px; height: 30px; background: white; border: 2px solid var(--accent-color); border-radius: 50%; cursor: nwse-resize; display: flex; align-items: center; justify-content: center; color: var(--accent-color); box-shadow: var(--shadow-medium); }
+        .resize-handle svg { width: 14px; height: 14px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(60, 50, 80, 0.35); backdrop-filter: blur(6px); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; padding: 28px; border-radius: 18px; text-align: center; max-width: 320px; width: 100%; box-shadow: var(--shadow-strong); }
+        input[type="file"] { display: none; }
+
+        #text-tool-overlay { position: absolute; display: none; z-index: 250; border: 2px dashed var(--accent-color); padding: 5px; background: rgba(255,255,255,0.8); border-radius: 8px; flex-direction: column; gap: 5px; box-shadow: var(--shadow-strong); }
+        #text-tool-input{background:#fff;border:1px solid var(--border-color);outline:none;resize:both;font-family:Inter,sans-serif;font-size:12px;color:var(--text-color);width:420px;height:190px;min-width:260px;min-height:110px;padding:12px;overflow:auto}.text-color-label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-soft)}#text-color-picker{width:30px;height:28px;padding:0;border:1px solid var(--border-color);border-radius:5px}.text-resize-hint{position:absolute;right:-10px;bottom:-10px;width:25px;height:25px;border-radius:50%;background:var(--accent-color);color:white;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:var(--shadow-medium)}
+        .text-toolbar { display: flex; gap: 5px; background: var(--ui-bg); padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); cursor: move; touch-action: none; align-items: center;}
+        .text-toolbar select, .text-toolbar button.fmt-btn { border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; background: white; cursor: pointer; font-size: 14px;}
+        .text-toolbar button.fmt-btn.active { background: var(--accent-bg); color: var(--accent-hover); border-color: var(--accent-color); font-weight: bold;}
+        
+        .pdf-page-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; background: #fafafa; position: relative; transition: transform 0.2s; }
+        .pdf-page-wrapper img { height: 320px; width: auto; border: 1px solid #ddd; box-shadow: var(--shadow-soft); background: white; }
+        .page-controls { display: flex; gap: 5px; width: 100%; justify-content: center; }
+        .page-controls button { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 14px; }
+        .page-controls button:hover:not(:disabled) { background: #eee; }
+        .page-controls button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-controls button.del-btn { color: var(--danger-color); border-color: var(--danger-color); }
+        .page-controls button.del-btn:hover { background: var(--danger-bg); }
+        .page-number-badge { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+
+        @media (max-width: 768px) { #stamp-panel { top: auto; bottom: 20px; right: 50%; transform: translateX(50%); width: 90%; max-width: 350px; } }
+    
+        .aj-overlay { position:fixed; inset:0; z-index:1000; background:rgba(239,233,225,.96); display:flex; align-items:center; justify-content:center; padding:20px; }
+        .aj-card { background:white; width:min(520px,100%); padding:28px; border-radius:18px; box-shadow:var(--shadow-strong); text-align:center; }
+        .aj-card input { padding:10px 12px; border:1px solid var(--border-color); border-radius:9px; margin:4px; }
+        .aj-hidden { display:none !important; }
+        .aj-user { font-size:.75rem; color:var(--text-soft); white-space:nowrap; }
+        .aj-request { background:var(--warning-bg); color:var(--text-color); }
+
+.aj-access-card{width:min(820px,calc(100vw - 32px))!important;max-width:820px!important;padding:34px!important}
+.aj-access-logo{display:block;width:360px;max-width:88%;height:auto;margin:0 auto 18px}
+.aj-access-title{margin:0 0 6px;font-size:2rem;color:var(--text-color)}
+.aj-access-subtitle{margin:0;color:var(--text-soft);font-size:1rem}
+.aj-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0 16px;text-align:left}
+.aj-choice{display:flex;flex-direction:column;border:1px solid var(--border-color);border-radius:18px;padding:24px;background:#fffdfa;min-height:310px}
+.aj-choice-new{border-color:var(--accent-color);background:var(--accent-bg)}
+.aj-choice h3{margin:0 0 12px;font-size:1.35rem;line-height:1.25;color:var(--text-color)}
+.aj-choice p{margin:0 0 18px;color:var(--text-soft);line-height:1.55;flex:1}
+.aj-choice input{width:100%;margin:0 0 12px;padding:13px 15px;font:600 1rem monospace;letter-spacing:2px;text-transform:uppercase}
+.aj-full-button{width:100%;justify-content:center;min-height:44px}
+.aj-error{min-height:24px;color:var(--danger-color);font-weight:600;text-align:center}
+@media(max-width:680px){.aj-access-card{padding:24px!important}.aj-choice-grid{grid-template-columns:1fr}.aj-choice{min-height:0}.aj-access-title{font-size:1.55rem}}
+.guide-intro{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;background:var(--accent-bg);margin-bottom:14px;line-height:1.45}.guide-intro span{color:var(--text-soft)}.guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;margin-bottom:16px}.guide-grid section{border:1px solid var(--border-color);border-radius:14px;padding:15px;background:#fffdfa}.guide-grid h4{margin:0 0 9px;color:var(--text-color);font-size:1rem}.guide-grid ul,.guide-grid ol{padding-left:20px;display:flex;flex-direction:column;gap:7px;line-height:1.4;font-size:.88rem}.guide-benefits{grid-column:1/-1;background:var(--success-bg)!important;border-color:var(--success-color)!important}@media(max-width:620px){.guide-grid{grid-template-columns:1fr}.guide-benefits{grid-column:auto}}.google-signin-preview{width:100%;height:44px;border:1px solid #dadce0;border-radius:6px;background:white;color:#3c4043;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px}.google-g{font:bold 20px Arial;color:#4285f4}.google-note{display:block;color:var(--text-soft);margin-top:6px}.login-divider{display:flex;align-items:center;gap:10px;color:var(--text-soft);margin:16px 0}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--border-color);flex:1}.google-g-logo{width:22px;height:22px;display:block}.aj-user{border:1px solid var(--border-color);background:#fff;border-radius:9px;padding:6px 9px;cursor:pointer;font:600 .75rem inherit;color:var(--text-color)}.aj-user:hover{background:var(--accent-bg);border-color:var(--accent-color)}.jotter-archive{position:relative;max-width:760px!important;text-align:left!important;max-height:86vh;overflow:auto}.archive-close{position:absolute;right:16px;top:13px;border:0;background:none;color:var(--text-soft);font-size:20px;cursor:pointer}.archive-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin:4px 28px 18px 0}.archive-heading h3{font-size:1.5rem;margin-bottom:4px}.archive-heading p{color:var(--text-soft);font-size:.88rem}.archive-list{display:flex;flex-direction:column;gap:10px}.archive-item{display:grid;grid-template-columns:1fr auto;gap:12px;border:1px solid var(--border-color);border-radius:13px;padding:14px;background:#fffdfa}.archive-title{font-weight:700;font-size:1rem}.archive-meta{color:var(--text-soft);font-size:.78rem;margin-top:5px;line-height:1.45}.archive-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}.archive-status{color:var(--text-soft);padding:8px 0}.save-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--success-color);margin-right:4px}@media(max-width:620px){.archive-item{grid-template-columns:1fr}.archive-actions{justify-content:flex-start}.archive-heading{flex-direction:column}}.login-divider{display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;gap:16px!important;text-align:center!important}.login-divider:before,.login-divider:after{content:''!important;display:block!important;width:100%!important;height:1px!important;background:var(--border-color)!important}.login-divider span{display:block;line-height:1;white-space:nowrap}.delete-board{color:var(--danger-color)!important;border-color:var(--danger-color)!important}.welcome-card{width:min(720px,calc(100vw - 32px))!important;max-width:720px!important;padding:38px 52px!important;border-radius:28px!important}.welcome-logo{width:360px;max-width:88%;height:auto}.welcome-badge{display:inline-flex;margin:12px auto 10px;padding:7px 13px;border-radius:999px;background:var(--accent-bg);color:var(--accent-hover);font-size:.8rem;font-weight:700}.welcome-card h1{font-size:2.35rem;line-height:1.08;margin:8px 0 12px}.welcome-lead{max-width:570px;margin:0 auto 24px;color:var(--text-soft);font-size:1.05rem;line-height:1.55}.welcome-google-button,.welcome-enter,.welcome-discover{width:100%;min-height:54px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700}.welcome-google-button{border:1px solid #dadce0;background:#fff;color:#3c4043;gap:13px}.welcome-google-logo{width:24px;height:24px}.welcome-google small{display:block;color:var(--text-soft);margin-top:7px}.welcome-divider{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin:20px 0;color:var(--text-soft)}.welcome-divider:before,.welcome-divider:after{content:'';height:1px;background:var(--border-color)}.welcome-dev h2{font-size:1.15rem;margin-bottom:12px}.welcome-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.welcome-fields input{width:100%;min-height:50px;margin:0!important;padding:12px 15px!important;font-size:1rem}.welcome-enter{margin:14px auto 0!important}.welcome-discover{margin:14px auto 0;border:0;background:transparent;color:var(--accent-hover);cursor:pointer;text-decoration:underline}.welcome-discover-modal{position:relative;max-width:760px!important;text-align:left!important;max-height:88vh;overflow:auto}.welcome-modal-close{position:absolute;right:17px;top:14px;border:0;background:transparent;color:var(--text-soft);font-size:20px;cursor:pointer}.discover-summary{margin:7px 0 18px;color:var(--text-soft);line-height:1.5}.discover-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.discover-grid div{padding:16px;border:1px solid var(--border-color);border-radius:13px;background:#fffdfa;display:flex;flex-direction:column;gap:6px}.discover-grid strong{color:var(--text-color)}.discover-grid span{color:var(--text-soft);font-size:.88rem;line-height:1.4}.welcome-discover-done{width:100%;justify-content:center;margin-top:18px;padding:12px!important}@media(max-width:620px){.welcome-card{padding:28px 22px!important}.welcome-card h1{font-size:1.8rem}.welcome-fields,.discover-grid{grid-template-columns:1fr}}.discover-heading{display:flex;gap:14px;align-items:flex-start;margin:0 32px 20px 0}.discover-heading-icon{width:48px;height:48px;border-radius:14px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}.discover-heading h2{margin:0 0 6px;font-size:1.8rem}.discover-heading p{margin:0;color:var(--text-soft);line-height:1.5}.discover-grid-rich>div{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:13px;padding:18px!important;transition:transform .15s ease,box-shadow .15s ease}.discover-grid-rich>div:hover{transform:translateY(-2px);box-shadow:var(--shadow-medium)}.discover-grid-rich section{display:flex;flex-direction:column;gap:6px}.discover-grid-rich section>strong{font-size:1.04rem}.discover-grid-rich section span{line-height:1.48}.discover-icon{width:38px;height:38px;border-radius:11px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}.discover-pdf-card{grid-column:1/-1!important;background:linear-gradient(135deg,var(--success-bg),#fffdfa)!important;border-color:var(--success-color)!important}.discover-pdf-card .discover-icon{background:#fff}.archive-pdf{display:inline-flex!important;align-items:center;gap:6px}.archive-pdf-icon{font-size:16px}@media(max-width:620px){.discover-pdf-card{grid-column:auto!important}}#welcomeDiscoverModal{z-index:5000!important;position:fixed!important;inset:0!important;background:rgba(31,35,55,.46)!important;align-items:center!important;justify-content:center!important;padding:20px!important}#welcomeDiscoverModal .welcome-discover-modal{z-index:5001!important;position:relative!important}.export-board{position:relative}.export-board:active{transform:scale(.97)}.site-footer{position:relative;z-index:10;padding:18px 16px 28px;text-align:center;color:var(--text-soft);font-size:.78rem}.site-footer nav{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:7px}.site-footer button{border:0;background:none;color:var(--accent-hover);font-weight:700;cursor:pointer}.admin-link{margin-left:10px!important}.legal-modal,.legal-modal .legal-content,#adminModal{z-index:6000!important}.legal-content,.admin-console{position:relative;max-width:820px!important;text-align:left!important;max-height:88vh;overflow:auto}.legal-content h2,.admin-console h2{font-size:1.7rem;margin-bottom:12px}.legal-content h3{margin:18px 0 6px}.legal-content p{line-height:1.58;color:var(--text-soft)}.legal-close{position:absolute;right:16px;top:12px;border:0;background:none;font-size:25px;color:var(--text-soft);cursor:pointer}.legal-warning{margin-top:18px;padding:12px;background:var(--warning-bg);border-radius:10px}.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.plans-grid section{padding:16px;border:1px solid var(--border-color);border-radius:12px;display:flex;flex-direction:column;gap:5px}.plans-grid b{font-size:1.08rem}.admin-console{max-width:1050px!important}.admin-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-right:30px}.admin-head p{color:var(--text-soft)}#adminLive{padding:7px 10px;border-radius:999px;background:var(--success-bg);color:var(--success-color);font-size:.75rem;font-weight:700}.admin-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:20px 0}.admin-card{padding:15px;border:1px solid var(--border-color);border-radius:12px;background:#fffdfa}.admin-card b{display:block;font-size:1.5rem}.admin-card span{color:var(--text-soft);font-size:.78rem}.admin-table-wrap{overflow:auto;margin-top:10px}.admin-table-wrap table{width:100%;border-collapse:collapse;font-size:.82rem}.admin-table-wrap th,.admin-table-wrap td{padding:10px;border-bottom:1px solid var(--border-color);text-align:left}.plan-pill{padding:4px 7px;border-radius:999px;background:var(--accent-bg);font-weight:700}@media(max-width:700px){.plans-grid,.admin-cards{grid-template-columns:1fr}.site-footer nav{flex-wrap:wrap}}.status-pill{padding:4px 8px;border-radius:999px;font-weight:700;font-size:.72rem}.status-pill.active{color:var(--success-color);background:var(--success-bg)}.status-pill.suspended{color:var(--danger-color);background:var(--danger-bg)}.admin-user-actions{display:flex;gap:6px;white-space:nowrap}.admin-user-actions .btn{padding:7px 9px!important;font-size:.72rem}.owner-protected{font-size:.72rem;color:var(--text-soft);font-weight:700}.admin-table-wrap a{color:var(--accent-hover);font-weight:600}</style>
+</head>
+<body>
+    <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div id="googleBtn" class="welcome-google"><button type="button" class="welcome-google-button" disabled><svg class="welcome-google-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.14-3.09-.36-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.55 14.55 0 0 1 9.75 24c0-1.6.28-3.15.78-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.9l-7.97 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Accedi con Google</span></button><small>Sarà attivo nella versione online</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
+    <div id="ajLobby" class="aj-overlay aj-hidden">
+  <div class="aj-card aj-access-card">
+    <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo">
+    <h2 class="aj-access-title">Come vuoi usare airjotter?</h2>
+    <p class="aj-access-subtitle">Scegli una delle due modalità. Sono operazioni diverse.</p>
+    <div class="aj-choice-grid">
+      <section class="aj-choice aj-choice-new">
+        <h3>1. Crea un nuovo Jotter</h3>
+        <p>Avvia una nuova board di cui sarai proprietario. La piattaforma genererà un nuovo codice casuale e il relativo QR code da condividere.</p>
+        <button id="newBtn" class="btn primary aj-full-button">Crea nuova sessione</button>
+      </section>
+      <section class="aj-choice">
+        <h3>2. Entra in un Jotter condiviso</h3>
+        <p>Inserisci il codice ricevuto da un'altra persona. Entrerai inizialmente in sola lettura e potrai richiedere l'accesso in modifica.</p>
+        <input id="joinCode" maxlength="9" autocomplete="off" placeholder="ABCD-EFGH" aria-label="Codice del Jotter">
+        <button id="joinBtn" class="btn aj-full-button">Entra con il codice ricevuto</button>
+      </section>
+    </div>
+    <div id="joinError" class="aj-error" role="alert"></div>
+  </div>
+</div>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+            <div class="brand" title="Torna in cima" id="brandBtn"><img class="brand-logo" src="airjotter_logo.png" alt="airjotter.com"></div>
+            <button id="helpBtn" style="background:var(--accent-bg); color:var(--accent-color); border:1px solid var(--accent-color); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; cursor:pointer;" title="Guida all'uso">?</button>
+        </div>
+        
+        <div class="tools-group">
+            <button id="toolPenBtn" class="icon-btn active-tool" title="Penna"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
+            <button id="toolEraserBtn" class="icon-btn" title="Gomma"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20H20V20Z"></path><path d="M17 6L11 12"></path></svg></button>
+            <button id="toolTextBtn" class="icon-btn" title="Testo"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg></button>
+            <input type="color" id="colorPicker" class="tool-color" value="#1D1D1F" title="Colore tratto">
+            <input type="range" id="thicknessPicker" class="tool-thickness" min="0.5" max="12.5" step="0.5" value="2.5" title="Spessore tratto">
+        </div>
+
+        <div class="tools-group">
+            <button id="undoBtn" class="icon-btn" title="Annulla" disabled><svg viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg></button>
+            <button id="redoBtn" class="icon-btn" title="Ripeti" disabled><svg viewBox="0 0 24 24"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg></button>
+        </div>
+
+        <div class="tools-group">
+            <button id="importPdfBtn" class="btn" style="padding: 4px 8px;">
+                <svg viewBox="0 0 24 24" style="margin-right:2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> 
+                <span>PDF</span>
+            </button>
+            <button id="importSignBtn" class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Firma</button>
+            <button id="importRealImgBtn" class="btn success"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Foto</button>
+            
+            <input type="file" id="fileInputSign" accept="image/png, image/jpeg, image/jpg">
+            <input type="file" id="fileInputRealImg" accept="image/png, image/jpeg, image/jpg">
+            <input type="file" id="fileInputPdf" accept="application/pdf">
+        </div>
+
+        <div class="tools-group">
+            <button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
+            <button id="toggleCodeBtn" class="icon-btn" title="Mostra Codice"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
+        </div>
+
+        <div class="tools-group">
+            <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">−</button>
+            <span id="pageCountDisplay" class="page-count-display">
+                <span id="pageCountNumber">2</span>
+            </span>
+            <button id="addPageBtn" class="page-btn" title="Aggiungi pagina">+</button>
+        </div>
+
+        <div class="tools-group">
+            <button id="clearBtn" class="btn danger" title="Pulisci Foglio"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            <button id="exportPdfBtn" class="btn primary">Esporta PDF</button>
+        </div>
+    </header>
+
+    <div id="canvas-wrapper">
+        <canvas id="drawingBoard"></canvas>
+        <canvas id="draftBoard"></canvas>
+        
+        <div id="stamp-container">
+            <canvas id="stamp-canvas"></canvas>
+            <div id="crop-overlay"></div>
+            <div class="resize-handle" id="stamp-resize">
+                <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+            </div>
+        </div>
+        
+        <div id="text-tool-overlay">
+            <div class="text-toolbar" id="text-drag-handle">
+                <select id="text-font-family">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', serif">Times</option>
+                </select>
+                <select id="text-font-size">
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12" selected>12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="22">22</option>
+                    <option value="24">24</option>
+                    <option value="26">26</option>
+                    <option value="28">28</option>
+                    <option value="36">36</option>
+                    <option value="48">48</option>
+                    <option value="72">72</option>
+                </select>
+                <button class="fmt-btn" id="btn-bold">B</button>
+                <button class="fmt-btn" id="btn-italic" style="font-style: italic;">I</button>
+                <button class="fmt-btn" id="btn-underline" style="text-decoration:underline;">U</button><label class="text-color-label" title="Colore testo"><span>Colore</span><input type="color" id="text-color-picker" value="#1D1D1F"></label>
+                <div style="flex-grow: 1;"></div>
+                <button class="icon-btn" id="textConfirmBtn" style="color:var(--success-color);" title="Conferma Testo"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
+                <button class="icon-btn" id="textCancelBtn" style="color:var(--danger-color);" title="Annulla Testo"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <textarea id="text-tool-input" placeholder="Scrivi qui..."></textarea><div class="text-resize-hint" title="Trascina per allargare la finestra">↘</div>
+        </div>
+    </div>
+
+    <div id="stamp-panel">
+        <div id="image-controls">
+            <div class="stamp-control-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                <div style="flex: 1; padding-right: 15px;">
+                    <span class="stamp-control-label">Sfondo Firma</span>
+                    <input type="range" id="stampTransparency" class="tool-thickness" min="0" max="100" value="100" style="width:100%">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span class="stamp-control-label">Colore</span>
+                    <input type="color" id="stampColor" class="tool-color" value="#1D1D1F">
+                </div>
+            </div>
+        </div>
+        
+        <button class="stamp-btn" id="stampCropBtn" style="border: 1px solid var(--border-color);">✂️ Ritaglia</button>
+        <button class="stamp-btn fit" id="stampFitA4">📄 Adatta a pagina</button>
+        <button class="stamp-btn apply-over" id="stampOver">👆 Applica Sopra</button>
+        <button class="stamp-btn apply-under" id="stampUnder">👇 Applica Sotto</button>
+        <button class="stamp-btn cancel" id="stampCancel">✕ Annulla</button>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="privacyModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="privacyModal">×</button><h2>Privacy</h2><p><strong>Versione preliminare pre-lancio.</strong> AirJotter tratta dati identificativi e tecnici necessari per autenticazione, sicurezza, salvataggio e condivisione dei Jotter.</p><h3>Dati trattati</h3><p>Nome, indirizzo email, identificativo dell'account, date di accesso, ruolo, dati tecnici di sessione e contenuti caricati volontariamente nei Jotter.</p><h3>Finalità</h3><p>Fornire il servizio, salvare e sincronizzare il lavoro, gestire autorizzazioni, sicurezza, assistenza e statistiche amministrative essenziali.</p><h3>Conservazione e destinatari</h3><p>I dati sono conservati per il tempo necessario al servizio e possono essere trattati dai fornitori tecnici scelti per hosting, database, autenticazione e storage.</p><h3>Diritti e contatti</h3><p>Gli utenti possono richiedere accesso, rettifica o cancellazione scrivendo a <strong>nbochicchio@gmail.com</strong>.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale e aggiornato con i fornitori definitivi.</p></article></div><div id="termsModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="termsModal">×</button><h2>Condizioni d'Uso</h2><p>AirJotter consente di creare, modificare, condividere ed esportare fogli digitali. Ogni utente è responsabile dei contenuti caricati e delle persone alle quali comunica il codice di accesso.</p><h3>Piani e limiti</h3><div class="plans-grid"><section><b>Free</b><span>2 Jotter</span><span>massimo 5 pagine</span></section><section><b>Plus</b><span>5 Jotter</span><span>massimo 10 pagine</span></section><section><b>Ultra</b><span>20 Jotter</span><span>massimo 50 pagine</span></section></div><p>In fase iniziale sono attivi soltanto utenti Free. Prezzi e modalità di acquisto dei piani superiori saranno pubblicati successivamente.</p><h3>Uso corretto</h3><p>È vietato caricare contenuti illeciti, violare diritti altrui, tentare accessi non autorizzati o compromettere il servizio.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale.</p></article></div><div id="adminModal" class="modal"><div class="modal-content admin-console"><button class="legal-close" data-close="adminModal">×</button><div class="admin-head"><div><h2>Console AirJotter</h2><p>Monitoraggio riservato a Nicola Bochicchio.</p></div><span id="adminLive">Aggiornamento live</span></div><div id="adminCards" class="admin-cards"></div><h3>Ultimi iscritti</h3><div class="admin-table-wrap"><table><thead><tr><th>Utente</th><th>Email registrazione</th><th>Piano</th><th>Stato</th><th>Iscrizione</th><th>Ultimo accesso</th><th>Jotter</th><th>Azioni</th></tr></thead><tbody id="adminUsers"></tbody></table></div></div></div>
+<div id="welcomeDiscoverModal" class="modal"><div class="modal-content welcome-discover-modal"><button id="welcomeDiscoverClose" class="welcome-modal-close" type="button" aria-label="Chiudi" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">&#10005;</button><div class="discover-heading"><span class="discover-heading-icon">✨</span><div><h2>Cosa fa AirJotter</h2><p>AirJotter mette più persone davanti allo <strong>stesso foglio digitale</strong>, anche quando sono lontane.</p></div></div><div class="discover-grid discover-grid-rich"><div><span class="discover-icon">✏️</span><section><strong>Disegna e scrivi</strong><span>Usa <b>penna, gomma e testo</b>, anche con una pencil elettronica.</span></section></div><div><span class="discover-icon">📄</span><section><strong>Lavora sui documenti</strong><span>Importa <b>PDF, fotografie e firme</b>, poi annotali direttamente.</span></section></div><div><span class="discover-icon">🔗</span><section><strong>Condividi in un attimo</strong><span>Invia un <b>codice o un QR</b>. Gli altri vedono subito la stessa board.</span></section></div><div><span class="discover-icon">🛡️</span><section><strong>Collabora in sicurezza</strong><span>Decidi chi può <b>soltanto vedere</b> e chi può <b>modificare</b>.</span></section></div><div><span class="discover-icon">💾</span><section><strong>Non perdi il lavoro</strong><span>Ogni modifica viene <b>salvata</b> e i Jotter restano nel tuo archivio.</span></section></div><div><span class="discover-icon">🎥</span><section><strong>Usalo nella vita reale</strong><span>Condividi la board durante una <b>videoconferenza</b> (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.</span></section></div><div class="discover-pdf-card"><span class="discover-icon">⬇️</span><section><strong>Esporta tutto in PDF</strong><span>Scarica il lavoro completo in un <b>PDF multipagina con un clic</b>, pronto da archiviare, inviare o stampare.</span></section></div></div><button id="welcomeDiscoverDone" class="btn primary welcome-discover-done" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">Ho capito</button></div></div>
+<div id="helpModal" class="modal">
+        <div class="modal-content" style="text-align:left;max-width:680px;max-height:88vh;overflow:auto;position:relative;">
+            <button onclick="document.getElementById('helpModal').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-soft);">✕</button>
+            <h3 style="margin-bottom:15px; color: var(--accent-color); display:flex; align-items:center; gap:8px;">
+                <span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:14px;">?</span>
+                Come usare airjotter.com
+            </h3><div class="guide-intro"><strong>airjotter.com trasforma il browser in un foglio A4 condiviso.</strong><span>Disegna, annota documenti e collabora in tempo reale da PC, Mac, tablet e smartphone.</span></div><div class="guide-grid"><section><h4>🚀 Inizia in 3 passaggi</h4><ol><li>Crea un Jotter e condividi codice o QR.</li><li>Chi riceve il codice entra inizialmente in lettura.</li><li>Può chiedere la modifica; il proprietario autorizza o rifiuta.</li></ol></section><section><h4>✏️ Cosa puoi fare</h4><ul><li>Penna, gomma e testo con colore, spessore e formattazione.</li><li>Importa PDF, foto e firme con sfondo trasparente.</li><li>Ritaglia, sposta e applica elementi sopra o sotto i disegni.</li><li>Gestisci pagine, annulla, ripeti ed esporta un PDF multipagina.</li></ul></section><section><h4>👥 Collaborazione reale</h4><ul><li>Tutti vedono board, pagine e contenuti aggiornarsi in tempo reale.</li><li>Solo proprietario ed editor autorizzati possono modificare.</li><li>Lo stesso codice apre il Jotter su dispositivi diversi.</li></ul></section><section class="guide-benefits"><h4>✨ Vantaggi nella vita reale</h4><ul><li>Disegna con una pencil sul tablet e mostra il risultato dal PC.</li><li>Condividi la scheda in Meet o Teams durante una videoconferenza.</li><li>Proietta annotazioni e documenti durante una presentazione.</li><li>Rivedi moduli, bozze e documenti insieme a persone lontane.</li><li>Evita installazioni: basta un browser e il codice del Jotter.</li></ul></section></div><button class="btn primary" style="width:100%; justify-content:center; padding: 12px; font-size: 1rem;" onclick="document.getElementById('helpModal').style.display='none'">Ho capito, iniziamo!</button>
+            <div style="margin-top: 15px; text-align: center; font-size: 0.75rem; color: var(--text-soft); opacity: 0.8; letter-spacing: 0.5px;">
+                by ing. N. Bochicchio | DoMyTool.it | 2026
+            </div>
+        </div>
+    </div>
+
+    <div id="accessRequestModal" class="modal"><div class="modal-content" style="max-width:480px"><h3 style="margin-bottom:12px;color:var(--accent-color)">Richiesta di modifica</h3><p id="accessRequestText" style="line-height:1.55;margin-bottom:18px"></p><div style="display:flex;gap:10px"><button id="accessDenyBtn" class="btn danger" style="flex:1;justify-content:center">Rifiuta</button><button id="accessApproveBtn" class="btn primary" style="flex:1;justify-content:center">Autorizza</button></div></div></div>
+<div id="jotterArchiveModal" class="modal"><div class="modal-content jotter-archive"><button id="jotterArchiveClose" class="archive-close" aria-label="Chiudi">&#10005;</button><div class="archive-heading"><div><h3>I miei Jotter</h3><p>Le board create come owner, ordinate dall'ultima modifica.</p></div><button id="archiveNewBtn" class="btn primary">+ Nuovo Jotter</button></div><div id="jotterArchiveStatus" class="archive-status"></div><div id="jotterArchiveList" class="archive-list"></div></div></div>
+<div id="qrModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:10px;">Scansiona per unirti</h3>
+            <div id="qrcode"></div>
+            <p style="color:var(--text-soft); font-size:0.9rem; margin-bottom: 20px;">ID: <strong id="modalRoomCode">X7K-9P2</strong></p>
+            <button class="btn primary" style="width:100%; justify-content:center;" onclick="document.getElementById('qrModal').style.display='none'">Chiudi</button>
+        </div>
+    </div>
+
+    <div id="pdfExportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
+            <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Esporta PDF</h2>
+            <p style="color:var(--text-soft); font-size: 0.9rem; margin-bottom: 18px;">Le pagine visualizzate corrispondono esattamente ai salti di pagina nel canvas.</p>
+            <div id="pdfPagesContainer" style="display: flex; gap: 15px; overflow-x: auto; padding: 15px 5px; min-height: 400px; margin-bottom: 20px; border: 1px dashed var(--border-color); border-radius: 8px;"></div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn cancel" style="background:var(--danger-bg); color:var(--danger-color);" onclick="document.getElementById('pdfExportModal').style.display='none'">Annulla</button>
+                <button class="btn primary" id="confirmExportBtn">Scarica PDF Definitivo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ACTUAL_ROOM_CODE = "";
+        let TOTAL_PAGES = 2; 
+        
+        let commands = [];
+        let redoCommands = [];
+        let isDrawing = false;
+        let baseWidth = 2.5;
+        let currentColor = '#1D1D1F';
+        let currentPath = null;
+        let dpr = 1;
+        
+        const LOGICAL_W = 900;
+        const BASE_A4_H = 1273; 
+        let LOGICAL_H = BASE_A4_H * TOTAL_PAGES;
+
+        let activePointers = new Map();
+        let initialScrollX = 0, initialScrollY = 0, panStartCenter = null;
+
+        let lastEventData = null; 
+        let pointerVelocity = 0; 
+
+        let currentMode = 'pen'; 
+        let textOverlayActive = false;
+
+        let stampActive = false, currentStampType = null, rawImageObj = null;
+        let isDragging = false, isResizing = false, isCroppingMode = false, isDrawingCrop = false;
+        let startX, startY, startLeft, startTop, startWidth, startHeight, cropStartX, cropStartY;
+        
+        let exportPagesData = [];
+        
+        const wrapper = document.getElementById('canvas-wrapper');
+        const mainCanvas = document.getElementById('drawingBoard');
+        const mainCtx = mainCanvas.getContext('2d', { alpha: true }); 
+        const draftCanvas = document.getElementById('draftBoard');
+        const draftCtx = draftCanvas.getContext('2d');
+        
+        const colorPicker = document.getElementById('colorPicker');
+        const thicknessPicker = document.getElementById('thicknessPicker');
+        
+        const stampContainer = document.getElementById('stamp-container');
+        const stampCanvas = document.getElementById('stamp-canvas');
+        const stampCtx = stampCanvas.getContext('2d', { willReadFrequently: true });
+        const stampPanel = document.getElementById('stamp-panel');
+        const resizeHandle = document.getElementById('stamp-resize');
+        const cropOverlay = document.getElementById('crop-overlay');
+
+        function initCanvas() {
+            LOGICAL_H = BASE_A4_H * TOTAL_PAGES;
+
+            const MAX_CANVAS_AREA = 16000000;
+            const MAX_CANVAS_DIM = 16000;
+            let preferredDpr = Math.max(window.devicePixelRatio || 1, 2);
+
+            if ((LOGICAL_W * preferredDpr) * (LOGICAL_H * preferredDpr) > MAX_CANVAS_AREA) {
+                preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
+            }
+            if (LOGICAL_H * preferredDpr > MAX_CANVAS_DIM) preferredDpr = MAX_CANVAS_DIM / LOGICAL_H;
+            
+            dpr = preferredDpr > 0.2 ? preferredDpr : 0.2;
+
+            document.documentElement.style.setProperty('--a4-w', LOGICAL_W + 'px');
+            document.documentElement.style.setProperty('--a4-h', BASE_A4_H + 'px');
+            document.documentElement.style.setProperty('--total-pages', TOTAL_PAGES);
+
+            mainCanvas.width = LOGICAL_W * dpr; mainCanvas.height = LOGICAL_H * dpr; 
+            mainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            
+            draftCanvas.width = LOGICAL_W * dpr; draftCanvas.height = LOGICAL_H * dpr; 
+            draftCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            updateBrush();
+            redrawMainCanvas();
+            renderVisiblePageBreaks(); 
+            handleResize(); 
+            
+            document.getElementById('pageCountNumber').innerText = TOTAL_PAGES;
+        }
+
+        function handleResize() {
+            const screenW = document.documentElement.clientWidth;
+            const availableW = screenW - 20; 
+            let zoom = availableW / LOGICAL_W;
+            if (zoom > 1) zoom = 1; 
+            
+            wrapper.style.transform = `scale(${zoom})`;
+            wrapper.style.transformOrigin = 'top center';
+            
+            const emptySpace = LOGICAL_H * (1 - zoom);
+            wrapper.style.marginBottom = `calc(60px - ${emptySpace}px)`;
+            
+            const header = document.querySelector('header');
+            header.style.transform = `translateX(-50%) scale(1)`; 
+            
+            const contentW = header.offsetWidth;
+            const safeW = screenW - 24; 
+            
+            if (contentW > safeW) {
+                const headerZoom = safeW / contentW;
+                header.style.transform = `translateX(-50%) scale(${headerZoom})`;
+            }
+        }
+        window.addEventListener('resize', handleResize);
+
+        function deletePageFromCanvas(pageIndex, remote = false) {
+            if (TOTAL_PAGES <= 1) {
+                alert("Non puoi eliminare l'unica pagina rimasta.");
+                return;
+            }
+            if (remote || confirm(`Vuoi davvero eliminare la Pagina ${pageIndex + 1}? Il contenuto verrà cancellato e le pagine successive saliranno.`)) {
+                const startY = pageIndex * BASE_A4_H;
+                const endY = startY + BASE_A4_H;
+                
+                const newCommands = [];
+                commands.forEach(cmd => {
+                    if (cmd.type === 'path') {
+                        let minY = Infinity, maxY = -Infinity;
+                        cmd.points.forEach(p => {
+                            if (p.y < minY) minY = p.y;
+                            if (p.y > maxY) maxY = p.y;
+                        });
+                        
+                        let centerY = (minY + maxY) / 2;
+                        if (centerY >= endY) {
+                            // Element is below the deleted page, shift it up
+                            const shiftedPoints = cmd.points.map(p => ({...p, y: p.y - BASE_A4_H}));
+                            newCommands.push({...cmd, points: shiftedPoints});
+                        } else if (centerY < startY) {
+                            // Element is above, keep as is
+                            newCommands.push(cmd);
+                        }
+                        // if centered in the deleted page, discard it.
+                    } else if (cmd.type === 'stamp' || cmd.type === 'text') {
+                        let h = cmd.h || (cmd.fontSize * 1.5 * cmd.text.split('\n').length);
+                        let centerY = cmd.y + h / 2;
+                        
+                        if (centerY >= endY) {
+                            newCommands.push({...cmd, y: cmd.y - BASE_A4_H});
+                        } else if (centerY < startY) {
+                            newCommands.push(cmd);
+                        }
+                    }
+                });
+                
+                commands = newCommands;
+                TOTAL_PAGES--;
+                document.getElementById('pageCountNumber').innerText = TOTAL_PAGES;
+                initCanvas();
+                if (!remote) ajSend('page:delete', { pageIndex }); 
+            }
+        }
+
+        function renderVisiblePageBreaks() {
+            document.querySelectorAll('.real-page-break, .page-delete-btn').forEach(e => e.remove());
+            for(let i = 0; i < TOTAL_PAGES; i++) {
+                if (i > 0) {
+                    let brk = document.createElement('div');
+                    brk.className = 'real-page-break';
+                    brk.style.top = (i * BASE_A4_H) + 'px';
+                    brk.setAttribute('data-page-label', `Pagina ${i + 1}`);
+                    wrapper.appendChild(brk);
+                }
+                
+                // Add a trash button to easily delete this specific page
+                let delBtn = document.createElement('button');
+                delBtn.className = 'page-delete-btn';
+                delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+                delBtn.title = `Elimina Pagina ${i + 1}`;
+                delBtn.style.top = (i * BASE_A4_H + 20) + 'px';
+                delBtn.onclick = () => deletePageFromCanvas(i);
+                wrapper.appendChild(delBtn);
+            }
+        }
+
+        function expandCanvasIfNeeded(yPos) {
+            const requiredPages = Math.ceil((yPos + (BASE_A4_H * 0.2)) / BASE_A4_H);
+            if(requiredPages>TOTAL_PAGES&&requiredPages<=(ajMe?.limits?.pages||5)) { 
+                TOTAL_PAGES = requiredPages;
+                initCanvas();
+                ajSendPageCount(); 
+            }
+        }
+
+        const textToolOverlay = document.getElementById('text-tool-overlay');
+        const textToolInput = document.getElementById('text-tool-input');
+        const textDragHandle = document.getElementById('text-drag-handle');
+        
+        let isDraggingText = false;
+        let textStartX = 0, textStartY = 0, textInitialLeft = 0, textInitialTop = 0;
+        let isTextBold = false, isTextItalic = false, isTextUnderline = false;
+
+        const btnBold = document.getElementById('btn-bold');
+        const btnItalic = document.getElementById('btn-italic');
+        const btnUnderline = document.getElementById('btn-underline');
+
+        function updateTextInputStyle() {
+            textToolInput.style.fontWeight = isTextBold ? 'bold' : 'normal';
+            textToolInput.style.fontStyle = isTextItalic ? 'italic' : 'normal';
+            textToolInput.style.textDecoration = isTextUnderline ? 'underline' : 'none';
+            textToolInput.style.fontFamily = document.getElementById('text-font-family').value;
+            textToolInput.style.fontSize = document.getElementById('text-font-size').value + 'px';
+        }
+        
+        updateTextInputStyle();
+
+        btnBold.addEventListener('click', () => { isTextBold = !isTextBold; btnBold.classList.toggle('active', isTextBold); updateTextInputStyle(); });
+        btnItalic.addEventListener('click', () => { isTextItalic = !isTextItalic; btnItalic.classList.toggle('active', isTextItalic); updateTextInputStyle(); });
+        btnUnderline.addEventListener('click', () => { isTextUnderline = !isTextUnderline; btnUnderline.classList.toggle('active', isTextUnderline); updateTextInputStyle(); });
+        
+        document.getElementById('text-font-family').addEventListener('change', updateTextInputStyle);
+        document.getElementById('text-font-size').addEventListener('change',updateTextInputStyle);document.getElementById('text-color-picker').addEventListener('input',e=>{textToolInput.style.color=e.target.value});
+
+        textDragHandle.addEventListener('pointerdown', (e) => {
+            isDraggingText = true;
+            textStartX = e.clientX;
+            textStartY = e.clientY;
+            textInitialLeft = parseFloat(textToolOverlay.style.left) || 0;
+            textInitialTop = parseFloat(textToolOverlay.style.top) || 0;
+            e.stopPropagation();
+        });
+
+        document.getElementById('textCancelBtn').addEventListener('click', () => {
+            textToolOverlay.style.display = 'none';
+            textOverlayActive = false;
+        });
+
+        document.getElementById('textConfirmBtn').addEventListener('click', () => {
+            const text = textToolInput.value;
+            if (text.trim() !== '') {
+                // Precise text coordinate calculation avoiding any jumping offsets
+                const overlayLeft = parseFloat(textToolOverlay.style.left) || 0;
+                const overlayTop = parseFloat(textToolOverlay.style.top) || 0;
+                
+                // Offset of the textarea within the overlay
+                const inputOffsetX = textToolInput.offsetLeft;
+                const inputOffsetY = textToolInput.offsetTop;
+                
+                // Accounts for standard textarea padding (5px) and 1px border inside the scaled container
+                const paddingX = 6; 
+                const paddingY = 6; 
+
+                const finalLogX = overlayLeft + inputOffsetX + paddingX;
+                const finalLogY = overlayTop + inputOffsetY + paddingY;
+                
+                const fontFamily = document.getElementById('text-font-family').value;
+                const fontSize = parseInt(document.getElementById('text-font-size').value);
+                
+                commands.push({
+                    type: 'text',
+                    text: text,
+                    x: finalLogX,
+                    y: finalLogY,
+                    fontFamily: fontFamily,
+                    fontSize: fontSize,
+                    isBold: isTextBold,
+                    isItalic: isTextItalic,
+                    isUnderline: isTextUnderline,
+                    color: document.getElementById('text-color-picker').value
+                });
+                
+                ajSendCommand(commands[commands.length - 1]);
+                redoCommands = [];
+                document.getElementById('undoBtn').disabled = false;
+                redrawMainCanvas();
+                expandCanvasIfNeeded(finalLogY + (fontSize * 2));
+            }
+            textToolOverlay.style.display = 'none';
+            textOverlayActive = false;
+        });
+
+        function updateBrush() { 
+            baseWidth = parseFloat(thicknessPicker.value); 
+            currentColor = colorPicker.value; 
+            if (textOverlayActive) {
+                textToolInput.style.color = currentColor;
+            }
+        }
+        colorPicker.addEventListener('input', updateBrush);
+        thicknessPicker.addEventListener('input', updateBrush);
+
+        function getPointerPos(e) {
+            const rect = draftCanvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (LOGICAL_W / rect.width),
+                y: (e.clientY - rect.top) * (LOGICAL_H / rect.height)
+            };
+        }
+
+        function renderPathToCtx(context, cmd, isIncremental = false) {
+            if (!cmd || cmd.type !== 'path' || cmd.points.length === 0) return;
+            
+            const isEraser = cmd.isEraser;
+            context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+
+            const pts = cmd.points;
+            if (pts.length === 1 && !isIncremental) {
+                context.fillStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
+                context.beginPath();
+                context.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, Math.PI * 2);
+                context.fill();
+                context.globalCompositeOperation = 'source-over';
+                return;
+            }
+
+            context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
+            let startIndex = isIncremental ? Math.max(1, cmd.renderIndex || 1) : 1;
+            
+            for (let i = startIndex; i < pts.length; i++) {
+                const p0 = i === 1 ? pts[0] : pts[i - 2] || pts[0];
+                const p1 = pts[i - 1];
+                const p2 = pts[i];
+                
+                const cp1x = p0.x + (p1.x - p0.x) / 2;
+                const cp1y = p0.y + (p1.y - p0.y) / 2;
+                
+                const cp2x = p1.x + (p2.x - p1.x) / 2;
+                const cp2y = p1.y + (p2.y - p1.y) / 2;
+                
+                context.beginPath();
+                context.moveTo(cp1x, cp1y);
+                context.quadraticCurveTo(p1.x, p1.y, cp2x, cp2y);
+                context.lineWidth = p1.w;
+                context.stroke();
+            }
+
+            if (isIncremental) cmd.renderIndex = Math.max(1, pts.length - 1);
+            context.globalCompositeOperation = 'source-over';
+        }
+
+        draftCanvas.addEventListener('pointerdown', e => {
+            if(stampActive || textOverlayActive) return; 
+            activePointers.set(e.pointerId, e);
+            
+            if (activePointers.size === 1) {
+                if (currentMode === 'text') {
+                    const pos = getPointerPos(e);
+                    textToolOverlay.style.display = 'flex';
+                    textToolOverlay.style.left = pos.x + 'px';
+                    textToolOverlay.style.top = pos.y + 'px';
+                    textToolInput.value = '';
+                    textToolInput.style.width='420px';
+                    textToolInput.style.height='190px';
+                    document.getElementById('text-color-picker').value=currentColor;textToolInput.style.color=currentColor;
+                    updateTextInputStyle();
+                    
+                    setTimeout(() => textToolInput.focus(), 50);
+                    textOverlayActive = true;
+                    return;
+                }
+                
+                try { draftCanvas.setPointerCapture(e.pointerId); } catch(err){}
+                isDrawing = true;
+                const pos = getPointerPos(e);
+                
+                const initP = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.5;
+                const w = baseWidth * (0.2 + Math.pow(initP, 1.5) * 1.8);
+
+                currentPath = { 
+                    type: 'path', 
+                    color: currentColor, 
+                    points: [{ x: pos.x, y: pos.y, w: w }], 
+                    isEraser: currentMode === 'eraser',
+                    renderIndex: 1
+                };
+                
+                lastEventData = { clientX: e.clientX, clientY: e.clientY, timeStamp: e.timeStamp };
+                pointerVelocity = 0;
+                
+                const targetCtx = currentMode === 'eraser' ? mainCtx : draftCtx;
+                if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
+                targetCtx.fillStyle = currentMode === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
+                targetCtx.beginPath();
+                targetCtx.arc(pos.x, pos.y, currentPath.points[0].w / 2, 0, Math.PI * 2);
+                targetCtx.fill();
+                if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
+            } else if (activePointers.size === 2) {
+                isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
+                let pts = Array.from(activePointers.values());
+                panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+                initialScrollX = window.scrollX; initialScrollY = window.scrollY;
+            }
+        });
+
+        draftCanvas.addEventListener('pointermove', e => {
+            if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
+            
+            if (activePointers.size === 2 && panStartCenter) {
+                let pts = Array.from(activePointers.values());
+                let center = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+                window.scrollTo(initialScrollX - (center.x - panStartCenter.x), initialScrollY - (center.y - panStartCenter.y));
+                return;
+            }
+            
+            if (isDrawing && activePointers.size === 1) {
+                const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+                let modified = false;
+                
+                for (const ev of evs) {
+                    const pos = getPointerPos(ev);
+                    const lastPt = currentPath.points[currentPath.points.length - 1];
+
+                    let targetW = baseWidth;
+                    
+                    if (ev.pointerType === 'pen' && ev.pressure > 0) {
+                        targetW = baseWidth * (0.1 + Math.pow(ev.pressure, 1.5) * 2.2);
+                    } else if (lastEventData) {
+                        const dx = ev.clientX - lastEventData.clientX;
+                        const dy = ev.clientY - lastEventData.clientY;
+                        const dt = ev.timeStamp - lastEventData.timeStamp;
+                        const vel = Math.hypot(dx, dy) / (dt || 16);
+                        
+                        pointerVelocity = pointerVelocity * 0.7 + vel * 0.3;
+                        const velFactor = Math.min(1, pointerVelocity / 4);
+                        targetW = baseWidth * (1.2 - velFactor * 0.8);
+                    }
+                    lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
+
+                    const coordSmoothing = 0.45; 
+                    const widthSmoothing = 0.25; 
+
+                    const sx = lastPt.x + (pos.x - lastPt.x) * (1 - coordSmoothing);
+                    const sy = lastPt.y + (pos.y - lastPt.y) * (1 - coordSmoothing);
+                    const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
+
+                    const distSq = (sx - lastPt.x)**2 + (sy - lastPt.y)**2;
+                    
+                    if (distSq > 0.2) { 
+                        currentPath.points.push({ x: sx, y: sy, w: sw });
+                        expandCanvasIfNeeded(sy);
+                        modified = true;
+                    }
+                }
+                
+                if (modified) {
+                    if (currentMode === 'eraser') renderPathToCtx(mainCtx, currentPath, true); 
+                    else renderPathToCtx(draftCtx, currentPath, true);
+                }
+            }
+        });
+
+        function endPointer(e) {
+            activePointers.delete(e.pointerId);
+            if (isDrawing && activePointers.size === 0) {
+                const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+                for (const ev of evs) {
+                    const pos = getPointerPos(ev);
+                    const lastPt = currentPath.points[currentPath.points.length - 1];
+                    const distSq = (pos.x - lastPt.x)**2 + (pos.y - lastPt.y)**2;
+                    if(distSq > 1) { 
+                        currentPath.points.push({ x: pos.x, y: pos.y, w: lastPt.w * 0.8 }); 
+                    }
+                }
+                
+                if (currentMode !== 'eraser') renderPathToCtx(mainCtx, currentPath, false);
+                
+                commands.push(currentPath);
+                ajSendCommand(currentPath);
+                redoCommands = [];
+                document.getElementById('undoBtn').disabled = commands.length === 0;
+
+                draftCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+                isDrawing = false; currentPath = null; lastEventData = null;
+                try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
+            }
+        }
+        draftCanvas.addEventListener('pointerup', endPointer);
+        draftCanvas.addEventListener('pointercancel', endPointer);
+
+        function redrawMainCanvas() {
+            mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+            for (let cmd of commands) {
+                if (cmd.type === 'path') renderPathToCtx(mainCtx, cmd, false);
+                else if (cmd.type === 'stamp') {
+                    mainCtx.globalCompositeOperation = cmd.mode === 'under' ? 'destination-over' : 'source-over';
+                    if(cmd.canvas) mainCtx.drawImage(cmd.canvas, cmd.x, cmd.y, cmd.w, cmd.h);
+                    mainCtx.globalCompositeOperation = 'source-over';
+                }
+                else if (cmd.type === 'text') {
+                    mainCtx.save();
+                    mainCtx.font = `${cmd.isItalic ? 'italic ' : ''}${cmd.isBold ? 'bold ' : ''}${cmd.fontSize}px ${cmd.fontFamily}`;
+                    mainCtx.fillStyle = cmd.color;
+                    mainCtx.textBaseline = 'top';
+                    
+                    const lines = cmd.text.split('\n');
+                    const lineHeight = cmd.fontSize * 1.2;
+                    
+                    lines.forEach((line, i) => {
+                        mainCtx.fillText(line, cmd.x, cmd.y + (i * lineHeight));
+                        if(cmd.isUnderline) {
+                            const metrics = mainCtx.measureText(line);
+                            mainCtx.beginPath();
+                            mainCtx.moveTo(cmd.x, cmd.y + (i * lineHeight) + cmd.fontSize);
+                            mainCtx.lineTo(cmd.x + metrics.width, cmd.y + (i * lineHeight) + cmd.fontSize);
+                            mainCtx.strokeStyle = cmd.color;
+                            mainCtx.lineWidth = Math.max(1, cmd.fontSize / 15);
+                            mainCtx.stroke();
+                        }
+                    });
+                    mainCtx.restore();
+                }
+            }
+        }
+
+        window.addEventListener('pointermove', (e) => {
+            const rect = wrapper.getBoundingClientRect();
+            const scale = rect.width / LOGICAL_W;
+
+            if (isDragging) {
+                let newX = startLeft + (e.clientX - startX) / scale;
+                let newY = startTop + (e.clientY - startY) / scale;
+                if (newY < 0) newY = 0; 
+                stampContainer.style.left = newX + 'px'; stampContainer.style.top = newY + 'px';
+            } else if (isResizing) {
+                const aspectRatio = stampCanvas.width / stampCanvas.height;
+                const newWidth = Math.max(80, startWidth + (e.clientX - startX) / scale);
+                stampContainer.style.width = newWidth + 'px'; stampContainer.style.height = (newWidth / aspectRatio) + 'px';
+            } else if (isDraggingText) {
+                let newX = textInitialLeft + (e.clientX - textStartX) / scale;
+                let newY = textInitialTop + (e.clientY - textStartY) / scale;
+                textToolOverlay.style.left = newX + 'px';
+                textToolOverlay.style.top = newY + 'px';
+            } else if (isDrawingCrop) {
+                const sRect = stampContainer.getBoundingClientRect();
+                const scaleX = stampContainer.offsetWidth / sRect.width;
+                const scaleY = stampContainer.offsetHeight / sRect.height;
+                
+                let curX = Math.max(0, Math.min((e.clientX - sRect.left) * scaleX, stampContainer.offsetWidth));
+                let curY = Math.max(0, Math.min((e.clientY - sRect.top) * scaleY, stampContainer.offsetHeight));
+                
+                cropOverlay.style.left = Math.min(cropStartX, curX) + 'px';
+                cropOverlay.style.top = Math.min(cropStartY, curY) + 'px';
+                cropOverlay.style.width = Math.abs(curX - cropStartX) + 'px';
+                cropOverlay.style.height = Math.abs(curY - cropStartY) + 'px';
+            }
+        });
+        
+        window.addEventListener('pointerup', () => { 
+            isDragging = false; isResizing = false; isDrawingCrop = false; isDraggingText = false;
+        });
+
+        function hexToRgb(hex) { const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return res ? { r: parseInt(res[1], 16), g: parseInt(res[2], 16), b: parseInt(res[3], 16) } : { r: 0, g: 0, b: 0 }; }
+        
+        function applyChromaKeyToStamp() {
+            if (!rawImageObj || currentStampType !== 'signature') return;
+            stampCanvas.width = rawImageObj.width; stampCanvas.height = rawImageObj.height;
+            stampCtx.drawImage(rawImageObj, 0, 0);
+            
+            const imageData = stampCtx.getImageData(0, 0, rawImageObj.width, rawImageObj.height);
+            const data = imageData.data;
+            const color = hexToRgb(document.getElementById('stampColor').value);
+            const tLevel = document.getElementById('stampTransparency').value / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                if (a === 0) continue;
+                let nLum = (r * 0.299 + g * 0.587 + b * 0.114) / 255, eAlpha = 0;
+                if (nLum <= 0.6) eAlpha = Math.pow(1 - (nLum / 0.6), 0.5) * 255; 
+                let fAlpha = a * (1 - tLevel) + eAlpha * tLevel;
+                data[i+3] = Math.max(0, Math.min(255, fAlpha));
+                if (fAlpha > 0 && tLevel > 0) { data[i] = color.r; data[i+1] = color.g; data[i+2] = color.b; }
+            }
+            stampCtx.putImageData(imageData, 0, 0);
+        }
+
+        document.getElementById('stampTransparency').addEventListener('input', applyChromaKeyToStamp);
+        document.getElementById('stampColor').addEventListener('input', applyChromaKeyToStamp);
+
+        function activateStamp(type, displayW, displayH) {
+            stampActive = true; currentStampType = type;
+            stampContainer.style.display = 'block'; stampPanel.style.display = 'flex';
+            
+            const maxW = LOGICAL_W * 0.85;
+            const maxH = window.innerHeight * 0.65;
+            const aspect = displayW / displayH;
+            
+            if (displayW > maxW) { displayW = maxW; displayH = displayW / aspect; }
+            if (displayH > maxH) { displayH = maxH; displayW = displayH * aspect; }
+
+            stampContainer.style.width = displayW + 'px'; stampContainer.style.height = displayH + 'px';
+            const visibleTopInWrapper = Math.max(0, -wrapper.getBoundingClientRect().top) + 90; 
+            
+            stampContainer.style.left = ((wrapper.getBoundingClientRect().width - displayW) / 2) + 'px';
+            stampContainer.style.top = visibleTopInWrapper + 'px'; 
+            
+            if (type === 'pdf') { document.getElementById('stampFitA4').style.display = 'block'; document.getElementById('image-controls').style.display = 'none'; } 
+            else if (type === 'signature') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'block'; document.getElementById('stampTransparency').value = 100; } 
+            else if (type === 'photo') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'none'; }
+        }
+
+        document.getElementById('importSignBtn').addEventListener('click', () => document.getElementById('fileInputSign').click());
+        document.getElementById('fileInputSign').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                rawImageObj = new Image();
+                rawImageObj.onload = () => { currentStampType = 'signature'; applyChromaKeyToStamp(); activateStamp('signature', rawImageObj.width, rawImageObj.height); };
+                rawImageObj.src = event.target.result;
+            };
+            reader.readAsDataURL(file); this.value = '';
+        });
+
+        document.getElementById('importRealImgBtn').addEventListener('click', () => document.getElementById('fileInputRealImg').click());
+        document.getElementById('fileInputRealImg').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                rawImageObj = new Image();
+                rawImageObj.onload = () => { stampCanvas.width = rawImageObj.width; stampCanvas.height = rawImageObj.height; stampCtx.clearRect(0, 0, stampCanvas.width, stampCanvas.height); stampCtx.drawImage(rawImageObj, 0, 0); activateStamp('photo', rawImageObj.width, rawImageObj.height); };
+                rawImageObj.src = event.target.result;
+            };
+            reader.readAsDataURL(file); this.value = '';
+        });
+
+        document.getElementById('importPdfBtn').addEventListener('click', () => document.getElementById('fileInputPdf').click());
+        document.getElementById('fileInputPdf').addEventListener('change', async function(e) {
+            const file = e.target.files[0]; if(!file) return;
+
+            const btn = document.getElementById('importPdfBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<span style="font-size:0.75rem;">Caricamento...</span>`;
+
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                try {
+                    const typedarray = new Uint8Array(this.result);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    
+                    const renderScale = Math.max(3, (window.devicePixelRatio || 1) * 1.5); 
+                    const pagesData = [];
+                    
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const page = await pdf.getPage(pageNum);
+                        const viewport = page.getViewport({ scale: renderScale });
+                        const tempCanv = document.createElement('canvas'); 
+                        tempCanv.width = viewport.width; 
+                        tempCanv.height = viewport.height;
+                        await page.render({ canvasContext: tempCanv.getContext('2d'), viewport: viewport }).promise;
+                        pagesData.push({ canvas: tempCanv, w: viewport.width, h: viewport.height });
+                    }
+                    
+                    const slotW = LOGICAL_W, slotH = BASE_A4_H;
+                    
+                    stampCanvas.width = slotW * renderScale; 
+                    stampCanvas.height = slotH * pdf.numPages * renderScale;
+                    stampCtx.fillStyle = 'white'; 
+                    stampCtx.fillRect(0, 0, stampCanvas.width, stampCanvas.height);
+                    
+                    for (let i = 0; i < pagesData.length; i++) {
+                        const p = pagesData[i];
+                        const pAspect = p.w / p.h, aAspect = slotW / slotH;
+                        
+                        let dw = pAspect > aAspect ? stampCanvas.width : (slotH * renderScale) * pAspect;
+                        let dh = pAspect > aAspect ? stampCanvas.width / pAspect : (slotH * renderScale);
+                        let dx = (stampCanvas.width - dw) / 2;
+                        let dy = i * (slotH * renderScale) + ((slotH * renderScale) - dh) / 2;
+                        
+                        stampCtx.drawImage(p.canvas, dx, dy, dw, dh);
+                    }
+                    
+                    const pagesNeeded=Math.max(TOTAL_PAGES,pdf.numPages); if(pagesNeeded!==TOTAL_PAGES){TOTAL_PAGES=pagesNeeded;initCanvas();ajSendPageCount();}
+                    activateStamp('pdf', slotW, slotH * pdf.numPages);
+                    btn.innerHTML = originalHTML;
+                } catch (err) { console.error("Errore PDF", err); alert("Impossibile importare il PDF!"); btn.innerHTML = originalHTML;}
+            };
+            fileReader.readAsArrayBuffer(file); this.value = '';
+        });
+
+        stampContainer.addEventListener('pointerdown', (e) => {
+            if(isCroppingMode) {
+                isDrawingCrop = true;
+                const rect = stampContainer.getBoundingClientRect();
+                const scaleX = stampContainer.offsetWidth / rect.width;
+                const scaleY = stampContainer.offsetHeight / rect.height;
+                
+                cropStartX = (e.clientX - rect.left) * scaleX; 
+                cropStartY = (e.clientY - rect.top) * scaleY;
+                cropOverlay.style.left = cropStartX + 'px'; 
+                cropOverlay.style.top = cropStartY + 'px';
+                cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
+                e.stopPropagation(); return;
+            }
+            if(e.target === resizeHandle || e.target.closest('#stamp-panel')) return;
+            isDragging = true; startX = e.clientX; startY = e.clientY;
+            startLeft = parseFloat(stampContainer.style.left) || 0; startTop = parseFloat(stampContainer.style.top) || 0;
+            e.stopPropagation();
+        });
+
+        resizeHandle.addEventListener('pointerdown', (e) => {
+            if(isCroppingMode) return;
+            isResizing = true; startX = e.clientX; startY = e.clientY;
+            startWidth = stampContainer.getBoundingClientRect().width;
+            e.stopPropagation();
+        });
+
+        document.getElementById('stampCropBtn').addEventListener('click', (e) => {
+            isCroppingMode = !isCroppingMode;
+            const btn = document.getElementById('stampCropBtn');
+            if (isCroppingMode) {
+                btn.style.background = 'var(--danger-bg)'; btn.style.color = 'var(--danger-color)'; btn.innerText = '✓ Conferma Ritaglio';
+                stampContainer.style.cursor = 'crosshair'; resizeHandle.style.display = 'none';
+                cropOverlay.style.display = 'block'; cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
+            } else {
+                btn.style.background = ''; btn.style.color = ''; btn.innerText = '✂️ Ritaglia';
+                stampContainer.style.cursor = 'move'; resizeHandle.style.display = 'flex';
+                
+                let cw = parseFloat(cropOverlay.style.width) || 0, ch = parseFloat(cropOverlay.style.height) || 0;
+                let cx = parseFloat(cropOverlay.style.left) || 0, cy = parseFloat(cropOverlay.style.top) || 0;
+                
+                if (cw > 10 && ch > 10) {
+                    let ratioX = stampCanvas.width / stampContainer.offsetWidth;
+                    let ratioY = stampCanvas.height / stampContainer.offsetHeight;
+                    let sw = cw * ratioX, sh = ch * ratioY;
+                    let sx = cx * ratioX, sy = cy * ratioY;
+
+                    let tempC = document.createElement('canvas'); tempC.width = sw; tempC.height = sh;
+                    tempC.getContext('2d').drawImage(stampCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+                    
+                    stampCanvas.width = sw; stampCanvas.height = sh;
+                    stampCtx.clearRect(0,0,sw,sh); stampCtx.drawImage(tempC, 0, 0);
+                    
+                    stampContainer.style.width = cw + 'px'; stampContainer.style.height = ch + 'px';
+                    stampContainer.style.left = (parseFloat(stampContainer.style.left || 0) + cx) + 'px';
+                    stampContainer.style.top = (parseFloat(stampContainer.style.top || 0) + cy) + 'px';
+
+                    if (currentStampType === 'signature') {
+                        let newImg = new Image();
+                        newImg.onload = () => { rawImageObj = newImg; applyChromaKeyToStamp(); };
+                        newImg.src = stampCanvas.toDataURL();
+                    }
+                }
+                cropOverlay.style.display = 'none';
+            }
+        });
+
+        function finalizeStamp(mode) {
+            const rect = stampContainer.getBoundingClientRect();
+            const wRect = wrapper.getBoundingClientRect();
+            const logX = (rect.left - wRect.left) * (LOGICAL_W / wRect.width);
+            const logY = (rect.top - wRect.top) * (LOGICAL_H / wRect.height);
+            const logW = rect.width * (LOGICAL_W / wRect.width);
+            const logH = rect.height * (LOGICAL_H / wRect.height);
+            
+            expandCanvasIfNeeded(logY + logH);
+
+            let stampCopy = document.createElement('canvas');
+            stampCopy.width = stampCanvas.width; stampCopy.height = stampCanvas.height;
+            stampCopy.getContext('2d').drawImage(stampCanvas, 0, 0);
+            
+            const stampCommand={type:'stamp',canvas:stampCopy,imageData:stampCopy.toDataURL('image/png'),x:logX,y:logY,w:logW,h:logH,mode}; commands.push(stampCommand); ajSendCommand(stampCommand);
+            redoCommands = []; redrawMainCanvas();
+            document.getElementById('undoBtn').disabled = false;
+            
+            resetStampUI();
+        }
+
+        function resetStampUI() {
+            stampContainer.style.display = 'none'; stampPanel.style.display = 'none'; stampActive = false;
+            isCroppingMode = false; cropOverlay.style.display = 'none';
+            const cropBtn = document.getElementById('stampCropBtn');
+            if (cropBtn) { cropBtn.style.background = ''; cropBtn.style.color = ''; cropBtn.innerText = '✂️ Ritaglia'; }
+            stampContainer.style.cursor = 'move'; resizeHandle.style.display = 'flex';
+        }
+
+        document.getElementById('stampUnder').addEventListener('click', () => finalizeStamp('under'));
+        document.getElementById('stampOver').addEventListener('click', () => finalizeStamp('over'));
+        document.getElementById('stampCancel').addEventListener('click', () => resetStampUI());
+
+        document.getElementById('stampFitA4').addEventListener('click', () => {
+            if (!stampActive) return;
+            
+            let maxY = 0;
+            commands.forEach(cmd => {
+                if (cmd.type === 'path') {
+                    cmd.points.forEach(p => { if (p.y > maxY) maxY = p.y; });
+                } else if (cmd.type === 'stamp' || cmd.type === 'text') {
+                    if ((cmd.y + (cmd.h || 50)) > maxY) maxY = cmd.y + (cmd.h || 50);
+                }
+            });
+            
+            const firstEmptyPage = maxY === 0 ? 0 : Math.floor(maxY / BASE_A4_H) + 1;
+            const targetTop = firstEmptyPage * BASE_A4_H;
+            
+            const aspect = stampCanvas.width / stampCanvas.height;
+            const newW = LOGICAL_W;
+            const newH = LOGICAL_W / aspect;
+
+            expandCanvasIfNeeded(targetTop + newH);
+
+            stampContainer.style.width = newW + 'px';
+            stampContainer.style.height = newH + 'px';
+            stampContainer.style.left = '0px';
+            stampContainer.style.top = targetTop + 'px';
+        });
+
+        window.movePage = function(index, dir) {
+            if (index + dir < 0 || index + dir >= exportPagesData.length) return;
+            const temp = exportPagesData[index]; exportPagesData[index] = exportPagesData[index + dir]; exportPagesData[index + dir] = temp;
+            renderPdfThumbnails();
+        };
+
+        window.deletePage = function(index) {
+            if(confirm("Vuoi escludere questa pagina dal PDF finale?")) { exportPagesData.splice(index, 1); renderPdfThumbnails(); }
+        };
+
+        function renderPdfThumbnails() {
+            const container = document.getElementById('pdfPagesContainer');
+            container.innerHTML = '';
+            
+            if(exportPagesData.length === 0) {
+                container.innerHTML = '<p style="margin:auto; color:var(--text-soft);">Nessun contenuto da esportare.</p>';
+                document.getElementById('confirmExportBtn').disabled = true; return;
+            }
+            
+            document.getElementById('confirmExportBtn').disabled = false;
+            exportPagesData.forEach((page, index) => {
+                const wrapper = document.createElement('div'); wrapper.className = 'pdf-page-wrapper';
+                wrapper.innerHTML = `
+                    <div class="page-number-badge">${index + 1}</div><img src="${page.data}">
+                    <div class="page-controls">
+                        <button onclick="movePage(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Sposta a Sinistra">⬅️</button>
+                        <button class="del-btn" onclick="deletePage(${index})" title="Elimina Pagina">🗑️</button>
+                        <button onclick="movePage(${index}, 1)" ${index === exportPagesData.length - 1 ? 'disabled' : ''} title="Sposta a Destra">➡️</button>
+                    </div>`;
+                container.appendChild(wrapper);
+            });
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', () => {
+            const btn = document.getElementById('exportPdfBtn'); 
+            const originalText = btn.innerHTML; btn.innerHTML = 'Elaborazione...';
+            
+            setTimeout(() => {
+                exportPagesData = [];
+                const container = document.getElementById('pdfPagesContainer'); container.innerHTML = '';
+                
+                const sliceW = mainCanvas.width; const sliceH = Math.round(BASE_A4_H * dpr);
+                const tempCanvas = document.createElement('canvas'); tempCanvas.width = sliceW; tempCanvas.height = sliceH;
+                const tCtx = tempCanvas.getContext('2d');
+                
+                for(let i=0; i < TOTAL_PAGES; i++) {
+                    tCtx.fillStyle = '#ffffff'; tCtx.fillRect(0, 0, sliceW, sliceH);
+                    tCtx.drawImage(mainCanvas, 0, i * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
+                    exportPagesData.push({ id: `page_${i}`, data: tempCanvas.toDataURL('image/jpeg', 0.95) });
+                }
+                
+                renderPdfThumbnails();
+                btn.innerHTML = originalText; document.getElementById('pdfExportModal').style.display = 'flex';
+            }, 50);
+        });
+
+        document.getElementById('confirmExportBtn').addEventListener('click', () => {
+            document.getElementById('confirmExportBtn').innerText = 'Generazione in corso...';
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfW = pdf.internal.pageSize.getWidth(); const pdfH = pdf.internal.pageSize.getHeight();
+                
+                exportPagesData.forEach((pageObj, i) => { if (i > 0) pdf.addPage(); pdf.addImage(pageObj.data, 'JPEG', 0, 0, pdfW, pdfH); });
+                pdf.save('airjotter.com-Document.pdf');
+                
+                document.getElementById('confirmExportBtn').innerText = 'Scarica PDF Definitivo'; 
+                document.getElementById('pdfExportModal').style.display = 'none';
+            }, 50);
+        });
+
+        initCanvas();
+        
+        const toolPenBtn = document.getElementById('toolPenBtn');
+        const toolEraserBtn = document.getElementById('toolEraserBtn');
+        const toolTextBtn = document.getElementById('toolTextBtn');
+
+        function updateToolButtons(mode) {
+            toolPenBtn.classList.toggle('active-tool', mode === 'pen');
+            toolEraserBtn.classList.toggle('active-tool', mode === 'eraser');
+            toolTextBtn.classList.toggle('active-tool', mode === 'text');
+        }
+
+        toolPenBtn.addEventListener('click', () => { currentMode = 'pen'; updateToolButtons('pen'); draftCanvas.style.cursor = 'crosshair'; });
+        toolEraserBtn.addEventListener('click', () => { currentMode = 'eraser'; updateToolButtons('eraser'); draftCanvas.style.cursor = 'cell'; });
+        toolTextBtn.addEventListener('click', () => { currentMode = 'text'; updateToolButtons('text'); draftCanvas.style.cursor = 'text'; });
+
+        document.getElementById('addPageBtn').addEventListener('click',()=>{const max=ajMe?.limits?.pages||5;if(TOTAL_PAGES>=max){alert('Il piano '+String(ajMe?.plan||'free').toUpperCase()+' consente massimo '+max+' pagine per Jotter.');return;}TOTAL_PAGES++; initCanvas(); document.getElementById('pageCountNumber').innerText = TOTAL_PAGES; ajSendPageCount(); });
+        document.getElementById('removePageBtn').addEventListener('click',()=>{if(TOTAL_PAGES>1)deletePageFromCanvas(TOTAL_PAGES-1);});
+        
+        // Brand logic
+        document.getElementById('brandBtn').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Help Modal Logic
+        document.getElementById('helpBtn').addEventListener('click', () => {
+            document.getElementById('helpModal').style.display = 'flex';
+        });
+
+        let isCodeVisible = false;
+        document.getElementById('toggleCodeBtn').addEventListener('click', () => { isCodeVisible = !isCodeVisible; document.getElementById('roomCode').innerText = isCodeVisible ? ACTUAL_ROOM_CODE : "***-***"; });
+        
+        document.getElementById('showQrBtn').addEventListener('click', () => {
+            const qrC = document.getElementById('qrcode'); qrC.innerHTML = ''; 
+            new QRCode(qrC, { text: window.location.href.split('?')[0] + "?room=" + ACTUAL_ROOM_CODE, width: 200, height: 200, colorDark : "#3D3A50", colorLight : "#ffffff" });
+            document.getElementById('modalRoomCode').innerText = ACTUAL_ROOM_CODE;
+            document.getElementById('qrModal').style.display = 'flex';
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm("Sei sicuro di voler pulire interamente il foglio?")) {
+                commands = []; redoCommands = [];
+                document.getElementById('undoBtn').disabled = true; document.getElementById('redoBtn').disabled = true;
+                TOTAL_PAGES = 2; initCanvas(); ajSendClear(); window.scrollTo(0, 0); 
+            }
+        });
+
+        ['undoBtn', 'redoBtn'].forEach(id => {
+            document.getElementById(id).addEventListener('click', async () => {
+                if (ajBoard) {
+                    await ajSocket.emitWithAck(id === 'undoBtn' ? 'history:undo' : 'history:redo', { boardId: ajBoard.id });
+                    return;
+                }
+                if(id==='undoBtn' && commands.length > 0) redoCommands.push(commands.pop());
+                if(id==='redoBtn' && redoCommands.length > 0) commands.push(redoCommands.pop());
+                redrawMainCanvas();
+            });
+        });
+
+        // airjotter collaborative runtime
+        const ajSocket = io({autoConnect:false,retries:3,ackTimeout:10000});
+        let ajMe = null, ajBoard = null, ajRole = 'viewer', ajRemote = false;
+        const ajApi = async (url, options = {}) => {
+            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || response.statusText);
+            return data;
+        };
+        function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
+        function ajSetRole(role) {
+            ajRole = role;
+            document.getElementById('ajUser').textContent = `${ajMe.name} · ${role}`;
+            document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
+            draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
+            document.querySelectorAll('#toolPenBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
+        }
+        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
+        function ajSerializableCommand(cmd) {
+            if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
+            const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
+        }
+        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (clean) ajSend('command:add', { command: clean }); }
+        function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
+        function ajSendClear() { ajSend('board:clear', {}); }
+        function ajApplyOperation(op) {
+            const type = op.operation_type || op.type, payload = op.payload || {};
+            ajRemote = true;
+            if(type==='command:add'&&payload.command){const c=payload.command;if(c.type==='stamp'&&c.imageData){const img=new Image();img.onload=()=>{c.canvas=img;redrawMainCanvas();};img.src=c.imageData;}commands.push(c);}
+            else if (type === 'stroke:add') commands.push({ type:'path', points:payload.points, color:payload.color, isEraser:!!payload.eraser });
+            else if (type === 'text:add') commands.push({ type:'text', text:payload.text, x:payload.x, y:payload.y, fontFamily:'Arial, sans-serif', fontSize:payload.size || 24, color:payload.color, isBold:false, isItalic:false, isUnderline:false });
+            else if(type==='page:set'){TOTAL_PAGES=Math.max(1,Number(payload.count)||1);initCanvas();document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;}
+            else if(type==='page:delete'){deletePageFromCanvas(Number(payload.pageIndex),true);}
+            else if (type === 'board:clear') { commands=[]; redoCommands=[]; TOTAL_PAGES=2; initCanvas(); }
+            redrawMainCanvas();
+            document.getElementById('undoBtn').disabled = commands.length === 0;
+            ajRemote = false;
+        }
+        async function ajReload() {
+            if (!ajBoard) return;
+            commands=[]; redoCommands=[]; TOTAL_PAGES=2;
+            const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
+            operations.filter(x => x.is_active !== false).forEach(ajApplyOperation);
+            initCanvas(); redrawMainCanvas();
+        }
+        async function ajOpenBoard(board) {
+            ajBoard=board; ACTUAL_ROOM_CODE=board.roomCode; document.getElementById('roomCode').innerText='***-****';
+            document.getElementById('ajLobby').classList.add('aj-hidden');
+            history.replaceState(null,'',`/?room=${board.roomCode}`);
+            await ajSocket.emitWithAck('board:join',{boardId:board.id}); await ajReload(); ajSetRole(board.role);
+        }
+        async function ajJoin(code) { await ajOpenBoard(await ajApi('/api/boards/join',{method:'POST',body:JSON.stringify({roomCode:code})})); }
+        async function ajReady() {
+            ajMe=await ajApi('/api/me');document.getElementById('adminConsoleLink').classList.toggle('aj-hidden',!ajMe.isAdmin); document.getElementById('ajLogin').classList.add('aj-hidden'); document.getElementById('ajLobby').classList.remove('aj-hidden'); ajSocket.connect();
+            const params=new URLSearchParams(location.search);const room=params.get('room');if(room){document.getElementById('joinCode').value=room;await ajJoin(room);}
+        }
+        (async()=>{const cfg=await ajApi('/api/config');if(cfg.devAuth)document.getElementById('devLogin').classList.remove('aj-hidden');if(cfg.googleClientId){google.accounts.id.initialize({client_id:cfg.googleClientId,callback:async x=>{await ajApi('/api/auth/google',{method:'POST',body:JSON.stringify({credential:x.credential})});ajReady()}});google.accounts.id.renderButton(document.getElementById('googleBtn'),{theme:'outline',size:'large'})}try{await ajReady()}catch{}})();
+        async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
+document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById('jotterArchiveClose').onclick=()=>document.getElementById('jotterArchiveModal').style.display='none';document.getElementById('archiveNewBtn').onclick=async()=>{document.getElementById('jotterArchiveModal').style.display='none';await ajOpenBoard(await ajApi('/api/boards',{method:'POST',body:'{}'}))};
+        document.getElementById('welcomeDiscoverBtn').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverClose').onclick=document.getElementById('welcomeDiscoverDone').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='none';
+        document.getElementById('devBtn').onclick=async()=>{await ajApi('/api/auth/dev',{method:'POST',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});ajReady()};
+        document.getElementById('newBtn').onclick=async()=>ajOpenBoard(await ajApi('/api/boards',{method:'POST',body:'{}'}));
+        document.getElementById('joinBtn').onclick=()=>ajJoin(document.getElementById('joinCode').value);
+        document.getElementById('ajRequestEdit').onclick=async()=>{await ajApi(`/api/boards/${ajBoard.id}/request-edit`,{method:'POST',body:'{}'});document.getElementById('ajRequestEdit').textContent='Richiesta inviata';document.getElementById('ajRequestEdit').disabled=true};
+        ajSocket.on('board:operation', ajApplyOperation); ajSocket.on('board:reload', ajReload);
+        let ajPendingRequest=null;
+function ajShowRequest(r){ajPendingRequest=r;document.getElementById('accessRequestText').textContent=r.name+' ('+r.email+') desidera modificare il Jotter.';document.getElementById('accessRequestModal').style.display='flex';}
+async function ajResolveRequest(approved){if(!ajPendingRequest)return;await ajApi('/api/access/'+ajPendingRequest.requestId+'/resolve',{method:'POST',body:JSON.stringify({approved})});document.getElementById('accessRequestModal').style.display='none';ajPendingRequest=null;}
+document.getElementById('accessApproveBtn').onclick=()=>ajResolveRequest(true);
+document.getElementById('accessDenyBtn').onclick=()=>ajResolveRequest(false);
+ajSocket.on('access:requested',ajShowRequest);
+setInterval(async()=>{if(ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
+ajSocket.on('access:resolved', result=>{if(result.boardId===ajBoard?.id){ajSetRole(result.role);alert(result.approved?'Accesso in modifica autorizzato.':'Richiesta rifiutata.')}});
+    </script>
+<script id="welcomeDiscoverRuntime">
+document.addEventListener('click', function(event) {
+  const openButton = event.target.closest('#welcomeDiscoverBtn');
+  const closeButton = event.target.closest('#welcomeDiscoverClose, #welcomeDiscoverDone');
+  const modal = document.getElementById('welcomeDiscoverModal');
+  if (openButton && modal) {
+    event.preventDefault();
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+  }
+  if (closeButton && modal) {
+    event.preventDefault();
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+  }
+});
+</script>
+<footer id="siteFooter" class="site-footer"><nav><button id="privacyLink" type="button">Privacy</button><span>·</span><button id="termsLink" type="button">Condizioni d'Uso</button><button id="adminConsoleLink" class="admin-link aj-hidden" type="button">Console amministrativa</button></nav><div>© 2026 airjotter.com · by ing. N. Bochicchio @ DoMyTool.it</div></footer>
+<script id="airjotterV91LateRuntime">
+(function () {
+  const fmt = value => value ? new Date(value).toLocaleString('it-IT') : 'Mai';
+  let adminTimer = null;
+
+  const privacyLink = document.getElementById('privacyLink');
+  const termsLink = document.getElementById('termsLink');
+  const adminLink = document.getElementById('adminConsoleLink');
+
+  if (privacyLink) privacyLink.addEventListener('click', () => {
+    document.getElementById('privacyModal').style.display = 'flex';
+  });
+  if (termsLink) termsLink.addEventListener('click', () => {
+    document.getElementById('termsModal').style.display = 'flex';
+  });
+  document.querySelectorAll('[data-close]').forEach(button => {
+    button.addEventListener('click', () => {
+      const modal = document.getElementById(button.dataset.close);
+      if (modal) modal.style.display = 'none';
+      if (button.dataset.close === 'adminModal') clearInterval(adminTimer);
+    });
+  });
+
+  window.loadAirJotterAdmin = async function () {
+    const [stats, users] = await Promise.all([ajApi('/api/admin/stats'),ajApi('/api/admin/users')]);
+    const cards=[['Iscritti',stats.users.total],['Nuovi oggi',stats.users.today],['Accessi totali',stats.logins.total],['Accessi oggi',stats.logins.today],['Utenti attivi 24h',stats.logins.active_users],['Online adesso',stats.online],['Jotter totali',stats.boards.total],['Operazioni salvate',stats.operations]];
+    document.getElementById('adminCards').innerHTML=cards.map(item=>'<div class="admin-card"><b>'+item[1]+'</b><span>'+item[0]+'</span></div>').join('');
+    document.getElementById('adminUsers').innerHTML=users.map(user=>{const owner=String(user.email).toLowerCase()==='nbochicchio@gmail.com';const safeName=String(user.name||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');return '<tr><td><b>'+user.name+'</b></td><td><a href="mailto:'+user.email+'">'+user.email+'</a></td><td><span class="plan-pill">'+(String(user.email).toLowerCase()==='nbochicchio@gmail.com'?'UNLIMITED':user.plan.toUpperCase())+'</span></td><td><span class="status-pill '+(user.suspended?'suspended':'active')+'">'+(user.suspended?'Sospeso':'Attivo')+'</span></td><td>'+fmt(user.createdAt)+'</td><td>'+fmt(user.lastLoginAt)+'</td><td>'+user.boards+'</td><td>'+(owner?'<span class="owner-protected">Titolare protetto</span>':'<div class="admin-user-actions"><button class="btn suspend-user" data-id="'+user.id+'" data-name="'+safeName+'" data-suspended="'+user.suspended+'">'+(user.suspended?'Riattiva':'Sospendi')+'</button><button class="btn danger delete-user" data-id="'+user.id+'" data-name="'+safeName+'">Elimina</button></div>')+'</td></tr>'}).join('');
+    document.querySelectorAll('.suspend-user').forEach(button=>button.onclick=async()=>{const suspension=button.dataset.suspended!=='true';if(!confirm((suspension?'Sospendere ':'Riattivare ')+button.dataset.name+'?'))return;await ajApi('/api/admin/users/'+button.dataset.id+'/suspension',{method:'PATCH',body:JSON.stringify({suspended:suspension})});await window.loadAirJotterAdmin()});
+    document.querySelectorAll('.delete-user').forEach(button=>button.onclick=async()=>{if(!confirm('Eliminare definitivamente '+button.dataset.name+' e tutti i relativi Jotter? Questa operazione non può essere annullata.'))return;await ajApi('/api/admin/users/'+button.dataset.id,{method:'DELETE'});await window.loadAirJotterAdmin()});
+    document.getElementById('adminLive').textContent='Aggiornato '+new Date(stats.updatedAt).toLocaleTimeString('it-IT');
+  };
+
+  if (adminLink) adminLink.addEventListener('click', async () => {
+    document.getElementById('adminModal').style.display = 'flex';
+    try {
+      await window.loadAirJotterAdmin();
+      clearInterval(adminTimer);
+      adminTimer = setInterval(() => window.loadAirJotterAdmin().catch(() => {}), 5000);
+    } catch (error) {
+      alert('Console amministrativa non disponibile: ' + error.message);
+    }
+  });
+})();
+</script>
+<script id="airjotterLoginV92">
+(function(){
+ const button=document.getElementById('devBtn');
+ if(!button)return;
+ button.onclick=async function(event){
+  event.preventDefault();
+  const original=button.textContent;
+  button.disabled=true;button.textContent='Accesso in corso...';
+  try{
+   const response=await fetch('/api/auth/dev',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||('Errore HTTP '+response.status));
+   await ajReady();
+  }catch(error){
+   alert(error.message);
+   console.error(error);
+  }finally{button.disabled=false;button.textContent=original;}
+ };
+})();
+</script>
+<script id="airjotterCreateV93">
+(function(){
+ const button=document.getElementById('newBtn');
+ if(!button)return;
+ button.onclick=async function(event){
+  event.preventDefault();
+  const original=button.textContent;
+  button.disabled=true;
+  button.textContent='Creazione in corso...';
+  try{
+   const response=await fetch('/api/boards',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body:'{}'
+   });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok){
+    if(response.status===403 && String(data.error||'').toLowerCase().includes('piano')){
+     const message=(data.error||'Hai raggiunto il limite di 2 Jotter del piano Free.')+'\n\nApri “I miei Jotter” per riutilizzare o eliminare il Jotter esistente.';
+     alert(message);
+     if(typeof ajLoadArchive==='function')await ajLoadArchive();
+     return;
+    }
+    throw new Error(data.error||('Errore HTTP '+response.status));
+   }
+   await ajOpenBoard(data);
+  }catch(error){
+   alert('Impossibile creare il Jotter: '+error.message);
+   console.error('Creazione Jotter:',error);
+  }finally{
+   button.disabled=false;
+   button.textContent=original;
+  }
+ };
+})();
+</script>
+<script id="airjotterFreeResumeV95">
+(function(){
+ const originalReady=window.ajReady;
+ if(typeof originalReady!=='function')return;
+ window.ajReady=async function(){
+  await originalReady();
+  try{
+   if(String(ajMe?.plan||'').toLowerCase()!=='free')return;
+   const boards=await ajApi('/api/my/boards');
+   if(Array.isArray(boards)&&boards.length>=2){
+    const latest=[...boards].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))[0];
+    if(latest?.roomCode)await ajJoin(latest.roomCode);
+   }
+  }catch(error){console.warn('Ripristino ultimo Jotter:',error.message)}
+ };
+})();
+</script>
+<script id="airjotterArchiveNewV96">
+(function(){
+ const button=document.getElementById('archiveNewBtn');
+ if(!button)return;
+ button.onclick=async function(event){
+  event.preventDefault();
+  const original=button.textContent;
+  button.disabled=true;button.textContent='Salvataggio...';
+  try{
+   // Le operazioni del Jotter aperto sono gia persistite in tempo reale.
+   // Questa breve attesa consente agli ultimi acknowledgement pendenti di completarsi.
+   await new Promise(resolve=>setTimeout(resolve,350));
+   const response=await fetch('/api/boards',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:'{}'});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok){
+    if(response.status===403){
+     const plan=String(ajMe?.plan||'free').toUpperCase();
+     const limit=ajMe?.limits?.boards||2;
+     alert('Hai raggiunto il limite del piano '+plan+': massimo '+limit+' Jotter. Puoi aprire o eliminare uno dei Jotter esistenti.');
+     return;
+    }
+    throw new Error(data.error||('Errore HTTP '+response.status));
+   }
+   document.getElementById('jotterArchiveModal').style.display='none';
+   await ajOpenBoard(data);
+  }catch(error){
+   alert('Impossibile creare un nuovo Jotter: '+error.message);
+   console.error('Nuovo Jotter archivio:',error);
+  }finally{button.disabled=false;button.textContent=original;}
+ };
+})();
+</script>
+</body>
+</html>
