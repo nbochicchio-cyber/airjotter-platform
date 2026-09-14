@@ -6,7 +6,8 @@
     <title>airjotter.com</title>
     
     <!-- External Libraries -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Sostituito con CDN per evitare errori in anteprima standalone -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -158,7 +159,10 @@
 .aj-error{min-height:24px;color:var(--danger-color);font-weight:600;text-align:center}
 @media(max-width:680px){.aj-access-card{padding:24px!important}.aj-choice-grid{grid-template-columns:1fr}.aj-choice{min-height:0}.aj-access-title{font-size:1.55rem}}
 .guide-intro{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;background:var(--accent-bg);margin-bottom:14px;line-height:1.45}.guide-intro span{color:var(--text-soft)}.guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;margin-bottom:16px}.guide-grid section{border:1px solid var(--border-color);border-radius:14px;padding:15px;background:#fffdfa}.guide-grid h4{margin:0 0 9px;color:var(--text-color);font-size:1rem}.guide-grid ul,.guide-grid ol{padding-left:20px;display:flex;flex-direction:column;gap:7px;line-height:1.4;font-size:.88rem}.guide-benefits{grid-column:1/-1;background:var(--success-bg)!important;border-color:var(--success-color)!important}@media(max-width:620px){.guide-grid{grid-template-columns:1fr}.guide-benefits{grid-column:auto}}.google-signin-preview{width:100%;height:44px;border:1px solid #dadce0;border-radius:6px;background:white;color:#3c4043;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px}.google-g{font:bold 20px Arial;color:#4285f4}.google-note{display:block;color:var(--text-soft);margin-top:6px}.login-divider{display:flex;align-items:center;gap:10px;color:var(--text-soft);margin:16px 0}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--border-color);flex:1}.google-g-logo{width:22px;height:22px;display:block}.aj-user{border:1px solid var(--border-color);background:#fff;border-radius:9px;padding:6px 9px;cursor:pointer;font:600 .75rem inherit;color:var(--text-color)}.aj-user:hover{background:var(--accent-bg);border-color:var(--accent-color)}.jotter-archive{position:relative;max-width:760px!important;text-align:left!important;max-height:86vh;overflow:auto}.archive-close{position:absolute;right:16px;top:13px;border:0;background:none;color:var(--text-soft);font-size:20px;cursor:pointer}.archive-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin:4px 28px 18px 0}.archive-heading h3{font-size:1.5rem;margin-bottom:4px}.archive-heading p{color:var(--text-soft);font-size:.88rem}.archive-list{display:flex;flex-direction:column;gap:10px}.archive-item{display:grid;grid-template-columns:1fr auto;gap:12px;border:1px solid var(--border-color);border-radius:13px;padding:14px;background:#fffdfa}.archive-title{font-weight:700;font-size:1rem}.archive-meta{color:var(--text-soft);font-size:.78rem;margin-top:5px;line-height:1.45}.archive-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}.archive-status{color:var(--text-soft);padding:8px 0}.save-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--success-color);margin-right:4px}@media(max-width:620px){.archive-item{grid-template-columns:1fr}.archive-actions{justify-content:flex-start}.archive-heading{flex-direction:column}}.login-divider{display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;gap:16px!important;text-align:center!important}.login-divider:before,.login-divider:after{content:''!important;display:block!important;width:100%!important;height:1px!important;background:var(--border-color)!important}.login-divider span{display:block;line-height:1;white-space:nowrap}.delete-board{color:var(--danger-color)!important;border-color:var(--danger-color)!important}.welcome-card{width:min(720px,calc(100vw - 32px))!important;max-width:720px!important;padding:38px 52px!important;border-radius:28px!important}.welcome-logo{width:360px;max-width:88%;height:auto}.welcome-badge{display:inline-flex;margin:12px auto 10px;padding:7px 13px;border-radius:999px;background:var(--accent-bg);color:var(--accent-hover);font-size:.8rem;font-weight:700}.welcome-card h1{font-size:2.35rem;line-height:1.08;margin:8px 0 12px}.welcome-lead{max-width:570px;margin:0 auto 24px;color:var(--text-soft);font-size:1.05rem;line-height:1.55}.welcome-google-button,.welcome-enter,.welcome-discover{width:100%;min-height:54px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700}.welcome-google-button{border:1px solid #dadce0;background:#fff;color:#3c4043;gap:13px}.welcome-google-logo{width:24px;height:24px}.welcome-google small{display:block;color:var(--text-soft);margin-top:7px}.welcome-divider{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin:20px 0;color:var(--text-soft)}.welcome-divider:before,.welcome-divider:after{content:'';height:1px;background:var(--border-color)}.welcome-dev h2{font-size:1.15rem;margin-bottom:12px}.welcome-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.welcome-fields input{width:100%;min-height:50px;margin:0!important;padding:12px 15px!important;font-size:1rem}.welcome-enter{margin:14px auto 0!important}.welcome-discover{margin:14px auto 0;border:0;background:transparent;color:var(--accent-hover);cursor:pointer;text-decoration:underline}.welcome-discover-modal{position:relative;max-width:760px!important;text-align:left!important;max-height:88vh;overflow:auto}.welcome-modal-close{position:absolute;right:17px;top:14px;border:0;background:transparent;color:var(--text-soft);font-size:20px;cursor:pointer}.discover-summary{margin:7px 0 18px;color:var(--text-soft);line-height:1.5}.discover-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.discover-grid div{padding:16px;border:1px solid var(--border-color);border-radius:13px;background:#fffdfa;display:flex;flex-direction:column;gap:6px}.discover-grid strong{color:var(--text-color)}.discover-grid span{color:var(--text-soft);font-size:.88rem;line-height:1.4}.welcome-discover-done{width:100%;justify-content:center;margin-top:18px;padding:12px!important}@media(max-width:620px){.welcome-card{padding:28px 22px!important}.welcome-card h1{font-size:1.8rem}.welcome-fields,.discover-grid{grid-template-columns:1fr}}.discover-heading{display:flex;gap:14px;align-items:flex-start;margin:0 32px 20px 0}.discover-heading-icon{width:48px;height:48px;border-radius:14px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}.discover-heading h2{margin:0 0 6px;font-size:1.8rem}.discover-heading p{margin:0;color:var(--text-soft);line-height:1.5}.discover-grid-rich>div{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:13px;padding:18px!important;transition:transform .15s ease,box-shadow .15s ease}.discover-grid-rich>div:hover{transform:translateY(-2px);box-shadow:var(--shadow-medium)}.discover-grid-rich section{display:flex;flex-direction:column;gap:6px}.discover-grid-rich section>strong{font-size:1.04rem}.discover-grid-rich section span{line-height:1.48}.discover-icon{width:38px;height:38px;border-radius:11px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}.discover-pdf-card{grid-column:1/-1!important;background:linear-gradient(135deg,var(--success-bg),#fffdfa)!important;border-color:var(--success-color)!important}.discover-pdf-card .discover-icon{background:#fff}.archive-pdf{display:inline-flex!important;align-items:center;gap:6px}.archive-pdf-icon{font-size:16px}@media(max-width:620px){.discover-pdf-card{grid-column:auto!important}}#welcomeDiscoverModal{z-index:5000!important;position:fixed!important;inset:0!important;background:rgba(31,35,55,.46)!important;align-items:center!important;justify-content:center!important;padding:20px!important}#welcomeDiscoverModal .welcome-discover-modal{z-index:5001!important;position:relative!important}.export-board{position:relative}.export-board:active{transform:scale(.97)}.site-footer{position:relative;z-index:10;padding:18px 16px 28px;text-align:center;color:var(--text-soft);font-size:.78rem}.site-footer nav{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:7px}.site-footer button{border:0;background:none;color:var(--accent-hover);font-weight:700;cursor:pointer}.admin-link{margin-left:10px!important}.legal-modal,.legal-modal .legal-content,#adminModal{z-index:6000!important}.legal-content,.admin-console{position:relative;max-width:820px!important;text-align:left!important;max-height:88vh;overflow:auto}.legal-content h2,.admin-console h2{font-size:1.7rem;margin-bottom:12px}.legal-content h3{margin:18px 0 6px}.legal-content p{line-height:1.58;color:var(--text-soft)}.legal-close{position:absolute;right:16px;top:12px;border:0;background:none;font-size:25px;color:var(--text-soft);cursor:pointer}.legal-warning{margin-top:18px;padding:12px;background:var(--warning-bg);border-radius:10px}.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.plans-grid section{padding:16px;border:1px solid var(--border-color);border-radius:12px;display:flex;flex-direction:column;gap:5px}.plans-grid b{font-size:1.08rem}.admin-console{max-width:1050px!important}.admin-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-right:30px}.admin-head p{color:var(--text-soft)}#adminLive{padding:7px 10px;border-radius:999px;background:var(--success-bg);color:var(--success-color);font-size:.75rem;font-weight:700}.admin-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:20px 0}.admin-card{padding:15px;border:1px solid var(--border-color);border-radius:12px;background:#fffdfa}.admin-card b{display:block;font-size:1.5rem}.admin-card span{color:var(--text-soft);font-size:.78rem}.admin-table-wrap{overflow:auto;margin-top:10px}.admin-table-wrap table{width:100%;border-collapse:collapse;font-size:.82rem}.admin-table-wrap th,.admin-table-wrap td{padding:10px;border-bottom:1px solid var(--border-color);text-align:left}.plan-pill{padding:4px 7px;border-radius:999px;background:var(--accent-bg);font-weight:700}@media(max-width:700px){.plans-grid,.admin-cards{grid-template-columns:1fr}.site-footer nav{flex-wrap:wrap}}.status-pill{padding:4px 8px;border-radius:999px;font-weight:700;font-size:.72rem}.status-pill.active{color:var(--success-color);background:var(--success-bg)}.status-pill.suspended{color:var(--danger-color);background:var(--danger-bg)}.admin-user-actions{display:flex;gap:6px;white-space:nowrap}.admin-user-actions .btn{padding:7px 9px!important;font-size:.72rem}.owner-protected{font-size:.72rem;color:var(--text-soft);font-weight:700}.admin-table-wrap a{color:var(--accent-hover);font-weight:600}
-#googleBtn{display:flex;justify-content:center;width:100%;min-height:44px}
+
+/* Fix centratura pulsante Google e testo su Tablet/PC */
+.welcome-google { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; width: 100% !important; margin: 0 auto !important; }
+#googleBtn { display: flex !important; justify-content: center !important; width: 100% !important; margin-bottom: 8px !important; }
 #googleBtn>div,#googleBtn iframe{margin-left:auto!important;margin-right:auto!important;border-radius:999px!important}
 body:not(.dev-auth-enabled) .welcome-divider{display:none!important}
 body:not(.dev-auth-enabled) #devLogin{display:none!important}
@@ -186,7 +190,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .site-footer{padding-bottom:24px}
 }
 
-
 @media(max-width:760px),(pointer:coarse){
  html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
  #ajLogin,#ajLobby{inset:0!important;width:100%!important;height:100dvh!important;padding:8px!important;overflow-y:auto!important;align-items:flex-start!important}
@@ -204,7 +207,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .jotter-archive{width:calc(100vw - 16px)!important;max-width:none!important;padding:16px!important}.archive-heading{margin-right:24px!important}.archive-heading h3{font-size:1.35rem!important}.archive-heading-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}.archive-item{grid-template-columns:1fr!important;padding:12px!important}.archive-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}.archive-actions .btn{justify-content:center!important;min-width:0!important}
 }
 
-
 @media(max-width:760px),(pointer:coarse){
  .mobile-zoom{grid-template-columns:34px minmax(48px,1fr) minmax(52px,1fr) 38px 34px!important}
  #mobileZoomOut,#mobileZoomIn{width:34px!important;height:34px!important;min-height:34px!important;border-radius:50%!important;padding:0!important;font-size:1rem!important}
@@ -221,7 +223,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  body.mobile-pan-mode #draftBoard:active{cursor:grabbing!important}
 }
 
-
 @keyframes ajPanPulse{0%,100%{box-shadow:0 0 0 0 rgba(143,169,224,.85);opacity:1}50%{box-shadow:0 0 0 8px rgba(143,169,224,0);opacity:.58}}
 @media(max-width:760px),(pointer:coarse){
  .mobile-zoom{display:grid!important;grid-template-columns:minmax(58px,1fr) 44px minmax(58px,1fr)!important;gap:4px!important}
@@ -235,7 +236,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #qrModal .modal-content{display:flex;flex-direction:column;align-items:center;text-align:center}
 #qrcode{display:flex;align-items:center;justify-content:center;width:100%;margin:0 auto 8px}
 #qrcode img,#qrcode canvas{display:block!important;margin:0 auto!important}
-
 
 @media(max-width:760px),(pointer:coarse){
  #mobileTopbar{grid-template-columns:minmax(68px,.9fr) minmax(190px,1.8fr) minmax(68px,.9fr)!important;overflow:visible!important}
@@ -252,7 +252,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #jotterArchiveStatus{flex:0 0 auto!important;padding:7px 14px!important;background:#fff!important}#jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;padding:8px 10px 20px!important}
 }
 #qrModal .modal-content{overflow:hidden!important}#qrcode{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;max-width:100%!important;overflow:hidden!important}#qrcode>*:not(:first-child){display:none!important}#qrcode img,#qrcode canvas{display:block!important;max-width:100%!important;height:auto!important;margin:0 auto!important}
-
 
 @keyframes ajPanPulse115{0%,100%{box-shadow:0 0 0 0 rgba(112,150,224,.9);opacity:1}50%{box-shadow:0 0 0 7px rgba(112,150,224,0);opacity:.58}}
 @media(max-width:760px),(pointer:coarse){
@@ -278,7 +277,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:8px 10px 22px!important}
 }
 
-
 @media(max-width:760px),(pointer:coarse){
  #mobileGuideGrid115{display:none!important}
  .aj-page-grid116{position:absolute;left:0;width:100%;height:var(--a4-h);z-index:1;pointer-events:none;background-image:linear-gradient(to right,rgba(65,85,125,.13) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.13) 1px,transparent 1px);background-size:20% 20%}
@@ -295,19 +293,12 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:8px 10px 22px!important}
 }
 
-
 @media(max-width:760px),(pointer:coarse){
  #mobileZoomValue{display:none!important}
  #mobileZoomFit{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important}
  #mobileZoomFit .aj-zoom117{display:block;margin-top:3px;font-size:.58rem;line-height:1;color:var(--text-soft);font-weight:700}
 }
 
-
-@media (min-width:761px) and (pointer:coarse){
- #googleBtn{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;overflow:hidden!important}
- #googleBtn>div,#googleBtn iframe{display:block!important;margin-left:auto!important;margin-right:auto!important;max-width:100%!important}
- .welcome-google{width:100%!important;margin-left:auto!important;margin-right:auto!important}
-}
 @media (pointer:coarse){
  #mobileViewport,#mobileStageV109,#canvas-wrapper,#drawingBoard,#draftBoard,.aj-page-grid116,.aj-page-grid116 span,.real-page-break,.page-delete-btn{
   -webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-tap-highlight-color:transparent!important
@@ -317,14 +308,12 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #text-tool-overlay,#text-tool-input,#text-tool-overlay *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}
 }
 
-
 @media (pointer:coarse){
  #mobilePanBtn{display:none!important}
  .mobile-zoom{grid-template-columns:minmax(72px,1fr) 44px 44px!important;align-items:stretch!important}
  #mobileUndo119,#mobileRedo119{display:flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border-radius:12px!important;font-size:1.25rem!important;font-weight:800!important}
  #mobileUndo119:disabled,#mobileRedo119:disabled{opacity:.42!important}
 }
-
 
 @media (max-width:760px),(pointer:coarse){
  #mobileTopbar{
@@ -369,7 +358,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #mobileToolsBtn{font-size:.68rem!important}#mobileZoomFit{font-size:.67rem!important}#mobileUserBtn{font-size:.59rem!important}
 }
 
-
 @media (min-width:761px) and (pointer:coarse){
  html.aj-old-ipad #mobileViewport{contain:layout paint!important;-webkit-overflow-scrolling:auto!important}
  html.aj-old-ipad #mobileStageV109{contain:layout paint!important;overflow:visible!important}
@@ -378,7 +366,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  html.aj-old-ipad #canvas-wrapper{box-shadow:0 4px 12px rgba(80,60,100,.10)!important}
 }
 
-
 @media (min-width:761px) and (pointer:coarse){
  html.aj-old-ipad.aj-camera-moving #canvas-wrapper{will-change:transform!important}
  html.aj-old-ipad.aj-camera-moving .aj-page-grid116,
@@ -386,7 +373,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  html.aj-old-ipad.aj-camera-moving .page-delete-btn{visibility:hidden!important}
  html.aj-old-ipad #mobileViewport{overflow:hidden!important;touch-action:none!important}
 }
-
 
 /* Tablet: esperienza desktop completa. Lo smartphone resta invariato. */
 @media (min-width:761px) and (pointer:coarse){
@@ -399,12 +385,9 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .aj-page-grid116{display:none!important}
  #jotterArchiveModal{inset:0!important;padding:20px!important;align-items:center!important;justify-content:center!important}
  #jotterArchiveModal .jotter-archive{position:relative!important;inset:auto!important;width:min(1100px,calc(100vw - 40px))!important;height:auto!important;max-height:calc(100vh - 40px)!important;margin:auto!important}
- #googleBtn,.welcome-google{display:flex!important;width:100%!important;justify-content:center!important;align-items:center!important;margin-left:auto!important;margin-right:auto!important;overflow:visible!important}
- #googleBtn>div,#googleBtn iframe{display:block!important;margin-left:auto!important;margin-right:auto!important;max-width:100%!important}
  #ajLobby input,#joinCode,.aj-choice input{pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;position:relative!important;z-index:5!important}
  .aj-choice-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:20px!important}.aj-choice{min-height:280px!important}
 }
-
 
 /* Campo codice sempre interattivo su iPad e tablet Android, anche su WebKit meno recente. */
 #joinCode{
@@ -420,7 +403,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 #joinCodeFixLayer125{position:relative!important;z-index:10000!important;pointer-events:auto!important}
 
-
 /* v13 consolidata: smartphone sotto 761px; tablet touch con layout desktop. */
 @media (min-width:761px) and (any-pointer:coarse){
  html,body{width:100%!important;max-width:none!important;overflow:hidden!important}
@@ -432,11 +414,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .aj-page-grid116{display:none!important}
  .aj-choice-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:20px!important}.aj-choice{min-height:280px!important}
  #jotterArchiveModal{inset:0!important;padding:20px!important;align-items:center!important;justify-content:center!important}
- #googleBtn{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;min-height:44px!important;overflow:visible!important;text-align:center!important}
- #googleBtn>div,#googleBtn iframe{display:block!important;margin-left:auto!important;margin-right:auto!important;max-width:100%!important}
  #joinCode{display:block!important;width:100%!important;min-height:48px!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;position:relative!important;z-index:100!important}
 }
-
 
 @media (min-width:761px) and (max-width:1366px) and (pointer:coarse){
  #mobileTopbar{display:grid!important}
@@ -447,24 +426,14 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .site-footer{position:relative!important;margin-top:auto!important;padding:18px 16px 28px!important}
 }
 
-
 /* ============================================================
    v14.0 — Consolidamento layout tablet (iPad e Android >= 820px)
-   Sovrascrive i blocchi @media pointer:coarse precedenti sistemando:
-   1) barra strumenti (header desktop touch-friendly, no mobileTopbar)
-   2) pan a due dita (fix nel JS: scrolla #mobileViewport, non window)
-   3) footer davvero in fondo alla pagina (body flex-column)
    ============================================================ */
 @media (min-width:820px) and (pointer:coarse) {
-
- /* --- Layout body flex-column: il footer sta naturalmente in fondo --- */
  html, body { height:100% !important; overflow:hidden !important; width:100% !important; max-width:none !important; }
  body { display:flex !important; flex-direction:column !important; min-height:100dvh !important; margin:0 !important; }
-
- /* --- Topbar mobile spenta: sui tablet torna la header desktop --- */
  #mobileTopbar { display:none !important; }
 
- /* --- Header desktop visibile, centrata, con scroll orizzontale se non ci sta --- */
  header, body.mobile-tools-open header {
   display:flex !important;
   position:fixed !important;
@@ -480,8 +449,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   scrollbar-width:none;
  }
  header::-webkit-scrollbar { display:none; }
-
- /* --- Target tocco 44x44 (soglia accessibilita Apple/Google) --- */
  header .icon-btn { min-width:44px !important; min-height:44px !important; padding:10px !important; }
  header .icon-btn svg { width:20px !important; height:20px !important; }
  header .btn { min-height:44px !important; padding:8px 14px !important; font-size:0.88rem !important; }
@@ -494,7 +461,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  header .brand-logo { width:150px !important; height:34px !important; }
  header .tools-group { gap:8px !important; padding:0 10px !important; }
 
- /* --- Viewport come flex-item del body: prende tutto lo spazio residuo --- */
  #mobileViewport {
   position:relative !important;
   top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
@@ -532,10 +498,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   will-change:auto !important;
  }
 
- /* --- Griglia mobile spenta sui tablet (ridondante, e disturba visivamente) --- */
  .aj-page-grid116, #mobileGuideGrid115 { display:none !important; }
 
- /* --- Footer sempre in fondo: e' flex-item non-crescente dopo il viewport --- */
  .site-footer {
   position:relative !important;
   flex:0 0 auto !important;
@@ -549,7 +513,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  }
  .site-footer nav { flex-wrap:wrap !important; }
 
- /* --- Overlay login/lobby: coprono tutto correttamente su tablet --- */
  #ajLogin, #ajLobby {
   position:fixed !important; inset:0 !important;
   width:100% !important; height:100dvh !important;
@@ -558,28 +521,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   overflow-y:auto !important;
  }
 }
-/* Fix centratura pulsante Google e testo su Tablet/PC */
-.welcome-google {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-}
-#googleBtn {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
-    margin-bottom: 8px !important;
-}
 </style>
 </head>
 <body>
-    <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
+    <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo" onerror="this.src='https://placehold.co/360x80/EFE9E1/3D3A50?text=AirJotter'"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
     <div id="ajLobby" class="aj-overlay aj-hidden">
   <div class="aj-card aj-access-card">
-    <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo">
+    <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo" onerror="this.src='https://placehold.co/360x80/EFE9E1/3D3A50?text=AirJotter'">
     <h2 class="aj-access-title">Come vuoi usare airjotter?</h2>
     <p class="aj-access-subtitle">Scegli una delle due modalità. Sono operazioni diverse.</p>
     <div class="aj-choice-grid">
@@ -601,7 +549,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
     <header>
         <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-            <div class="brand" title="Torna in cima" id="brandBtn"><img class="brand-logo" src="airjotter_logo.png" alt="airjotter.com"></div>
+            <div class="brand" title="Torna in cima" id="brandBtn"><img class="brand-logo" src="airjotter_logo.png" alt="airjotter.com" onerror="this.src='https://placehold.co/142x32/EFE9E1/3D3A50?text=AirJotter'"></div>
             <button id="helpBtn" style="background:var(--accent-bg); color:var(--accent-color); border:1px solid var(--accent-color); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; cursor:pointer;" title="Guida all'uso">?</button>
         </div>
         
@@ -776,7 +724,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         let activePointers = new Map();
         let initialScrollX = 0, initialScrollY = 0, panStartCenter = null;
-        let panScrollTarget = null; // v14.0: contenitore reale di scroll (window su desktop, #mobileViewport su tablet/mobile)
+        let panScrollTarget = null;
 
         let lastEventData = null; 
         let pointerVelocity = 0; 
@@ -877,14 +825,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                         
                         let centerY = (minY + maxY) / 2;
                         if (centerY >= endY) {
-                            // Element is below the deleted page, shift it up
                             const shiftedPoints = cmd.points.map(p => ({...p, y: p.y - BASE_A4_H}));
                             newCommands.push({...cmd, points: shiftedPoints});
                         } else if (centerY < startY) {
-                            // Element is above, keep as is
                             newCommands.push(cmd);
                         }
-                        // if centered in the deleted page, discard it.
                     } else if (cmd.type === 'stamp' || cmd.type === 'text') {
                         let h = cmd.h || (cmd.fontSize * 1.5 * cmd.text.split('\n').length);
                         let centerY = cmd.y + h / 2;
@@ -916,7 +861,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     wrapper.appendChild(brk);
                 }
                 
-                // Add a trash button to easily delete this specific page
                 let delBtn = document.createElement('button');
                 delBtn.className = 'page-delete-btn';
                 delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
@@ -982,15 +926,10 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         document.getElementById('textConfirmBtn').addEventListener('click', () => {
             const text = textToolInput.value;
             if (text.trim() !== '') {
-                // Precise text coordinate calculation avoiding any jumping offsets
                 const overlayLeft = parseFloat(textToolOverlay.style.left) || 0;
                 const overlayTop = parseFloat(textToolOverlay.style.top) || 0;
-                
-                // Offset of the textarea within the overlay
                 const inputOffsetX = textToolInput.offsetLeft;
                 const inputOffsetY = textToolInput.offsetTop;
-                
-                // Accounts for standard textarea padding (5px) and 1px border inside the scaled container
                 const paddingX = 6; 
                 const paddingY = 6; 
 
@@ -1131,29 +1070,29 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 targetCtx.fill();
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
             } else if (activePointers.size === 2) {
-            isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
-            let pts = Array.from(activePointers.values());
-            
-            // Deleghiamo pan e zoom allo script mobile per i tocchi a schermo
-            // evitando conflitti di calcolo sullo scroll del viewport.
-            if (pts[0].pointerType === 'touch') {
-                panStartCenter = null;
-                return;
-            }
+                isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
+                let pts = Array.from(activePointers.values());
+                
+                // Deleghiamo pan e zoom allo script mobile per i tocchi a schermo
+                // evitando conflitti di calcolo sullo scroll del viewport.
+                if (pts[0].pointerType === 'touch') {
+                    panStartCenter = null;
+                    return;
+                }
 
-            panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-            
-            const mv = document.getElementById('mobileViewport');
-            const isViewportScrollable = window.getComputedStyle(mv).overflow !== 'visible';
-            panScrollTarget = isViewportScrollable ? mv : window;
-            
-            if (panScrollTarget === window) {
-                initialScrollX = window.scrollX; initialScrollY = window.scrollY;
-            } else {
-                initialScrollX = panScrollTarget.scrollLeft; initialScrollY = panScrollTarget.scrollTop;
+                panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+                
+                const mv = document.getElementById('mobileViewport');
+                const isViewportScrollable = window.getComputedStyle(mv).overflow !== 'visible';
+                panScrollTarget = isViewportScrollable ? mv : window;
+                
+                if (panScrollTarget === window) {
+                    initialScrollX = window.scrollX; initialScrollY = window.scrollY;
+                } else {
+                    initialScrollX = panScrollTarget.scrollLeft; initialScrollY = panScrollTarget.scrollTop;
+                }
             }
-        }
-    });
+        });
 
         draftCanvas.addEventListener('pointermove', e => {
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
@@ -1163,7 +1102,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 let center = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
                 const dx = center.x - panStartCenter.x;
                 const dy = center.y - panStartCenter.y;
-                // v14.0: scrolla il contenitore rilevato al pointerdown (window o #mobileViewport)
                 if (panScrollTarget === window) {
                     window.scrollTo(initialScrollX - dx, initialScrollY - dy);
                 } else if (panScrollTarget) {
@@ -1693,7 +1631,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         ['undoBtn', 'redoBtn'].forEach(id => {
             document.getElementById(id).addEventListener('click', async () => {
                 if (ajBoard) {
-                    await ajSocket.emitWithAck(id === 'undoBtn' ? 'history:undo' : 'history:redo', { boardId: ajBoard.id });
+                    await (ajSocket?.emitWithAck ? ajSocket.emitWithAck(id === 'undoBtn' ? 'history:undo' : 'history:redo', { boardId: ajBoard.id }) : null);
                     return;
                 }
                 if(id==='undoBtn' && commands.length > 0) redoCommands.push(commands.pop());
@@ -1702,15 +1640,42 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             });
         });
 
-        // airjotter collaborative runtime
-        const ajSocket = io({autoConnect:false,retries:3,ackTimeout:10000});
-        let ajMe = null, ajBoard = null, ajRole = 'viewer', ajRemote = false;
-        const ajApi = async (url, options = {}) => {
-            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(data.error || response.statusText);
-            return data;
+        // airjotter collaborative runtime con protezione standalone
+        const ajSocket = typeof io !== 'undefined' ? io({autoConnect:false,retries:3,ackTimeout:10000}) : {
+            connect: () => console.warn('Modalità offline attiva'),
+            on: () => {},
+            emitWithAck: async () => ({ok: false, error: 'Offline'})
         };
+        
+        let ajMe = null, ajBoard = null, ajRole = 'viewer', ajRemote = false;
+        
+        const ajApi = async (url, options = {}) => {
+            let fetchUrl = url;
+            // Preveniamo il TypeError per le preview locali isolate
+            if (window.location.protocol === 'blob:' || window.location.protocol === 'data:' || window.location.origin === 'null') {
+                fetchUrl = 'http://localhost' + url; 
+            }
+            try {
+                const response = await fetch(fetchUrl, { headers: { 'Content-Type': 'application/json' }, ...options });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.error || response.statusText);
+                return data;
+            } catch (err) {
+                // Forniamo un ambiente demo quando l'API non è disponibile (es: Anteprima o file locale isolato)
+                console.info(`[Anteprima] API Backend offline (${url}). Dati demo utilizzati.`);
+                if (url === '/api/config') return { devAuth: true, googleClientId: '' };
+                if (url === '/api/me') return { name: 'Utente Demo', isAdmin: true, plan: 'free', limits: { boards: 10, pages: 10 } };
+                if (url === '/api/my/boards') return [];
+                if (url === '/api/boards' && options.method === 'POST') return { id: 'demo-id', roomCode: 'ABC-1234', role: 'owner' };
+                if (url === '/api/boards/join') return { id: 'demo-id', roomCode: options.body ? JSON.parse(options.body).roomCode : 'ABC-1234', role: 'editor' };
+                if (url.includes('/operations')) return [];
+                if (url.includes('/history-state')) return { canUndo: false, canRedo: false };
+                if (url.includes('/admin/stats')) return { users:{total:1,today:1}, logins:{total:1,today:1,active_users:1}, boards:{total:1}, operations:0, online:1, updatedAt:new Date().toISOString() };
+                if (url.includes('/admin/users')) return [];
+                throw new Error("Ambiente di test disconnesso dal server.");
+            }
+        };
+        
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
@@ -1750,8 +1715,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         async function ajOpenBoard(board) {
             ajBoard=board; ACTUAL_ROOM_CODE=board.roomCode; document.getElementById('roomCode').innerText='***-****';
             document.getElementById('ajLobby').classList.add('aj-hidden');
-            history.replaceState(null,'',`/?room=${board.roomCode}`);
-            await ajSocket.emitWithAck('board:join',{boardId:board.id}); await ajReload(); ajSetRole(board.role);
+            if (window.location.protocol.startsWith('http')) history.replaceState(null,'',`/?room=${board.roomCode}`);
+            await (ajSocket?.emitWithAck ? ajSocket.emitWithAck('board:join',{boardId:board.id}) : null); await ajReload(); ajSetRole(board.role);
         }
         async function ajJoin(code) { await ajOpenBoard(await ajApi('/api/boards/join',{method:'POST',body:JSON.stringify({roomCode:code})})); }
         async function ajReady() {
@@ -1787,7 +1752,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:360});
   if(status)status.textContent='Usa il tuo account Google per registrarti o accedere';
  }catch(error){
-  console.error('Inizializzazione Google:',error);
+  console.error('Inizializzazione Configurazione:',error);
   if(status)status.textContent=error.message;
  }
  try{await ajReady()}catch(error){if(error.message!=='Autenticazione richiesta')console.debug(error.message)}
@@ -2024,6 +1989,79 @@ document.addEventListener('click', function(event) {
 
 
 
+<script id="airjotterMobileV117">
+(function(){
+ const vp=document.getElementById('mobileViewport'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
+ let stage=document.getElementById('mobileStageV109');
+ if(!stage){stage=document.createElement('div');stage.id='mobileStageV109';wrapper.parentNode.insertBefore(stage,wrapper);stage.appendChild(wrapper)}
+ const fitButton=document.getElementById('mobileZoomFit'),panButton=document.getElementById('mobilePanBtn');
+ const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
+ let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
+ let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
+ const mobile=()=>matchMedia('(max-width:760px)').matches||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+ const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
+ function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
+ function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
+ function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);panButton.setAttribute('aria-pressed',String(on));panButton.textContent=on?'Scrivi':'Sposta'}
+ fitButton.onclick=()=>{userZoom=1;if(document.documentElement.classList.contains('aj-old-ipad')){ajCamera={x:0,y:0,zoom:1,base:fitScale()};const scale=fitScale();stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.transform='translate3d(0,0,0) scale('+scale+')';wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}else apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
+
+ // Un dito sposta solo in modalita Sposta. Non intercetta il normale disegno.
+ draft.addEventListener('pointerdown',e=>{if(!mobile()||!panMode||e.pointerType==='mouse'||e.isPrimary===false)return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
+ draft.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=drag.left-(e.clientX-drag.x);vp.scrollTop=drag.top-(e.clientY-drag.y)},true);
+ function endDrag(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
+ draft.addEventListener('pointerup',endDrag,true);draft.addEventListener('pointercancel',endDrag,true);
+
+ // Due dita: modalita Camera GPU sui vecchi iPad; comportamento corrente sugli altri dispositivi.
+ let ajGestureFrame=0,ajGestureData=null;
+ const ajLegacyIPad=()=>document.documentElement.classList.contains('aj-old-ipad');
+ let ajCamera={x:0,y:0,zoom:1,base:0};
+ function ajClampCamera(x,y,scale){
+  const vw=vp.clientWidth,vh=vp.clientHeight,cw=LOGICAL_W*scale,ch=LOGICAL_H*scale;
+  return {x:Math.min(10,Math.max(vw-cw-10,x)),y:Math.min(10,Math.max(vh-ch-10,y))};
+ }
+ function ajPaintCamera(){
+  ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;
+  userZoom=g.zoom;const scale=fitScale()*userZoom;
+  const pointX=(pinch.startCx-ajCamera.x)/(pinch.startScale||scale);
+  const pointY=(pinch.startCy-ajCamera.y)/(pinch.startScale||scale);
+  const c=ajClampCamera(g.cx-pointX*scale,g.cy-pointY*scale,scale);
+  ajCamera.x=Math.round(c.x);ajCamera.y=Math.round(c.y);ajCamera.zoom=userZoom;ajCamera.base=fitScale();
+  wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';
+  wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%';
+ }
+ vp.addEventListener('touchstart',e=>{
+  if(e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect(),cx=(p.clientX+q.clientX)/2-box.left,cy=(p.clientY+q.clientY)/2-box.top;
+  if(ajLegacyIPad()){
+   const currentScale=fitScale()*userZoom;
+   if(!ajCamera.base){ajCamera.base=fitScale();ajCamera.zoom=userZoom;ajCamera.x=0;ajCamera.y=0}
+   pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,startCx:cx,startCy:cy,startScale:currentScale};
+   document.documentElement.classList.add('aj-camera-moving');e.preventDefault();return;
+  }
+  const scale=fitScale()*userZoom;pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault();
+ },{capture:true,passive:false});
+ function ajPaintStandard(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}
+ vp.addEventListener('touchmove',e=>{
+  if(!pinch||e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect();
+  ajGestureData={cx:(p.clientX+q.clientX)/2-box.left,cy:(p.clientY+q.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance))};
+  if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajLegacyIPad()?ajPaintCamera:ajPaintStandard);e.preventDefault();
+ },{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{
+  if(e.touches.length<2){if(ajGestureFrame){cancelAnimationFrame(ajGestureFrame);(ajLegacyIPad()?ajPaintCamera:ajPaintStandard)()}pinch=null;document.documentElement.classList.remove('aj-camera-moving')}
+ },{capture:true,passive:true});
+ // Griglie indipendenti per pagina.
+ function renderPageGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());if(!mobile())return;for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
+ const baseInit=initCanvas;initCanvas=function(){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;const result=baseInit.apply(this,arguments);userZoom=keepZoom;renderPageGrids();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}return result};renderPageGrids();
+
+ // Polling di recupero: conserva zoom e posizione durante una ricostruzione.
+ async function syncCheck(){if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;polling=true;try{const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);if(lastRevision<0){lastRevision=revision;return}if(revision!==lastRevision){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;lastRevision=revision;commands=[];redoCommands=[];TOTAL_PAGES=2;ajRemote=true;operations.filter(o=>o.is_active!==false).forEach(ajApplyOperation);ajRemote=false;userZoom=keepZoom;baseInit();renderPageGrids();redrawMainCanvas();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}}}catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}}
+ const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;const result=await baseOpen(board);await syncCheck();apply(false);return result};
+ ajSocket.on('board:operation',op=>{lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
+
+ // Archivio mobile gia abbassato dalla v11.6.
+ const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');if(close)close.onclick=()=>modal.style.display='none';if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});const previousArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
+ document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(false),180);
+})();
+</script>
 <script id="airjotterUndoRedoV119">
 (function(){
  const group=document.querySelector('#mobileTopbar .mobile-zoom');
@@ -2068,7 +2106,7 @@ document.addEventListener('click', function(event) {
  async function refreshHistory(){if(!ajBoard)return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
  async function historyAction(kind){
   if(!ajBoard)return;
-  const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});
+  const result=await (ajSocket?.emitWithAck ? ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id}) : null);
   if(result?.ok){applyState(result);setTimeout(refreshHistory,120)}else await refreshHistory();
  }
  // Cattura i clic prima dei vecchi handler e usa sempre lo stato server autorevole.
@@ -2076,8 +2114,10 @@ document.addEventListener('click', function(event) {
  desktopRedo.addEventListener('click',e=>{if(!ajBoard)return;e.preventDefault();e.stopImmediatePropagation();historyAction('redo')},true);
  function wireMobile(){const m=mobileButtons();if(m.undo&&!m.undo.dataset.v121){m.undo.dataset.v121='1';m.undo.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();historyAction('undo')}}if(m.redo&&!m.redo.dataset.v121){m.redo.dataset.v121='1';m.redo.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();historyAction('redo')}}}
  wireMobile();new MutationObserver(wireMobile).observe(document.getElementById('mobileTopbar'),{childList:true,subtree:true});
- ajSocket.on('board:reload',()=>setTimeout(refreshHistory,180));
- ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
+ if (ajSocket?.on) {
+   ajSocket.on('board:reload',()=>setTimeout(refreshHistory,180));
+   ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
+ }
  const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){const value=await previousOpen(board);await refreshHistory();return value};
  setInterval(refreshHistory,1200);
 })();
