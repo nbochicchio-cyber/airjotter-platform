@@ -317,6 +317,14 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #text-tool-overlay,#text-tool-input,#text-tool-overlay *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}
 }
 
+
+@media (pointer:coarse){
+ #mobilePanBtn{display:none!important}
+ .mobile-zoom{grid-template-columns:minmax(72px,1fr) 44px 44px!important;align-items:stretch!important}
+ #mobileUndo119,#mobileRedo119{display:flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border-radius:12px!important;font-size:1.25rem!important;font-weight:800!important}
+ #mobileUndo119:disabled,#mobileRedo119:disabled{opacity:.42!important}
+}
+
 </style>
 </head>
 <body>
@@ -1794,6 +1802,37 @@ document.addEventListener('click', function(event) {
 
  function centerGoogle(){const target=document.getElementById('googleBtn');if(!target)return;target.style.display='flex';target.style.justifyContent='center';target.style.alignItems='center';for(const el of target.children){el.style.marginLeft='auto';el.style.marginRight='auto';el.style.maxWidth='100%'}}
  centerGoogle();new MutationObserver(centerGoogle).observe(document.getElementById('googleBtn'),{childList:true,subtree:true});window.addEventListener('orientationchange',()=>setTimeout(centerGoogle,250));
+})();
+</script>
+<script id="airjotterUndoRedoV119">
+(function(){
+ const group=document.querySelector('#mobileTopbar .mobile-zoom');
+ const oldPan=document.getElementById('mobilePanBtn');
+ if(!group||!oldPan)return;
+ oldPan.setAttribute('aria-hidden','true');oldPan.tabIndex=-1;
+ function make(id,label,symbol){let b=document.getElementById(id);if(b)return b;b=document.createElement('button');b.id=id;b.type='button';b.setAttribute('aria-label',label);b.title=label;b.textContent=symbol;group.appendChild(b);return b}
+ const undo=make('mobileUndo119','Annulla','↶');
+ const redo=make('mobileRedo119','Ripristina','↷');
+ function findDesktop(kind){
+  const ids=kind==='undo'?['undoBtn','undoButton']:['redoBtn','redoButton'];
+  for(const id of ids){const el=document.getElementById(id);if(el)return el}
+  return [...document.querySelectorAll('header button,header [role="button"]')].find(el=>{const t=((el.title||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.textContent||'')).toLowerCase();return kind==='undo'?(t.includes('undo')||t.includes('annulla')||t.includes('↶')):(t.includes('redo')||t.includes('ripristina')||t.includes('↷'))})||null;
+ }
+ undo.onclick=e=>{e.preventDefault();const target=findDesktop('undo');if(target)target.click()};
+ redo.onclick=e=>{e.preventDefault();const target=findDesktop('redo');if(target)target.click()};
+ function syncDisabled(){const u=findDesktop('undo'),r=findDesktop('redo');undo.disabled=!!u?.disabled;redo.disabled=!!r?.disabled}
+ setInterval(syncDisabled,350);syncDisabled();
+
+ // Quando arriva il secondo dito, annulla immediatamente il tratto provvisorio del primo dito.
+ const draft=document.getElementById('draftBoard');
+ function cancelAccidentalStroke(e){
+  if(e.touches&&e.touches.length>=2){
+   try{isDrawing=false}catch{}
+   try{draft.getContext('2d').clearRect(0,0,draft.width,draft.height)}catch{}
+  }
+ }
+ draft.addEventListener('touchstart',cancelAccidentalStroke,{capture:true,passive:true});
+ document.addEventListener('gesturestart',e=>{try{isDrawing=false}catch{};try{draft.getContext('2d').clearRect(0,0,draft.width,draft.height)}catch{};e.preventDefault()},{capture:true,passive:false});
 })();
 </script>
 </body>
