@@ -1880,5 +1880,31 @@ document.addEventListener('click', function(event) {
 })();
 </script>
 <script id="airjotterToolbarV120">(function(){const bar=document.getElementById('mobileTopbar');if(bar)bar.setAttribute('data-toolbar-version','12.0')})();</script>
+<script id="airjotterHistoryV121">
+(function(){
+ const desktopUndo=document.getElementById('undoBtn'),desktopRedo=document.getElementById('redoBtn');
+ function mobileButtons(){return {undo:document.getElementById('mobileUndo119'),redo:document.getElementById('mobileRedo119')}}
+ function applyState(state){
+  if(!state)return;
+  desktopUndo.disabled=!state.canUndo;desktopRedo.disabled=!state.canRedo;
+  const m=mobileButtons();if(m.undo)m.undo.disabled=!state.canUndo;if(m.redo)m.redo.disabled=!state.canRedo;
+ }
+ async function refreshHistory(){if(!ajBoard)return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
+ async function historyAction(kind){
+  if(!ajBoard)return;
+  const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});
+  if(result?.ok){applyState(result);setTimeout(refreshHistory,120)}else await refreshHistory();
+ }
+ // Cattura i clic prima dei vecchi handler e usa sempre lo stato server autorevole.
+ desktopUndo.addEventListener('click',e=>{if(!ajBoard)return;e.preventDefault();e.stopImmediatePropagation();historyAction('undo')},true);
+ desktopRedo.addEventListener('click',e=>{if(!ajBoard)return;e.preventDefault();e.stopImmediatePropagation();historyAction('redo')},true);
+ function wireMobile(){const m=mobileButtons();if(m.undo&&!m.undo.dataset.v121){m.undo.dataset.v121='1';m.undo.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();historyAction('undo')}}if(m.redo&&!m.redo.dataset.v121){m.redo.dataset.v121='1';m.redo.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();historyAction('redo')}}}
+ wireMobile();new MutationObserver(wireMobile).observe(document.getElementById('mobileTopbar'),{childList:true,subtree:true});
+ ajSocket.on('board:reload',()=>setTimeout(refreshHistory,180));
+ ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
+ const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){const value=await previousOpen(board);await refreshHistory();return value};
+ setInterval(refreshHistory,1200);
+})();
+</script>
 </body>
 </html>
