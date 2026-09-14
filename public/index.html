@@ -204,6 +204,23 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .jotter-archive{width:calc(100vw - 16px)!important;max-width:none!important;padding:16px!important}.archive-heading{margin-right:24px!important}.archive-heading h3{font-size:1.35rem!important}.archive-heading-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}.archive-item{grid-template-columns:1fr!important;padding:12px!important}.archive-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}.archive-actions .btn{justify-content:center!important;min-width:0!important}
 }
 
+
+@media(max-width:760px),(pointer:coarse){
+ .mobile-zoom{grid-template-columns:34px minmax(48px,1fr) minmax(52px,1fr) 38px 34px!important}
+ #mobileZoomOut,#mobileZoomIn{width:34px!important;height:34px!important;min-height:34px!important;border-radius:50%!important;padding:0!important;font-size:1rem!important}
+ #mobilePanBtn{min-width:0!important;font-size:.72rem!important;padding:4px 6px!important}
+ #mobilePanBtn[aria-pressed="true"]{background:var(--accent-color)!important;color:#fff!important;border-color:var(--accent-color)!important}
+ #jotterArchiveModal{padding:0!important;align-items:stretch!important;overflow:hidden!important}
+ #jotterArchiveModal .jotter-archive{position:fixed!important;inset:8px!important;width:auto!important;max-width:none!important;height:auto!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;border-radius:16px!important;display:flex!important;flex-direction:column!important}
+ #jotterArchiveModal .archive-heading{position:relative!important;flex:0 0 auto!important;margin:0!important;padding:18px 54px 12px 16px!important;background:#fff!important;border-bottom:1px solid var(--border-color)!important;z-index:2!important}
+ #jotterArchiveModal .archive-heading-actions{margin-top:12px!important}
+ #jotterArchiveClose{position:absolute!important;display:flex!important;align-items:center!important;justify-content:center!important;right:12px!important;top:12px!important;width:40px!important;height:40px!important;border-radius:50%!important;background:var(--danger-bg)!important;color:var(--danger-color)!important;font-size:22px!important;z-index:10!important}
+ #jotterArchiveStatus{flex:0 0 auto!important;padding:8px 16px!important;background:#fff!important}
+ #jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:8px 12px 24px!important}
+ body.mobile-pan-mode #draftBoard{touch-action:none!important;cursor:grab!important}
+ body.mobile-pan-mode #draftBoard:active{cursor:grabbing!important}
+}
+
 </style>
 </head>
 <body>
@@ -282,7 +299,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         </div>
     </header>
 
-    <div id="mobileTopbar" aria-label="Comandi mobili"><button id="mobileToolsBtn" type="button">Strumenti</button><div class="mobile-zoom"><button id="mobileZoomOut" type="button" aria-label="Riduci">−</button><button id="mobileZoomFit" type="button">Adatta</button><span id="mobileZoomValue">100%</span><button id="mobileZoomIn" type="button" aria-label="Ingrandisci">+</button></div><button id="mobileUserBtn" type="button">Profilo</button></div><div id="mobileViewport"><div id="canvas-wrapper">
+    <div id="mobileTopbar" aria-label="Comandi mobili"><button id="mobileToolsBtn" type="button">Strumenti</button><div class="mobile-zoom"><button id="mobileZoomOut" type="button" aria-label="Riduci">−</button><button id="mobileZoomFit" type="button">Adatta</button><button id="mobilePanBtn" type="button" aria-pressed="false">Sposta</button><span id="mobileZoomValue">100%</span><button id="mobileZoomIn" type="button" aria-label="Ingrandisci">+</button></div><button id="mobileUserBtn" type="button">Profilo</button></div><div id="mobileViewport"><div id="canvas-wrapper">
         <canvas id="drawingBoard"></canvas>
         <canvas id="draftBoard"></canvas>
         
@@ -1659,6 +1676,32 @@ document.addEventListener('click', function(event) {
  const ready=ajReady;ajReady=async function(){const r=await ready();identity();setTimeout(()=>apply(true),120);return r};
  const setRole=ajSetRole;ajSetRole=function(role){setRole(role);identity();setTimeout(()=>apply(false),30)};
  setTimeout(()=>apply(true),150);
+})();
+</script>
+<script id="airjotterMobileV110">
+(function(){
+ const vp=document.getElementById('mobileViewport'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
+ let userZoom=1,pinch=null,panMode=false,onePan=null;
+ function mobile(){return matchMedia('(max-width:760px),(pointer:coarse)').matches}
+ function stage(){return document.getElementById('mobileStageV109')}
+ function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W))}
+ function apply(center=false,anchor=null){if(!mobile())return;const st=stage();const oldRect=st.getBoundingClientRect();const scale=fitScale()*userZoom,w=Math.round(LOGICAL_W*scale),hh=Math.round(LOGICAL_H*scale);st.style.width=w+'px';st.style.height=hh+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';document.getElementById('mobileZoomValue').textContent=Math.round(scale*100)+'%';requestAnimationFrame(()=>{if(anchor){vp.scrollLeft=anchor.contentX*scale-anchor.x;vp.scrollTop=anchor.contentY*scale-anchor.y}else if(center){vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0}})}
+ function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);const b=document.getElementById('mobilePanBtn');b.setAttribute('aria-pressed',String(on));b.textContent=on?'Disegna':'Sposta'}
+ document.getElementById('mobilePanBtn').onclick=()=>setPan(!panMode);
+ document.getElementById('mobileZoomFit').onclick=()=>{userZoom=1;apply(true);setPan(false)};
+ document.getElementById('mobileZoomIn').onclick=()=>{userZoom=Math.min(4,userZoom+.25);apply(true)};
+ document.getElementById('mobileZoomOut').onclick=()=>{userZoom=Math.max(.5,userZoom-.25);apply(true)};
+ draft.addEventListener('pointerdown',e=>{if(!mobile()||!panMode||e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();onePan={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
+ draft.addEventListener('pointermove',e=>{if(!onePan||e.pointerId!==onePan.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=onePan.left-(e.clientX-onePan.x);vp.scrollTop=onePan.top-(e.clientY-onePan.y)},true);
+ function endOne(e){if(onePan&&e.pointerId===onePan.id){e.preventDefault();e.stopImmediatePropagation();onePan=null}},true;
+ draft.addEventListener('pointerup',endOne,true);draft.addEventListener('pointercancel',endOne,true);
+ vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=stage().getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2,scale=fitScale()*userZoom;pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:userZoom,contentX:(cx-r.left)/scale,contentY:(cy-r.top)/scale,x:cx-vp.getBoundingClientRect().left,y:cy-vp.getBoundingClientRect().top};e.preventDefault()},{passive:false});
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;userZoom=Math.max(.5,Math.min(4,pinch.z*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.d));apply(false,{contentX:pinch.contentX,contentY:pinch.contentY,x:cx-vp.getBoundingClientRect().left,y:cy-vp.getBoundingClientRect().top});e.preventDefault()},{passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
+ // X sempre funzionante e chiusura toccando lo sfondo.
+ const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');close.onclick=()=>modal.style.display='none';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});
+ // Prima schermata: /api/me ha già eliminato i vuoti prima di mostrare la lobby.
+ window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(true),150);
 })();
 </script>
 </body>
