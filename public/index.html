@@ -387,6 +387,24 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  html.aj-old-ipad #mobileViewport{overflow:hidden!important;touch-action:none!important}
 }
 
+
+/* Tablet: esperienza desktop completa. Lo smartphone resta invariato. */
+@media (min-width:761px) and (pointer:coarse){
+ html,body{width:100%!important;max-width:none!important;overflow-x:auto!important}
+ #mobileTopbar{display:none!important}
+ header,body.mobile-tools-open header{display:flex!important;position:fixed!important;top:10px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:calc(100vw - 24px)!important;transform:translateX(-50%) scale(1)!important;overflow-x:auto!important;overflow-y:hidden!important;z-index:240!important}
+ #mobileViewport{position:static!important;width:100%!important;height:auto!important;margin-top:96px!important;padding:10px!important;overflow:visible!important;touch-action:auto!important;contain:none!important}
+ #mobileStageV109{width:auto!important;height:auto!important;margin:0 auto!important;contain:none!important;overflow:visible!important}
+ #mobileStageV109>#canvas-wrapper,#canvas-wrapper{position:relative!important;left:auto!important;top:auto!important;margin:0 auto!important;transform-origin:top center!important;will-change:auto!important}
+ .aj-page-grid116{display:none!important}
+ #jotterArchiveModal{inset:0!important;padding:20px!important;align-items:center!important;justify-content:center!important}
+ #jotterArchiveModal .jotter-archive{position:relative!important;inset:auto!important;width:min(1100px,calc(100vw - 40px))!important;height:auto!important;max-height:calc(100vh - 40px)!important;margin:auto!important}
+ #googleBtn,.welcome-google{display:flex!important;width:100%!important;justify-content:center!important;align-items:center!important;margin-left:auto!important;margin-right:auto!important;overflow:visible!important}
+ #googleBtn>div,#googleBtn iframe{display:block!important;margin-left:auto!important;margin-right:auto!important;max-width:100%!important}
+ #ajLobby input,#joinCode,.aj-choice input{pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;position:relative!important;z-index:5!important}
+ .aj-choice-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:20px!important}.aj-choice{min-height:280px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1968,6 +1986,33 @@ document.addEventListener('click', function(event) {
  const viewport=document.getElementById('mobileViewport');
  viewport.scrollLeft=0;viewport.scrollTop=0;
  document.addEventListener('visibilitychange',()=>{if(document.hidden)document.documentElement.classList.remove('aj-camera-moving')});
+})();
+</script>
+<script id="airjotterTabletDesktopV124">
+(function(){
+ const tablet=matchMedia('(min-width:761px) and (pointer:coarse)').matches;
+ if(!tablet)return;
+ document.documentElement.classList.add('aj-tablet-desktop');
+ document.documentElement.classList.remove('aj-old-ipad','aj-camera-moving');
+ const wrapper=document.getElementById('canvas-wrapper');
+ const stage=document.getElementById('mobileStageV109');
+ const viewport=document.getElementById('mobileViewport');
+ function restoreDesktopView(){
+  if(stage){stage.style.width='auto';stage.style.height='auto'}
+  if(wrapper){wrapper.style.transform='';wrapper.style.transformOrigin='top center';wrapper.style.width='';wrapper.style.height='';wrapper.style.margin='0 auto'}
+  if(viewport){viewport.scrollLeft=0;viewport.scrollTop=0}
+  requestAnimationFrame(()=>{try{handleResize()}catch{}});
+ }
+ function centerGoogle(){
+  const target=document.getElementById('googleBtn');if(!target)return;
+  target.style.display='flex';target.style.justifyContent='center';target.style.alignItems='center';target.style.width='100%';
+  [...target.children].forEach(el=>{el.style.marginLeft='auto';el.style.marginRight='auto';el.style.maxWidth='100%'});
+ }
+ const google=document.getElementById('googleBtn');if(google)new MutationObserver(centerGoogle).observe(google,{childList:true,subtree:true});centerGoogle();
+ const join=document.getElementById('joinCode');if(join){
+  ['touchstart','pointerdown','click'].forEach(type=>join.addEventListener(type,e=>{e.stopPropagation();join.focus()},{passive:true}));
+ }
+ restoreDesktopView();window.addEventListener('resize',()=>setTimeout(restoreDesktopView,100));window.addEventListener('orientationchange',()=>setTimeout(()=>{restoreDesktopView();centerGoogle()},250));
 })();
 </script>
 </body>
