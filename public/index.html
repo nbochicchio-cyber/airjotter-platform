@@ -372,10 +372,19 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 @media (min-width:761px) and (pointer:coarse){
  html.aj-old-ipad #mobileViewport{contain:layout paint!important;-webkit-overflow-scrolling:auto!important}
- html.aj-old-ipad #mobileStageV109{will-change:width,height!important;contain:layout paint!important}
- html.aj-old-ipad #canvas-wrapper{will-change:transform!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+ html.aj-old-ipad #mobileStageV109{contain:layout paint!important;overflow:visible!important}
+ html.aj-old-ipad #canvas-wrapper{backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important;transform-style:preserve-3d!important}
  html.aj-old-ipad .aj-page-grid116 span{display:none!important}
  html.aj-old-ipad #canvas-wrapper{box-shadow:0 4px 12px rgba(80,60,100,.10)!important}
+}
+
+
+@media (min-width:761px) and (pointer:coarse){
+ html.aj-old-ipad.aj-camera-moving #canvas-wrapper{will-change:transform!important}
+ html.aj-old-ipad.aj-camera-moving .aj-page-grid116,
+ html.aj-old-ipad.aj-camera-moving .real-page-break,
+ html.aj-old-ipad.aj-camera-moving .page-delete-btn{visibility:hidden!important}
+ html.aj-old-ipad #mobileViewport{overflow:hidden!important;touch-action:none!important}
 }
 
 </style>
@@ -1817,7 +1826,7 @@ document.addEventListener('click', function(event) {
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
  function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
  function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);panButton.setAttribute('aria-pressed',String(on));panButton.textContent=on?'Scrivi':'Sposta'}
- fitButton.onclick=()=>{userZoom=1;apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
+ fitButton.onclick=()=>{userZoom=1;if(document.documentElement.classList.contains('aj-old-ipad')){ajCamera={x:0,y:0,zoom:1,base:fitScale()};const scale=fitScale();stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.transform='translate3d(0,0,0) scale('+scale+')';wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}else apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
 
  // Un dito sposta solo in modalita Sposta. Non intercetta il normale disegno.
  draft.addEventListener('pointerdown',e=>{if(!mobile()||!panMode||e.pointerType==='mouse'||e.isPrimary===false)return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
@@ -1825,11 +1834,43 @@ document.addEventListener('click', function(event) {
  function endDrag(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
  draft.addEventListener('pointerup',endDrag,true);draft.addEventListener('pointercancel',endDrag,true);
 
- // Due dita fanno sempre pan e pinch, anche quando Sposta e disattivato.
- vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top,scale=fitScale()*userZoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault()},{capture:true,passive:false});
- let ajGestureFrame=0,ajGestureData=null;function ajPaintGesture(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect();ajGestureData={cx:(a.clientX+b.clientX)/2-box.left,cy:(a.clientY+b.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance))};if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajPaintGesture);e.preventDefault()},{capture:true,passive:false});
- vp.addEventListener('touchend',e=>{if(e.touches.length<2){if(ajGestureFrame){cancelAnimationFrame(ajGestureFrame);ajPaintGesture()}pinch=null}},{capture:true,passive:true});
-
+ // Due dita: modalita Camera GPU sui vecchi iPad; comportamento corrente sugli altri dispositivi.
+ let ajGestureFrame=0,ajGestureData=null;
+ const ajLegacyIPad=()=>document.documentElement.classList.contains('aj-old-ipad');
+ let ajCamera={x:0,y:0,zoom:1,base:0};
+ function ajClampCamera(x,y,scale){
+  const vw=vp.clientWidth,vh=vp.clientHeight,cw=LOGICAL_W*scale,ch=LOGICAL_H*scale;
+  return {x:Math.min(10,Math.max(vw-cw-10,x)),y:Math.min(10,Math.max(vh-ch-10,y))};
+ }
+ function ajPaintCamera(){
+  ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;
+  userZoom=g.zoom;const scale=fitScale()*userZoom;
+  const pointX=(pinch.startCx-ajCamera.x)/(pinch.startScale||scale);
+  const pointY=(pinch.startCy-ajCamera.y)/(pinch.startScale||scale);
+  const c=ajClampCamera(g.cx-pointX*scale,g.cy-pointY*scale,scale);
+  ajCamera.x=Math.round(c.x);ajCamera.y=Math.round(c.y);ajCamera.zoom=userZoom;ajCamera.base=fitScale();
+  wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';
+  wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%';
+ }
+ vp.addEventListener('touchstart',e=>{
+  if(e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect(),cx=(p.clientX+q.clientX)/2-box.left,cy=(p.clientY+q.clientY)/2-box.top;
+  if(ajLegacyIPad()){
+   const currentScale=fitScale()*userZoom;
+   if(!ajCamera.base){ajCamera.base=fitScale();ajCamera.zoom=userZoom;ajCamera.x=0;ajCamera.y=0}
+   pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,startCx:cx,startCy:cy,startScale:currentScale};
+   document.documentElement.classList.add('aj-camera-moving');e.preventDefault();return;
+  }
+  const scale=fitScale()*userZoom;pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault();
+ },{capture:true,passive:false});
+ function ajPaintStandard(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}
+ vp.addEventListener('touchmove',e=>{
+  if(!pinch||e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect();
+  ajGestureData={cx:(p.clientX+q.clientX)/2-box.left,cy:(p.clientY+q.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance))};
+  if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajLegacyIPad()?ajPaintCamera:ajPaintStandard);e.preventDefault();
+ },{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{
+  if(e.touches.length<2){if(ajGestureFrame){cancelAnimationFrame(ajGestureFrame);(ajLegacyIPad()?ajPaintCamera:ajPaintStandard)()}pinch=null;document.documentElement.classList.remove('aj-camera-moving')}
+ },{capture:true,passive:true});
  // Griglie indipendenti per pagina.
  function renderPageGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());if(!mobile())return;for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
  const baseInit=initCanvas;initCanvas=function(){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;const result=baseInit.apply(this,arguments);userZoom=keepZoom;renderPageGrids();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}return result};renderPageGrids();
@@ -1919,6 +1960,14 @@ document.addEventListener('click', function(event) {
 (function(){
  const oldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent));
  if(oldIPad)document.documentElement.classList.add('aj-old-ipad');
+})();
+</script>
+<script id="airjotterCameraV123">
+(function(){
+ if(!document.documentElement.classList.contains('aj-old-ipad'))return;
+ const viewport=document.getElementById('mobileViewport');
+ viewport.scrollLeft=0;viewport.scrollTop=0;
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)document.documentElement.classList.remove('aj-camera-moving')});
 })();
 </script>
 </body>
