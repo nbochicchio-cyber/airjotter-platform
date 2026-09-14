@@ -1116,21 +1116,29 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 targetCtx.fill();
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
             } else if (activePointers.size === 2) {
-                isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
-                let pts = Array.from(activePointers.values());
-                panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-                // v14.0: sceglie il contenitore reale di scroll. Su tablet/mobile il body ha overflow:hidden
-                // e lo scroll accade dentro #mobileViewport; su desktop e' la window.
-                const mv = document.getElementById('mobileViewport');
-                const mvScrollable = mv && (mv.scrollHeight > mv.clientHeight || mv.scrollWidth > mv.clientWidth);
-                panScrollTarget = mvScrollable ? mv : window;
-                if (panScrollTarget === window) {
-                    initialScrollX = window.scrollX; initialScrollY = window.scrollY;
-                } else {
-                    initialScrollX = panScrollTarget.scrollLeft; initialScrollY = panScrollTarget.scrollTop;
-                }
+            isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
+            let pts = Array.from(activePointers.values());
+            
+            // Deleghiamo pan e zoom allo script mobile per i tocchi a schermo
+            // evitando conflitti di calcolo sullo scroll del viewport.
+            if (pts[0].pointerType === 'touch') {
+                panStartCenter = null;
+                return;
             }
-        });
+
+            panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+            
+            const mv = document.getElementById('mobileViewport');
+            const isViewportScrollable = window.getComputedStyle(mv).overflow !== 'visible';
+            panScrollTarget = isViewportScrollable ? mv : window;
+            
+            if (panScrollTarget === window) {
+                initialScrollX = window.scrollX; initialScrollY = window.scrollY;
+            } else {
+                initialScrollX = panScrollTarget.scrollLeft; initialScrollY = panScrollTarget.scrollTop;
+            }
+        }
+    });
 
         draftCanvas.addEventListener('pointermove', e => {
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
