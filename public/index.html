@@ -186,6 +186,24 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .site-footer{padding-bottom:24px}
 }
 
+
+@media(max-width:760px),(pointer:coarse){
+ html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
+ #ajLogin,#ajLobby{inset:0!important;width:100%!important;height:100dvh!important;padding:8px!important;overflow-y:auto!important;align-items:flex-start!important}
+ .welcome-card,.aj-access-card{box-sizing:border-box!important;width:calc(100vw - 16px)!important;max-width:none!important;margin:8px auto!important;padding:18px 14px!important;border-radius:20px!important;overflow:hidden!important}
+ .welcome-logo,.aj-access-logo{width:min(250px,72vw)!important;max-width:100%!important;margin-bottom:8px!important}
+ .welcome-badge{margin:6px auto!important;font-size:.72rem!important}.welcome-card h1{font-size:1.55rem!important;margin:6px 0 8px!important}.welcome-lead{font-size:.88rem!important;line-height:1.4!important;margin-bottom:14px!important}
+ #googleBtn{width:100%!important;max-width:100%!important;overflow:hidden!important}#googleBtn>div,#googleBtn iframe{max-width:100%!important;width:100%!important}.welcome-google small{font-size:.78rem!important;line-height:1.25!important}.welcome-discover{min-height:42px!important;font-size:.9rem!important;margin-top:8px!important}
+ .aj-access-title{font-size:1.35rem!important}.aj-access-subtitle{font-size:.84rem!important}.aj-choice-grid{display:flex!important;flex-direction:column!important;gap:10px!important;margin:12px 0!important}.aj-choice{min-height:0!important;padding:15px!important;border-radius:14px!important}.aj-choice h3{font-size:1.08rem!important;margin-bottom:7px!important}.aj-choice p{font-size:.84rem!important;line-height:1.4!important;margin-bottom:10px!important}.aj-choice input{min-height:44px!important;margin-bottom:8px!important}
+ #mobileTopbar{box-sizing:border-box!important;display:grid!important;grid-template-columns:auto 1fr auto!important;grid-template-areas:'tools zoom profile'!important;top:6px!important;left:6px!important;right:6px!important;width:auto!important;max-width:calc(100vw - 12px)!important;gap:5px!important;padding:6px!important;overflow:hidden!important}
+ #mobileToolsBtn{grid-area:tools;font-size:.78rem!important;padding:5px 8px!important;min-width:0!important}.mobile-zoom{grid-area:zoom;display:grid!important;grid-template-columns:38px minmax(52px,1fr) 40px 38px!important;gap:3px!important;min-width:0!important}.mobile-zoom button{min-width:0!important;width:auto!important;padding:4px!important;font-size:.78rem!important}.mobile-zoom span{min-width:0!important;font-size:.68rem!important;align-self:center!important}#mobileUserBtn{grid-area:profile;max-width:84px!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:.72rem!important;padding:5px 7px!important}
+ #mobileViewport{box-sizing:border-box!important;position:fixed!important;left:0!important;right:0!important;top:62px!important;bottom:0!important;width:100vw!important;height:auto!important;margin:0!important;padding:10px!important;overflow:auto!important;display:block!important;background:var(--bg-color)!important;touch-action:pan-x pan-y!important}
+ #mobileStageV109{position:relative!important;margin:0 auto!important;flex:0 0 auto!important}
+ #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important}
+ body.mobile-tools-open header{top:62px!important;max-height:76px!important;left:6px!important;right:6px!important;overflow-x:auto!important;overflow-y:hidden!important}body.mobile-tools-open #mobileViewport{top:144px!important}
+ .jotter-archive{width:calc(100vw - 16px)!important;max-width:none!important;padding:16px!important}.archive-heading{margin-right:24px!important}.archive-heading h3{font-size:1.35rem!important}.archive-heading-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}.archive-item{grid-template-columns:1fr!important;padding:12px!important}.archive-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}.archive-actions .btn{justify-content:center!important;min-width:0!important}
+}
+
 </style>
 </head>
 <body>
@@ -1372,7 +1390,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
     }
    }
   });
-  google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:400});
+  google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:Math.max(220,Math.min(400,target.parentElement.clientWidth-8))});
   if(status)status.textContent='Usa il tuo account Google per registrarti o accedere';
  }catch(error){
   console.error('Inizializzazione Google:',error);
@@ -1610,24 +1628,37 @@ document.addEventListener('click', function(event) {
 })();
 </script>
 
-<script id="airjotterMobileV108">
+<script id="airjotterMobileV109">
 (function(){
- const vp=document.getElementById('mobileViewport');
- function syncIdentity(){const main=document.getElementById('ajUser'),mobile=document.getElementById('mobileUserBtn');if(main&&mobile)mobile.textContent=(main.textContent||'Profilo').trim()||'Profilo'}
- new MutationObserver(syncIdentity).observe(document.getElementById('ajUser'),{childList:true,characterData:true,subtree:true});syncIdentity();
- document.getElementById('mobileToolsBtn').onclick=()=>document.body.classList.toggle('mobile-tools-open');
+ const vp=document.getElementById('mobileViewport'),wrapper=document.getElementById('canvas-wrapper');
+ let stage=document.getElementById('mobileStageV109');
+ if(!stage){stage=document.createElement('div');stage.id='mobileStageV109';wrapper.parentNode.insertBefore(stage,wrapper);stage.appendChild(wrapper)}
+ let userZoom=1,pinch=null;
+ function mobile(){return matchMedia('(max-width:760px),(pointer:coarse)').matches}
+ function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W))}
+ function apply(center){
+  if(!mobile())return;
+  const scale=fitScale()*userZoom,w=Math.round(LOGICAL_W*scale),hh=Math.round(LOGICAL_H*scale);
+  stage.style.width=w+'px';stage.style.height=hh+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.margin='0';wrapper.style.marginBottom='0';
+  document.getElementById('mobileZoomValue').textContent=Math.round(scale*100)+'%';
+  if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});
+ }
+ window.applyMobileZoom=apply;
+ const originalResize=window.handleResize;
+ window.addEventListener('resize',()=>setTimeout(()=>apply(false),30));
+ document.getElementById('mobileZoomFit').onclick=()=>{userZoom=1;apply(true)};
+ document.getElementById('mobileZoomIn').onclick=()=>{userZoom=Math.min(4,userZoom+.25);apply(true)};
+ document.getElementById('mobileZoomOut').onclick=()=>{userZoom=Math.max(.5,userZoom-.25);apply(true)};
+ document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),20)};
  document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
- document.getElementById('mobileZoomFit').onclick=()=>{mobileZoom=1;applyMobileZoom(true)};
- document.getElementById('mobileZoomIn').onclick=()=>{mobileZoom=Math.min(3,mobileZoom+.25);applyMobileZoom(true)};
- document.getElementById('mobileZoomOut').onclick=()=>{mobileZoom=Math.max(.5,mobileZoom-.25);applyMobileZoom(true)};
- let pinch=null;
- vp.addEventListener('touchstart',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1];pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:mobileZoom};e.preventDefault()}},{passive:false});
- vp.addEventListener('touchmove',e=>{if(pinch&&e.touches.length===2){const a=e.touches[0],b=e.touches[1];mobileZoom=Math.max(.5,Math.min(3,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));applyMobileZoom(false);e.preventDefault()}},{passive:false});
- vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{passive:true});
- const oldReady=ajReady;ajReady=async function(){const value=await oldReady();syncIdentity();setTimeout(()=>{handleResize();if(isMobileLayout())applyMobileZoom(true)},80);return value};
- const oldSetRole=ajSetRole;ajSetRole=function(role){oldSetRole(role);syncIdentity()};
- // Rimpiazza il vecchio beacon: all'uscita currentBoardId=null, così anche il Jotter corrente vuoto può essere messo in coda.
- window.addEventListener('pagehide',()=>{const data=JSON.stringify({currentBoardId:null});navigator.sendBeacon('/api/boards/cleanup-empty',new Blob([data],{type:'application/json'}))});
+ function identity(){const main=document.getElementById('ajUser'),btn=document.getElementById('mobileUserBtn');if(main&&btn){const t=main.textContent.trim();btn.textContent=t||'Profilo';btn.title=t||'Profilo'}}
+ new MutationObserver(identity).observe(document.getElementById('ajUser'),{subtree:true,childList:true,characterData:true});identity();
+ vp.addEventListener('touchstart',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1];pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:userZoom};e.preventDefault()}},{passive:false});
+ vp.addEventListener('touchmove',e=>{if(pinch&&e.touches.length===2){const a=e.touches[0],b=e.touches[1];userZoom=Math.max(.5,Math.min(4,pinch.z*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.d));apply(false);e.preventDefault()}},{passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
+ const ready=ajReady;ajReady=async function(){const r=await ready();identity();setTimeout(()=>apply(true),120);return r};
+ const setRole=ajSetRole;ajSetRole=function(role){setRole(role);identity();setTimeout(()=>apply(false),30)};
+ setTimeout(()=>apply(true),150);
 })();
 </script>
 </body>
