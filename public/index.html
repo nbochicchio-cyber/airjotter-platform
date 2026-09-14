@@ -166,6 +166,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 @keyframes ajRequestBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(233,201,124,.7)}50%{opacity:.45;box-shadow:0 0 0 7px rgba(233,201,124,0)}}
 .aj-request.pending-blink{animation:ajRequestBlink .8s linear infinite}.archive-title-button{border:0;background:none;color:var(--accent-hover);font:inherit;font-weight:700;text-align:left;cursor:pointer;text-decoration:underline;padding:0}.access-manager{max-width:780px!important;text-align:left!important;max-height:88vh;overflow:auto;position:relative}.access-summary{padding:12px;border-radius:11px;background:var(--accent-bg);margin:12px 0 16px}.access-section{margin-top:18px}.access-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color)}.access-person small{display:block;color:var(--text-soft);margin-top:3px}.access-actions{display:flex;gap:7px;flex-wrap:wrap}.access-empty{color:var(--text-soft);padding:10px 0}@media(max-width:620px){.access-row{grid-template-columns:1fr}.access-actions{justify-content:flex-start}}
+
+:root{--mobile-safe-top:env(safe-area-inset-top,0px);--mobile-safe-left:env(safe-area-inset-left,0px);--mobile-safe-right:env(safe-area-inset-right,0px);--mobile-safe-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select,textarea{touch-action:manipulation}
+#canvas-wrapper,#draftBoard{overscroll-behavior:contain;-webkit-user-select:none;user-select:none}
+@media(max-width:900px),(pointer:coarse){
+ body{padding-bottom:calc(18px + var(--mobile-safe-bottom))}
+ header{top:calc(6px + var(--mobile-safe-top));left:var(--mobile-safe-left);right:var(--mobile-safe-right);transform:none!important;width:auto;max-width:none;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;padding:7px 9px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ header::-webkit-scrollbar{display:none}.brand-logo{width:118px}.tools-group{gap:8px;padding:0 7px}.icon-btn,.page-btn{min-width:44px;min-height:44px}.btn{min-height:44px;padding:8px 12px}.tool-color{width:36px;height:36px}.tool-thickness{width:84px}
+ #canvas-wrapper{margin-top:76px}.modal{padding:calc(10px + var(--mobile-safe-top)) calc(10px + var(--mobile-safe-right)) calc(10px + var(--mobile-safe-bottom)) calc(10px + var(--mobile-safe-left))}.modal-content{max-height:calc(100dvh - 24px);overflow:auto}
+ #stamp-panel{left:calc(10px + var(--mobile-safe-left));right:calc(10px + var(--mobile-safe-right));bottom:calc(10px + var(--mobile-safe-bottom));transform:none;width:auto;max-width:none}
+ #text-tool-overlay{max-width:calc(100vw - 20px)}#text-tool-input{width:min(420px,calc(100vw - 42px));min-width:240px;max-width:calc(100vw - 42px)}
+ .site-footer{padding-bottom:calc(28px + var(--mobile-safe-bottom))}
+}
+@media(max-width:480px){.brand-logo{width:102px}.aj-user{max-width:130px;overflow:hidden;text-overflow:ellipsis}.room-code{font-size:.78rem}.welcome-card{padding:24px 18px!important}.aj-access-card{padding:19px!important}}
+
 </style>
 </head>
 <body>
@@ -369,6 +384,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         let activePointers = new Map();
         let initialScrollX = 0, initialScrollY = 0, panStartCenter = null;
+        let canvasZoom = 1, fitZoom = 1, pinchStartDistance = 0, pinchStartZoom = 1;
 
         let lastEventData = null; 
         let pointerVelocity = 0; 
@@ -434,7 +450,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             const screenW = document.documentElement.clientWidth;
             const availableW = screenW - 20; 
             let zoom = availableW / LOGICAL_W;
-            if (zoom > 1) zoom = 1; 
+            if (zoom > 1) zoom = 1;
+            fitZoom = zoom; zoom = fitZoom * canvasZoom; 
             
             wrapper.style.transform = `scale(${zoom})`;
             wrapper.style.transformOrigin = 'top center';
@@ -443,12 +460,12 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             wrapper.style.marginBottom = `calc(60px - ${emptySpace}px)`;
             
             const header = document.querySelector('header');
-            header.style.transform = `translateX(-50%) scale(1)`; 
+            header.style.transform = window.matchMedia('(max-width:900px),(pointer:coarse)').matches ? 'none' : `translateX(-50%) scale(1)`; 
             
             const contentW = header.offsetWidth;
             const safeW = screenW - 24; 
             
-            if (contentW > safeW) {
+            if (contentW > safeW && !window.matchMedia('(max-width:900px),(pointer:coarse)').matches) {
                 const headerZoom = safeW / contentW;
                 header.style.transform = `translateX(-50%) scale(${headerZoom})`;
             }
@@ -732,6 +749,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
                 let pts = Array.from(activePointers.values());
                 panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+                pinchStartDistance = Math.hypot(pts[1].clientX-pts[0].clientX,pts[1].clientY-pts[0].clientY); pinchStartZoom=canvasZoom;
                 initialScrollX = window.scrollX; initialScrollY = window.scrollY;
             }
         });
@@ -742,6 +760,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (activePointers.size === 2 && panStartCenter) {
                 let pts = Array.from(activePointers.values());
                 let center = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
+                const distance=Math.hypot(pts[1].clientX-pts[0].clientX,pts[1].clientY-pts[0].clientY);
+                if(pinchStartDistance>0){canvasZoom=Math.max(1,Math.min(3,pinchStartZoom*(distance/pinchStartDistance)));handleResize()}
                 window.scrollTo(initialScrollX - (center.x - panStartCenter.x), initialScrollY - (center.y - panStartCenter.y));
                 return;
             }
@@ -1593,6 +1613,19 @@ document.addEventListener('click', function(event) {
  // Sostituisce l'archivio per rendere il nome cliccabile e mantenere tutte le azioni esistenti.
  ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
  document.getElementById('ajUser').onclick=ajLoadArchive;
+})();
+</script>
+<script id="airjotterMobileCleanupV106">
+(function(){
+ let cleanupSent=false;
+ function cleanup(){if(cleanupSent)return;cleanupSent=true;const payload=JSON.stringify({currentBoardId:window.ajBoard?.id||null});try{navigator.sendBeacon('/api/cleanup-empty-boards',new Blob([payload],{type:'application/json'}))}catch{fetch('/api/cleanup-empty-boards',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,keepalive:true}).catch(()=>{})}}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')cleanup();else cleanupSent=false});
+ window.addEventListener('pagehide',cleanup);
+ if(window.visualViewport){visualViewport.addEventListener('resize',()=>{handleResize();document.documentElement.style.setProperty('--visual-height',visualViewport.height+'px')});visualViewport.addEventListener('scroll',handleResize)}
+ screen.orientation?.addEventListener?.('change',()=>setTimeout(handleResize,150));
+ window.addEventListener('orientationchange',()=>setTimeout(handleResize,150));
+ // Accessibilità touch: evita menu contestuale durante i tratti a penna o dito.
+ document.getElementById('draftBoard').addEventListener('contextmenu',e=>{if(e.pointerType==='touch'||e.pointerType==='pen')e.preventDefault()});
 })();
 </script>
 </body>
