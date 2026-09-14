@@ -369,6 +369,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #mobileToolsBtn{font-size:.68rem!important}#mobileZoomFit{font-size:.67rem!important}#mobileUserBtn{font-size:.59rem!important}
 }
 
+
+@media (min-width:761px) and (pointer:coarse){
+ html.aj-old-ipad #mobileViewport{contain:layout paint!important;-webkit-overflow-scrolling:auto!important}
+ html.aj-old-ipad #mobileStageV109{will-change:width,height!important;contain:layout paint!important}
+ html.aj-old-ipad #canvas-wrapper{will-change:transform!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+ html.aj-old-ipad .aj-page-grid116 span{display:none!important}
+ html.aj-old-ipad #canvas-wrapper{box-shadow:0 4px 12px rgba(80,60,100,.10)!important}
+}
+
 </style>
 </head>
 <body>
@@ -606,7 +615,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
             const MAX_CANVAS_AREA = 16000000;
             const MAX_CANVAS_DIM = 16000;
-            let preferredDpr = Math.max(window.devicePixelRatio || 1, 2);
+            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,1.15):Math.max(window.devicePixelRatio||1,2);
 
             if ((LOGICAL_W * preferredDpr) * (LOGICAL_H * preferredDpr) > MAX_CANVAS_AREA) {
                 preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
@@ -1818,8 +1827,8 @@ document.addEventListener('click', function(event) {
 
  // Due dita fanno sempre pan e pinch, anche quando Sposta e disattivato.
  vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top,scale=fitScale()*userZoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault()},{capture:true,passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top;userZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));const scale=fitScale()*userZoom;setGeometry(scale);void stage.offsetWidth;vp.scrollLeft=Math.max(0,pinch.docX*scale+stage.offsetLeft-cx);vp.scrollTop=Math.max(0,pinch.docY*scale+stage.offsetTop-cy);e.preventDefault()},{capture:true,passive:false});
- vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{capture:true,passive:true});
+ let ajGestureFrame=0,ajGestureData=null;function ajPaintGesture(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect();ajGestureData={cx:(a.clientX+b.clientX)/2-box.left,cy:(a.clientY+b.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance))};if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajPaintGesture);e.preventDefault()},{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2){if(ajGestureFrame){cancelAnimationFrame(ajGestureFrame);ajPaintGesture()}pinch=null}},{capture:true,passive:true});
 
  // Griglie indipendenti per pagina.
  function renderPageGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());if(!mobile())return;for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
@@ -1904,6 +1913,12 @@ document.addEventListener('click', function(event) {
  ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
  const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){const value=await previousOpen(board);await refreshHistory();return value};
  setInterval(refreshHistory,1200);
+})();
+</script>
+<script id="airjotterTabletPerformanceV122">
+(function(){
+ const oldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent));
+ if(oldIPad)document.documentElement.classList.add('aj-old-ipad');
 })();
 </script>
 </body>
