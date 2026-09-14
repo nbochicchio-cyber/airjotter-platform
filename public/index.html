@@ -166,6 +166,26 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 @keyframes ajRequestBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(233,201,124,.7)}50%{opacity:.45;box-shadow:0 0 0 7px rgba(233,201,124,0)}}
 .aj-request.pending-blink{animation:ajRequestBlink .8s linear infinite}.archive-title-button{border:0;background:none;color:var(--accent-hover);font:inherit;font-weight:700;text-align:left;cursor:pointer;text-decoration:underline;padding:0}.access-manager{max-width:780px!important;text-align:left!important;max-height:88vh;overflow:auto;position:relative}.access-summary{padding:12px;border-radius:11px;background:var(--accent-bg);margin:12px 0 16px}.access-section{margin-top:18px}.access-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color)}.access-person small{display:block;color:var(--text-soft);margin-top:3px}.access-actions{display:flex;gap:7px;flex-wrap:wrap}.access-empty{color:var(--text-soft);padding:10px 0}@media(max-width:620px){.access-row{grid-template-columns:1fr}.access-actions{justify-content:flex-start}}
+
+#mobileTopbar{display:none}#mobileViewport{width:100%;overflow:visible}
+@media(max-width:760px),(pointer:coarse){
+ html,body{width:100%;max-width:100%;overflow-x:hidden}
+ .aj-overlay{padding:10px;align-items:flex-start;overflow-y:auto;overflow-x:hidden}
+ .welcome-card,.aj-access-card{width:100%!important;max-width:560px!important;margin:auto;padding:24px 18px!important;border-radius:22px!important}
+ .welcome-logo,.aj-access-logo{width:min(310px,82vw)!important}.welcome-card h1{font-size:1.85rem!important}.welcome-lead{font-size:.98rem!important}
+ .aj-choice-grid{display:flex!important;flex-direction:column!important;gap:14px!important;margin:18px 0!important}.aj-choice{width:100%;min-height:0!important;padding:20px!important}.aj-access-title{font-size:1.55rem!important}.aj-access-subtitle{font-size:.95rem!important}
+ header{display:none!important}
+ #mobileTopbar{position:fixed;display:flex;top:8px;left:8px;right:8px;z-index:250;align-items:center;justify-content:space-between;gap:7px;padding:8px;background:rgba(255,253,249,.97);border:1px solid var(--border-color);border-radius:14px;box-shadow:var(--shadow-medium)}
+ #mobileTopbar button{min-height:42px;border:1px solid var(--border-color);border-radius:10px;background:#fff;color:var(--text-color);font-weight:700;padding:7px 10px}.mobile-zoom{display:flex;align-items:center;gap:5px}.mobile-zoom button{min-width:42px;padding:6px!important}.mobile-zoom span{min-width:48px;text-align:center;font-size:.75rem;font-weight:700}
+ body.mobile-tools-open header{display:flex!important;position:fixed!important;top:62px!important;left:8px!important;right:8px!important;transform:none!important;width:auto!important;max-width:none!important;overflow-x:auto!important;justify-content:flex-start!important;padding:8px!important;z-index:240!important;scrollbar-width:none}body.mobile-tools-open header::-webkit-scrollbar{display:none}
+ #mobileViewport{position:relative;width:100vw;height:calc(100dvh - 72px);margin-top:68px;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px;display:block}
+ #canvas-wrapper{margin:0 auto!important;transform-origin:top left!important;box-shadow:var(--shadow-medium)}
+ .modal{padding:10px!important;align-items:flex-start!important;overflow:auto}.modal-content{max-width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;overflow:auto!important;margin:auto}.jotter-archive{padding:20px!important}.archive-heading{margin-right:28px}.archive-heading-actions{width:100%;display:grid!important;grid-template-columns:1fr!important}.archive-item{grid-template-columns:1fr!important}.archive-actions{justify-content:flex-start!important}.archive-actions .btn{min-height:42px}
+ #stamp-panel{left:10px!important;right:10px!important;bottom:10px!important;top:auto!important;width:auto!important;max-height:75dvh;overflow:auto;transform:none!important}
+ #text-tool-overlay{max-width:calc(100vw - 24px)}#text-tool-input{width:min(420px,calc(100vw - 44px))!important;min-width:220px!important}
+ .site-footer{padding-bottom:24px}
+}
+
 </style>
 </head>
 <body>
@@ -244,7 +264,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         </div>
     </header>
 
-    <div id="canvas-wrapper">
+    <div id="mobileTopbar" aria-label="Comandi mobili"><button id="mobileToolsBtn" type="button">Strumenti</button><div class="mobile-zoom"><button id="mobileZoomOut" type="button" aria-label="Riduci">−</button><button id="mobileZoomFit" type="button">Adatta</button><span id="mobileZoomValue">100%</span><button id="mobileZoomIn" type="button" aria-label="Ingrandisci">+</button></div><button id="mobileUserBtn" type="button">Profilo</button></div><div id="mobileViewport"><div id="canvas-wrapper">
         <canvas id="drawingBoard"></canvas>
         <canvas id="draftBoard"></canvas>
         
@@ -430,30 +450,24 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             document.getElementById('pageCountNumber').innerText = TOTAL_PAGES;
         }
 
-        function handleResize() {
-            const screenW = document.documentElement.clientWidth;
-            const availableW = screenW - 20; 
-            let zoom = availableW / LOGICAL_W;
-            if (zoom > 1) zoom = 1; 
-            
-            wrapper.style.transform = `scale(${zoom})`;
-            wrapper.style.transformOrigin = 'top center';
-            
-            const emptySpace = LOGICAL_H * (1 - zoom);
-            wrapper.style.marginBottom = `calc(60px - ${emptySpace}px)`;
-            
-            const header = document.querySelector('header');
-            header.style.transform = `translateX(-50%) scale(1)`; 
-            
-            const contentW = header.offsetWidth;
-            const safeW = screenW - 24; 
-            
-            if (contentW > safeW) {
-                const headerZoom = safeW / contentW;
-                header.style.transform = `translateX(-50%) scale(${headerZoom})`;
-            }
+        let mobileZoom=1;
+        function isMobileLayout(){return window.matchMedia('(max-width:760px),(pointer:coarse)').matches}
+        function mobileFitScale(){const vp=document.getElementById('mobileViewport');return Math.min(1,Math.max(.25,(vp.clientWidth-24)/LOGICAL_W))}
+        function applyMobileZoom(center=true){
+            const vp=document.getElementById('mobileViewport');const scale=mobileFitScale()*mobileZoom;
+            wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0 auto';
+            wrapper.style.marginBottom=(-(LOGICAL_H*(1-scale))+20)+'px';
+            wrapper.parentElement.style.setProperty('--scaled-width',(LOGICAL_W*scale)+'px');
+            document.getElementById('mobileZoomValue').textContent=Math.round(scale*100)+'%';
+            if(center){requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2)})}
         }
-        window.addEventListener('resize', handleResize);
+        function handleResize(){
+            if(isMobileLayout()){applyMobileZoom(false);return}
+            const screenW=document.documentElement.clientWidth,availableW=screenW-20;let zoom=Math.min(1,availableW/LOGICAL_W);
+            wrapper.style.transform='scale('+zoom+')';wrapper.style.transformOrigin='top center';wrapper.style.marginBottom='calc(60px - '+(LOGICAL_H*(1-zoom))+'px)';
+            const header=document.querySelector('header');header.style.transform='translateX(-50%) scale(1)';const contentW=header.offsetWidth,safeW=screenW-24;if(contentW>safeW)header.style.transform='translateX(-50%) scale('+(safeW/contentW)+')';
+        }
+        window.addEventListener('resize',handleResize);
 
         function deletePageFromCanvas(pageIndex, remote = false) {
             if (TOTAL_PAGES <= 1) {
@@ -1595,13 +1609,25 @@ document.addEventListener('click', function(event) {
  document.getElementById('ajUser').onclick=ajLoadArchive;
 })();
 </script>
-<script id="airjotterCleanupV107">
+
+<script id="airjotterMobileV108">
 (function(){
- let sent=false;
- function currentId(){try{return ajBoard&&ajBoard.id?ajBoard.id:null}catch{return null}}
- function queueCleanup(){if(sent)return;sent=true;const data=JSON.stringify({currentBoardId:currentId()});try{navigator.sendBeacon('/api/boards/cleanup-empty',new Blob([data],{type:'application/json'}))}catch{fetch('/api/boards/cleanup-empty',{method:'POST',headers:{'Content-Type':'application/json'},body:data,keepalive:true}).catch(()=>{})}}
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')queueCleanup();else sent=false});
- window.addEventListener('pagehide',queueCleanup);
+ const vp=document.getElementById('mobileViewport');
+ function syncIdentity(){const main=document.getElementById('ajUser'),mobile=document.getElementById('mobileUserBtn');if(main&&mobile)mobile.textContent=(main.textContent||'Profilo').trim()||'Profilo'}
+ new MutationObserver(syncIdentity).observe(document.getElementById('ajUser'),{childList:true,characterData:true,subtree:true});syncIdentity();
+ document.getElementById('mobileToolsBtn').onclick=()=>document.body.classList.toggle('mobile-tools-open');
+ document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
+ document.getElementById('mobileZoomFit').onclick=()=>{mobileZoom=1;applyMobileZoom(true)};
+ document.getElementById('mobileZoomIn').onclick=()=>{mobileZoom=Math.min(3,mobileZoom+.25);applyMobileZoom(true)};
+ document.getElementById('mobileZoomOut').onclick=()=>{mobileZoom=Math.max(.5,mobileZoom-.25);applyMobileZoom(true)};
+ let pinch=null;
+ vp.addEventListener('touchstart',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1];pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:mobileZoom};e.preventDefault()}},{passive:false});
+ vp.addEventListener('touchmove',e=>{if(pinch&&e.touches.length===2){const a=e.touches[0],b=e.touches[1];mobileZoom=Math.max(.5,Math.min(3,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));applyMobileZoom(false);e.preventDefault()}},{passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{passive:true});
+ const oldReady=ajReady;ajReady=async function(){const value=await oldReady();syncIdentity();setTimeout(()=>{handleResize();if(isMobileLayout())applyMobileZoom(true)},80);return value};
+ const oldSetRole=ajSetRole;ajSetRole=function(role){oldSetRole(role);syncIdentity()};
+ // Rimpiazza il vecchio beacon: all'uscita currentBoardId=null, così anche il Jotter corrente vuoto può essere messo in coda.
+ window.addEventListener('pagehide',()=>{const data=JSON.stringify({currentBoardId:null});navigator.sendBeacon('/api/boards/cleanup-empty',new Blob([data],{type:'application/json'}))});
 })();
 </script>
 </body>
