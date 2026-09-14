@@ -420,6 +420,16 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 #joinCodeFixLayer125{position:relative!important;z-index:10000!important;pointer-events:auto!important}
 
+
+/* Multi-touch universale basato su Pointer Events: tablet e PC touch mantengono il layout desktop. */
+@media (min-width:761px){
+ html.aj-has-touch #mobileViewport{position:fixed!important;left:0!important;right:0!important;top:88px!important;bottom:0!important;width:auto!important;height:auto!important;margin:0!important;padding:12px!important;overflow:hidden!important;touch-action:none!important;overscroll-behavior:none!important;contain:layout paint!important}
+ html.aj-has-touch #mobileStageV109{position:relative!important;width:100%!important;height:100%!important;margin:0!important;overflow:visible!important;contain:layout paint!important}
+ html.aj-has-touch #canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:0 0!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+ html.aj-has-touch.aj-pointer-camera-moving #canvas-wrapper{will-change:transform!important}
+}
+html.aj-has-touch #draftBoard{touch-action:none!important}
+
 </style>
 </head>
 <body>
@@ -2067,6 +2077,37 @@ document.addEventListener('click', function(event) {
  const lobby=document.getElementById('ajLobby');
  if(lobby)new MutationObserver(installJoinField).observe(lobby,{childList:true,subtree:true,attributes:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(installJoinField,0)});
+})();
+</script>
+<script id="airjotterPointerCameraV127">
+(function(){
+ if(!('PointerEvent' in window)||!(navigator.maxTouchPoints>0))return;
+ document.documentElement.classList.add('aj-has-touch');
+ const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
+ if(!vp||!stage||!wrapper||!draft)return;
+ const touches=new Map();let gesture=null,raf=0,pending=null,camera={x:0,y:0,z:1},initialized=false,restoring=false;
+ const wide=()=>innerWidth>760;
+ const fit=()=>Math.min(1,Math.max(.18,(vp.clientWidth-24)/LOGICAL_W));
+ const currentScale=()=>fit()*camera.z;
+ function clamp(x,y,s){const vw=vp.clientWidth-24,vh=vp.clientHeight-24,cw=LOGICAL_W*s,ch=LOGICAL_H*s;return{x:Math.min(12,Math.max(vw-cw+12,x)),y:Math.min(12,Math.max(vh-ch+12,y))}}
+ function label(s){const el=document.querySelector('#mobileZoomFit .aj-zoom117');if(el)el.textContent='Zoom: '+Math.round(s*100)+'%'}
+ function paint(){raf=0;const p=pending;pending=null;if(p&&gesture){camera.z=p.z;const s=currentScale(),b=clamp(p.cx-gesture.docX*s,p.cy-gesture.docY*s,s);camera.x=Math.round(b.x);camera.y=Math.round(b.y)}const s=currentScale();wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.margin='0';wrapper.style.transformOrigin='0 0';wrapper.style.transform='translate3d('+camera.x+'px,'+camera.y+'px,0) scale('+s+')';label(s)}
+ function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
+ function resetView(){const s=fit();camera={x:wide()?Math.max(12,Math.round((vp.clientWidth-LOGICAL_W*s)/2)):0,y:0,z:1};initialized=true;paint()}
+ function two(){return [...touches.values()].slice(0,2)}
+ function beginGesture(){const pts=two();if(pts.length<2)return;const r=vp.getBoundingClientRect(),cx=(pts[0].x+pts[1].x)/2-r.left,cy=(pts[0].y+pts[1].y)/2-r.top,s=currentScale();gesture={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),z:camera.z,docX:(cx-camera.x)/s,docY:(cy-camera.y)/s};try{isDrawing=false;currentPath=null;draft.getContext('2d').clearRect(0,0,draft.width,draft.height)}catch{}document.documentElement.classList.add('aj-pointer-camera-moving')}
+ function onDown(e){if(e.pointerType!=='touch')return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2){beginGesture();e.preventDefault();e.stopImmediatePropagation()}}
+ function onMove(e){if(e.pointerType!=='touch'||!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!gesture||touches.size<2)return;const pts=two(),r=vp.getBoundingClientRect();pending={cx:(pts[0].x+pts[1].x)/2-r.left,cy:(pts[0].y+pts[1].y)/2-r.top,z:Math.max(.5,Math.min(4,gesture.z*Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)/Math.max(1,gesture.distance)))};schedule();e.preventDefault();e.stopImmediatePropagation()}
+ function onEnd(e){if(e.pointerType!=='touch')return;const wasGesture=!!gesture;touches.delete(e.pointerId);if(wasGesture){if(raf){cancelAnimationFrame(raf);paint()}gesture=null;pending=null;document.documentElement.classList.remove('aj-pointer-camera-moving');e.preventDefault();e.stopImmediatePropagation()}if(touches.size===0)touches.clear()}
+ vp.addEventListener('pointerdown',onDown,true);vp.addEventListener('pointermove',onMove,true);vp.addEventListener('pointerup',onEnd,true);vp.addEventListener('pointercancel',onEnd,true);
+ // Neutralizza il vecchio pan a due puntatori che usa window.scrollTo.
+ draft.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&gesture){e.preventDefault();e.stopImmediatePropagation()}},true);
+ const fitBtn=document.getElementById('mobileZoomFit');if(fitBtn)fitBtn.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();resetView()},true);
+ // Mantiene camera e zoom attraverso initCanvas, reload, Undo/Redo e modifiche remote.
+ const originalInit=initCanvas;initCanvas=function(){const keep={...camera},had=initialized;restoring=true;const out=originalInit.apply(this,arguments);if(had)camera=keep;requestAnimationFrame(()=>{had?paint():resetView();restoring=false});return out};
+ const originalResize=handleResize;handleResize=function(){if(navigator.maxTouchPoints>0){if(initialized&&!restoring)schedule();return}return originalResize.apply(this,arguments)};
+ window.addEventListener('resize',()=>setTimeout(()=>{if(!initialized)return;const b=clamp(camera.x,camera.y,currentScale());camera.x=b.x;camera.y=b.y;paint()},120));
+ setTimeout(resetView,250);
 })();
 </script>
 </body>
