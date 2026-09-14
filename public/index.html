@@ -421,14 +421,17 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #joinCodeFixLayer125{position:relative!important;z-index:10000!important;pointer-events:auto!important}
 
 
-/* Multi-touch universale basato su Pointer Events: tablet e PC touch mantengono il layout desktop. */
-@media (min-width:761px){
- html.aj-has-touch #mobileViewport{position:fixed!important;left:0!important;right:0!important;top:88px!important;bottom:0!important;width:auto!important;height:auto!important;margin:0!important;padding:12px!important;overflow:hidden!important;touch-action:none!important;overscroll-behavior:none!important;contain:layout paint!important}
- html.aj-has-touch #mobileStageV109{position:relative!important;width:100%!important;height:100%!important;margin:0!important;overflow:visible!important;contain:layout paint!important}
- html.aj-has-touch #canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:0 0!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
- html.aj-has-touch.aj-pointer-camera-moving #canvas-wrapper{will-change:transform!important}
+/* Correzioni definitive tablet iOS/Android. */
+@media (min-width:761px) and (pointer:coarse){
+ header,body.mobile-tools-open header{top:calc(env(safe-area-inset-top,0px) + 28px)!important}
+ #mobileViewport{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 112px)!important;right:0!important;bottom:0!important;left:0!important;width:100vw!important;height:auto!important;margin:0!important;padding:12px!important;overflow:auto!important;touch-action:none!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+ #mobileStageV109{position:relative!important;width:max-content!important;height:max-content!important;min-width:100%!important;min-height:100%!important;margin:0!important;overflow:visible!important}
+ #mobileStageV109>#canvas-wrapper,#canvas-wrapper{position:relative!important;left:auto!important;top:auto!important;margin:0 auto!important;transform-origin:top center!important}
+ #googleBtn{position:relative!important;display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;min-height:44px!important;text-align:center!important;overflow:visible!important}
+ #googleBtn>div{position:relative!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;max-width:100%!important}
+ #googleBtn iframe{display:block!important;margin:0 auto!important;max-width:100%!important}
+ #joinCode{display:block!important;width:100%!important;min-height:48px!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;position:relative!important;z-index:50!important}
 }
-html.aj-has-touch #draftBoard{touch-action:none!important}
 
 </style>
 </head>
@@ -990,7 +993,7 @@ html.aj-has-touch #draftBoard{touch-action:none!important}
                 isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
                 let pts = Array.from(activePointers.values());
                 panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-                initialScrollX = window.scrollX; initialScrollY = window.scrollY;
+                const ajVp=document.getElementById('mobileViewport'); initialScrollX=ajVp.scrollLeft; initialScrollY=ajVp.scrollTop;
             }
         });
 
@@ -1000,7 +1003,7 @@ html.aj-has-touch #draftBoard{touch-action:none!important}
             if (activePointers.size === 2 && panStartCenter) {
                 let pts = Array.from(activePointers.values());
                 let center = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-                window.scrollTo(initialScrollX - (center.x - panStartCenter.x), initialScrollY - (center.y - panStartCenter.y));
+                const ajVp=document.getElementById('mobileViewport'); ajVp.scrollLeft=initialScrollX-(center.x-panStartCenter.x); ajVp.scrollTop=initialScrollY-(center.y-panStartCenter.y);
                 return;
             }
             
@@ -1935,7 +1938,7 @@ document.addEventListener('click', function(event) {
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),draft=document.getElementById('draftBoard');
  function blockNative(e){if(e.target.closest('#text-tool-overlay,input,textarea,select'))return;e.preventDefault()}
  ['contextmenu','selectstart','dragstart'].forEach(type=>document.addEventListener(type,blockNative,true));
- document.addEventListener('selectionchange',()=>{const s=getSelection();if(s&&!document.activeElement?.closest?.('#text-tool-overlay')&&s.rangeCount)s.removeAllRanges()});
+ document.addEventListener('selectionchange',()=>{const s=getSelection(),a=document.activeElement;if(s&&!a?.closest?.('#text-tool-overlay,input,textarea,select,[contenteditable=true]')&&s.rangeCount)s.removeAllRanges()});
 
  function centerGoogle(){const target=document.getElementById('googleBtn');if(!target)return;target.style.display='flex';target.style.justifyContent='center';target.style.alignItems='center';for(const el of target.children){el.style.marginLeft='auto';el.style.marginRight='auto';el.style.maxWidth='100%'}}
  centerGoogle();new MutationObserver(centerGoogle).observe(document.getElementById('googleBtn'),{childList:true,subtree:true});window.addEventListener('orientationchange',()=>setTimeout(centerGoogle,250));
@@ -2040,74 +2043,20 @@ document.addEventListener('click', function(event) {
  restoreDesktopView();window.addEventListener('resize',()=>setTimeout(restoreDesktopView,100));window.addEventListener('orientationchange',()=>setTimeout(()=>{restoreDesktopView();centerGoogle()},250));
 })();
 </script>
-<script id="airjotterJoinFixV125">
+<script id="airjotterTabletFixV128">
 (function(){
- function installJoinField(){
-  const current=document.getElementById('joinCode');
-  if(!current||current.dataset.v125==='1')return;
-  // Il clone elimina eventuali listener touch/pointer precedenti che impediscono la tastiera su vecchio Safari.
-  const input=current.cloneNode(true);
-  input.dataset.v125='1';
-  input.disabled=false;
-  input.readOnly=false;
-  input.removeAttribute('disabled');
-  input.removeAttribute('readonly');
-  input.setAttribute('inputmode','text');
-  input.setAttribute('autocomplete','off');
-  input.setAttribute('autocapitalize','characters');
-  input.setAttribute('spellcheck','false');
-  const layer=document.createElement('div');
-  layer.id='joinCodeFixLayer125';
-  current.parentNode.insertBefore(layer,current);
-  layer.appendChild(input);
-  current.remove();
-
-  // Non usa preventDefault: su Safari impedirebbe l'apertura della tastiera.
-  function activate(){input.disabled=false;input.readOnly=false;input.focus()}
-  input.addEventListener('touchend',activate,{passive:true});
-  input.addEventListener('pointerup',activate,{passive:true});
-  input.addEventListener('click',activate);
-  input.addEventListener('input',()=>{
-   const start=input.selectionStart,end=input.selectionEnd;
-   input.value=input.value.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,9);
-   try{input.setSelectionRange(Math.min(start,input.value.length),Math.min(end,input.value.length))}catch{}
-  });
+ const tablet=matchMedia('(min-width:761px) and (pointer:coarse)').matches;
+ if(!tablet)return;
+ const input=document.getElementById('joinCode'),button=document.getElementById('joinBtn'),error=document.getElementById('joinError');
+ if(input){
+  input.disabled=false;input.readOnly=false;input.removeAttribute('disabled');input.removeAttribute('readonly');
+  input.setAttribute('inputmode','text');input.setAttribute('autocapitalize','characters');input.setAttribute('autocomplete','off');
+  input.addEventListener('input',()=>{const p=input.selectionStart;input.value=input.value.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,9);try{input.setSelectionRange(Math.min(p,input.value.length),Math.min(p,input.value.length))}catch{} });
  }
- installJoinField();
- const lobby=document.getElementById('ajLobby');
- if(lobby)new MutationObserver(installJoinField).observe(lobby,{childList:true,subtree:true,attributes:true});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(installJoinField,0)});
-})();
-</script>
-<script id="airjotterPointerCameraV127">
-(function(){
- if(!('PointerEvent' in window)||!(navigator.maxTouchPoints>0))return;
- document.documentElement.classList.add('aj-has-touch');
- const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
- if(!vp||!stage||!wrapper||!draft)return;
- const touches=new Map();let gesture=null,raf=0,pending=null,camera={x:0,y:0,z:1},initialized=false,restoring=false;
- const wide=()=>innerWidth>760;
- const fit=()=>Math.min(1,Math.max(.18,(vp.clientWidth-24)/LOGICAL_W));
- const currentScale=()=>fit()*camera.z;
- function clamp(x,y,s){const vw=vp.clientWidth-24,vh=vp.clientHeight-24,cw=LOGICAL_W*s,ch=LOGICAL_H*s;return{x:Math.min(12,Math.max(vw-cw+12,x)),y:Math.min(12,Math.max(vh-ch+12,y))}}
- function label(s){const el=document.querySelector('#mobileZoomFit .aj-zoom117');if(el)el.textContent='Zoom: '+Math.round(s*100)+'%'}
- function paint(){raf=0;const p=pending;pending=null;if(p&&gesture){camera.z=p.z;const s=currentScale(),b=clamp(p.cx-gesture.docX*s,p.cy-gesture.docY*s,s);camera.x=Math.round(b.x);camera.y=Math.round(b.y)}const s=currentScale();wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.margin='0';wrapper.style.transformOrigin='0 0';wrapper.style.transform='translate3d('+camera.x+'px,'+camera.y+'px,0) scale('+s+')';label(s)}
- function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
- function resetView(){const s=fit();camera={x:wide()?Math.max(12,Math.round((vp.clientWidth-LOGICAL_W*s)/2)):0,y:0,z:1};initialized=true;paint()}
- function two(){return [...touches.values()].slice(0,2)}
- function beginGesture(){const pts=two();if(pts.length<2)return;const r=vp.getBoundingClientRect(),cx=(pts[0].x+pts[1].x)/2-r.left,cy=(pts[0].y+pts[1].y)/2-r.top,s=currentScale();gesture={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),z:camera.z,docX:(cx-camera.x)/s,docY:(cy-camera.y)/s};try{isDrawing=false;currentPath=null;draft.getContext('2d').clearRect(0,0,draft.width,draft.height)}catch{}document.documentElement.classList.add('aj-pointer-camera-moving')}
- function onDown(e){if(e.pointerType!=='touch')return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2){beginGesture();e.preventDefault();e.stopImmediatePropagation()}}
- function onMove(e){if(e.pointerType!=='touch'||!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!gesture||touches.size<2)return;const pts=two(),r=vp.getBoundingClientRect();pending={cx:(pts[0].x+pts[1].x)/2-r.left,cy:(pts[0].y+pts[1].y)/2-r.top,z:Math.max(.5,Math.min(4,gesture.z*Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)/Math.max(1,gesture.distance)))};schedule();e.preventDefault();e.stopImmediatePropagation()}
- function onEnd(e){if(e.pointerType!=='touch')return;const wasGesture=!!gesture;touches.delete(e.pointerId);if(wasGesture){if(raf){cancelAnimationFrame(raf);paint()}gesture=null;pending=null;document.documentElement.classList.remove('aj-pointer-camera-moving');e.preventDefault();e.stopImmediatePropagation()}if(touches.size===0)touches.clear()}
- vp.addEventListener('pointerdown',onDown,true);vp.addEventListener('pointermove',onMove,true);vp.addEventListener('pointerup',onEnd,true);vp.addEventListener('pointercancel',onEnd,true);
- // Neutralizza il vecchio pan a due puntatori che usa window.scrollTo.
- draft.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&gesture){e.preventDefault();e.stopImmediatePropagation()}},true);
- const fitBtn=document.getElementById('mobileZoomFit');if(fitBtn)fitBtn.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();resetView()},true);
- // Mantiene camera e zoom attraverso initCanvas, reload, Undo/Redo e modifiche remote.
- const originalInit=initCanvas;initCanvas=function(){const keep={...camera},had=initialized;restoring=true;const out=originalInit.apply(this,arguments);if(had)camera=keep;requestAnimationFrame(()=>{had?paint():resetView();restoring=false});return out};
- const originalResize=handleResize;handleResize=function(){if(navigator.maxTouchPoints>0){if(initialized&&!restoring)schedule();return}return originalResize.apply(this,arguments)};
- window.addEventListener('resize',()=>setTimeout(()=>{if(!initialized)return;const b=clamp(camera.x,camera.y,currentScale());camera.x=b.x;camera.y=b.y;paint()},120));
- setTimeout(resetView,250);
+ // Usa sempre l'input originale corrente e non un clone.
+ if(button&&input){button.addEventListener('click',async e=>{e.preventDefault();e.stopImmediatePropagation();const code=input.value.trim();error.textContent='';if(!code){error.textContent='Inserisci il codice del Jotter.';input.focus();return}try{await ajJoin(code)}catch(ex){error.textContent=ex.message||'Impossibile entrare nel Jotter.'}},true)}
+ function centerGoogle(){const t=document.getElementById('googleBtn');if(!t)return;const child=t.firstElementChild;if(child){child.style.position='relative';child.style.left='50%';child.style.transform='translateX(-50%)';child.style.margin='0'}}
+ const google=document.getElementById('googleBtn');if(google)new MutationObserver(centerGoogle).observe(google,{childList:true,subtree:true});centerGoogle();
 })();
 </script>
 </body>
