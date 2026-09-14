@@ -236,6 +236,23 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #qrcode{display:flex;align-items:center;justify-content:center;width:100%;margin:0 auto 8px}
 #qrcode img,#qrcode canvas{display:block!important;margin:0 auto!important}
 
+
+@media(max-width:760px),(pointer:coarse){
+ #mobileTopbar{grid-template-columns:minmax(68px,.9fr) minmax(190px,1.8fr) minmax(68px,.9fr)!important;overflow:visible!important}
+ .mobile-zoom{display:grid!important;grid-template-columns:minmax(68px,1fr) 52px minmax(68px,1fr)!important;align-items:stretch!important;gap:5px!important}
+ #mobileZoomFit,#mobilePanBtn{width:100%!important;min-width:0!important;min-height:42px!important;font-size:.76rem!important}
+ #mobileZoomValue{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important;min-width:0!important}
+ #mobileZoomValue small{font-size:.58rem!important;font-weight:700!important;color:var(--text-soft)!important}#mobileZoomValue b{font-size:.72rem!important}
+ #jotterArchiveModal{position:fixed!important;inset:0!important;padding:6px!important;z-index:7000!important;align-items:stretch!important;justify-content:stretch!important;overflow:hidden!important}
+ #jotterArchiveModal .jotter-archive{position:fixed!important;top:6px!important;right:6px!important;bottom:6px!important;left:6px!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border-radius:15px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;background:#fff!important}
+ #jotterArchiveModal .archive-heading{display:block!important;position:sticky!important;top:0!important;flex:0 0 auto!important;margin:0!important;padding:16px 56px 12px 14px!important;background:#fff!important;border-bottom:1px solid var(--border-color)!important;z-index:20!important}
+ #jotterArchiveModal .archive-heading h3{font-size:1.35rem!important;margin:0 0 4px!important}#jotterArchiveModal .archive-heading p{font-size:.76rem!important;line-height:1.3!important;margin:0!important}
+ #jotterArchiveModal .archive-heading-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-top:12px!important;width:100%!important}
+ #jotterArchiveClose{position:fixed!important;top:14px!important;right:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;margin:0!important;border-radius:50%!important;background:var(--danger-bg)!important;color:var(--danger-color)!important;z-index:7100!important;visibility:visible!important;opacity:1!important}
+ #jotterArchiveStatus{flex:0 0 auto!important;padding:7px 14px!important;background:#fff!important}#jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;padding:8px 10px 20px!important}
+}
+#qrModal .modal-content{overflow:hidden!important}#qrcode{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;max-width:100%!important;overflow:hidden!important}#qrcode>*:not(:first-child){display:none!important}#qrcode img,#qrcode canvas{display:block!important;max-width:100%!important;height:auto!important;margin:0 auto!important}
+
 </style>
 </head>
 <body>
@@ -314,7 +331,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         </div>
     </header>
 
-    <div id="mobileTopbar" aria-label="Comandi mobili"><button id="mobileToolsBtn" type="button">Strumenti</button><div class="mobile-zoom"><button id="mobileZoomFit" type="button">Adatta</button><button id="mobilePanBtn" type="button" aria-pressed="false">Sposta</button><span id="mobileZoomValue">100%</span></div><button id="mobileUserBtn" type="button">Profilo</button></div><div id="mobileViewport"><div id="canvas-wrapper">
+    <div id="mobileTopbar" aria-label="Comandi mobili"><button id="mobileToolsBtn" type="button">Strumenti</button><div class="mobile-zoom"><button id="mobileZoomFit" type="button">Adatta</button><button id="mobilePanBtn" type="button" aria-pressed="false">Sposta</button><span id="mobileZoomValue"><small>Zoom:</small><b>100%</b></span></div><button id="mobileUserBtn" type="button">Profilo</button></div><div id="mobileViewport"><div id="canvas-wrapper">
         <canvas id="drawingBoard"></canvas>
         <canvas id="draftBoard"></canvas>
         
@@ -1314,8 +1331,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         document.getElementById('toggleCodeBtn').addEventListener('click', () => { isCodeVisible = !isCodeVisible; document.getElementById('roomCode').innerText = isCodeVisible ? ACTUAL_ROOM_CODE : "***-***"; });
         
         document.getElementById('showQrBtn').addEventListener('click', () => {
-            const qrC = document.getElementById('qrcode'); qrC.innerHTML = ''; 
-            new QRCode(qrC, { text: window.location.href.split('?')[0] + "?room=" + ACTUAL_ROOM_CODE, width: 200, height: 200, colorDark : "#3D3A50", colorLight : "#ffffff" });
+            const qrC=document.getElementById('qrcode');qrC.replaceChildren();const qrSize=Math.min(260,Math.max(180,window.innerWidth-96));new QRCode(qrC,{text:window.location.href.split('?')[0]+'?room='+ACTUAL_ROOM_CODE,width:qrSize,height:qrSize,colorDark:'#3D3A50',colorLight:'#ffffff'});
             document.getElementById('modalRoomCode').innerText = ACTUAL_ROOM_CODE;
             document.getElementById('qrModal').style.display = 'flex';
         });
@@ -1662,30 +1678,25 @@ document.addEventListener('click', function(event) {
 
 
 
-<script id="airjotterMobileV111">
+<script id="airjotterMobileV112">
 (function(){
  const vp=document.getElementById('mobileViewport'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
  let stage=document.getElementById('mobileStageV109');if(!stage){stage=document.createElement('div');stage.id='mobileStageV109';wrapper.parentNode.insertBefore(stage,wrapper);stage.appendChild(wrapper)}
  let zoom=1,pan=false,drag=null,pinch=null;
- const mobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches;
- const fit=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
- function apply(center=false,anchor=null){if(!mobile())return;const scale=fit()*zoom,w=Math.round(LOGICAL_W*scale),hh=Math.round(LOGICAL_H*scale);stage.style.width=w+'px';stage.style.height=hh+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';document.getElementById('mobileZoomValue').textContent=Math.round(scale*100)+'%';requestAnimationFrame(()=>{if(anchor){vp.scrollLeft=anchor.docX*scale-anchor.x;vp.scrollTop=anchor.docY*scale-anchor.y}else if(center){vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0}})}
- function setPan(value){pan=value;document.body.classList.toggle('mobile-pan-mode',value);const b=document.getElementById('mobilePanBtn');b.setAttribute('aria-pressed',String(value));b.textContent=value?'Disegna':'Sposta'}
- document.getElementById('mobileZoomFit').onclick=()=>{zoom=1;apply(true);setPan(false)};
- document.getElementById('mobilePanBtn').onclick=()=>setPan(!pan);
+ const mobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches,fit=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
+ function zoomText(v){const z=document.getElementById('mobileZoomValue');z.querySelector('b').textContent=Math.round(v)+'%'}
+ function apply(center=false,anchor=null){if(!mobile())return;const scale=fit()*zoom,w=Math.round(LOGICAL_W*scale),hh=Math.round(LOGICAL_H*scale);stage.style.width=w+'px';stage.style.height=hh+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';zoomText(scale*100);requestAnimationFrame(()=>{if(anchor){vp.scrollLeft=anchor.docX*scale-anchor.x;vp.scrollTop=anchor.docY*scale-anchor.y}else if(center){vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0}})}
+ function setPan(value){pan=value;document.body.classList.toggle('mobile-pan-mode',value);const b=document.getElementById('mobilePanBtn');b.setAttribute('aria-pressed',String(value));b.textContent=value?'Scrivi':'Sposta'}
+ document.getElementById('mobileZoomFit').onclick=()=>{zoom=1;apply(true);setPan(false)};document.getElementById('mobilePanBtn').onclick=()=>setPan(!pan);
  draft.addEventListener('pointerdown',e=>{if(!mobile()||!pan||e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
  draft.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=drag.left-(e.clientX-drag.x);vp.scrollTop=drag.top-(e.clientY-drag.y)},true);
- function stop(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
- draft.addEventListener('pointerup',stop,true);draft.addEventListener('pointercancel',stop,true);
+ function stop(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}draft.addEventListener('pointerup',stop,true);draft.addEventListener('pointercancel',stop,true);
  vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=stage.getBoundingClientRect(),v=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2,scale=fit()*zoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom,docX:(cx-r.left)/scale,docY:(cy-r.top)/scale,x:cx-v.left,y:cy-v.top};e.preventDefault()},{passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],v=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;zoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));apply(false,{docX:pinch.docX,docY:pinch.docY,x:cx-v.left,y:cy-v.top});e.preventDefault()},{passive:false});
- vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
- const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');
- function closeArchive(){modal.style.display='none'}close.onclick=closeArchive;modal.addEventListener('click',e=>{if(e.target===modal)closeArchive()});
- document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};
- document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
- function identity(){const a=document.getElementById('ajUser'),b=document.getElementById('mobileUserBtn');const t=a.textContent.trim();b.textContent=t||'Profilo';b.title=t||'Profilo'}new MutationObserver(identity).observe(document.getElementById('ajUser'),{subtree:true,childList:true,characterData:true});identity();
- window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(true),160);
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],v=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;zoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));apply(false,{docX:pinch.docX,docY:pinch.docY,x:cx-v.left,y:cy-v.top});e.preventDefault()},{passive:false});vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
+ const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');function closeArchive(){modal.style.display='none';document.body.classList.remove('archive-open')}close.onclick=closeArchive;modal.addEventListener('click',e=>{if(e.target===modal)closeArchive()});
+ const oldArchive=ajLoadArchive;ajLoadArchive=async function(){document.body.classList.add('archive-open');await oldArchive();modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
+ document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
+ function identity(){const a=document.getElementById('ajUser'),b=document.getElementById('mobileUserBtn'),t=a.textContent.trim();b.textContent=t||'Profilo';b.title=t||'Profilo'}new MutationObserver(identity).observe(document.getElementById('ajUser'),{subtree:true,childList:true,characterData:true});identity();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(true),160);
 })();
 </script>
 </body>
