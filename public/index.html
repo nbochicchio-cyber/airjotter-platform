@@ -295,6 +295,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:8px 10px 22px!important}
 }
 
+
+@media(max-width:760px),(pointer:coarse){
+ #mobileZoomValue{display:none!important}
+ #mobileZoomFit{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important}
+ #mobileZoomFit .aj-zoom117{display:block;margin-top:3px;font-size:.58rem;line-height:1;color:var(--text-soft);font-weight:700}
+}
+
 </style>
 </head>
 <body>
@@ -1720,70 +1727,45 @@ document.addEventListener('click', function(event) {
 
 
 
-<script id="airjotterMobileV112">
+<script id="airjotterMobileV117">
 (function(){
  const vp=document.getElementById('mobileViewport'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
- let stage=document.getElementById('mobileStageV109');if(!stage){stage=document.createElement('div');stage.id='mobileStageV109';wrapper.parentNode.insertBefore(stage,wrapper);stage.appendChild(wrapper)}
- let zoom=1,pan=false,drag=null,pinch=null;
- const mobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches,fit=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
- function zoomText(v){const z=document.getElementById('mobileZoomValue');z.querySelector('b').textContent=Math.round(v)+'%'}
- function apply(center=false,anchor=null){if(!mobile())return;const scale=fit()*zoom,w=Math.round(LOGICAL_W*scale),hh=Math.round(LOGICAL_H*scale);stage.style.width=w+'px';stage.style.height=hh+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';zoomText(scale*100);requestAnimationFrame(()=>{if(anchor){vp.scrollLeft=anchor.docX*scale-anchor.x;vp.scrollTop=anchor.docY*scale-anchor.y}else if(center){vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0}})}
- function setPan(value){pan=value;document.body.classList.toggle('mobile-pan-mode',value);const b=document.getElementById('mobilePanBtn');b.setAttribute('aria-pressed',String(value));b.textContent=value?'Scrivi':'Sposta'}
- document.getElementById('mobileZoomFit').onclick=()=>{zoom=1;apply(true);setPan(false)};document.getElementById('mobilePanBtn').onclick=()=>setPan(!pan);
- draft.addEventListener('pointerdown',e=>{if(!mobile()||!pan||e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
- draft.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=drag.left-(e.clientX-drag.x);vp.scrollTop=drag.top-(e.clientY-drag.y)},true);
- function stop(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}draft.addEventListener('pointerup',stop,true);draft.addEventListener('pointercancel',stop,true);
- vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=stage.getBoundingClientRect(),v=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2,scale=fit()*zoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom,docX:(cx-r.left)/scale,docY:(cy-r.top)/scale,x:cx-v.left,y:cy-v.top};e.preventDefault()},{passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],v=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;zoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));apply(false,{docX:pinch.docX,docY:pinch.docY,x:cx-v.left,y:cy-v.top});e.preventDefault()},{passive:false});vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
- const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');function closeArchive(){modal.style.display='none';document.body.classList.remove('archive-open')}close.onclick=closeArchive;modal.addEventListener('click',e=>{if(e.target===modal)closeArchive()});
- const oldArchive=ajLoadArchive;ajLoadArchive=async function(){document.body.classList.add('archive-open');await oldArchive();modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
- document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
- function identity(){const a=document.getElementById('ajUser'),b=document.getElementById('mobileUserBtn'),t=a.textContent.trim();b.textContent=t||'Profilo';b.title=t||'Profilo'}new MutationObserver(identity).observe(document.getElementById('ajUser'),{subtree:true,childList:true,characterData:true});identity();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(true),160);
-})();
-</script>
-<script id="airjotterMobileFixV116">
-(function(){
- const wrapper=document.getElementById('canvas-wrapper');
- const modal=document.getElementById('jotterArchiveModal');
- const close=document.getElementById('jotterArchiveClose');
- function renderPageGrids(){
-  wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());
-  if(!matchMedia('(max-width:760px),(pointer:coarse)').matches)return;
-  for(let page=0;page<TOTAL_PAGES;page++){
-   const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';
-   for(let i=1;i<5;i++){
-    const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);
-    const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y);
-   }
-   wrapper.insertBefore(grid,wrapper.firstChild);
-  }
- }
- const originalInit=initCanvas;
- initCanvas=function(){const result=originalInit.apply(this,arguments);renderPageGrids();return result};
- renderPageGrids();
- if(close)close.onclick=()=>modal.style.display='none';
- if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});
- const previousArchive=ajLoadArchive;
- ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};
- document.getElementById('ajUser').onclick=ajLoadArchive;
+ let stage=document.getElementById('mobileStageV109');
+ if(!stage){stage=document.createElement('div');stage.id='mobileStageV109';wrapper.parentNode.insertBefore(stage,wrapper);stage.appendChild(wrapper)}
+ const fitButton=document.getElementById('mobileZoomFit'),panButton=document.getElementById('mobilePanBtn');
+ const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
+ let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
+ let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
+ const mobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches;
+ const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
+ function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
+ function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
+ function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);panButton.setAttribute('aria-pressed',String(on));panButton.textContent=on?'Scrivi':'Sposta'}
+ fitButton.onclick=()=>{userZoom=1;apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
 
- // Sincronizzazione resiliente: Socket.IO resta primario; un controllo revisioni recupera eventuali eventi persi tra device.
- let lastRevision=-1,polling=false;
- async function syncCheck(){
-  if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;
-  polling=true;
-  try{
-   const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');
-   const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);
-   if(lastRevision<0){lastRevision=revision;return}
-   if(revision!==lastRevision){lastRevision=revision;commands=[];redoCommands=[];TOTAL_PAGES=2;operations.filter(o=>o.is_active!==false).forEach(ajApplyOperation);initCanvas();redrawMainCanvas()}
-  }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
- }
- const oldOpen=ajOpenBoard;
- ajOpenBoard=async function(board){lastRevision=-1;const result=await oldOpen(board);await syncCheck();return result};
- ajSocket.on('board:operation',op=>{lastRevision=Math.max(lastRevision,Number(op.revision)||0)});
- ajSocket.on('board:reload',()=>{lastRevision=-1});
- setInterval(syncCheck,1500);
+ // Un dito sposta solo in modalita Sposta. Non intercetta il normale disegno.
+ draft.addEventListener('pointerdown',e=>{if(!mobile()||!panMode||e.pointerType==='mouse'||e.isPrimary===false)return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
+ draft.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=drag.left-(e.clientX-drag.x);vp.scrollTop=drag.top-(e.clientY-drag.y)},true);
+ function endDrag(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
+ draft.addEventListener('pointerup',endDrag,true);draft.addEventListener('pointercancel',endDrag,true);
+
+ // Due dita fanno sempre pan e pinch, anche quando Sposta e disattivato.
+ vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top,scale=fitScale()*userZoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault()},{capture:true,passive:false});
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top;userZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));const scale=fitScale()*userZoom;setGeometry(scale);void stage.offsetWidth;vp.scrollLeft=Math.max(0,pinch.docX*scale+stage.offsetLeft-cx);vp.scrollTop=Math.max(0,pinch.docY*scale+stage.offsetTop-cy);e.preventDefault()},{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{capture:true,passive:true});
+
+ // Griglie indipendenti per pagina.
+ function renderPageGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());if(!mobile())return;for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
+ const baseInit=initCanvas;initCanvas=function(){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;const result=baseInit.apply(this,arguments);userZoom=keepZoom;renderPageGrids();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}return result};renderPageGrids();
+
+ // Polling di recupero: conserva zoom e posizione durante una ricostruzione.
+ async function syncCheck(){if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;polling=true;try{const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);if(lastRevision<0){lastRevision=revision;return}if(revision!==lastRevision){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;lastRevision=revision;commands=[];redoCommands=[];TOTAL_PAGES=2;ajRemote=true;operations.filter(o=>o.is_active!==false).forEach(ajApplyOperation);ajRemote=false;userZoom=keepZoom;baseInit();renderPageGrids();redrawMainCanvas();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}}}catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}}
+ const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;const result=await baseOpen(board);await syncCheck();apply(false);return result};
+ ajSocket.on('board:operation',op=>{lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
+
+ // Archivio mobile gia abbassato dalla v11.6.
+ const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');if(close)close.onclick=()=>modal.style.display='none';if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});const previousArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
+ document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(false),180);
 })();
 </script>
 </body>
