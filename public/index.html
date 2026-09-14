@@ -405,6 +405,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  .aj-choice-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:20px!important}.aj-choice{min-height:280px!important}
 }
 
+
+/* Campo codice sempre interattivo su iPad e tablet Android, anche su WebKit meno recente. */
+#joinCode{
+ pointer-events:auto!important;
+ -webkit-user-select:text!important;
+ user-select:text!important;
+ -webkit-touch-callout:default!important;
+ touch-action:manipulation!important;
+ position:relative!important;
+ z-index:10001!important;
+ opacity:1!important;
+ visibility:visible!important;
+}
+#joinCodeFixLayer125{position:relative!important;z-index:10000!important;pointer-events:auto!important}
+
 </style>
 </head>
 <body>
@@ -2013,6 +2028,45 @@ document.addEventListener('click', function(event) {
   ['touchstart','pointerdown','click'].forEach(type=>join.addEventListener(type,e=>{e.stopPropagation();join.focus()},{passive:true}));
  }
  restoreDesktopView();window.addEventListener('resize',()=>setTimeout(restoreDesktopView,100));window.addEventListener('orientationchange',()=>setTimeout(()=>{restoreDesktopView();centerGoogle()},250));
+})();
+</script>
+<script id="airjotterJoinFixV125">
+(function(){
+ function installJoinField(){
+  const current=document.getElementById('joinCode');
+  if(!current||current.dataset.v125==='1')return;
+  // Il clone elimina eventuali listener touch/pointer precedenti che impediscono la tastiera su vecchio Safari.
+  const input=current.cloneNode(true);
+  input.dataset.v125='1';
+  input.disabled=false;
+  input.readOnly=false;
+  input.removeAttribute('disabled');
+  input.removeAttribute('readonly');
+  input.setAttribute('inputmode','text');
+  input.setAttribute('autocomplete','off');
+  input.setAttribute('autocapitalize','characters');
+  input.setAttribute('spellcheck','false');
+  const layer=document.createElement('div');
+  layer.id='joinCodeFixLayer125';
+  current.parentNode.insertBefore(layer,current);
+  layer.appendChild(input);
+  current.remove();
+
+  // Non usa preventDefault: su Safari impedirebbe l'apertura della tastiera.
+  function activate(){input.disabled=false;input.readOnly=false;input.focus()}
+  input.addEventListener('touchend',activate,{passive:true});
+  input.addEventListener('pointerup',activate,{passive:true});
+  input.addEventListener('click',activate);
+  input.addEventListener('input',()=>{
+   const start=input.selectionStart,end=input.selectionEnd;
+   input.value=input.value.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,9);
+   try{input.setSelectionRange(Math.min(start,input.value.length),Math.min(end,input.value.length))}catch{}
+  });
+ }
+ installJoinField();
+ const lobby=document.getElementById('ajLobby');
+ if(lobby)new MutationObserver(installJoinField).observe(lobby,{childList:true,subtree:true,attributes:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(installJoinField,0)});
 })();
 </script>
 </body>
