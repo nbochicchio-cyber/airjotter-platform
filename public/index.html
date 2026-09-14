@@ -253,6 +253,31 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 #qrModal .modal-content{overflow:hidden!important}#qrcode{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;max-width:100%!important;overflow:hidden!important}#qrcode>*:not(:first-child){display:none!important}#qrcode img,#qrcode canvas{display:block!important;max-width:100%!important;height:auto!important;margin:0 auto!important}
 
+
+@keyframes ajPanPulse115{0%,100%{box-shadow:0 0 0 0 rgba(112,150,224,.9);opacity:1}50%{box-shadow:0 0 0 7px rgba(112,150,224,0);opacity:.58}}
+@media(max-width:760px),(pointer:coarse){
+ #mobileTopbar{grid-template-columns:minmax(66px,.9fr) minmax(150px,1.55fr) minmax(66px,.9fr)!important}
+ .mobile-zoom{grid-template-columns:minmax(72px,1fr) minmax(72px,1fr)!important;gap:6px!important}
+ #mobileZoomFit,#mobilePanBtn{width:100%!important;min-width:0!important;min-height:44px!important}
+ #mobileZoomFit{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important}
+ #mobileZoomFit .aj-zoom-inline{display:block;margin-top:3px;font-size:.58rem;line-height:1;color:var(--text-soft);font-weight:700}
+ #mobilePanBtn[aria-pressed="true"]{animation:ajPanPulse115 .85s linear infinite!important;background:var(--accent-color)!important;color:#fff!important}
+ #mobileZoomValue{display:none!important}
+ #mobileGuideGrid115{position:absolute;inset:0;z-index:5;pointer-events:none;background-image:linear-gradient(to right,rgba(65,85,125,.14) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.14) 1px,transparent 1px);background-size:20% 20%}
+ #mobileGuideGrid115 span{position:absolute;color:rgba(55,67,95,.48);font:600 8px Arial,sans-serif}.aj-grid-x{top:3px;transform:translateX(-50%)}.aj-grid-y{left:3px;transform:translateY(-50%)}
+ #jotterArchiveModal{position:fixed!important;inset:70px 0 0 0!important;width:auto!important;height:auto!important;padding:8px!important;z-index:9000!important;overflow:hidden!important;align-items:stretch!important;justify-content:stretch!important;background:rgba(60,56,74,.42)!important}
+ #jotterArchiveModal .jotter-archive{position:absolute!important;inset:8px!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border-radius:16px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;background:#fff!important}
+ #jotterArchiveModal .archive-heading{position:relative!important;display:block!important;flex:0 0 auto!important;margin:0!important;padding:16px 56px 12px 14px!important;background:#fff!important;border-bottom:1px solid var(--border-color)!important;z-index:20!important;overflow:visible!important}
+ #jotterArchiveModal .archive-heading>div:first-child{display:block!important}
+ #jotterArchiveModal .archive-heading h3{display:block!important;margin:0 0 5px!important;font-size:1.35rem!important;line-height:1.15!important}
+ #jotterArchiveModal .archive-heading p{display:block!important;margin:0!important;font-size:.76rem!important;line-height:1.3!important}
+ #jotterArchiveModal .archive-heading-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important;gap:8px!important;margin-top:10px!important}
+ #jotterArchiveClose{position:absolute!important;top:8px!important;right:8px!important;display:flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;z-index:40!important;visibility:visible!important;opacity:1!important}
+ #ajArchiveClose115{display:block!important;width:100%!important;min-height:42px!important;margin-top:9px!important}
+ #jotterArchiveStatus{flex:0 0 auto!important;padding:7px 14px!important;background:#fff!important}
+ #jotterArchiveList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:8px 10px 22px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1697,6 +1722,45 @@ document.addEventListener('click', function(event) {
  const oldArchive=ajLoadArchive;ajLoadArchive=async function(){document.body.classList.add('archive-open');await oldArchive();modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
  document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();
  function identity(){const a=document.getElementById('ajUser'),b=document.getElementById('mobileUserBtn'),t=a.textContent.trim();b.textContent=t||'Profilo';b.title=t||'Profilo'}new MutationObserver(identity).observe(document.getElementById('ajUser'),{subtree:true,childList:true,characterData:true});identity();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(true),160);
+})();
+</script>
+<script id="airjotterMobileFixV115">
+(function(){
+ const vp=document.getElementById('mobileViewport');
+ const stage=document.getElementById('mobileStageV109');
+ const wrapper=document.getElementById('canvas-wrapper');
+ const draft=document.getElementById('draftBoard');
+ const fitButton=document.getElementById('mobileZoomFit');
+ const panButton=document.getElementById('mobilePanBtn');
+ if(!vp||!stage||!wrapper||!draft||!fitButton||!panButton)return;
+ const oldZoom=document.getElementById('mobileZoomValue');
+ if(oldZoom)oldZoom.style.display='none';
+ let zoomLabel=fitButton.querySelector('.aj-zoom-inline');
+ if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom-inline';fitButton.appendChild(zoomLabel)}
+ let grid=document.getElementById('mobileGuideGrid115');
+ if(!grid){grid=document.createElement('div');grid.id='mobileGuideGrid115';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='aj-grid-x';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='aj-grid-y';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}stage.appendChild(grid)}
+ let userZoom=1,panMode=false,pinch=null,drag=null;
+ const isMobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches;
+ const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
+ function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
+ function fitView(){userZoom=1;setGeometry(fitScale());requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});setPan(false)}
+ function setPan(value){panMode=value;document.body.classList.toggle('mobile-pan-mode',value);panButton.setAttribute('aria-pressed',String(value));panButton.textContent=value?'Scrivi':'Sposta'}
+ fitButton.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();fitView()},true);
+ panButton.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();setPan(!panMode)},true);
+ draft.addEventListener('pointerdown',e=>{if(!isMobile()||!panMode||e.pointerType==='mouse'||e.isPrimary===false)return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
+ draft.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();vp.scrollLeft=drag.left-(e.clientX-drag.x);vp.scrollTop=drag.top-(e.clientY-drag.y)},true);
+ function endDrag(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
+ draft.addEventListener('pointerup',endDrag,true);draft.addEventListener('pointercancel',endDrag,true);
+ vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top,scale=fitScale()*userZoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top;userZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));const scale=fitScale()*userZoom;setGeometry(scale);void stage.offsetWidth;vp.scrollLeft=Math.max(0,pinch.docX*scale+stage.offsetLeft-cx);vp.scrollTop=Math.max(0,pinch.docY*scale+stage.offsetTop-cy);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{capture:true,passive:true});
+ const modal=document.getElementById('jotterArchiveModal');
+ const card=modal?.querySelector('.jotter-archive');
+ const heading=modal?.querySelector('.archive-heading');
+ const xClose=document.getElementById('jotterArchiveClose');
+ if(modal&&card&&heading&&xClose){let closeText=document.getElementById('ajArchiveClose115');if(!closeText){closeText=document.createElement('button');closeText.id='ajArchiveClose115';closeText.className='btn danger';closeText.type='button';closeText.textContent='Chiudi';heading.appendChild(closeText)}const closeArchive=()=>{modal.style.display='none'};xClose.onclick=closeArchive;closeText.onclick=closeArchive;modal.addEventListener('click',e=>{if(e.target===modal)closeArchive()});const openArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';card.scrollTop=0;await openArchive();modal.style.display='flex';document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive}
+ window.addEventListener('resize',()=>{if(isMobile())setGeometry(fitScale()*userZoom)});
+ setTimeout(()=>{if(isMobile())setGeometry(fitScale()*userZoom)},200);
 })();
 </script>
 </body>
