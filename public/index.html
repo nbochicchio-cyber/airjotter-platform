@@ -1595,5 +1595,14 @@ document.addEventListener('click', function(event) {
  document.getElementById('ajUser').onclick=ajLoadArchive;
 })();
 </script>
+<script id="airjotterCleanupV107">
+(function(){
+ let sent=false;
+ function currentId(){try{return ajBoard&&ajBoard.id?ajBoard.id:null}catch{return null}}
+ function queueCleanup(){if(sent)return;sent=true;const data=JSON.stringify({currentBoardId:currentId()});try{navigator.sendBeacon('/api/boards/cleanup-empty',new Blob([data],{type:'application/json'}))}catch{fetch('/api/boards/cleanup-empty',{method:'POST',headers:{'Content-Type':'application/json'},body:data,keepalive:true}).catch(()=>{})}}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')queueCleanup();else sent=false});
+ window.addEventListener('pagehide',queueCleanup);
+})();
+</script>
 </body>
 </html>

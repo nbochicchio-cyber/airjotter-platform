@@ -35,3 +35,6 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended_at TIMESTAMPTZ;
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_plan_code_check;
 ALTER TABLE users ADD CONSTRAINT users_plan_code_check CHECK(plan_code IN ('free','plus','ultra','unlimited'));
 UPDATE users SET plan_code='unlimited' WHERE lower(email)='nbochicchio@gmail.com';
+
+ALTER TABLE boards ADD COLUMN IF NOT EXISTS empty_cleanup_after TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS boards_empty_cleanup_idx ON boards(empty_cleanup_after) WHERE empty_cleanup_after IS NOT NULL;
