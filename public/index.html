@@ -279,10 +279,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
+/* v14.4 - CSS griglie 20/40/60/80% UNIVERSALE (era erroneamente dentro @media mobile in v14.1) */
+.aj-page-grid116{position:absolute;left:0;width:100%;height:var(--a4-h);z-index:1;pointer-events:none;background-image:linear-gradient(to right,rgba(65,85,125,.13) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.13) 1px,transparent 1px);background-size:20% 20%}
+.aj-page-grid116 span{position:absolute;color:rgba(55,67,95,.48);font:600 8px Arial,sans-serif;z-index:1}
+.aj-page-grid116 .gx{top:3px;transform:translateX(-50%)}
+.aj-page-grid116 .gy{left:3px;transform:translateY(-50%)}
+
+
 @media (max-width:760px){
  #mobileGuideGrid115{display:none!important}
- .aj-page-grid116{position:absolute;left:0;width:100%;height:var(--a4-h);z-index:1;pointer-events:none;background-image:linear-gradient(to right,rgba(65,85,125,.13) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.13) 1px,transparent 1px);background-size:20% 20%}
- .aj-page-grid116 span{position:absolute;color:rgba(55,67,95,.48);font:600 8px Arial,sans-serif;z-index:1}.aj-page-grid116 .gx{top:3px;transform:translateX(-50%)}.aj-page-grid116 .gy{left:3px;transform:translateY(-50%)}
  #jotterArchiveModal{position:fixed!important;inset:150px 0 0 0!important;width:auto!important;height:auto!important;padding:8px!important;z-index:9000!important;overflow:hidden!important;align-items:stretch!important;justify-content:stretch!important;background:rgba(60,56,74,.42)!important}
  #jotterArchiveModal .jotter-archive{position:absolute!important;inset:8px!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border-radius:16px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;background:#fff!important}
  #jotterArchiveModal .archive-heading{position:relative!important;display:block!important;flex:0 0 auto!important;margin:0!important;padding:16px 58px 12px 14px!important;background:#fff!important;border-bottom:1px solid var(--border-color)!important;z-index:20!important;overflow:visible!important}
@@ -518,11 +523,18 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 /* Regole touch-action universali (valide su TUTTI i touch, phone + tablet + PC touch) */
 @media (any-pointer:coarse) {
+ /* v14.4: user-select:none AGGRESSIVO su html/body per bloccare i Callout Bar
+    di iPad Safari (che continuavano a comparire in v14.3 nonostante il preventDefault
+    su contextmenu, perche' Safari mostra il menu direttamente da long-press senza
+    emettere contextmenu event). Le eccezioni sono solo per gli input di testo. */
+ html, body { -webkit-touch-callout:none !important; -webkit-user-select:none !important; user-select:none !important; }
+ input, textarea, [contenteditable="true"], #text-tool-input, #text-tool-overlay, #text-tool-overlay * {
+  -webkit-user-select:text !important; user-select:text !important; -webkit-touch-callout:default !important;
+ }
  #mobileViewport, #mobileStageV109, #canvas-wrapper, #drawingBoard, #draftBoard, .aj-page-grid116, .aj-page-grid116 span, .real-page-break, .page-delete-btn {
   -webkit-touch-callout:none !important; -webkit-user-select:none !important; user-select:none !important; -webkit-tap-highlight-color:transparent !important;
  }
  #draftBoard { touch-action:none !important; }
- #text-tool-overlay, #text-tool-input, #text-tool-overlay * { -webkit-user-select:text !important; user-select:text !important; -webkit-touch-callout:default !important; }
  /* GPU acceleration per animazioni fluide */
  #canvas-wrapper, #drawingBoard, #draftBoard { will-change:transform; -webkit-backface-visibility:hidden; backface-visibility:hidden; -webkit-transform-style:preserve-3d; transform-style:preserve-3d; }
 }
@@ -1988,7 +2000,7 @@ document.addEventListener('click', function(event) {
  let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
  const touch=()=>matchMedia('(pointer:coarse)').matches||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
- function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
+ function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';if(document.documentElement.classList.contains('aj-old-ipad')){wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';wrapper.style.transformOrigin='0 0'}else{wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left'}wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
  function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
  function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);panButton.setAttribute('aria-pressed',String(on));panButton.textContent=on?'Scrivi':'Sposta'}
  fitButton.onclick=()=>{userZoom=1;if(document.documentElement.classList.contains('aj-old-ipad')){ajCamera={x:0,y:0,zoom:1,base:fitScale()};const scale=fitScale();stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.transform='translate3d(0,0,0) scale('+scale+')';wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}else apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
@@ -2005,7 +2017,14 @@ document.addEventListener('click', function(event) {
  let ajCamera={x:0,y:0,zoom:1,base:0};
  function ajClampCamera(x,y,scale){
   const vw=vp.clientWidth,vh=vp.clientHeight,cw=LOGICAL_W*scale,ch=LOGICAL_H*scale;
-  return {x:Math.min(10,Math.max(vw-cw-10,x)),y:Math.min(10,Math.max(vh-ch-10,y))};
+  // v14.4: se il canvas ci sta nel viewport, permetti pan libero (il vecchio clamp
+  // fissava la posizione a (10,10) perche' Math.max invertiva). Se eccede: clamp
+  // classico per non farlo scappare completamente.
+  const xMin = cw > vw ? vw - cw - 10 : -cw + 40;
+  const xMax = cw > vw ? 10 : vw - 40;
+  const yMin = ch > vh ? vh - ch - 10 : -ch + 40;
+  const yMax = ch > vh ? 10 : vh - 40;
+  return {x: Math.min(xMax, Math.max(xMin, x)), y: Math.min(yMax, Math.max(yMin, y))};
  }
  function ajPaintCamera(){
   ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;
@@ -2351,26 +2370,35 @@ document.addEventListener('click', function(event) {
  const isTouch = matchMedia('(any-pointer:coarse)').matches;
  if (!isTouch) return;
 
- // 1. Previene i menu contestuali del browser (copia/seleziona/cerca) sui long-press touch
- //    ma NON sul text tool overlay dove l'utente scrive testo.
+ // v14.4: Prevenzione AGGRESSIVA dei Callout Bar di iPad Safari.
+ //  - Blocca contextmenu (che a volte scatta)
+ //  - Blocca selectstart (per non far partire selezione)
+ //  - Cancella qualsiasi selezione al touchstart (che scatena il Callout Bar)
+ //  - Blocca la selezione del testo su tutti gli elementi tranne input di testo
+ function isTextInput(el){
+  if (!el) return false;
+  const tag = (el.tagName || '').toUpperCase();
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
+  if (el.isContentEditable) return true;
+  if (el.closest && (el.closest('#text-tool-overlay') || el.closest('#text-tool-input'))) return true;
+  return false;
+ }
+
  document.addEventListener('contextmenu', e => {
-  const t = e.target;
-  if (!t || !t.closest) return;
-  if (t.closest('#text-tool-overlay') || t.closest('#text-tool-input')) return;
-  if (t.closest('#canvas-wrapper') || t.closest('#mobileViewport') || t.closest('#mobileStageV109')
-      || t.closest('header') || t.closest('#mobileTopbar')
-      || t.tagName === 'CANVAS' || t.tagName === 'BUTTON') {
-   e.preventDefault();
-  }
+  if (!isTextInput(e.target)) e.preventDefault();
  }, { capture: true });
 
- // 2. Previene la selezione con doppio tap sui pulsanti/canvas (che scatena i menu iOS)
  document.addEventListener('selectstart', e => {
-  const t = e.target;
-  if (!t || !t.closest) return;
-  if (t.closest('#text-tool-overlay') || t.closest('#text-tool-input') || t.closest('input') || t.closest('textarea')) return;
-  e.preventDefault();
+  if (!isTextInput(e.target)) e.preventDefault();
  }, { capture: true });
+
+ // Cancella qualsiasi selezione residua al touchstart per evitare che iPad Safari
+ // rilevi "testo selezionato sotto le dita" e mostri il Callout Bar
+ document.addEventListener('touchstart', e => {
+  if (isTextInput(e.target)) return;
+  const sel = window.getSelection && window.getSelection();
+  if (sel && sel.rangeCount > 0) sel.removeAllRanges();
+ }, { capture: true, passive: true });
 
  // 3. Suggerisce visivamente che la barra strumenti scorre in orizzontale sui tablet:
  //    ombra a destra quando ci sono strumenti fuori vista + un piccolo bounce iniziale.
