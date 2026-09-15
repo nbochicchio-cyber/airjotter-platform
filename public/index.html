@@ -452,11 +452,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   left:0 !important; top:0 !important;
   margin:0 !important;
   transform-origin:top left !important;
-  will-change:auto !important;
+  will-change:transform !important;
+  -webkit-backface-visibility:hidden !important;
+  backface-visibility:hidden !important;
  }
 
- /* Griglie di guida spente sui tablet */
- .aj-page-grid116, #mobileGuideGrid115 { display:none !important; }
+ /* v14.3: griglie di guida 20/40/60/80% ATTIVE anche sui tablet (come su smartphone) */
+
+ /* Menu contestuali del browser spenti su tutti gli elementi touch-attivi */
+ #canvas-wrapper, #canvas-wrapper *, #drawingBoard, #draftBoard, #mobileViewport, #mobileStageV109 {
+  -webkit-touch-callout:none !important;
+  -webkit-user-select:none !important;
+  user-select:none !important;
+  -webkit-tap-highlight-color:transparent !important;
+  -webkit-user-drag:none !important;
+ }
 
  /* Footer sempre in fondo: flex-item non-crescente dopo il viewport */
  .site-footer {
@@ -513,6 +523,36 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  }
  #draftBoard { touch-action:none !important; }
  #text-tool-overlay, #text-tool-input, #text-tool-overlay * { -webkit-user-select:text !important; user-select:text !important; -webkit-touch-callout:default !important; }
+ /* GPU acceleration per animazioni fluide */
+ #canvas-wrapper, #drawingBoard, #draftBoard { will-change:transform; -webkit-backface-visibility:hidden; backface-visibility:hidden; -webkit-transform-style:preserve-3d; transform-style:preserve-3d; }
+}
+
+/* v14.3: Animazione hint per la barra strumenti scorrevole (solo sui touch dove la barra puo' eccedere) */
+@media (min-width:761px) and (pointer:coarse) {
+ header {
+  scroll-behavior:smooth;
+ }
+ /* Ombra a destra per suggerire che c'e' contenuto scrollabile */
+ body::before {
+  content:'';
+  position:fixed;
+  top:calc(env(safe-area-inset-top, 0px) + 12px);
+  right:12px;
+  width:24px;
+  height:68px;
+  pointer-events:none;
+  z-index:241;
+  background:linear-gradient(to left, rgba(255,253,247,0.95), rgba(255,253,247,0));
+  opacity:0;
+  transition:opacity .3s ease;
+ }
+ body.has-scroll-hint::before { opacity:1; }
+ @keyframes ajScrollHint {
+  0%, 60%, 100% { transform:translateX(-50%) translateX(0); }
+  75% { transform:translateX(-50%) translateX(-24px); }
+  85% { transform:translateX(-50%) translateX(4px); }
+ }
+ header.aj-hint-scroll { animation:ajScrollHint 1.8s ease-in-out; }
 }
 
 </style>
@@ -2068,12 +2108,20 @@ document.addEventListener('click', function(event) {
  setInterval(refreshHistory,1200);
 })();
 </script>
-<script id="airjotterTabletMobileV132">
+<script id="airjotterTabletMobileV143">
 (function(){
- const tablet=/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
- if(!tablet)return;
- document.documentElement.classList.remove('aj-tablet-v13','aj-old-ipad','aj-camera-moving');
- // Nessun nuovo gestore touch: usa esclusivamente airjotterMobileV117, identico allo smartphone.
+ // Riconoscimento tablet piu' inclusivo: iPad legacy (UA "iPad"), iPadOS moderno (UA
+ // "Macintosh" + touchscreen), tablet Android. Il primario e' pointer:coarse.
+ const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent)
+                  || (matchMedia('(pointer:coarse)').matches && matchMedia('(min-width:761px)').matches);
+ if(!isTablet)return;
+ // v14.3: attiva la modalita' camera GPU (ajPaintCamera) su TUTTI i tablet.
+ // Era disattivata dalla precedente V132 che rimuoveva 'aj-old-ipad', costringendo
+ // i tablet ad usare ajPaintStandard che chiama setGeometry() ad ogni frame del pinch
+ // (reflow di stage.width/height, molto lento su iPad vecchi).
+ // La modalita' camera usa translate3d + scale sulla GPU: 60fps fluidi anche su iPad Air 2.
+ document.documentElement.classList.add('aj-old-ipad');
+ document.documentElement.classList.remove('aj-tablet-v13','aj-camera-moving');
  const input=document.getElementById('joinCode');
  if(input){input.disabled=false;input.readOnly=false;input.removeAttribute('disabled');input.removeAttribute('readonly')}
  setTimeout(()=>{try{handleResize()}catch{}},200);
@@ -2081,40 +2129,48 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterPcTouchPanV142">
-/* v14.2 - pan+pinch a due dita per PC con touchscreen (Surface, Samsung 2-in-1, Yoga ecc.).
-   Si attiva SOLO se any-pointer:coarse ma pointer:fine (primario = mouse/touchpad).
-   Sui tablet veri e' gia' gestito dallo script mobile (v117) tramite scroll del viewport;
-   sul PC touch il canvas ci sta tutto nel viewport, quindi lo scroll non ha effetto e
-   serve spostare il canvas via CSS transform: translate + scale. */
+<script id="airjotterPcTouchPanV143">
+/* v14.3 - pan+pinch a due dita per PC con touchscreen (Surface, Samsung 2-in-1, Yoga).
+   FIX rispetto a v14.2: aritmetica corretta del transform. Il bug precedente calcolava
+   tx = canvasRect.left - parentRect.left ma quel valore include gia' la posizione
+   layout del wrapper (che e' centrato con margin:0 auto): cambiando origin da
+   'top center' a 'top left' l'offset veniva sommato due volte e il canvas saltava
+   a destra al primo touch. La formula corretta si basa sulla position LAYOUT del
+   wrapper (invariante per il transform): con origin top-center e scale(s), il canvas
+   visuale sta a rect.left = layoutLeft + LOGICAL_W*(1-s)/2. Da qui si ricava
+   layoutLeft, e poi imponendo origin top-left si applica tx = LOGICAL_W*(1-s)/2 per
+   mantenere la stessa position visuale (nessun salto). */
 (function(){
  const isPcTouch = matchMedia('(any-pointer:coarse)').matches && !matchMedia('(pointer:coarse)').matches;
  if (!isPcTouch) return;
  const draft = document.getElementById('draftBoard');
  const wrapper = document.getElementById('canvas-wrapper');
  if (!draft || !wrapper) return;
- const LOGICAL_W_V142 = 900;
+ const LOGICAL_W_V143 = 900;
  let pinch = null;
-
- function parent() { return wrapper.parentElement.getBoundingClientRect(); }
 
  draft.addEventListener('touchstart', e => {
   if (e.touches.length !== 2) return;
   const p = e.touches[0], q = e.touches[1];
-  // Leggo posizione visuale attuale del canvas per calibrare (evita salti al primo touch)
   const canvasRect = draft.getBoundingClientRect();
-  const parentRect = parent();
-  const currentS = canvasRect.width / LOGICAL_W_V142;
-  const tx = canvasRect.left - parentRect.left;
-  const ty = canvasRect.top - parentRect.top;
+  const currentS = canvasRect.width / LOGICAL_W_V143;
+  // Position LAYOUT del wrapper (invariante rispetto al transform)
+  const layoutLeft = canvasRect.left - LOGICAL_W_V143 * (1 - currentS) / 2;
+  const layoutTop = canvasRect.top;
+  // Con origin top-left, applico translate iniziale per NON spostare visivamente il canvas
+  const tx0 = LOGICAL_W_V143 * (1 - currentS) / 2;
+  const ty0 = 0;
+  wrapper.style.willChange = 'transform';
   wrapper.style.transformOrigin = 'top left';
-  wrapper.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + currentS + ')';
-  wrapper.style.margin = '0';
+  wrapper.style.transform = 'translate3d(' + tx0 + 'px, ' + ty0 + 'px, 0) scale(' + currentS + ')';
   const cx = (p.clientX + q.clientX) / 2;
   const cy = (p.clientY + q.clientY) / 2;
   pinch = {
    distance: Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY),
    startS: currentS,
+   layoutLeft: layoutLeft,
+   layoutTop: layoutTop,
+   // Il punto documento sotto il centro delle dita (coordinate 0..LOGICAL_W)
    docX: (cx - canvasRect.left) / currentS,
    docY: (cy - canvasRect.top) / currentS,
   };
@@ -2130,17 +2186,20 @@ document.addEventListener('click', function(event) {
   const cy = (p.clientY + q.clientY) / 2;
   const dist = Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY);
   const newS = Math.max(0.3, Math.min(4, pinch.startS * dist / pinch.distance));
-  const parentRect = parent();
-  // Il punto documento (pinch.docX, pinch.docY) deve stare sotto il centro (cx, cy) delle dita
-  const newTx = (cx - parentRect.left) - pinch.docX * newS;
-  const newTy = (cy - parentRect.top) - pinch.docY * newS;
-  wrapper.style.transformOrigin = 'top left';
-  wrapper.style.transform = 'translate(' + newTx + 'px, ' + newTy + 'px) scale(' + newS + ')';
+  // Il punto documento (pinch.docX, pinch.docY) deve stare sotto il centro attuale (cx, cy)
+  // In coordinate viewport: pinch.layoutLeft + newTx + pinch.docX * newS = cx
+  const newTx = cx - pinch.layoutLeft - pinch.docX * newS;
+  const newTy = cy - pinch.layoutTop - pinch.docY * newS;
+  wrapper.style.transform = 'translate3d(' + newTx + 'px, ' + newTy + 'px, 0) scale(' + newS + ')';
   e.preventDefault(); e.stopPropagation();
  }, { capture: true, passive: false });
 
  draft.addEventListener('touchend', e => {
-  if (e.touches.length < 2) pinch = null;
+  if (e.touches.length < 2) {
+   pinch = null;
+   // Lascio il transform corrente, cosi' l'utente puo' proseguire da dove ha lasciato
+   // al prossimo pinch. willChange resta 'transform' per fluidita' successive.
+  }
  }, { capture: true, passive: true });
 })();
 </script>
@@ -2285,5 +2344,78 @@ document.addEventListener('click', function(event) {
  if (ajUserBtn) ajUserBtn.onclick = () => window.ajLoadArchive();
 })();
 </script>
+<script id="airjotterTouchPolishV143">
+/* v14.3 - polish touch: previene menu contestuali, suggerisce visivamente la scrollabilita'
+   della barra strumenti sui tablet, aggancia optimizzazioni performance leggere. */
+(function(){
+ const isTouch = matchMedia('(any-pointer:coarse)').matches;
+ if (!isTouch) return;
+
+ // 1. Previene i menu contestuali del browser (copia/seleziona/cerca) sui long-press touch
+ //    ma NON sul text tool overlay dove l'utente scrive testo.
+ document.addEventListener('contextmenu', e => {
+  const t = e.target;
+  if (!t || !t.closest) return;
+  if (t.closest('#text-tool-overlay') || t.closest('#text-tool-input')) return;
+  if (t.closest('#canvas-wrapper') || t.closest('#mobileViewport') || t.closest('#mobileStageV109')
+      || t.closest('header') || t.closest('#mobileTopbar')
+      || t.tagName === 'CANVAS' || t.tagName === 'BUTTON') {
+   e.preventDefault();
+  }
+ }, { capture: true });
+
+ // 2. Previene la selezione con doppio tap sui pulsanti/canvas (che scatena i menu iOS)
+ document.addEventListener('selectstart', e => {
+  const t = e.target;
+  if (!t || !t.closest) return;
+  if (t.closest('#text-tool-overlay') || t.closest('#text-tool-input') || t.closest('input') || t.closest('textarea')) return;
+  e.preventDefault();
+ }, { capture: true });
+
+ // 3. Suggerisce visivamente che la barra strumenti scorre in orizzontale sui tablet:
+ //    ombra a destra quando ci sono strumenti fuori vista + un piccolo bounce iniziale.
+ //    L'animazione si spegne al primo tocco/scroll dell'utente.
+ const header = document.querySelector('header');
+ if (!header) return;
+
+ let hintCount = 0;
+ let userScrolled = false;
+
+ function checkScrollHint() {
+  if (userScrolled) return;
+  const overflows = header.scrollWidth > header.clientWidth + 2;
+  document.body.classList.toggle('has-scroll-hint', overflows);
+  if (overflows && hintCount < 3) {
+   hintCount++;
+   header.classList.remove('aj-hint-scroll');
+   // Forza reflow per riavviare l'animazione
+   void header.offsetWidth;
+   header.classList.add('aj-hint-scroll');
+   setTimeout(() => header.classList.remove('aj-hint-scroll'), 2000);
+  }
+ }
+
+ // Primo hint 2.5s dopo il load della pagina, poi ogni 20s se l'utente non ha ancora scrolled
+ setTimeout(checkScrollHint, 2500);
+ const hintInterval = setInterval(checkScrollHint, 20000);
+
+ header.addEventListener('scroll', () => {
+  userScrolled = true;
+  document.body.classList.remove('has-scroll-hint');
+  clearInterval(hintInterval);
+ }, { passive: true, once: true });
+
+ header.addEventListener('touchstart', () => {
+  userScrolled = true;
+  document.body.classList.remove('has-scroll-hint');
+  clearInterval(hintInterval);
+ }, { passive: true, once: true });
+
+ // Ricontrolla se la barra e' scrollabile al resize (rotazione tablet)
+ window.addEventListener('resize', () => { setTimeout(checkScrollHint, 300); }, { passive: true });
+})();
+</script>
+
+
 </body>
 </html>
