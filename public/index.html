@@ -372,12 +372,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 
 /* =========================================================================
-   v14.1 - LAYOUT TABLET E PC TOUCH (iPad, tablet Android, Surface, Yoga...)
-   Si applica quando esiste input touch (any-pointer:coarse) e il viewport
-   e' piu' largo di quello di uno smartphone (>=761px).
-   Sostituisce >280 righe di regole stratificate delle iterazioni precedenti.
+   v14.2 - LAYOUT TABLET (iPad senza tastiera, tablet Android puri)
+   Si applica quando il puntatore PRIMARIO e' coarse (touch primary) e il
+   viewport e' piu' largo di quello di uno smartphone (>=761px).
+   Il PC touch (Surface, Samsung 2-in-1, Yoga...) ha pointer:fine come
+   primario e NON matcha: sul PC touch resta il layout PC classico.
    ========================================================================= */
-@media (min-width:761px) and (any-pointer:coarse) {
+@media (min-width:761px) and (pointer:coarse) {
 
  /* Body flex-column: il footer sta naturalmente in fondo */
  html, body { height:100% !important; overflow:hidden !important; width:100% !important; max-width:none !important; margin:0 !important; }
@@ -442,8 +443,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   display:block !important;
   overflow:visible !important;
   contain:none !important;
-  width:auto !important; height:auto !important;
   flex:none !important;
+  /* width e height le calcola il JS in setGeometry() — NON le forzo qui */
  }
 
  #mobileStageV109 > #canvas-wrapper, #canvas-wrapper {
@@ -480,8 +481,19 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
   overflow-y:auto !important;
  }
 
- /* Google button visibile */
- #googleBtn, .welcome-google { display:flex !important; width:100% !important; justify-content:center !important; align-items:center !important; margin:0 auto !important; overflow:visible !important; }
+ /* Login: pulsante Google sopra, testo sotto, centrati (fix bug v14.1) */
+ .welcome-google {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  width:100% !important;
+  margin:0 auto !important;
+  text-align:center !important;
+ }
+ .welcome-google small { display:block !important; text-align:center !important; margin:0 auto !important; }
+ #googleBtn { display:flex !important; justify-content:center !important; align-items:center !important; width:100% !important; overflow:visible !important; }
  #googleBtn > div, #googleBtn iframe { display:block !important; margin:0 auto !important; max-width:100% !important; }
 
  /* Campo codice sempre attivo e ben visibile */
@@ -768,7 +780,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         }
 
         let mobileZoom=1;
-        function isMobileLayout(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(any-pointer:coarse)').matches||(navigator.maxTouchPoints||0)>1}
+        function isMobileLayout(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches}
         function mobileFitScale(){const vp=document.getElementById('mobileViewport');return Math.min(1,Math.max(.25,(vp.clientWidth-24)/LOGICAL_W))}
         function applyMobileZoom(center=true){
             const vp=document.getElementById('mobileViewport');const scale=mobileFitScale()*mobileZoom;
@@ -1934,7 +1946,7 @@ document.addEventListener('click', function(event) {
  const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
  let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
  let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
- const touch=()=>matchMedia('(any-pointer:coarse)').matches||(navigator.maxTouchPoints||0)>1||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);const mobile=touch;
+ const touch=()=>matchMedia('(pointer:coarse)').matches||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
  function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
@@ -2065,6 +2077,212 @@ document.addEventListener('click', function(event) {
  const input=document.getElementById('joinCode');
  if(input){input.disabled=false;input.readOnly=false;input.removeAttribute('disabled');input.removeAttribute('readonly')}
  setTimeout(()=>{try{handleResize()}catch{}},200);
+})();
+</script>
+
+
+<script id="airjotterPcTouchPanV142">
+/* v14.2 - pan+pinch a due dita per PC con touchscreen (Surface, Samsung 2-in-1, Yoga ecc.).
+   Si attiva SOLO se any-pointer:coarse ma pointer:fine (primario = mouse/touchpad).
+   Sui tablet veri e' gia' gestito dallo script mobile (v117) tramite scroll del viewport;
+   sul PC touch il canvas ci sta tutto nel viewport, quindi lo scroll non ha effetto e
+   serve spostare il canvas via CSS transform: translate + scale. */
+(function(){
+ const isPcTouch = matchMedia('(any-pointer:coarse)').matches && !matchMedia('(pointer:coarse)').matches;
+ if (!isPcTouch) return;
+ const draft = document.getElementById('draftBoard');
+ const wrapper = document.getElementById('canvas-wrapper');
+ if (!draft || !wrapper) return;
+ const LOGICAL_W_V142 = 900;
+ let pinch = null;
+
+ function parent() { return wrapper.parentElement.getBoundingClientRect(); }
+
+ draft.addEventListener('touchstart', e => {
+  if (e.touches.length !== 2) return;
+  const p = e.touches[0], q = e.touches[1];
+  // Leggo posizione visuale attuale del canvas per calibrare (evita salti al primo touch)
+  const canvasRect = draft.getBoundingClientRect();
+  const parentRect = parent();
+  const currentS = canvasRect.width / LOGICAL_W_V142;
+  const tx = canvasRect.left - parentRect.left;
+  const ty = canvasRect.top - parentRect.top;
+  wrapper.style.transformOrigin = 'top left';
+  wrapper.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + currentS + ')';
+  wrapper.style.margin = '0';
+  const cx = (p.clientX + q.clientX) / 2;
+  const cy = (p.clientY + q.clientY) / 2;
+  pinch = {
+   distance: Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY),
+   startS: currentS,
+   docX: (cx - canvasRect.left) / currentS,
+   docY: (cy - canvasRect.top) / currentS,
+  };
+  try { window.isDrawing = false; } catch {}
+  try { const dc = draft.getContext('2d'); if (dc) dc.clearRect(0, 0, draft.width, draft.height); } catch {}
+  e.preventDefault(); e.stopPropagation();
+ }, { capture: true, passive: false });
+
+ draft.addEventListener('touchmove', e => {
+  if (!pinch || e.touches.length !== 2) return;
+  const p = e.touches[0], q = e.touches[1];
+  const cx = (p.clientX + q.clientX) / 2;
+  const cy = (p.clientY + q.clientY) / 2;
+  const dist = Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY);
+  const newS = Math.max(0.3, Math.min(4, pinch.startS * dist / pinch.distance));
+  const parentRect = parent();
+  // Il punto documento (pinch.docX, pinch.docY) deve stare sotto il centro (cx, cy) delle dita
+  const newTx = (cx - parentRect.left) - pinch.docX * newS;
+  const newTy = (cy - parentRect.top) - pinch.docY * newS;
+  wrapper.style.transformOrigin = 'top left';
+  wrapper.style.transform = 'translate(' + newTx + 'px, ' + newTy + 'px) scale(' + newS + ')';
+  e.preventDefault(); e.stopPropagation();
+ }, { capture: true, passive: false });
+
+ draft.addEventListener('touchend', e => {
+  if (e.touches.length < 2) pinch = null;
+ }, { capture: true, passive: true });
+})();
+</script>
+
+
+<script id="airjotterAdminDeleteFixV142">
+/* v14.2 - il pulsante Elimina utente nella Console Admin non mostrava l'errore quando il backend
+   restituiva 500 (di solito per FK di board_operations). Ora avvisa l'utente.
+   Approccio: watch della tabella #adminUsers e wrap del click handler per catturare l'errore. */
+(function(){
+ function wrap(btn){
+  if (btn.__v142wrapped) return;
+  btn.__v142wrapped = true;
+  const original = btn.onclick;
+  btn.onclick = async function(e){
+   if (!original) return;
+   try { await original.call(btn, e); }
+   catch (err) { alert('Eliminazione utente non riuscita: ' + (err && err.message ? err.message : String(err))); }
+  };
+ }
+ function scan(){
+  const tbody = document.getElementById('adminUsers');
+  if (!tbody) return;
+  tbody.querySelectorAll('.delete-user').forEach(wrap);
+ }
+ // Il tbody potrebbe non esistere ancora al caricamento della pagina.
+ // Uso un observer sul body che scatta ogni volta che la tabella admin viene ripopolata.
+ const rootObserver = new MutationObserver(scan);
+ rootObserver.observe(document.body, { childList: true, subtree: true });
+ // E scan iniziale se e' gia' li'
+ scan();
+})();
+</script>
+
+
+<script id="airjotterSharedJottersV142">
+/* v14.2 - "I miei Jotter" ora mostra due sezioni: quelli di cui sei owner e quelli
+   condivisi con te come editor/viewer. Richiede il nuovo /api/my/boards del backend v14.2
+   che restituisce anche il campo "role". Se il campo manca (backend vecchio), tutti finiscono
+   nella prima sezione come prima. */
+(function(){
+ // Aggiorno il sottotitolo del modale
+ const p = document.querySelector('#jotterArchiveModal .archive-heading p');
+ if (p) p.textContent = 'I tuoi Jotter e quelli condivisi con te, ordinati dall\'ultima modifica.';
+
+ // Override di ajLoadArchive per raggruppare per ruolo
+ function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+ function renderBoard(b, isOwner) {
+  const item = document.createElement('div');
+  item.className = 'archive-item';
+  const contentUpdated = new Date(b.contentUpdatedAt).toLocaleString('it-IT');
+  const created = new Date(b.createdAt).toLocaleString('it-IT');
+  const roleLabel = b.role === 'owner' ? 'Proprietario' : (b.role === 'editor' ? 'Editor' : 'Lettura');
+  item.innerHTML =
+   '<div><button class="archive-title-button"></button>' +
+   '<div class="archive-meta"><span class="save-dot"></span>' +
+   'Ultima modifica: ' + contentUpdated +
+   (isOwner ? '<br>Creato: ' + created : '<br>Owner: ' + esc(b.ownerName) + ' &middot; Ruolo: ' + roleLabel) +
+   ' | Codice: ' + esc(b.roomCode) + '</div></div>' +
+   '<div class="archive-actions">' +
+   '<button class="btn open-board">Apri</button>' +
+   (isOwner ? '<button class="btn rename-board">Rinomina</button>' : '') +
+   '<button class="btn share-board">Condividi</button>' +
+   '<button class="btn archive-pdf export-board"><span class="archive-pdf-icon">&#128229;</span> PDF</button>' +
+   (isOwner ? '<button class="btn danger delete-board">Elimina</button>' : '<button class="btn leave-board">Esci</button>') +
+   '</div>';
+  item.querySelector('.archive-title-button').textContent = b.title || 'Jotter senza titolo';
+  if (isOwner && typeof window.ajOpenBoardAccess === 'function') {
+   item.querySelector('.archive-title-button').onclick = () => window.ajOpenBoardAccess(b.id);
+  } else {
+   item.querySelector('.archive-title-button').style.cursor = 'default';
+  }
+  item.querySelector('.open-board').onclick = async () => {
+   document.getElementById('jotterArchiveModal').style.display = 'none';
+   await ajJoin(b.roomCode);
+  };
+  const renameBtn = item.querySelector('.rename-board');
+  if (renameBtn) renameBtn.onclick = async () => {
+   const title = prompt('Nuovo nome del Jotter:', b.title || '');
+   if (!title?.trim()) return;
+   await ajApi('/api/boards/' + b.id + '/title', { method: 'PATCH', body: JSON.stringify({ title: title.trim() }) });
+   await window.ajLoadArchive();
+  };
+  item.querySelector('.share-board').onclick = async () => {
+   const text = 'Jotter: ' + (b.title || 'Jotter senza titolo') + '\nOwner: ' + b.ownerName + '\nUltima modifica: ' + contentUpdated + '\nCodice di accesso: ' + b.roomCode;
+   try { await navigator.clipboard.writeText(text); alert('Informazioni del Jotter copiate.'); }
+   catch { prompt('Copia le informazioni:', text); }
+  };
+  item.querySelector('.export-board').onclick = async () => {
+   document.getElementById('jotterArchiveModal').style.display = 'none';
+   await ajJoin(b.roomCode);
+   setTimeout(() => document.getElementById('exportPdfBtn').click(), 900);
+  };
+  const delBtn = item.querySelector('.delete-board');
+  if (delBtn) delBtn.onclick = async () => {
+   if (!confirm('Eliminare definitivamente il Jotter "' + (b.title || 'Jotter senza titolo') + '"?')) return;
+   await ajApi('/api/boards/' + b.id, { method: 'DELETE' });
+   await window.ajLoadArchive();
+  };
+  const leaveBtn = item.querySelector('.leave-board');
+  if (leaveBtn) leaveBtn.onclick = async () => {
+   if (!confirm('Rimuovere "' + (b.title || 'Jotter senza titolo') + '" dai tuoi Jotter condivisi? Potrai rientrare con il codice ' + b.roomCode + '.')) return;
+   try { await ajApi('/api/boards/' + b.id + '/leave', { method: 'POST' }); }
+   catch (err) { alert('Non e\' stato possibile uscire dal Jotter: ' + err.message); return; }
+   await window.ajLoadArchive();
+  };
+  return item;
+ }
+
+ window.ajLoadArchive = async function() {
+  const modal = document.getElementById('jotterArchiveModal');
+  const list = document.getElementById('jotterArchiveList');
+  const status = document.getElementById('jotterArchiveStatus');
+  modal.style.display = 'flex';
+  status.textContent = 'Caricamento...';
+  list.innerHTML = '';
+  try {
+   const boards = await ajApi('/api/my/boards');
+   if (!boards.length) { status.textContent = 'Non hai ancora Jotter.'; return; }
+   status.textContent = '';
+   const owned = boards.filter(b => b.role === 'owner' || !b.role);
+   const shared = boards.filter(b => b.role && b.role !== 'owner');
+   if (owned.length) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-weight:700;color:var(--text-soft);margin:6px 0 4px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px';
+    h.textContent = 'Creati da te (' + owned.length + ')';
+    list.appendChild(h);
+    for (const b of owned) list.appendChild(renderBoard(b, true));
+   }
+   if (shared.length) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-weight:700;color:var(--text-soft);margin:16px 0 4px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px';
+    h.textContent = 'Condivisi con te (' + shared.length + ')';
+    list.appendChild(h);
+    for (const b of shared) list.appendChild(renderBoard(b, false));
+   }
+  } catch (e) { status.textContent = 'Impossibile caricare i Jotter: ' + e.message; }
+ };
+ // Riappropriazione del click sul bottone utente
+ const ajUserBtn = document.getElementById('ajUser');
+ if (ajUserBtn) ajUserBtn.onclick = () => window.ajLoadArchive();
 })();
 </script>
 </body>

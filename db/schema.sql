@@ -38,3 +38,8 @@ UPDATE users SET plan_code='unlimited' WHERE lower(email)='nbochicchio@gmail.com
 
 ALTER TABLE boards ADD COLUMN IF NOT EXISTS empty_cleanup_after TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS boards_empty_cleanup_idx ON boards(empty_cleanup_after) WHERE empty_cleanup_after IS NOT NULL;
+
+-- v14.2: la FK board_operations.user_id -> users.id non aveva ON DELETE SET NULL,
+-- percio' la DELETE utente falliva se l'utente era stato editor su Jotter di altri.
+ALTER TABLE board_operations DROP CONSTRAINT IF EXISTS board_operations_user_id_fkey;
+ALTER TABLE board_operations ADD CONSTRAINT board_operations_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
