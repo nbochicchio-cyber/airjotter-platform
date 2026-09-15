@@ -168,7 +168,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 .aj-request.pending-blink{animation:ajRequestBlink .8s linear infinite}.archive-title-button{border:0;background:none;color:var(--accent-hover);font:inherit;font-weight:700;text-align:left;cursor:pointer;text-decoration:underline;padding:0}.access-manager{max-width:780px!important;text-align:left!important;max-height:88vh;overflow:auto;position:relative}.access-summary{padding:12px;border-radius:11px;background:var(--accent-bg);margin:12px 0 16px}.access-section{margin-top:18px}.access-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color)}.access-person small{display:block;color:var(--text-soft);margin-top:3px}.access-actions{display:flex;gap:7px;flex-wrap:wrap}.access-empty{color:var(--text-soft);padding:10px 0}@media(max-width:620px){.access-row{grid-template-columns:1fr}.access-actions{justify-content:flex-start}}
 
 #mobileTopbar{display:none}#mobileViewport{width:100%;overflow:visible}
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  html,body{width:100%;max-width:100%;overflow-x:hidden}
  .aj-overlay{padding:10px;align-items:flex-start;overflow-y:auto;overflow-x:hidden}
  .welcome-card,.aj-access-card{width:100%!important;max-width:560px!important;margin:auto;padding:24px 18px!important;border-radius:22px!important}
@@ -187,7 +187,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
  #ajLogin,#ajLobby{inset:0!important;width:100%!important;height:100dvh!important;padding:8px!important;overflow-y:auto!important;align-items:flex-start!important}
  .welcome-card,.aj-access-card{box-sizing:border-box!important;width:calc(100vw - 16px)!important;max-width:none!important;margin:8px auto!important;padding:18px 14px!important;border-radius:20px!important;overflow:hidden!important}
@@ -205,7 +205,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  .mobile-zoom{grid-template-columns:34px minmax(48px,1fr) minmax(52px,1fr) 38px 34px!important}
  #mobileZoomOut,#mobileZoomIn{width:34px!important;height:34px!important;min-height:34px!important;border-radius:50%!important;padding:0!important;font-size:1rem!important}
  #mobilePanBtn{min-width:0!important;font-size:.72rem!important;padding:4px 6px!important}
@@ -223,7 +223,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 
 @keyframes ajPanPulse{0%,100%{box-shadow:0 0 0 0 rgba(143,169,224,.85);opacity:1}50%{box-shadow:0 0 0 8px rgba(143,169,224,0);opacity:.58}}
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  .mobile-zoom{display:grid!important;grid-template-columns:minmax(58px,1fr) 44px minmax(58px,1fr)!important;gap:4px!important}
  #mobilePanBtn[aria-pressed="true"]{animation:ajPanPulse .85s linear infinite!important;background:var(--accent-color)!important;color:#fff!important;border-color:var(--accent-color)!important}
  #jotterArchiveModal{box-sizing:border-box!important;padding:calc(env(safe-area-inset-top,0px) + 6px) 6px calc(env(safe-area-inset-bottom,0px) + 6px)!important;align-items:stretch!important;justify-content:stretch!important;overflow:hidden!important}
@@ -237,7 +237,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #qrcode img,#qrcode canvas{display:block!important;margin:0 auto!important}
 
 
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  #mobileTopbar{grid-template-columns:minmax(68px,.9fr) minmax(190px,1.8fr) minmax(68px,.9fr)!important;overflow:visible!important}
  .mobile-zoom{display:grid!important;grid-template-columns:minmax(68px,1fr) 52px minmax(68px,1fr)!important;align-items:stretch!important;gap:5px!important}
  #mobileZoomFit,#mobilePanBtn{width:100%!important;min-width:0!important;min-height:42px!important;font-size:.76rem!important}
@@ -255,7 +255,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
 
 @keyframes ajPanPulse115{0%,100%{box-shadow:0 0 0 0 rgba(112,150,224,.9);opacity:1}50%{box-shadow:0 0 0 7px rgba(112,150,224,0);opacity:.58}}
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  #mobileTopbar{grid-template-columns:minmax(66px,.9fr) minmax(150px,1.55fr) minmax(66px,.9fr)!important}
  .mobile-zoom{grid-template-columns:minmax(72px,1fr) minmax(72px,1fr)!important;gap:6px!important}
  #mobileZoomFit,#mobilePanBtn{width:100%!important;min-width:0!important;min-height:44px!important}
@@ -279,7 +279,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  #mobileGuideGrid115{display:none!important}
  .aj-page-grid116{position:absolute;left:0;width:100%;height:var(--a4-h);z-index:1;pointer-events:none;background-image:linear-gradient(to right,rgba(65,85,125,.13) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.13) 1px,transparent 1px);background-size:20% 20%}
  .aj-page-grid116 span{position:absolute;color:rgba(55,67,95,.48);font:600 8px Arial,sans-serif;z-index:1}.aj-page-grid116 .gx{top:3px;transform:translateX(-50%)}.aj-page-grid116 .gy{left:3px;transform:translateY(-50%)}
@@ -296,7 +296,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
-@media(max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  #mobileZoomValue{display:none!important}
  #mobileZoomFit{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important}
  #mobileZoomFit .aj-zoom117{display:block;margin-top:3px;font-size:.58rem;line-height:1;color:var(--text-soft);font-weight:700}
@@ -326,7 +326,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 
-@media (max-width:760px),(pointer:coarse){
+@media (max-width:760px){
  #mobileTopbar{
   box-sizing:border-box!important;
   display:grid!important;
@@ -369,19 +369,153 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #mobileToolsBtn{font-size:.68rem!important}#mobileZoomFit{font-size:.67rem!important}#mobileUserBtn{font-size:.59rem!important}
 }
 
+
+
+/* =========================================================================
+   v14.1 - LAYOUT TABLET E PC TOUCH (iPad, tablet Android, Surface, Yoga...)
+   Si applica quando esiste input touch (any-pointer:coarse) e il viewport
+   e' piu' largo di quello di uno smartphone (>=761px).
+   Sostituisce >280 righe di regole stratificate delle iterazioni precedenti.
+   ========================================================================= */
+@media (min-width:761px) and (any-pointer:coarse) {
+
+ /* Body flex-column: il footer sta naturalmente in fondo */
+ html, body { height:100% !important; overflow:hidden !important; width:100% !important; max-width:none !important; margin:0 !important; }
+ body { display:flex !important; flex-direction:column !important; min-height:100dvh !important; }
+
+ /* Topbar mobile spenta: torna la header desktop, ingrandita per il tocco */
+ #mobileTopbar { display:none !important; }
+
+ /* Header desktop visibile, centrata, con scroll orizzontale se non ci sta */
+ header, body.mobile-tools-open header {
+  display:flex !important;
+  position:fixed !important;
+  top:calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  left:50% !important; right:auto !important; bottom:auto !important;
+  width:max-content !important;
+  max-width:calc(100vw - 24px) !important;
+  transform:translateX(-50%) !important;
+  overflow-x:auto !important; overflow-y:hidden !important;
+  z-index:240 !important;
+  padding:10px 14px !important;
+  gap:10px !important;
+  scrollbar-width:none;
+ }
+ header::-webkit-scrollbar { display:none; }
+
+ /* Target tocco 44x44 (soglia di accessibilita' Apple/Google) */
+ header .icon-btn { min-width:44px !important; min-height:44px !important; padding:10px !important; }
+ header .icon-btn svg { width:20px !important; height:20px !important; }
+ header .btn { min-height:44px !important; padding:8px 14px !important; font-size:0.88rem !important; }
+ header .btn svg { width:18px !important; height:18px !important; }
+ header .page-btn { width:40px !important; height:40px !important; font-size:1.2rem !important; }
+ header .tool-color { width:32px !important; height:32px !important; }
+ header .tool-thickness { width:80px !important; height:8px !important; }
+ header .page-count-display { min-width:52px !important; padding:8px 12px !important; font-size:0.95rem !important; }
+ header .room-code { padding:8px 12px !important; font-size:1rem !important; letter-spacing:2px !important; }
+ header .brand-logo { width:150px !important; height:34px !important; }
+ header .tools-group { gap:8px !important; padding:0 10px !important; }
+
+ /* Viewport come flex-item del body: prende tutto lo spazio residuo */
+ #mobileViewport {
+  position:relative !important;
+  top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
+  flex:1 1 auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:calc(env(safe-area-inset-top, 0px) + 90px) 16px 16px !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+  touch-action:none !important;
+  background:var(--bg-color) !important;
+  display:block !important;
+  box-sizing:border-box !important;
+  contain:none !important;
+ }
+
+ #mobileStageV109 {
+  position:relative !important;
+  margin:0 auto !important;
+  display:block !important;
+  overflow:visible !important;
+  contain:none !important;
+  width:auto !important; height:auto !important;
+  flex:none !important;
+ }
+
+ #mobileStageV109 > #canvas-wrapper, #canvas-wrapper {
+  position:absolute !important;
+  left:0 !important; top:0 !important;
+  margin:0 !important;
+  transform-origin:top left !important;
+  will-change:auto !important;
+ }
+
+ /* Griglie di guida spente sui tablet */
+ .aj-page-grid116, #mobileGuideGrid115 { display:none !important; }
+
+ /* Footer sempre in fondo: flex-item non-crescente dopo il viewport */
+ .site-footer {
+  position:relative !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+  padding:14px 16px calc(env(safe-area-inset-bottom, 0px) + 18px) !important;
+  background:var(--bg-color) !important;
+  border-top:1px solid var(--border-color) !important;
+  z-index:20 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+ }
+ .site-footer nav { flex-wrap:wrap !important; }
+
+ /* Overlay login/lobby: coprono correttamente lo schermo del tablet */
+ #ajLogin, #ajLobby {
+  position:fixed !important; inset:0 !important;
+  width:100% !important; height:100dvh !important;
+  padding:20px !important;
+  align-items:center !important;
+  overflow-y:auto !important;
+ }
+
+ /* Google button visibile */
+ #googleBtn, .welcome-google { display:flex !important; width:100% !important; justify-content:center !important; align-items:center !important; margin:0 auto !important; overflow:visible !important; }
+ #googleBtn > div, #googleBtn iframe { display:block !important; margin:0 auto !important; max-width:100% !important; }
+
+ /* Campo codice sempre attivo e ben visibile */
+ #joinCode { display:block !important; width:100% !important; min-height:48px !important; pointer-events:auto !important; touch-action:manipulation !important; -webkit-user-select:text !important; user-select:text !important; }
+ .aj-choice-grid { display:grid !important; grid-template-columns:1fr 1fr !important; gap:20px !important; }
+ .aj-choice { min-height:280px !important; }
+
+ /* Modal archivio Jotter centrato */
+ #jotterArchiveModal { inset:0 !important; padding:20px !important; align-items:center !important; justify-content:center !important; }
+ #jotterArchiveModal .jotter-archive { position:relative !important; inset:auto !important; width:min(1100px, calc(100vw - 40px)) !important; height:auto !important; max-height:calc(100vh - 40px) !important; margin:auto !important; }
+}
+
+/* Regole touch-action universali (valide su TUTTI i touch, phone + tablet + PC touch) */
+@media (any-pointer:coarse) {
+ #mobileViewport, #mobileStageV109, #canvas-wrapper, #drawingBoard, #draftBoard, .aj-page-grid116, .aj-page-grid116 span, .real-page-break, .page-delete-btn {
+  -webkit-touch-callout:none !important; -webkit-user-select:none !important; user-select:none !important; -webkit-tap-highlight-color:transparent !important;
+ }
+ #draftBoard { touch-action:none !important; }
+ #text-tool-overlay, #text-tool-input, #text-tool-overlay * { -webkit-user-select:text !important; user-select:text !important; -webkit-touch-callout:default !important; }
+}
+
 </style>
 </head>
 <body>
-    <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perchÃ© AirJotter puÃ² esserti utile</button></div></div>
+    <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
     <div id="ajLobby" class="aj-overlay aj-hidden">
   <div class="aj-card aj-access-card">
     <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo">
     <h2 class="aj-access-title">Come vuoi usare airjotter?</h2>
-    <p class="aj-access-subtitle">Scegli una delle due modalitÃ . Sono operazioni diverse.</p>
+    <p class="aj-access-subtitle">Scegli una delle due modalità. Sono operazioni diverse.</p>
     <div class="aj-choice-grid">
       <section class="aj-choice aj-choice-new">
         <h3>1. Crea un nuovo Jotter</h3>
-        <p>Avvia una nuova board di cui sarai proprietario. La piattaforma genererÃ  un nuovo codice casuale e il relativo QR code da condividere.</p>
+        <p>Avvia una nuova board di cui sarai proprietario. La piattaforma genererà un nuovo codice casuale e il relativo QR code da condividere.</p>
         <button id="newBtn" class="btn primary aj-full-button">Crea nuovo Jotter</button>
       </section>
       <section class="aj-choice">
@@ -434,7 +568,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         </div>
 
         <div class="tools-group">
-            <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">âˆ’</button>
+            <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">−</button>
             <span id="pageCountDisplay" class="page-count-display">
                 <span id="pageCountNumber">2</span>
             </span>
@@ -490,7 +624,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 <button class="icon-btn" id="textConfirmBtn" style="color:var(--success-color);" title="Conferma Testo"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
                 <button class="icon-btn" id="textCancelBtn" style="color:var(--danger-color);" title="Annulla Testo"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
-            <textarea id="text-tool-input" placeholder="Scrivi qui..."></textarea><div class="text-resize-hint" title="Trascina per allargare la finestra">â†˜</div>
+            <textarea id="text-tool-input" placeholder="Scrivi qui..."></textarea><div class="text-resize-hint" title="Trascina per allargare la finestra">↘</div>
         </div>
     </div>
 
@@ -508,23 +642,23 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             </div>
         </div>
         
-        <button class="stamp-btn" id="stampCropBtn" style="border: 1px solid var(--border-color);">âœ‚ï¸ Ritaglia</button>
-        <button class="stamp-btn fit" id="stampFitA4">ðŸ“„ Adatta a pagina</button>
-        <button class="stamp-btn apply-over" id="stampOver">ðŸ‘† Applica Sopra</button>
-        <button class="stamp-btn apply-under" id="stampUnder">ðŸ‘‡ Applica Sotto</button>
-        <button class="stamp-btn cancel" id="stampCancel">âœ• Annulla</button>
+        <button class="stamp-btn" id="stampCropBtn" style="border: 1px solid var(--border-color);">✂️ Ritaglia</button>
+        <button class="stamp-btn fit" id="stampFitA4">📄 Adatta a pagina</button>
+        <button class="stamp-btn apply-over" id="stampOver">👆 Applica Sopra</button>
+        <button class="stamp-btn apply-under" id="stampUnder">👇 Applica Sotto</button>
+        <button class="stamp-btn cancel" id="stampCancel">✕ Annulla</button>
     </div>
 
     <!-- Help Modal -->
-    <div id="privacyModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="privacyModal">Ã—</button><h2>Privacy</h2><p><strong>Versione preliminare pre-lancio.</strong> AirJotter tratta dati identificativi e tecnici necessari per autenticazione, sicurezza, salvataggio e condivisione dei Jotter.</p><h3>Dati trattati</h3><p>Nome, indirizzo email, identificativo dell'account, date di accesso, ruolo, dati tecnici di sessione e contenuti caricati volontariamente nei Jotter.</p><h3>FinalitÃ </h3><p>Fornire il servizio, salvare e sincronizzare il lavoro, gestire autorizzazioni, sicurezza, assistenza e statistiche amministrative essenziali.</p><h3>Conservazione e destinatari</h3><p>I dati sono conservati per il tempo necessario al servizio e possono essere trattati dai fornitori tecnici scelti per hosting, database, autenticazione e storage.</p><h3>Diritti e contatti</h3><p>Gli utenti possono richiedere accesso, rettifica o cancellazione scrivendo a <strong>nbochicchio@gmail.com</strong>.</p><p class="legal-warning">Il testo dovrÃ  essere revisionato prima del lancio commerciale e aggiornato con i fornitori definitivi.</p></article></div><div id="termsModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="termsModal">Ã—</button><h2>Condizioni d'Uso</h2><p>AirJotter consente di creare, modificare, condividere ed esportare fogli digitali. Ogni utente Ã¨ responsabile dei contenuti caricati e delle persone alle quali comunica il codice di accesso.</p><h3>Piani e limiti</h3><div class="plans-grid"><section><b>Free</b><span>2 Jotter</span><span>massimo 5 pagine</span></section><section><b>Plus</b><span>5 Jotter</span><span>massimo 10 pagine</span></section><section><b>Ultra</b><span>20 Jotter</span><span>massimo 50 pagine</span></section></div><p>In fase iniziale sono attivi soltanto utenti Free. Prezzi e modalitÃ  di acquisto dei piani superiori saranno pubblicati successivamente.</p><h3>Uso corretto</h3><p>Ãˆ vietato caricare contenuti illeciti, violare diritti altrui, tentare accessi non autorizzati o compromettere il servizio.</p><p class="legal-warning">Il testo dovrÃ  essere revisionato prima del lancio commerciale.</p></article></div><div id="adminModal" class="modal"><div class="modal-content admin-console"><button class="legal-close" data-close="adminModal">Ã—</button><div class="admin-head"><div><h2>Console AirJotter</h2><p>Monitoraggio riservato a Nicola Bochicchio.</p></div><span id="adminLive">Aggiornamento live</span></div><div id="adminCards" class="admin-cards"></div><h3>Ultimi iscritti</h3><div class="admin-table-wrap"><table><thead><tr><th>Utente</th><th>Email registrazione</th><th>Piano</th><th>Stato</th><th>Iscrizione</th><th>Ultimo accesso</th><th>Jotter</th><th>Azioni</th></tr></thead><tbody id="adminUsers"></tbody></table></div></div></div>
-<div id="welcomeDiscoverModal" class="modal"><div class="modal-content welcome-discover-modal"><button id="welcomeDiscoverClose" class="welcome-modal-close" type="button" aria-label="Chiudi" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">&#10005;</button><div class="discover-heading"><span class="discover-heading-icon">âœ¨</span><div><h2>Cosa fa AirJotter</h2><p>AirJotter mette piÃ¹ persone davanti allo <strong>stesso foglio digitale</strong>, anche quando sono lontane.</p></div></div><div class="discover-grid discover-grid-rich"><div><span class="discover-icon">âœï¸</span><section><strong>Disegna e scrivi</strong><span>Usa <b>penna, gomma e testo</b>, anche con una pencil elettronica.</span></section></div><div><span class="discover-icon">ðŸ“„</span><section><strong>Lavora sui documenti</strong><span>Importa <b>PDF, fotografie e firme</b>, poi annotali direttamente.</span></section></div><div><span class="discover-icon">ðŸ”—</span><section><strong>Condividi in un attimo</strong><span>Invia un <b>codice o un QR</b>. Gli altri vedono subito la stessa board.</span></section></div><div><span class="discover-icon">ðŸ›¡ï¸</span><section><strong>Collabora in sicurezza</strong><span>Decidi chi puÃ² <b>soltanto vedere</b> e chi puÃ² <b>modificare</b>.</span></section></div><div><span class="discover-icon">ðŸ’¾</span><section><strong>Non perdi il lavoro</strong><span>Ogni modifica viene <b>salvata</b> e i Jotter restano nel tuo archivio.</span></section></div><div><span class="discover-icon">ðŸŽ¥</span><section><strong>Usalo nella vita reale</strong><span>Condividi la board durante una <b>videoconferenza</b> (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.</span></section></div><div class="discover-pdf-card"><span class="discover-icon">â¬‡ï¸</span><section><strong>Esporta tutto in PDF</strong><span>Scarica il lavoro completo in un <b>PDF multipagina con un clic</b>, pronto da archiviare, inviare o stampare.</span></section></div></div><button id="welcomeDiscoverDone" class="btn primary welcome-discover-done" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">Ho capito</button></div></div>
+    <div id="privacyModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="privacyModal">×</button><h2>Privacy</h2><p><strong>Versione preliminare pre-lancio.</strong> AirJotter tratta dati identificativi e tecnici necessari per autenticazione, sicurezza, salvataggio e condivisione dei Jotter.</p><h3>Dati trattati</h3><p>Nome, indirizzo email, identificativo dell'account, date di accesso, ruolo, dati tecnici di sessione e contenuti caricati volontariamente nei Jotter.</p><h3>Finalità</h3><p>Fornire il servizio, salvare e sincronizzare il lavoro, gestire autorizzazioni, sicurezza, assistenza e statistiche amministrative essenziali.</p><h3>Conservazione e destinatari</h3><p>I dati sono conservati per il tempo necessario al servizio e possono essere trattati dai fornitori tecnici scelti per hosting, database, autenticazione e storage.</p><h3>Diritti e contatti</h3><p>Gli utenti possono richiedere accesso, rettifica o cancellazione scrivendo a <strong>nbochicchio@gmail.com</strong>.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale e aggiornato con i fornitori definitivi.</p></article></div><div id="termsModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="termsModal">×</button><h2>Condizioni d'Uso</h2><p>AirJotter consente di creare, modificare, condividere ed esportare fogli digitali. Ogni utente è responsabile dei contenuti caricati e delle persone alle quali comunica il codice di accesso.</p><h3>Piani e limiti</h3><div class="plans-grid"><section><b>Free</b><span>2 Jotter</span><span>massimo 5 pagine</span></section><section><b>Plus</b><span>5 Jotter</span><span>massimo 10 pagine</span></section><section><b>Ultra</b><span>20 Jotter</span><span>massimo 50 pagine</span></section></div><p>In fase iniziale sono attivi soltanto utenti Free. Prezzi e modalità di acquisto dei piani superiori saranno pubblicati successivamente.</p><h3>Uso corretto</h3><p>È vietato caricare contenuti illeciti, violare diritti altrui, tentare accessi non autorizzati o compromettere il servizio.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale.</p></article></div><div id="adminModal" class="modal"><div class="modal-content admin-console"><button class="legal-close" data-close="adminModal">×</button><div class="admin-head"><div><h2>Console AirJotter</h2><p>Monitoraggio riservato a Nicola Bochicchio.</p></div><span id="adminLive">Aggiornamento live</span></div><div id="adminCards" class="admin-cards"></div><h3>Ultimi iscritti</h3><div class="admin-table-wrap"><table><thead><tr><th>Utente</th><th>Email registrazione</th><th>Piano</th><th>Stato</th><th>Iscrizione</th><th>Ultimo accesso</th><th>Jotter</th><th>Azioni</th></tr></thead><tbody id="adminUsers"></tbody></table></div></div></div>
+<div id="welcomeDiscoverModal" class="modal"><div class="modal-content welcome-discover-modal"><button id="welcomeDiscoverClose" class="welcome-modal-close" type="button" aria-label="Chiudi" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">&#10005;</button><div class="discover-heading"><span class="discover-heading-icon">✨</span><div><h2>Cosa fa AirJotter</h2><p>AirJotter mette più persone davanti allo <strong>stesso foglio digitale</strong>, anche quando sono lontane.</p></div></div><div class="discover-grid discover-grid-rich"><div><span class="discover-icon">✏️</span><section><strong>Disegna e scrivi</strong><span>Usa <b>penna, gomma e testo</b>, anche con una pencil elettronica.</span></section></div><div><span class="discover-icon">📄</span><section><strong>Lavora sui documenti</strong><span>Importa <b>PDF, fotografie e firme</b>, poi annotali direttamente.</span></section></div><div><span class="discover-icon">🔗</span><section><strong>Condividi in un attimo</strong><span>Invia un <b>codice o un QR</b>. Gli altri vedono subito la stessa board.</span></section></div><div><span class="discover-icon">🛡️</span><section><strong>Collabora in sicurezza</strong><span>Decidi chi può <b>soltanto vedere</b> e chi può <b>modificare</b>.</span></section></div><div><span class="discover-icon">💾</span><section><strong>Non perdi il lavoro</strong><span>Ogni modifica viene <b>salvata</b> e i Jotter restano nel tuo archivio.</span></section></div><div><span class="discover-icon">🎥</span><section><strong>Usalo nella vita reale</strong><span>Condividi la board durante una <b>videoconferenza</b> (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.</span></section></div><div class="discover-pdf-card"><span class="discover-icon">⬇️</span><section><strong>Esporta tutto in PDF</strong><span>Scarica il lavoro completo in un <b>PDF multipagina con un clic</b>, pronto da archiviare, inviare o stampare.</span></section></div></div><button id="welcomeDiscoverDone" class="btn primary welcome-discover-done" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">Ho capito</button></div></div>
 <div id="helpModal" class="modal">
         <div class="modal-content" style="text-align:left;max-width:680px;max-height:88vh;overflow:auto;position:relative;">
-            <button onclick="document.getElementById('helpModal').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-soft);">âœ•</button>
+            <button onclick="document.getElementById('helpModal').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-soft);">✕</button>
             <h3 style="margin-bottom:15px; color: var(--accent-color); display:flex; align-items:center; gap:8px;">
                 <span style="background:var(--accent-color); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:14px;">?</span>
                 Come usare airjotter.com
-            </h3><div class="guide-intro"><strong>airjotter.com trasforma il browser in un foglio A4 condiviso.</strong><span>Disegna, annota documenti e collabora in tempo reale da PC, Mac, tablet e smartphone.</span></div><div class="guide-grid"><section><h4>ðŸš€ Inizia in 3 passaggi</h4><ol><li>Crea un Jotter e condividi codice o QR.</li><li>Chi riceve il codice entra inizialmente in lettura.</li><li>PuÃ² chiedere la modifica; il proprietario autorizza o rifiuta.</li></ol></section><section><h4>âœï¸ Cosa puoi fare</h4><ul><li>Penna, gomma e testo con colore, spessore e formattazione.</li><li>Importa PDF, foto e firme con sfondo trasparente.</li><li>Ritaglia, sposta e applica elementi sopra o sotto i disegni.</li><li>Gestisci pagine, annulla, ripeti ed esporta un PDF multipagina.</li></ul></section><section><h4>ðŸ‘¥ Collaborazione reale</h4><ul><li>Tutti vedono board, pagine e contenuti aggiornarsi in tempo reale.</li><li>Solo proprietario ed editor autorizzati possono modificare.</li><li>Lo stesso codice apre il Jotter su dispositivi diversi.</li></ul></section><section class="guide-benefits"><h4>âœ¨ Vantaggi nella vita reale</h4><ul><li>Disegna con una pencil sul tablet e mostra il risultato dal PC.</li><li>Condividi la scheda in Meet o Teams durante una videoconferenza.</li><li>Proietta annotazioni e documenti durante una presentazione.</li><li>Rivedi moduli, bozze e documenti insieme a persone lontane.</li><li>Evita installazioni: basta un browser e il codice del Jotter.</li></ul></section></div><button class="btn primary" style="width:100%; justify-content:center; padding: 12px; font-size: 1rem;" onclick="document.getElementById('helpModal').style.display='none'">Ho capito, iniziamo!</button>
+            </h3><div class="guide-intro"><strong>airjotter.com trasforma il browser in un foglio A4 condiviso.</strong><span>Disegna, annota documenti e collabora in tempo reale da PC, Mac, tablet e smartphone.</span></div><div class="guide-grid"><section><h4>🚀 Inizia in 3 passaggi</h4><ol><li>Crea un Jotter e condividi codice o QR.</li><li>Chi riceve il codice entra inizialmente in lettura.</li><li>Può chiedere la modifica; il proprietario autorizza o rifiuta.</li></ol></section><section><h4>✏️ Cosa puoi fare</h4><ul><li>Penna, gomma e testo con colore, spessore e formattazione.</li><li>Importa PDF, foto e firme con sfondo trasparente.</li><li>Ritaglia, sposta e applica elementi sopra o sotto i disegni.</li><li>Gestisci pagine, annulla, ripeti ed esporta un PDF multipagina.</li></ul></section><section><h4>👥 Collaborazione reale</h4><ul><li>Tutti vedono board, pagine e contenuti aggiornarsi in tempo reale.</li><li>Solo proprietario ed editor autorizzati possono modificare.</li><li>Lo stesso codice apre il Jotter su dispositivi diversi.</li></ul></section><section class="guide-benefits"><h4>✨ Vantaggi nella vita reale</h4><ul><li>Disegna con una pencil sul tablet e mostra il risultato dal PC.</li><li>Condividi la scheda in Meet o Teams durante una videoconferenza.</li><li>Proietta annotazioni e documenti durante una presentazione.</li><li>Rivedi moduli, bozze e documenti insieme a persone lontane.</li><li>Evita installazioni: basta un browser e il codice del Jotter.</li></ul></section></div><button class="btn primary" style="width:100%; justify-content:center; padding: 12px; font-size: 1rem;" onclick="document.getElementById('helpModal').style.display='none'">Ho capito, iniziamo!</button>
             <div style="margin-top: 15px; text-align: center; font-size: 0.75rem; color: var(--text-soft); opacity: 0.8; letter-spacing: 0.5px;">
                 by ing. N. Bochicchio | DoMyTool.it | 2026
             </div>
@@ -606,7 +740,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
             const MAX_CANVAS_AREA = 16000000;
             const MAX_CANVAS_DIM = 16000;
-            let preferredDpr = Math.max(window.devicePixelRatio || 1, 2);
+            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,1.15):Math.max(window.devicePixelRatio||1,2);
 
             if ((LOGICAL_W * preferredDpr) * (LOGICAL_H * preferredDpr) > MAX_CANVAS_AREA) {
                 preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
@@ -634,7 +768,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         }
 
         let mobileZoom=1;
-        function isMobileLayout(){return window.matchMedia('(max-width:760px),(pointer:coarse)').matches}
+        function isMobileLayout(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(any-pointer:coarse)').matches||(navigator.maxTouchPoints||0)>1}
         function mobileFitScale(){const vp=document.getElementById('mobileViewport');return Math.min(1,Math.max(.25,(vp.clientWidth-24)/LOGICAL_W))}
         function applyMobileZoom(center=true){
             const vp=document.getElementById('mobileViewport');const scale=mobileFitScale()*mobileZoom;
@@ -657,7 +791,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 alert("Non puoi eliminare l'unica pagina rimasta.");
                 return;
             }
-            if (remote || confirm(`Vuoi davvero eliminare la Pagina ${pageIndex + 1}? Il contenuto verrÃ  cancellato e le pagine successive saliranno.`)) {
+            if (remote || confirm(`Vuoi davvero eliminare la Pagina ${pageIndex + 1}? Il contenuto verrà cancellato e le pagine successive saliranno.`)) {
                 const startY = pageIndex * BASE_A4_H;
                 const endY = startY + BASE_A4_H;
                 
@@ -926,20 +1060,17 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 targetCtx.fill();
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
             } else if (activePointers.size === 2) {
+                // v14.1: il pan+pinch a due dita e' gestito dallo script touch dedicato
+                // (vedi #mobileViewport touch handlers piu' sotto). Qui basta interrompere il disegno.
                 isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
-                let pts = Array.from(activePointers.values());
-                panStartCenter = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-                initialScrollX = window.scrollX; initialScrollY = window.scrollY;
             }
         });
 
         draftCanvas.addEventListener('pointermove', e => {
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
             
-            if (activePointers.size === 2 && panStartCenter) {
-                let pts = Array.from(activePointers.values());
-                let center = { x: (pts[0].clientX + pts[1].clientX)/2, y: (pts[0].clientY + pts[1].clientY)/2 };
-                window.scrollTo(initialScrollX - (center.x - panStartCenter.x), initialScrollY - (center.y - panStartCenter.y));
+            if (activePointers.size === 2) {
+                // v14.1: pan+pinch gestiti dallo script touch dedicato sul #mobileViewport
                 return;
             }
             
@@ -1248,11 +1379,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             isCroppingMode = !isCroppingMode;
             const btn = document.getElementById('stampCropBtn');
             if (isCroppingMode) {
-                btn.style.background = 'var(--danger-bg)'; btn.style.color = 'var(--danger-color)'; btn.innerText = 'âœ“ Conferma Ritaglio';
+                btn.style.background = 'var(--danger-bg)'; btn.style.color = 'var(--danger-color)'; btn.innerText = '✓ Conferma Ritaglio';
                 stampContainer.style.cursor = 'crosshair'; resizeHandle.style.display = 'none';
                 cropOverlay.style.display = 'block'; cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
             } else {
-                btn.style.background = ''; btn.style.color = ''; btn.innerText = 'âœ‚ï¸ Ritaglia';
+                btn.style.background = ''; btn.style.color = ''; btn.innerText = '✂️ Ritaglia';
                 stampContainer.style.cursor = 'move'; resizeHandle.style.display = 'flex';
                 
                 let cw = parseFloat(cropOverlay.style.width) || 0, ch = parseFloat(cropOverlay.style.height) || 0;
@@ -1309,7 +1440,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             stampContainer.style.display = 'none'; stampPanel.style.display = 'none'; stampActive = false;
             isCroppingMode = false; cropOverlay.style.display = 'none';
             const cropBtn = document.getElementById('stampCropBtn');
-            if (cropBtn) { cropBtn.style.background = ''; cropBtn.style.color = ''; cropBtn.innerText = 'âœ‚ï¸ Ritaglia'; }
+            if (cropBtn) { cropBtn.style.background = ''; cropBtn.style.color = ''; cropBtn.innerText = '✂️ Ritaglia'; }
             stampContainer.style.cursor = 'move'; resizeHandle.style.display = 'flex';
         }
 
@@ -1369,9 +1500,9 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 wrapper.innerHTML = `
                     <div class="page-number-badge">${index + 1}</div><img src="${page.data}">
                     <div class="page-controls">
-                        <button onclick="movePage(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Sposta a Sinistra">â¬…ï¸</button>
-                        <button class="del-btn" onclick="deletePage(${index})" title="Elimina Pagina">ðŸ—‘ï¸</button>
-                        <button onclick="movePage(${index}, 1)" ${index === exportPagesData.length - 1 ? 'disabled' : ''} title="Sposta a Destra">âž¡ï¸</button>
+                        <button onclick="movePage(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Sposta a Sinistra">⬅️</button>
+                        <button class="del-btn" onclick="deletePage(${index})" title="Elimina Pagina">🗑️</button>
+                        <button onclick="movePage(${index}, 1)" ${index === exportPagesData.length - 1 ? 'disabled' : ''} title="Sposta a Destra">➡️</button>
                     </div>`;
                 container.appendChild(wrapper);
             });
@@ -1484,7 +1615,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
-            document.getElementById('ajUser').textContent = `${ajMe.name} Â· ${role}`;
+            document.getElementById('ajUser').textContent = `${ajMe.name} · ${role}`;
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
@@ -1554,7 +1685,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
     }
    }
   });
-  google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:Math.max(220,Math.min(400,target.parentElement.clientWidth-8))});
+  google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:360});
   if(status)status.textContent='Usa il tuo account Google per registrarti o accedere';
  }catch(error){
   console.error('Inizializzazione Google:',error);
@@ -1562,7 +1693,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  }
  try{await ajReady()}catch(error){if(error.message!=='Autenticazione richiesta')console.debug(error.message)}
 })();
-        async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">â¬‡ï¸</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
+        async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
 document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById('jotterArchiveClose').onclick=()=>document.getElementById('jotterArchiveModal').style.display='none';document.getElementById('welcomeDiscoverBtn').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverClose').onclick=document.getElementById('welcomeDiscoverDone').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='none';
         document.getElementById('devBtn').onclick=async()=>{await ajApi('/api/auth/dev',{method:'POST',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});ajReady()};
         
@@ -1595,7 +1726,7 @@ document.addEventListener('click', function(event) {
   }
 });
 </script>
-<footer id="siteFooter" class="site-footer"><nav><button id="privacyLink" type="button">Privacy</button><span>Â·</span><button id="termsLink" type="button">Condizioni d'Uso</button><button id="adminConsoleLink" class="admin-link aj-hidden" type="button">Console amministrativa</button></nav><div>Â© 2026 airjotter.com Â· by ing. N. Bochicchio @ DoMyTool.it</div></footer>
+<footer id="siteFooter" class="site-footer"><nav><button id="privacyLink" type="button">Privacy</button><span>·</span><button id="termsLink" type="button">Condizioni d'Uso</button><button id="adminConsoleLink" class="admin-link aj-hidden" type="button">Console amministrativa</button></nav><div>© 2026 airjotter.com · by ing. N. Bochicchio @ DoMyTool.it</div></footer>
 <script id="airjotterV91LateRuntime">
 (function () {
   const fmt = value => value ? new Date(value).toLocaleString('it-IT') : 'Mai';
@@ -1625,7 +1756,7 @@ document.addEventListener('click', function(event) {
     document.getElementById('adminCards').innerHTML=cards.map(item=>'<div class="admin-card"><b>'+item[1]+'</b><span>'+item[0]+'</span></div>').join('');
     document.getElementById('adminUsers').innerHTML=users.map(user=>{const owner=String(user.email).toLowerCase()==='nbochicchio@gmail.com';const safeName=String(user.name||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');return '<tr><td><b>'+user.name+'</b></td><td><a href="mailto:'+user.email+'">'+user.email+'</a></td><td><span class="plan-pill">'+(String(user.email).toLowerCase()==='nbochicchio@gmail.com'?'UNLIMITED':user.plan.toUpperCase())+'</span></td><td><span class="status-pill '+(user.suspended?'suspended':'active')+'">'+(user.suspended?'Sospeso':'Attivo')+'</span></td><td>'+fmt(user.createdAt)+'</td><td>'+fmt(user.lastLoginAt)+'</td><td>'+user.boards+'</td><td>'+(owner?'<span class="owner-protected">Titolare protetto</span>':'<div class="admin-user-actions"><button class="btn suspend-user" data-id="'+user.id+'" data-name="'+safeName+'" data-suspended="'+user.suspended+'">'+(user.suspended?'Riattiva':'Sospendi')+'</button><button class="btn danger delete-user" data-id="'+user.id+'" data-name="'+safeName+'">Elimina</button></div>')+'</td></tr>'}).join('');
     document.querySelectorAll('.suspend-user').forEach(button=>button.onclick=async()=>{const suspension=button.dataset.suspended!=='true';if(!confirm((suspension?'Sospendere ':'Riattivare ')+button.dataset.name+'?'))return;await ajApi('/api/admin/users/'+button.dataset.id+'/suspension',{method:'PATCH',body:JSON.stringify({suspended:suspension})});await window.loadAirJotterAdmin()});
-    document.querySelectorAll('.delete-user').forEach(button=>button.onclick=async()=>{if(!confirm('Eliminare definitivamente '+button.dataset.name+' e tutti i relativi Jotter? Questa operazione non puÃ² essere annullata.'))return;await ajApi('/api/admin/users/'+button.dataset.id,{method:'DELETE'});await window.loadAirJotterAdmin()});
+    document.querySelectorAll('.delete-user').forEach(button=>button.onclick=async()=>{if(!confirm('Eliminare definitivamente '+button.dataset.name+' e tutti i relativi Jotter? Questa operazione non può essere annullata.'))return;await ajApi('/api/admin/users/'+button.dataset.id,{method:'DELETE'});await window.loadAirJotterAdmin()});
     document.getElementById('adminLive').textContent='Aggiornato '+new Date(stats.updatedAt).toLocaleTimeString('it-IT');
   };
 
@@ -1678,12 +1809,12 @@ document.addEventListener('click', function(event) {
     if(el.tagName!=='A'){var a=document.createElement('a');a.textContent='Privacy';a.className=el.className;el.replaceWith(a);el=a}
     el.href='/privacy';el.removeAttribute('onclick');el.onclick=null;
    }
-   if(t==="condizioni d'uso"||t==='condizioni dâ€™uso'){
+   if(t==="condizioni d'uso"||t==='condizioni d’uso'){
     if(el.tagName!=='A'){var a=document.createElement('a');a.textContent="Condizioni d'Uso";a.className=el.className;el.replaceWith(a);el=a}
     el.href='/terms';el.removeAttribute('onclick');el.onclick=null;
    }
   });
-  var intro=[].find.call(document.querySelectorAll('a,button,[role="button"]'),function(el){return norm(el.textContent).includes('scopri perchÃ© airjotter puÃ² esserti utile')});
+  var intro=[].find.call(document.querySelectorAll('a,button,[role="button"]'),function(el){return norm(el.textContent).includes('scopri perché airjotter può esserti utile')});
   var help=[].find.call(document.querySelectorAll('button,a,[role="button"]'),function(el){var t=norm(el.textContent),lab=norm(el.getAttribute('aria-label')),tit=norm(el.getAttribute('title'));return t==='?'||lab.includes('aiuto')||tit.includes('aiuto')||lab.includes('help')||tit.includes('help')});
   if(intro&&help&&!help.dataset.airjotterAligned){
    help.dataset.airjotterAligned='1';
@@ -1714,7 +1845,7 @@ document.addEventListener('click', function(event) {
   try{
    const boards=await ownedBoards(),limit=limitValue();
    if(boards.length>=limit){
-    const latest=latestOf(boards);if(!latest?.roomCode)throw new Error('Nessun Jotter di proprietÃ  disponibile');
+    const latest=latestOf(boards);if(!latest?.roomCode)throw new Error('Nessun Jotter di proprietà disponibile');
     await ajJoin(latest.roomCode);return;
    }
    const board=await ajApi('/api/boards',{method:'POST',body:'{}'});await ajOpenBoard(board);
@@ -1768,7 +1899,7 @@ document.addEventListener('click', function(event) {
  const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){resetRequestButton();return previousOpen(board)};
  ajSocket.on('board:access-suspended',e=>{if(e.boardId===ajBoard?.id){alert('Il proprietario ha sospeso il tuo accesso a questo Jotter.');location.href='/'}});
  ajSocket.on('board:access-removed',e=>{if(e.boardId===ajBoard?.id){alert('Il proprietario ha eliminato il tuo accesso a questo Jotter.');location.href='/'}});
- ajSocket.on('board:access-restored',e=>{if(e.boardId===ajBoard?.id){ajSetRole(e.role||'viewer');alert('Il tuo accesso a questo Jotter Ã¨ stato riattivato.')}});
+ ajSocket.on('board:access-restored',e=>{if(e.boardId===ajBoard?.id){ajSetRole(e.role||'viewer');alert('Il tuo accesso a questo Jotter è stato riattivato.')}});
 
  const manager=document.getElementById('boardAccessModal'),body=document.getElementById('boardAccessBody'),summary=document.getElementById('boardAccessSummary');
  document.getElementById('boardAccessClose').onclick=()=>manager.style.display='none';
@@ -1777,8 +1908,8 @@ document.addEventListener('click', function(event) {
   manager.style.display='flex';body.innerHTML='<div class="access-empty">Caricamento...</div>';
   try{const d=await ajApi('/api/boards/'+boardId+'/access');document.getElementById('boardAccessTitle').textContent=d.title||'Jotter senza titolo';summary.innerHTML='<b>Codice:</b> '+esc(d.roomCode);
    const pending=d.requests||[],members=d.members||[];
-   const pendingHtml=pending.length?pending.map(r=>'<div class="access-row"><div class="access-person"><b>'+esc(r.name)+'</b><small>'+esc(r.email)+' Â· richiesta di scrittura</small></div><div class="access-actions"><button class="btn primary approve-request" data-id="'+r.requestId+'">Consenti modifica</button><button class="btn danger ignore-request" data-id="'+r.requestId+'">Ignora</button></div></div>').join(''):'<div class="access-empty">Nessuna richiesta in attesa.</div>';
-   const memberHtml=members.length?members.map(m=>'<div class="access-row"><div class="access-person"><b>'+esc(m.name)+'</b><small>'+esc(m.email)+' Â· '+(m.role==='owner'?'Proprietario':m.role==='editor'?'Scrittura':'Lettura')+(m.status==='revoked'?' Â· Sospeso':'')+'</small></div>'+(m.role==='owner'?'<span class="owner-protected">Proprietario</span>':'<div class="access-actions"><button class="btn toggle-member" data-user="'+m.userId+'" data-suspended="'+(m.status==='revoked')+'">'+(m.status==='revoked'?'Riattiva':'Sospendi')+'</button><button class="btn danger remove-member" data-user="'+m.userId+'" data-name="'+esc(m.name)+'">Elimina</button></div>')+'</div>').join(''):'<div class="access-empty">Nessun collaboratore.</div>';
+   const pendingHtml=pending.length?pending.map(r=>'<div class="access-row"><div class="access-person"><b>'+esc(r.name)+'</b><small>'+esc(r.email)+' · richiesta di scrittura</small></div><div class="access-actions"><button class="btn primary approve-request" data-id="'+r.requestId+'">Consenti modifica</button><button class="btn danger ignore-request" data-id="'+r.requestId+'">Ignora</button></div></div>').join(''):'<div class="access-empty">Nessuna richiesta in attesa.</div>';
+   const memberHtml=members.length?members.map(m=>'<div class="access-row"><div class="access-person"><b>'+esc(m.name)+'</b><small>'+esc(m.email)+' · '+(m.role==='owner'?'Proprietario':m.role==='editor'?'Scrittura':'Lettura')+(m.status==='revoked'?' · Sospeso':'')+'</small></div>'+(m.role==='owner'?'<span class="owner-protected">Proprietario</span>':'<div class="access-actions"><button class="btn toggle-member" data-user="'+m.userId+'" data-suspended="'+(m.status==='revoked')+'">'+(m.status==='revoked'?'Riattiva':'Sospendi')+'</button><button class="btn danger remove-member" data-user="'+m.userId+'" data-name="'+esc(m.name)+'">Elimina</button></div>')+'</div>').join(''):'<div class="access-empty">Nessun collaboratore.</div>';
    body.innerHTML='<section class="access-section"><h4>Richieste di modifica</h4>'+pendingHtml+'</section><section class="access-section"><h4>Persone con accesso</h4>'+memberHtml+'</section>';
    body.querySelectorAll('.approve-request,.ignore-request').forEach(btn=>btn.onclick=async()=>{const approved=btn.classList.contains('approve-request');await ajApi('/api/access/'+btn.dataset.id+'/resolve',{method:'POST',body:JSON.stringify({approved})});await window.ajOpenBoardAccess(boardId)});
    body.querySelectorAll('.toggle-member').forEach(btn=>btn.onclick=async()=>{const suspended=btn.dataset.suspended!=='true';if(!confirm((suspended?'Sospendere':'Riattivare')+' questo collaboratore?'))return;await ajApi('/api/boards/'+boardId+'/members/'+btn.dataset.user+'/suspension',{method:'PATCH',body:JSON.stringify({suspended})});await window.ajOpenBoardAccess(boardId)});
@@ -1787,7 +1918,7 @@ document.addEventListener('click', function(event) {
  };
 
  // Sostituisce l'archivio per rendere il nome cliccabile e mantenere tutte le azioni esistenti.
- ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">â¬‡ï¸</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
+ ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
  document.getElementById('ajUser').onclick=ajLoadArchive;
 })();
 </script>
@@ -1803,12 +1934,12 @@ document.addEventListener('click', function(event) {
  const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
  let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
  let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
- const mobile=()=>matchMedia('(max-width:760px),(pointer:coarse)').matches;
+ const touch=()=>matchMedia('(any-pointer:coarse)').matches||(navigator.maxTouchPoints||0)>1||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
  function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
  function setPan(on){panMode=on;document.body.classList.toggle('mobile-pan-mode',on);panButton.setAttribute('aria-pressed',String(on));panButton.textContent=on?'Scrivi':'Sposta'}
- fitButton.onclick=()=>{userZoom=1;apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
+ fitButton.onclick=()=>{userZoom=1;if(document.documentElement.classList.contains('aj-old-ipad')){ajCamera={x:0,y:0,zoom:1,base:fitScale()};const scale=fitScale();stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.transform='translate3d(0,0,0) scale('+scale+')';wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}else apply(true);setPan(false)};panButton.onclick=()=>setPan(!panMode);
 
  // Un dito sposta solo in modalita Sposta. Non intercetta il normale disegno.
  draft.addEventListener('pointerdown',e=>{if(!mobile()||!panMode||e.pointerType==='mouse'||e.isPrimary===false)return;e.preventDefault();e.stopImmediatePropagation();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:vp.scrollLeft,top:vp.scrollTop};try{draft.setPointerCapture(e.pointerId)}catch{}},true);
@@ -1816,11 +1947,43 @@ document.addEventListener('click', function(event) {
  function endDrag(e){if(drag&&e.pointerId===drag.id){e.preventDefault();e.stopImmediatePropagation();drag=null}}
  draft.addEventListener('pointerup',endDrag,true);draft.addEventListener('pointercancel',endDrag,true);
 
- // Due dita fanno sempre pan e pinch, anche quando Sposta e disattivato.
- vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top,scale=fitScale()*userZoom;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault()},{capture:true,passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],box=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-box.left,cy=(a.clientY+b.clientY)/2-box.top;userZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance));const scale=fitScale()*userZoom;setGeometry(scale);void stage.offsetWidth;vp.scrollLeft=Math.max(0,pinch.docX*scale+stage.offsetLeft-cx);vp.scrollTop=Math.max(0,pinch.docY*scale+stage.offsetTop-cy);e.preventDefault()},{capture:true,passive:false});
- vp.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null},{capture:true,passive:true});
-
+ // Due dita: modalita Camera GPU sui vecchi iPad; comportamento corrente sugli altri dispositivi.
+ let ajGestureFrame=0,ajGestureData=null;
+ const ajLegacyIPad=()=>document.documentElement.classList.contains('aj-old-ipad');
+ let ajCamera={x:0,y:0,zoom:1,base:0};
+ function ajClampCamera(x,y,scale){
+  const vw=vp.clientWidth,vh=vp.clientHeight,cw=LOGICAL_W*scale,ch=LOGICAL_H*scale;
+  return {x:Math.min(10,Math.max(vw-cw-10,x)),y:Math.min(10,Math.max(vh-ch-10,y))};
+ }
+ function ajPaintCamera(){
+  ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;
+  userZoom=g.zoom;const scale=fitScale()*userZoom;
+  const pointX=(pinch.startCx-ajCamera.x)/(pinch.startScale||scale);
+  const pointY=(pinch.startCy-ajCamera.y)/(pinch.startScale||scale);
+  const c=ajClampCamera(g.cx-pointX*scale,g.cy-pointY*scale,scale);
+  ajCamera.x=Math.round(c.x);ajCamera.y=Math.round(c.y);ajCamera.zoom=userZoom;ajCamera.base=fitScale();
+  wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';
+  wrapper.style.transformOrigin='0 0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%';
+ }
+ vp.addEventListener('touchstart',e=>{
+  if(e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect(),cx=(p.clientX+q.clientX)/2-box.left,cy=(p.clientY+q.clientY)/2-box.top;
+  if(ajLegacyIPad()){
+   const currentScale=fitScale()*userZoom;
+   if(!ajCamera.base){ajCamera.base=fitScale();ajCamera.zoom=userZoom;ajCamera.x=0;ajCamera.y=0}
+   pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,startCx:cx,startCy:cy,startScale:currentScale};
+   document.documentElement.classList.add('aj-camera-moving');e.preventDefault();return;
+  }
+  const scale=fitScale()*userZoom;pinch={distance:Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY),zoom:userZoom,docX:(vp.scrollLeft+cx-stage.offsetLeft)/scale,docY:(vp.scrollTop+cy-stage.offsetTop)/scale};e.preventDefault();
+ },{capture:true,passive:false});
+ function ajPaintStandard(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}
+ vp.addEventListener('touchmove',e=>{
+  if(!pinch||e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect();
+  ajGestureData={cx:(p.clientX+q.clientX)/2-box.left,cy:(p.clientY+q.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance))};
+  if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajLegacyIPad()?ajPaintCamera:ajPaintStandard);e.preventDefault();
+ },{capture:true,passive:false});
+ vp.addEventListener('touchend',e=>{
+  if(e.touches.length<2){if(ajGestureFrame){cancelAnimationFrame(ajGestureFrame);(ajLegacyIPad()?ajPaintCamera:ajPaintStandard)()}pinch=null;document.documentElement.classList.remove('aj-camera-moving')}
+ },{capture:true,passive:true});
  // Griglie indipendenti per pagina.
  function renderPageGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());if(!mobile())return;for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
  const baseInit=initCanvas;initCanvas=function(){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;const result=baseInit.apply(this,arguments);userZoom=keepZoom;renderPageGrids();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}return result};renderPageGrids();
@@ -1835,19 +1998,6 @@ document.addEventListener('click', function(event) {
  document.getElementById('mobileToolsBtn').onclick=()=>{document.body.classList.toggle('mobile-tools-open');setTimeout(()=>apply(false),30)};document.getElementById('mobileUserBtn').onclick=()=>document.getElementById('ajUser').click();window.addEventListener('resize',()=>setTimeout(()=>apply(false),40));setTimeout(()=>apply(false),180);
 })();
 </script>
-<script id="airjotterTabletV118">
-(function(){
- const coarse=matchMedia('(pointer:coarse)').matches;
- if(!coarse)return;
- const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),draft=document.getElementById('draftBoard');
- function blockNative(e){if(e.target.closest('#text-tool-overlay,input,textarea,select'))return;e.preventDefault()}
- ['contextmenu','selectstart','dragstart'].forEach(type=>document.addEventListener(type,blockNative,true));
- document.addEventListener('selectionchange',()=>{const s=getSelection();if(s&&!document.activeElement?.closest?.('#text-tool-overlay')&&s.rangeCount)s.removeAllRanges()});
-
- function centerGoogle(){const target=document.getElementById('googleBtn');if(!target)return;target.style.display='flex';target.style.justifyContent='center';target.style.alignItems='center';for(const el of target.children){el.style.marginLeft='auto';el.style.marginRight='auto';el.style.maxWidth='100%'}}
- centerGoogle();new MutationObserver(centerGoogle).observe(document.getElementById('googleBtn'),{childList:true,subtree:true});window.addEventListener('orientationchange',()=>setTimeout(centerGoogle,250));
-})();
-</script>
 <script id="airjotterUndoRedoV119">
 (function(){
  const group=document.querySelector('#mobileTopbar .mobile-zoom');
@@ -1855,12 +2005,12 @@ document.addEventListener('click', function(event) {
  if(!group||!oldPan)return;
  oldPan.setAttribute('aria-hidden','true');oldPan.tabIndex=-1;
  function make(id,label,symbol){let b=document.getElementById(id);if(b)return b;b=document.createElement('button');b.id=id;b.type='button';b.setAttribute('aria-label',label);b.title=label;b.textContent=symbol;group.appendChild(b);return b}
- const undo=make('mobileUndo119','Annulla','â†¶');
- const redo=make('mobileRedo119','Ripristina','â†·');
+ const undo=make('mobileUndo119','Annulla','↶');
+ const redo=make('mobileRedo119','Ripristina','↷');
  function findDesktop(kind){
   const ids=kind==='undo'?['undoBtn','undoButton']:['redoBtn','redoButton'];
   for(const id of ids){const el=document.getElementById(id);if(el)return el}
-  return [...document.querySelectorAll('header button,header [role="button"]')].find(el=>{const t=((el.title||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.textContent||'')).toLowerCase();return kind==='undo'?(t.includes('undo')||t.includes('annulla')||t.includes('â†¶')):(t.includes('redo')||t.includes('ripristina')||t.includes('â†·'))})||null;
+  return [...document.querySelectorAll('header button,header [role="button"]')].find(el=>{const t=((el.title||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.textContent||'')).toLowerCase();return kind==='undo'?(t.includes('undo')||t.includes('annulla')||t.includes('↶')):(t.includes('redo')||t.includes('ripristina')||t.includes('↷'))})||null;
  }
  undo.onclick=e=>{e.preventDefault();const target=findDesktop('undo');if(target)target.click()};
  redo.onclick=e=>{e.preventDefault();const target=findDesktop('redo');if(target)target.click()};
@@ -1904,6 +2054,17 @@ document.addEventListener('click', function(event) {
  ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
  const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){const value=await previousOpen(board);await refreshHistory();return value};
  setInterval(refreshHistory,1200);
+})();
+</script>
+<script id="airjotterTabletMobileV132">
+(function(){
+ const tablet=/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+ if(!tablet)return;
+ document.documentElement.classList.remove('aj-tablet-v13','aj-old-ipad','aj-camera-moving');
+ // Nessun nuovo gestore touch: usa esclusivamente airjotterMobileV117, identico allo smartphone.
+ const input=document.getElementById('joinCode');
+ if(input){input.disabled=false;input.readOnly=false;input.removeAttribute('disabled');input.removeAttribute('readonly')}
+ setTimeout(()=>{try{handleResize()}catch{}},200);
 })();
 </script>
 </body>
