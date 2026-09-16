@@ -845,7 +845,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         function handleResize(){
             if(isMobileLayout()){applyMobileZoom(false);return}
             const screenW=document.documentElement.clientWidth,availableW=screenW-20;let zoom=Math.min(1,availableW/LOGICAL_W);
-            wrapper.style.transform='scale('+zoom+')';wrapper.style.transformOrigin='top center';wrapper.style.marginBottom='calc(60px - '+(LOGICAL_H*(1-zoom))+'px)';
+            // v14.5: se aj-old-ipad e' attivo (touch device), preserva il transform pinch/pan.
+            // Il codice camera GPU gestisce transformOrigin='0 0' con translate3d+scale.
+            // Senza questa protezione, syncCheck->initCanvas->handleResize reset il pinch ad
+            // ogni sincronizzazione dal server (il bug 'torna a pagina intera dopo un secondo').
+            if(!document.documentElement.classList.contains('aj-old-ipad')){
+              wrapper.style.transform='scale('+zoom+')';wrapper.style.transformOrigin='top center';wrapper.style.marginBottom='calc(60px - '+(LOGICAL_H*(1-zoom))+'px)';
+            }
             const header=document.querySelector('header');header.style.transform='translateX(-50%) scale(1)';const contentW=header.offsetWidth,safeW=screenW-24;if(contentW>safeW)header.style.transform='translateX(-50%) scale('+(safeW/contentW)+')';
         }
         window.addEventListener('resize',handleResize);
@@ -1078,6 +1084,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         }
 
         draftCanvas.addEventListener('pointerdown', e => {
+            // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
+            // i touch pointer generati dal palmo che appoggia sul tablet. Senza questo,
+            // il palmo aggiunge un pointer a activePointers, size diventa 2, e il
+            // pointermove del disegno viene interrotto ('1) ma non ) ').
+            if (e.pointerType === 'touch') {
+                for (const p of activePointers.values()) {
+                    if (p.pointerType === 'pen') return;
+                }
+            }
             if(stampActive || textOverlayActive) return; 
             activePointers.set(e.pointerId, e);
             
@@ -1131,6 +1146,12 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         });
 
         draftCanvas.addEventListener('pointermove', e => {
+            // v14.5: palm rejection - ignora pointer touch se una pen sta gia' disegnando
+            if (e.pointerType === 'touch' && isDrawing) {
+                for (const p of activePointers.values()) {
+                    if (p.pointerType === 'pen') return;
+                }
+            }
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
             
             if (activePointers.size === 2) {
@@ -2049,7 +2070,21 @@ document.addEventListener('click', function(event) {
  function ajPaintStandard(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}
  vp.addEventListener('touchmove',e=>{
   if(!pinch||e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect();
-  ajGestureData={cx:(p.clientX+q.clientX)/2-box.left,cy:(p.clientY+q.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance))};
+  const rawCx=(p.clientX+q.clientX)/2-box.left,rawCy=(p.clientY+q.clientY)/2-box.top;
+  const rawZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance));
+  // v14.5: smoothing per ridurre la sensibilita' del pinch/pan (esperienza piu' controllata).
+  // Interpolazione temporale con fattore 0.35 (0.35 nuovo + 0.65 vecchio). Al primo touch
+  // (ajGestureData null) usa 100% valore raw per non introdurre lag di partenza.
+  if(!ajGestureData){
+    ajGestureData={cx:rawCx,cy:rawCy,zoom:rawZoom};
+  } else {
+    const a=0.35;
+    ajGestureData={
+      cx:ajGestureData.cx*(1-a)+rawCx*a,
+      cy:ajGestureData.cy*(1-a)+rawCy*a,
+      zoom:ajGestureData.zoom*(1-a)+rawZoom*a
+    };
+  }
   if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajLegacyIPad()?ajPaintCamera:ajPaintStandard);e.preventDefault();
  },{capture:true,passive:false});
  vp.addEventListener('touchend',e=>{
@@ -2127,18 +2162,17 @@ document.addEventListener('click', function(event) {
  setInterval(refreshHistory,1200);
 })();
 </script>
-<script id="airjotterTabletMobileV143">
+<script id="airjotterCameraGpuV145">
 (function(){
- // Riconoscimento tablet piu' inclusivo: iPad legacy (UA "iPad"), iPadOS moderno (UA
- // "Macintosh" + touchscreen), tablet Android. Il primario e' pointer:coarse.
- const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent)
-                  || (matchMedia('(pointer:coarse)').matches && matchMedia('(min-width:761px)').matches);
- if(!isTablet)return;
- // v14.3: attiva la modalita' camera GPU (ajPaintCamera) su TUTTI i tablet.
- // Era disattivata dalla precedente V132 che rimuoveva 'aj-old-ipad', costringendo
- // i tablet ad usare ajPaintStandard che chiama setGeometry() ad ogni frame del pinch
- // (reflow di stage.width/height, molto lento su iPad vecchi).
- // La modalita' camera usa translate3d + scale sulla GPU: 60fps fluidi anche su iPad Air 2.
+ // v14.5: attiva la modalita' camera GPU per QUALSIASI dispositivo con touchscreen
+ // (tablet + PC touch + smartphone), non solo tablet. Il PC touch cadeva prima in
+ // un handler separato (airjotterPcTouchPanV143) che veniva resettato da handleResize
+ // al primo sync dal server ('torna a pagina intera dopo un secondo'). Ora tutti i
+ // dispositivi touch usano la stessa camera GPU con transform preservato.
+ const hasTouch = matchMedia('(any-pointer:coarse)').matches
+                  || (navigator.maxTouchPoints||0) > 0
+                  || /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+ if(!hasTouch)return;
  document.documentElement.classList.add('aj-old-ipad');
  document.documentElement.classList.remove('aj-tablet-v13','aj-camera-moving');
  const input=document.getElementById('joinCode');
@@ -2148,79 +2182,10 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterPcTouchPanV143">
-/* v14.3 - pan+pinch a due dita per PC con touchscreen (Surface, Samsung 2-in-1, Yoga).
-   FIX rispetto a v14.2: aritmetica corretta del transform. Il bug precedente calcolava
-   tx = canvasRect.left - parentRect.left ma quel valore include gia' la posizione
-   layout del wrapper (che e' centrato con margin:0 auto): cambiando origin da
-   'top center' a 'top left' l'offset veniva sommato due volte e il canvas saltava
-   a destra al primo touch. La formula corretta si basa sulla position LAYOUT del
-   wrapper (invariante per il transform): con origin top-center e scale(s), il canvas
-   visuale sta a rect.left = layoutLeft + LOGICAL_W*(1-s)/2. Da qui si ricava
-   layoutLeft, e poi imponendo origin top-left si applica tx = LOGICAL_W*(1-s)/2 per
-   mantenere la stessa position visuale (nessun salto). */
-(function(){
- const isPcTouch = matchMedia('(any-pointer:coarse)').matches && !matchMedia('(pointer:coarse)').matches;
- if (!isPcTouch) return;
- const draft = document.getElementById('draftBoard');
- const wrapper = document.getElementById('canvas-wrapper');
- if (!draft || !wrapper) return;
- const LOGICAL_W_V143 = 900;
- let pinch = null;
-
- draft.addEventListener('touchstart', e => {
-  if (e.touches.length !== 2) return;
-  const p = e.touches[0], q = e.touches[1];
-  const canvasRect = draft.getBoundingClientRect();
-  const currentS = canvasRect.width / LOGICAL_W_V143;
-  // Position LAYOUT del wrapper (invariante rispetto al transform)
-  const layoutLeft = canvasRect.left - LOGICAL_W_V143 * (1 - currentS) / 2;
-  const layoutTop = canvasRect.top;
-  // Con origin top-left, applico translate iniziale per NON spostare visivamente il canvas
-  const tx0 = LOGICAL_W_V143 * (1 - currentS) / 2;
-  const ty0 = 0;
-  wrapper.style.willChange = 'transform';
-  wrapper.style.transformOrigin = 'top left';
-  wrapper.style.transform = 'translate3d(' + tx0 + 'px, ' + ty0 + 'px, 0) scale(' + currentS + ')';
-  const cx = (p.clientX + q.clientX) / 2;
-  const cy = (p.clientY + q.clientY) / 2;
-  pinch = {
-   distance: Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY),
-   startS: currentS,
-   layoutLeft: layoutLeft,
-   layoutTop: layoutTop,
-   // Il punto documento sotto il centro delle dita (coordinate 0..LOGICAL_W)
-   docX: (cx - canvasRect.left) / currentS,
-   docY: (cy - canvasRect.top) / currentS,
-  };
-  try { window.isDrawing = false; } catch {}
-  try { const dc = draft.getContext('2d'); if (dc) dc.clearRect(0, 0, draft.width, draft.height); } catch {}
-  e.preventDefault(); e.stopPropagation();
- }, { capture: true, passive: false });
-
- draft.addEventListener('touchmove', e => {
-  if (!pinch || e.touches.length !== 2) return;
-  const p = e.touches[0], q = e.touches[1];
-  const cx = (p.clientX + q.clientX) / 2;
-  const cy = (p.clientY + q.clientY) / 2;
-  const dist = Math.hypot(p.clientX - q.clientX, p.clientY - q.clientY);
-  const newS = Math.max(0.3, Math.min(4, pinch.startS * dist / pinch.distance));
-  // Il punto documento (pinch.docX, pinch.docY) deve stare sotto il centro attuale (cx, cy)
-  // In coordinate viewport: pinch.layoutLeft + newTx + pinch.docX * newS = cx
-  const newTx = cx - pinch.layoutLeft - pinch.docX * newS;
-  const newTy = cy - pinch.layoutTop - pinch.docY * newS;
-  wrapper.style.transform = 'translate3d(' + newTx + 'px, ' + newTy + 'px, 0) scale(' + newS + ')';
-  e.preventDefault(); e.stopPropagation();
- }, { capture: true, passive: false });
-
- draft.addEventListener('touchend', e => {
-  if (e.touches.length < 2) {
-   pinch = null;
-   // Lascio il transform corrente, cosi' l'utente puo' proseguire da dove ha lasciato
-   // al prossimo pinch. willChange resta 'transform' per fluidita' successive.
-  }
- }, { capture: true, passive: true });
-})();
+<script id="airjotterPcTouchDisabledV145">
+/* v14.5: lo script airjotterPcTouchPanV143 e' stato rimosso perche' il PC touch ora
+   usa la stessa camera GPU dei tablet (via aj-old-ipad universale), unificando il
+   comportamento e risolvendo il bug 'torna a pagina intera dopo un secondo'. */
 </script>
 
 
@@ -2441,6 +2406,76 @@ document.addEventListener('click', function(event) {
 
  // Ricontrolla se la barra e' scrollabile al resize (rotazione tablet)
  window.addEventListener('resize', () => { setTimeout(checkScrollHint, 300); }, { passive: true });
+})();
+</script>
+
+
+<script id="airjotterTabletFitButtonV145">
+/* v14.5 - pulsante "Adatta 100%" flottante per tablet (mancante nel layout tablet
+   perche' la mobileTopbar dove sta il pulsante Fit e' nascosta). Cliccando riporta
+   il canvas a fitScale, azzerando pinch/pan attivi. */
+(function(){
+ const isTablet = matchMedia('(min-width:761px)').matches
+                  && matchMedia('(any-pointer:coarse)').matches;
+ if (!isTablet) return;
+
+ function ensureButton(){
+  if (document.getElementById('tabletFitBtn')) return;
+  const btn = document.createElement('button');
+  btn.id = 'tabletFitBtn';
+  btn.type = 'button';
+  btn.setAttribute('aria-label', 'Adatta al 100%');
+  btn.innerHTML = '<span style="display:block;font-size:11px;line-height:1.1;text-align:center">Adatta<br>100%</span>';
+  btn.style.cssText = [
+   'position:fixed',
+   'bottom:calc(env(safe-area-inset-bottom, 0px) + 20px)',
+   'right:20px',
+   'z-index:250',
+   'width:62px',
+   'height:62px',
+   'border-radius:50%',
+   'background:var(--accent, #4b71ff)',
+   'color:#fff',
+   'border:none',
+   'box-shadow:0 4px 14px rgba(0,0,0,0.22)',
+   'cursor:pointer',
+   'display:flex',
+   'align-items:center',
+   'justify-content:center',
+   'font-family:inherit',
+   'font-weight:600',
+   'padding:0',
+   '-webkit-tap-highlight-color:transparent',
+   'touch-action:manipulation'
+  ].join(';');
+  btn.onclick = () => {
+   // Simula click del pulsante "Fit" della mobileTopbar
+   const fitBtn = document.getElementById('mobileZoomFit');
+   if (fitBtn && typeof fitBtn.onclick === 'function') { fitBtn.onclick(); return; }
+   // Fallback: se il fit button non c'e', prova a resettare mobileZoom e ricalcolare
+   try { window.mobileZoom = 1; if (typeof window.applyMobileZoom === 'function') window.applyMobileZoom(true); } catch {}
+  };
+  document.body.appendChild(btn);
+ }
+
+ // Attende che il DOM sia pronto e che l'utente sia dentro un jotter (mostra solo li')
+ function checkAndShow(){
+  const inBoard = !document.getElementById('ajLogin')?.classList.contains('aj-hidden') ? false : true;
+  const login = document.getElementById('ajLogin');
+  const lobby = document.getElementById('ajLobby');
+  const isInBoard = login && login.classList.contains('aj-hidden')
+                    && (!lobby || lobby.classList.contains('aj-hidden'));
+  const btn = document.getElementById('tabletFitBtn');
+  if (isInBoard) {
+   ensureButton();
+   const b = document.getElementById('tabletFitBtn');
+   if (b) b.style.display = 'flex';
+  } else if (btn) {
+   btn.style.display = 'none';
+  }
+ }
+ setTimeout(checkAndShow, 500);
+ setInterval(checkAndShow, 1500);
 })();
 </script>
 
