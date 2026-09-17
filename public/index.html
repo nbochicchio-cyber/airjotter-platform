@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>airjotter.com</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#1769E8">
+    <meta name="application-name" content="AirJotter">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="AirJotter">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
     
     <!-- External Libraries -->
     <script src="/socket.io/socket.io.js"></script>
@@ -2468,5 +2477,13 @@ document.addEventListener('click', function(event) {
 </script>
 <script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="16.0";</script>
 <script id="AIRJOTTER_HIGHLIGHTER_V161">window.AIRJOTTER_HIGHLIGHTER_VERSION="16.1";</script>
+<script id="airjotterPwaV1">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+      .catch(error => console.warn('Service worker AirJotter:', error));
+  });
+}
+</script>
 </body>
 </html>
