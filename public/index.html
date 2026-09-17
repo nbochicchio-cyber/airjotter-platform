@@ -576,6 +576,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #draftBoard{touch-action:none!important}
 }
 
+
+/* v15.1 tablet: scrittura libera a un contatto, gesture solo quando sono presenti due dita. */
+@media (min-width:761px) and (any-pointer:coarse){
+ .aj-page-grid116{display:block!important;z-index:1!important}
+ #drawingBoard{z-index:2!important}
+ #draftBoard{z-index:3!important;pointer-events:auto!important;touch-action:none!important}
+ #mobileViewport{touch-action:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -2378,27 +2387,28 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterTabletTouchV15">
+<script id="airjotterTabletTouchV151">
 (function(){
  const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);
  if(!tablet)return;
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
  if(!vp||!stage||!wrapper||!draft)return;
- let zoom=1,contacts=new Map(),gesture=null,raf=0,pending=null;
+ let zoom=1,pinch=null,raf=0,pending=null;
  const fit=()=>Math.min(1,Math.max(.20,(vp.clientWidth-32)/LOGICAL_W));
  function geom(s){stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
- function updateLabel(){const b=document.getElementById('tabletFitBtnV15');if(b)b.querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
- function paint(){raf=0;const p=pending;pending=null;if(!p||!gesture)return;zoom=p.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(gesture.docX*s-p.cx));vp.scrollTop=Math.max(0,Math.round(gesture.docY*s-p.cy));updateLabel()}
+ function label(){const b=document.getElementById('tabletFitBtnV15');if(b)b.querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
+ function paint(){raf=0;const g=pending;pending=null;if(!g||!pinch)return;zoom=g.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*s-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*s-g.cy));label()}
  function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
- function reset(){zoom=1;geom(fit());requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});updateLabel()}
- const pts=()=>[...contacts.values()].slice(0,2);
- vp.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;contacts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(contacts.size!==2)return;const p=pts(),r=vp.getBoundingClientRect(),cx=(p[0].x+p[1].x)/2-r.left,cy=(p[0].y+p[1].y)/2-r.top,s=fit()*zoom;gesture={distance:Math.max(20,Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)),zoom,docX:(vp.scrollLeft+cx)/s,docY:(vp.scrollTop+cy)/s};try{isDrawing=false;currentPath=null;draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H)}catch{}e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- vp.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!contacts.has(e.pointerId))return;contacts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!gesture||contacts.size<2)return;const p=pts(),r=vp.getBoundingClientRect(),distance=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),raw=gesture.zoom*distance/gesture.distance;pending={cx:(p[0].x+p[1].x)/2-r.left,cy:(p[0].y+p[1].y)/2-r.top,zoom:Math.max(.5,Math.min(3.0,gesture.zoom+(raw-gesture.zoom)*.62))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- function end(e){if(e.pointerType!=='touch')return;const active=!!gesture;contacts.delete(e.pointerId);if(active){if(raf){cancelAnimationFrame(raf);paint()}gesture=null;pending=null;e.preventDefault();e.stopImmediatePropagation()}if(!contacts.size)contacts.clear()}
- vp.addEventListener('pointerup',end,true);vp.addEventListener('pointercancel',end,true);
- const header=document.querySelector('header'),undo=document.getElementById('undoBtn');let fitBtn=document.getElementById('tabletFitBtnV15');if(!fitBtn){fitBtn=document.createElement('button');fitBtn.id='tabletFitBtnV15';fitBtn.className='btn';fitBtn.type='button';fitBtn.innerHTML='Adatta<small>Zoom: 100%</small>';const group=document.createElement('div');group.className='tools-group';group.appendChild(fitBtn);undo.closest('.tools-group').before(group)}fitBtn.onclick=reset;
- const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;updateLabel()});return out};
- setTimeout(reset,250);
+ function reset(){zoom=1;geom(fit());requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});label()}
+ function renderTabletGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
+ // Touch Events are used only for two-finger navigation. A single finger and Apple Pencil remain entirely owned by the drawing Pointer Events.
+ vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-r.left,cy=(a.clientY+b.clientY)/2-r.top,s=fit()*zoom;pinch={distance:Math.max(20,Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)),zoom,docX:(vp.scrollLeft+cx)/s,docY:(vp.scrollTop+cy)/s};try{isDrawing=false;currentPath=null;activePointers.clear();draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H)}catch{}e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),distance=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),raw=pinch.zoom*distance/pinch.distance;pending={cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,zoom:Math.max(.5,Math.min(3,pinch.zoom+(raw-pinch.zoom)*.58))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ function end(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null}
+ vp.addEventListener('touchend',end,{capture:true,passive:true});vp.addEventListener('touchcancel',end,{capture:true,passive:true});
+ const undo=document.getElementById('undoBtn');let fitBtn=document.getElementById('tabletFitBtnV15');if(!fitBtn){fitBtn=document.createElement('button');fitBtn.id='tabletFitBtnV15';fitBtn.className='btn';fitBtn.type='button';fitBtn.innerHTML='Adatta<small>Zoom: 100%</small>';const group=document.createElement('div');group.className='tools-group';group.appendChild(fitBtn);undo.closest('.tools-group').before(group)}fitBtn.onclick=reset;
+ const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;renderTabletGrids();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label()});return out};
+ renderTabletGrids();setTimeout(reset,250);
 })();
 </script>
 </body>
