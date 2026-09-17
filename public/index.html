@@ -1763,7 +1763,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         }
         async function ajJoin(code) { await ajOpenBoard(await ajApi('/api/boards/join',{method:'POST',body:JSON.stringify({roomCode:code})})); }
         async function ajReady() {
-            ajMe=await ajApi('/api/me');const startupRoom=new URLSearchParams(location.search).get('room');await ajApi('/api/boards/cleanup-empty',{method:'POST',body:JSON.stringify({currentBoardId:null,currentRoomCode:startupRoom||null})}).catch(()=>({}));document.getElementById('adminConsoleLink').classList.toggle('aj-hidden',!ajMe.isAdmin); document.getElementById('ajLogin').classList.add('aj-hidden'); document.getElementById('ajLobby').classList.remove('aj-hidden'); ajSocket.connect();
+            ajMe=await ajApi('/api/me');const startupRoom=new URLSearchParams(location.search).get('room');document.getElementById('adminConsoleLink').classList.toggle('aj-hidden',!ajMe.isAdmin); document.getElementById('ajLogin').classList.add('aj-hidden'); document.getElementById('ajLobby').classList.remove('aj-hidden'); ajSocket.connect();
             const room=startupRoom;if(room){document.getElementById('joinCode').value=room;try{await ajJoin(room)}catch(e){history.replaceState(null,'','/');document.getElementById('joinError').textContent='';}}
         }
         (async()=>{
@@ -2426,6 +2426,6 @@ document.addEventListener('click', function(event) {
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
-<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.7b";</script>
+<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.8";</script>
 </body>
 </html>
