@@ -832,7 +832,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
             const MAX_CANVAS_AREA = 16000000;
             const MAX_CANVAS_DIM = 16000;
-            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,1.15):Math.max(window.devicePixelRatio||1,2);
+            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,1.5):Math.max(window.devicePixelRatio||1,2);
 
             if ((LOGICAL_W * preferredDpr) * (LOGICAL_H * preferredDpr) > MAX_CANVAS_AREA) {
                 preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
@@ -1752,7 +1752,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (!ajBoard) return;
             commands=[]; redoCommands=[]; TOTAL_PAGES=2;
             const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
-            operations.filter(x => x.is_active !== false).forEach(ajApplyOperation);
+            operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)});
             initCanvas(); redrawMainCanvas();
         }
         async function ajOpenBoard(board) {
@@ -2040,7 +2040,7 @@ document.addEventListener('click', function(event) {
  const fitButton=document.getElementById('mobileZoomFit'),panButton=document.getElementById('mobilePanBtn');
  const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
  let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
- let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
+ let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;const appliedOperationIds=new Set();
  const touch=()=>matchMedia('(max-width:760px)').matches;const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';if(document.documentElement.classList.contains('aj-old-ipad')){wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';wrapper.style.transformOrigin='0 0'}else{wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left'}wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
@@ -2104,19 +2104,13 @@ document.addEventListener('click', function(event) {
 
  // Polling di recupero: conserva zoom e posizione durante una ricostruzione.
  async function syncCheck(){
-  if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;
-  polling=true;
-  try{
-   const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');
-   const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);
-   if(lastRevision<0)lastRevision=revision;
-   // Non ricostruire mai il canvas per il semplice avanzamento della revisione:
-   // le operazioni remote arrivano gia via socket e quelle locali sono gia disegnate.
-   else if(revision>lastRevision)lastRevision=revision;
+  if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;polling=true;
+  try{const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');
+   for(const op of operations){const rev=Number(op.revision)||0,id=op.operation_id||op.operationId;if(op.is_active===false||rev<=lastRevision||appliedOperationIds.has(id))continue;ajApplyOperation(op);if(id)appliedOperationIds.add(id);lastRevision=Math.max(lastRevision,rev)}
   }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
  }
- const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;const result=await baseOpen(board);await syncCheck();apply(false);return result};
- ajSocket.on('board:operation',op=>{lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
+ const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;appliedOperationIds.clear();const result=await baseOpen(board);await syncCheck();apply(false);return result};
+ ajSocket.on('board:operation',op=>{const id=op.operation_id||op.operationId;if(id&&!appliedOperationIds.has(id)){appliedOperationIds.add(id);ajApplyOperation(op)}lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
 
  // Archivio mobile gia abbassato dalla v11.6.
  const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');if(close)close.onclick=()=>modal.style.display='none';if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});const previousArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
