@@ -1778,7 +1778,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  }
  try{await ajReady()}catch(error){if(error.message!=='Autenticazione richiesta')console.debug(error.message)}
 })();
-        async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
+        async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards' + (typeof ajBoard !== 'undefined' && ajBoard && ajBoard.id ? '?currentBoardId=' + encodeURIComponent(ajBoard.id) : ''));status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
 document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById('jotterArchiveClose').onclick=()=>document.getElementById('jotterArchiveModal').style.display='none';document.getElementById('welcomeDiscoverBtn').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverClose').onclick=document.getElementById('welcomeDiscoverDone').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='none';
         document.getElementById('devBtn').onclick=async()=>{await ajApi('/api/auth/dev',{method:'POST',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});ajReady()};
         
@@ -1917,7 +1917,7 @@ document.addEventListener('click', function(event) {
  function planName(){const p=String(ajMe?.plan||ajMe?.planCode||'Free');return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()}
  function limitValue(){return Number(ajMe?.limits?.boards||2)}
  async function ownedBoards(){
-  const list=await ajApi('/api/my/boards');
+  const list=await ajApi('/api/my/boards' + (typeof ajBoard !== 'undefined' && ajBoard && ajBoard.id ? '?currentBoardId=' + encodeURIComponent(ajBoard.id) : ''));
   return (Array.isArray(list)?list:[]).filter(b=>!b.role||b.role==='owner'||b.isOwner===true);
  }
  function latestOf(boards){return [...boards].sort((a,b)=>new Date(b.contentUpdatedAt||b.updatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.updatedAt||a.createdAt))[0]}
@@ -2003,7 +2003,7 @@ document.addEventListener('click', function(event) {
  };
 
  // Sostituisce l'archivio per rendere il nome cliccabile e mantenere tutte le azioni esistenti.
- ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards');status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
+ ajLoadArchive=async function(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards' + (typeof ajBoard !== 'undefined' && ajBoard && ajBoard.id ? '?currentBoardId=' + encodeURIComponent(ajBoard.id) : ''));status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><button class="archive-title-button"></button><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+esc(b.roomCode)+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title-button').textContent=b.title||'Jotter senza titolo';item.querySelector('.archive-title-button').onclick=()=>window.ajOpenBoardAccess(b.id);item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode);setTimeout(()=>document.getElementById('exportPdfBtn').click(),900)};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"?'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}};
  document.getElementById('ajUser').onclick=ajLoadArchive;
 })();
 </script>
@@ -2070,21 +2070,7 @@ document.addEventListener('click', function(event) {
  function ajPaintStandard(){ajGestureFrame=0;const g=ajGestureData;ajGestureData=null;if(!g||!pinch)return;userZoom=g.zoom;const scale=fitScale()*userZoom;setGeometry(scale);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*scale+stage.offsetLeft-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*scale+stage.offsetTop-g.cy))}
  vp.addEventListener('touchmove',e=>{
   if(!pinch||e.touches.length!==2)return;const p=e.touches[0],q=e.touches[1],box=vp.getBoundingClientRect();
-  const rawCx=(p.clientX+q.clientX)/2-box.left,rawCy=(p.clientY+q.clientY)/2-box.top;
-  const rawZoom=Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance));
-  // v14.5: smoothing per ridurre la sensibilita' del pinch/pan (esperienza piu' controllata).
-  // Interpolazione temporale con fattore 0.35 (0.35 nuovo + 0.65 vecchio). Al primo touch
-  // (ajGestureData null) usa 100% valore raw per non introdurre lag di partenza.
-  if(!ajGestureData){
-    ajGestureData={cx:rawCx,cy:rawCy,zoom:rawZoom};
-  } else {
-    const a=0.35;
-    ajGestureData={
-      cx:ajGestureData.cx*(1-a)+rawCx*a,
-      cy:ajGestureData.cy*(1-a)+rawCy*a,
-      zoom:ajGestureData.zoom*(1-a)+rawZoom*a
-    };
-  }
+  ajGestureData={cx:(p.clientX+q.clientX)/2-box.left,cy:(p.clientY+q.clientY)/2-box.top,zoom:Math.max(.5,Math.min(4,pinch.zoom*Math.hypot(p.clientX-q.clientX,p.clientY-q.clientY)/pinch.distance))};
   if(!ajGestureFrame)ajGestureFrame=requestAnimationFrame(ajLegacyIPad()?ajPaintCamera:ajPaintStandard);e.preventDefault();
  },{capture:true,passive:false});
  vp.addEventListener('touchend',e=>{
@@ -2162,17 +2148,18 @@ document.addEventListener('click', function(event) {
  setInterval(refreshHistory,1200);
 })();
 </script>
-<script id="airjotterCameraGpuV145">
+<script id="airjotterCameraGpuV146">
 (function(){
- // v14.5: attiva la modalita' camera GPU per QUALSIASI dispositivo con touchscreen
- // (tablet + PC touch + smartphone), non solo tablet. Il PC touch cadeva prima in
- // un handler separato (airjotterPcTouchPanV143) che veniva resettato da handleResize
- // al primo sync dal server ('torna a pagina intera dopo un secondo'). Ora tutti i
- // dispositivi touch usano la stessa camera GPU con transform preservato.
+ // v14.6: attiva la modalita' camera GPU per tablet e PC touch (viewport >761px con
+ // touchscreen), NON per smartphone. Gli smartphone tornano al comportamento originale
+ // (ajPaintStandard con scroll del viewport), che era corretto e collaudato.
+ // v14.5 aveva attivato aj-old-ipad ovunque introducendo sensibilita' eccessiva agli
+ // smartphone che prima funzionavano bene.
  const hasTouch = matchMedia('(any-pointer:coarse)').matches
                   || (navigator.maxTouchPoints||0) > 0
                   || /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
- if(!hasTouch)return;
+ const isSmartphone = matchMedia('(max-width:760px)').matches;
+ if(!hasTouch || isSmartphone) return;
  document.documentElement.classList.add('aj-old-ipad');
  document.documentElement.classList.remove('aj-tablet-v13','aj-camera-moving');
  const input=document.getElementById('joinCode');
@@ -2302,7 +2289,7 @@ document.addEventListener('click', function(event) {
   status.textContent = 'Caricamento...';
   list.innerHTML = '';
   try {
-   const boards = await ajApi('/api/my/boards');
+   const boards = await ajApi('/api/my/boards' + (typeof ajBoard !== 'undefined' && ajBoard && ajBoard.id ? '?currentBoardId=' + encodeURIComponent(ajBoard.id) : ''));
    if (!boards.length) { status.textContent = 'Non hai ancora Jotter.'; return; }
    status.textContent = '';
    const owned = boards.filter(b => b.role === 'owner' || !b.role);
