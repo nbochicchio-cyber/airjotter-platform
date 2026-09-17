@@ -790,7 +790,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         let isDrawing = false;
         let baseWidth = 2.5;
         let currentColor = '#1D1D1F';
-        const toolColors={pen:'#1D1D1F',highlighter:'#FFD400',text:'#1D1D1F'};
+        const toolColors={pen:'#1D1D1F',highlighter:'#FFFB9E',text:'#1D1D1F'};
         let currentPath = null;
         let dpr = 1;
         
@@ -1076,7 +1076,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             
             const isEraser = cmd.isEraser;
             context.save();
-            context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.34) : 1;
+            context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.18) : 1;
             context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
             context.lineCap = 'round';
             context.lineJoin = 'round';
@@ -1162,7 +1162,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     points: [{ x: pos.x, y: pos.y, w: w }], 
                     isEraser: currentMode === 'eraser',
                     isHighlighter: currentMode === 'highlighter',
-                    opacity: currentMode === 'highlighter' ? 0.34 : 1,
+                    opacity: currentMode === 'highlighter' ? 0.18 : 1,
                     renderIndex: 1
                 };
                 
@@ -1171,7 +1171,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 
                 const targetCtx = currentMode === 'eraser' ? mainCtx : draftCtx;
                 targetCtx.save();
-                targetCtx.globalAlpha = currentMode === 'highlighter' ? 0.34 : 1;
+                targetCtx.globalAlpha = currentMode === 'highlighter' ? 0.18 : 1;
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
                 targetCtx.fillStyle = currentMode === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
                 targetCtx.beginPath();
@@ -1234,7 +1234,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 }
                 
                 if (modified) {
-                    if (currentMode === 'eraser') renderPathToCtx(mainCtx, currentPath, true); 
+                    if (currentMode === 'eraser') renderPathToCtx(mainCtx, currentPath, true);
+                    else if (currentMode === 'highlighter') { draftCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H); currentPath.renderIndex = 1; renderPathToCtx(draftCtx, currentPath, false); }
                     else renderPathToCtx(draftCtx, currentPath, true);
                 }
             }
@@ -2466,5 +2467,6 @@ document.addEventListener('click', function(event) {
 })();
 </script>
 <script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="16.0";</script>
+<script id="AIRJOTTER_HIGHLIGHTER_V161">window.AIRJOTTER_HIGHLIGHTER_VERSION="16.1";</script>
 </body>
 </html>
