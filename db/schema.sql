@@ -43,3 +43,17 @@ CREATE INDEX IF NOT EXISTS boards_empty_cleanup_idx ON boards(empty_cleanup_afte
 -- percio' la DELETE utente falliva se l'utente era stato editor su Jotter di altri.
 ALTER TABLE board_operations DROP CONSTRAINT IF EXISTS board_operations_user_id_fkey;
 ALTER TABLE board_operations ADD CONSTRAINT board_operations_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+
+
+-- v15.6: stato persistente del Jotter vuoto, indipendente dal numero di pagine
+ALTER TABLE boards ADD COLUMN IF NOT EXISTS is_empty BOOLEAN NOT NULL DEFAULT true;
+UPDATE boards b SET is_empty = EXISTS (
+ SELECT 1
+) WHERE false;
+UPDATE boards b SET is_empty = NOT EXISTS (
+ SELECT 1 FROM board_operations bo
+ WHERE bo.board_id=b.id AND bo.is_active=true
+ AND bo.operation_type IN ('command:add','stroke:add','text:add')
+ AND bo.revision > COALESCE((SELECT max(c.revision) FROM board_operations c WHERE c.board_id=b.id AND c.is_active=true AND c.operation_type='board:clear'),0)
+);
+CREATE INDEX IF NOT EXISTS boards_owner_empty_idx ON boards(owner_user_id,is_empty);
