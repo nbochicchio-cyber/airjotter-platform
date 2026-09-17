@@ -832,7 +832,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
             const MAX_CANVAS_AREA = 16000000;
             const MAX_CANVAS_DIM = 16000;
-            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,2):Math.max(window.devicePixelRatio||1,2);
+            const ajOldIPad=/iPad/.test(navigator.userAgent)&&!(/OS (1[6-9]|[2-9][0-9])_/.test(navigator.userAgent)); let preferredDpr=ajOldIPad?Math.min(window.devicePixelRatio||1,2.5):Math.max(window.devicePixelRatio||1,2.5);
 
             if ((LOGICAL_W * preferredDpr) * (LOGICAL_H * preferredDpr) > MAX_CANVAS_AREA) {
                 preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
@@ -845,10 +845,10 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             document.documentElement.style.setProperty('--a4-h', BASE_A4_H + 'px');
             document.documentElement.style.setProperty('--total-pages', TOTAL_PAGES);
 
-            mainCanvas.width = LOGICAL_W * dpr; mainCanvas.height = LOGICAL_H * dpr; 
+            mainCanvas.width = Math.round(LOGICAL_W * dpr); mainCanvas.height = Math.round(LOGICAL_H * dpr); 
             mainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
             
-            draftCanvas.width = LOGICAL_W * dpr; draftCanvas.height = LOGICAL_H * dpr; 
+            draftCanvas.width = Math.round(LOGICAL_W * dpr); draftCanvas.height = Math.round(LOGICAL_H * dpr); 
             draftCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             updateBrush();
@@ -1068,6 +1068,14 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             };
         }
 
+
+        let ajPreviewQueuedPoints=[],ajPreviewFrame=0;
+        function ajQueueStrokePreview(points,done=false){
+            if(!currentPath||!ajBoard||!ajCanWrite()||!ajSocket.connected)return;
+            if(points?.length)ajPreviewQueuedPoints.push(...points.map(p=>({x:p.x,y:p.y,w:p.w})));
+            const flush=()=>{ajPreviewFrame=0;if(!currentPath)return;const batch=ajPreviewQueuedPoints.splice(0);if(!batch.length&&!done)return;ajSocket.emit('stroke:preview',{boardId:ajBoard.id,strokeId:currentPath.previewId,points:batch,color:currentPath.color,isEraser:currentPath.isEraser,done})};
+            if(done){if(ajPreviewFrame)cancelAnimationFrame(ajPreviewFrame);flush()}else if(!ajPreviewFrame)ajPreviewFrame=requestAnimationFrame(flush);
+        }
         function renderPathToCtx(context, cmd, isIncremental = false) {
             if (!cmd || cmd.type !== 'path' || cmd.points.length === 0) return;
             
@@ -1146,13 +1154,14 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 const pos = getPointerPos(e);
                 
                 const initP = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.5;
-                const w = baseWidth * (0.2 + Math.pow(initP, 1.5) * 1.8);
+                const w = baseWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
 
                 currentPath = { 
                     type: 'path', 
                     color: currentColor, 
                     points: [{ x: pos.x, y: pos.y, w: w }], 
                     isEraser: currentMode === 'eraser',
+                    previewId: (globalThis.crypto?.randomUUID?.() || ('stroke-'+Date.now()+'-'+Math.random())),
                     renderIndex: 1
                 };
                 
@@ -1191,6 +1200,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
                 let modified = false;
                 
+                const previewStart=currentPath.points.length;
                 for (const ev of evs) {
                     const pos = getPointerPos(ev);
                     const lastPt = currentPath.points[currentPath.points.length - 1];
@@ -1198,7 +1208,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     let targetW = baseWidth;
                     
                     if (ev.pointerType === 'pen' && ev.pressure > 0) {
-                        targetW = baseWidth * (0.1 + Math.pow(ev.pressure, 1.5) * 2.2);
+                        targetW = baseWidth * (0.72 + Math.pow(ev.pressure, 1.25) * 0.72);
                     } else if (lastEventData) {
                         const dx = ev.clientX - lastEventData.clientX;
                         const dy = ev.clientY - lastEventData.clientY;
@@ -1211,7 +1221,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     }
                     lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
 
-                    const widthSmoothing = ev.pointerType === 'pen' ? 0.55 : 0.30;
+                    const widthSmoothing = ev.pointerType === 'pen' ? 0.24 : 0.30;
                     const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
                     const distSq = (pos.x - lastPt.x)**2 + (pos.y - lastPt.y)**2;
                     if (distSq > 0.01) {
@@ -1223,6 +1233,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 if (modified) {
                     if (currentMode === 'eraser') renderPathToCtx(mainCtx, currentPath, true); 
                     else renderPathToCtx(draftCtx, currentPath, true);
+                    ajQueueStrokePreview(currentPath.points.slice(previewStart));
                 }
             }
         });
@@ -1243,6 +1254,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 if (currentMode !== 'eraser') renderPathToCtx(mainCtx, currentPath, false);
                 
                 commands.push(currentPath);
+                ajQueueStrokePreview([],true);
                 ajSendCommand(currentPath);
                 redoCommands = [];
                 document.getElementById('undoBtn').disabled = commands.length === 0;
@@ -2426,6 +2438,19 @@ document.addEventListener('click', function(event) {
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
-<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.8";</script>
+<script id="airjotterInkPreviewV159">
+(function(){
+ const wrapper=document.getElementById('canvas-wrapper'),drawing=document.getElementById('drawingBoard');
+ const live=document.createElement('canvas');live.id='liveInkBoardV159';live.style.cssText='display:block;position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none';drawing.after(live);
+ const ctx=live.getContext('2d'),paths=new Map();
+ function size(){live.width=Math.round(LOGICAL_W*dpr);live.height=Math.round(LOGICAL_H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);drawAll()}
+ function drawAll(){ctx.clearRect(0,0,LOGICAL_W,LOGICAL_H);for(const p of paths.values())renderPathToCtx(ctx,p,false)}
+ ajSocket.on('stroke:preview',p=>{if(!p?.strokeId)return;if(p.done){paths.delete(p.strokeId);drawAll();return}let x=paths.get(p.strokeId);if(!x){x={type:'path',points:[],color:p.color,isEraser:!!p.isEraser};paths.set(p.strokeId,x)}if(Array.isArray(p.points))x.points.push(...p.points);drawAll()});
+ const baseApply=ajApplyOperation;ajApplyOperation=function(op){const c=(op.payload||{}).command;if(c?.previewId){paths.delete(c.previewId);drawAll()}return baseApply(op)};
+ const baseInit=initCanvas;initCanvas=function(){const out=baseInit.apply(this,arguments);size();return out};
+ size();
+})();
+</script>
+<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9";</script>
 </body>
 </html>
