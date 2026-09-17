@@ -1522,6 +1522,23 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             }
         });
 
+        function ajEncodeStampForSync(sourceCanvas, type) {
+            const isSignature = type === 'signature';
+            const maxArea = isSignature ? 2200000 : 6000000;
+            const maxDim = isSignature ? 2200 : 3200;
+            const scale = Math.min(1, maxDim / Math.max(sourceCanvas.width, sourceCanvas.height), Math.sqrt(maxArea / (sourceCanvas.width * sourceCanvas.height)));
+            const out = document.createElement('canvas');
+            out.width = Math.max(1, Math.round(sourceCanvas.width * scale));
+            out.height = Math.max(1, Math.round(sourceCanvas.height * scale));
+            const outCtx = out.getContext('2d', { alpha: isSignature });
+            if (!isSignature) { outCtx.fillStyle = '#ffffff'; outCtx.fillRect(0, 0, out.width, out.height); }
+            outCtx.imageSmoothingEnabled = true;
+            outCtx.imageSmoothingQuality = 'high';
+            outCtx.drawImage(sourceCanvas, 0, 0, out.width, out.height);
+            const mime = isSignature ? 'image/png' : 'image/jpeg';
+            const imageData = isSignature ? out.toDataURL(mime) : out.toDataURL(mime, 0.86);
+            return { canvas: out, imageData };
+        }
         function finalizeStamp(mode) {
             const rect = stampContainer.getBoundingClientRect();
             const wRect = wrapper.getBoundingClientRect();
@@ -1535,8 +1552,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             let stampCopy = document.createElement('canvas');
             stampCopy.width = stampCanvas.width; stampCopy.height = stampCanvas.height;
             stampCopy.getContext('2d').drawImage(stampCanvas, 0, 0);
-            
-            const stampCommand={type:'stamp',canvas:stampCopy,imageData:stampCopy.toDataURL('image/png'),x:logX,y:logY,w:logW,h:logH,mode}; commands.push(stampCommand); ajSendCommand(stampCommand);
+            const encodedStamp = ajEncodeStampForSync(stampCopy, currentStampType);
+            stampCopy = encodedStamp.canvas;
+            const stampCommand={type:'stamp',canvas:stampCopy,imageData:encodedStamp.imageData,x:logX,y:logY,w:logW,h:logH,mode};
+            commands.push(stampCommand);
+            ajSendCommand(stampCommand);
             redoCommands = []; redrawMainCanvas();
             document.getElementById('undoBtn').disabled = false;
             
@@ -1732,7 +1752,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
         }
-        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (clean) ajSend('command:add', { command: clean }); }
+        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean }).catch(error=>{console.error('Sincronizzazione comando:',error);alert('Il contenuto è visibile solo su questo dispositivo perché non è stato sincronizzato. Riprova con un file più leggero.');if(!ajSocket.connected)ajSocket.connect();throw error;}); }
         function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
         function ajSendClear() { ajSend('board:clear', {}); }
         function ajApplyOperation(op) {
@@ -1807,6 +1827,8 @@ document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById(
         
         document.getElementById('ajRequestEdit').onclick=()=>window.ajSendEditRequest?.();
         ajSocket.on('board:operation', ajApplyOperation); ajSocket.on('board:reload', ajReload);
+        let ajRejoining=false;
+        ajSocket.on('connect',async()=>{if(!ajBoard||ajRejoining)return;ajRejoining=true;try{const joined=await ajSocket.emitWithAck('board:join',{boardId:ajBoard.id});if(joined?.ok)await ajReload()}catch(error){console.debug('Rientro automatico nel Jotter:',error.message)}finally{ajRejoining=false}});
         let ajPendingRequest=null;
 function ajShowRequest(r){ajPendingRequest=r;document.getElementById('accessRequestText').textContent=r.name+' ('+r.email+') desidera modificare il Jotter.';document.getElementById('accessRequestModal').style.display='flex';}
 async function ajResolveRequest(approved){if(!ajPendingRequest)return;await ajApi('/api/access/'+ajPendingRequest.requestId+'/resolve',{method:'POST',body:JSON.stringify({approved})});document.getElementById('accessRequestModal').style.display='none';ajPendingRequest=null;}
@@ -2426,6 +2448,6 @@ document.addEventListener('click', function(event) {
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
-<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9a";</script>
+<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9b";</script>
 </body>
 </html>

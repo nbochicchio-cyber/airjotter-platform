@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import crypto from 'node:crypto'; import express from 'express'; import http from 'node:http'; import cookieParser from 'cookie-parser'; import jwt from 'jsonwebtoken'; import pg from 'pg'; import {Server} from 'socket.io'; import {OAuth2Client} from 'google-auth-library'; import QRCode from 'qrcode'; import {createClient} from 'redis'; import {createAdapter} from '@socket.io/redis-adapter';
 import path from 'node:path';
-const app=express(), server=http.createServer(app), io=new Server(server,{maxHttpBufferSize:25e6});
+const app=express(), server=http.createServer(app), io=new Server(server,{maxHttpBufferSize:25e6,connectionStateRecovery:{maxDisconnectionDuration:120000,skipMiddlewares:false}});
 const pool=new pg.Pool({connectionString:process.env.DATABASE_URL}); const google=new OAuth2Client(process.env.GOOGLE_CLIENT_ID); const secret=process.env.JWT_SECRET||'dev-only-change-me';
 app.use(express.json({limit:'25mb'})); app.use(cookieParser()); app.use(express.static('public'));
 const codeAlphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
