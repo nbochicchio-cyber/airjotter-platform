@@ -629,10 +629,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         
         <div class="tools-group">
             <button id="toolPenBtn" class="icon-btn active-tool" title="Penna"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
-            <button id="toolEraserBtn" class="icon-btn" title="Gomma"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20H20V20Z"></path><path d="M17 6L11 12"></path></svg></button>
-            <button id="toolTextBtn" class="icon-btn" title="Testo"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg></button>
             <input type="color" id="colorPicker" class="tool-color" value="#1D1D1F" title="Colore tratto">
-            <input type="range" id="thicknessPicker" class="tool-thickness" min="0.5" max="12.5" step="0.5" value="2.5" title="Spessore tratto">
+            <button id="toolHighlighterBtn" class="icon-btn" title="Evidenziatore"><svg viewBox="0 0 24 24"><path d="M9 11l6 6"></path><path d="M15 3l6 6-10 10H5v-6L15 3z"></path><path d="M3 21h18"></path></svg></button>
+            <button id="toolTextBtn" class="icon-btn" title="Testo"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg></button>
+            <button id="toolEraserBtn" class="icon-btn" title="Gomma"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20H20V20Z"></path><path d="M17 6L11 12"></path></svg></button>
+            <input type="range" id="thicknessPicker" class="tool-thickness" min="0.5" max="15" step="0.5" value="2.5" title="Dimensione penna, evidenziatore e testo">
         </div>
 
         <div class="tools-group">
@@ -789,6 +790,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         let isDrawing = false;
         let baseWidth = 2.5;
         let currentColor = '#1D1D1F';
+        const toolColors={pen:'#1D1D1F',highlighter:'#FFD400',text:'#1D1D1F'};
         let currentPath = null;
         let dpr = 1;
         
@@ -990,7 +992,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         btnUnderline.addEventListener('click', () => { isTextUnderline = !isTextUnderline; btnUnderline.classList.toggle('active', isTextUnderline); updateTextInputStyle(); });
         
         document.getElementById('text-font-family').addEventListener('change', updateTextInputStyle);
-        document.getElementById('text-font-size').addEventListener('change',updateTextInputStyle);document.getElementById('text-color-picker').addEventListener('input',e=>{textToolInput.style.color=e.target.value});
+        document.getElementById('text-font-size').addEventListener('change',updateTextInputStyle);document.getElementById('text-color-picker').addEventListener('input',e=>{toolColors.text=e.target.value;colorPicker.value=e.target.value;currentColor=e.target.value;textToolInput.style.color=e.target.value});
 
         textDragHandle.addEventListener('pointerdown', (e) => {
             isDraggingText = true;
@@ -1050,12 +1052,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             textOverlayActive = false;
         });
 
-        function updateBrush() { 
-            baseWidth = parseFloat(thicknessPicker.value); 
-            currentColor = colorPicker.value; 
-            if (textOverlayActive) {
-                textToolInput.style.color = currentColor;
-            }
+        function sliderTextSize(){const min=Number(thicknessPicker.min)||0.5,max=Number(thicknessPicker.max)||15,v=Number(thicknessPicker.value)||2.5;return Math.round(8+((v-min)/(max-min))*(86-8));}
+        function syncTextSizeFromSlider(){const size=sliderTextSize(),select=document.getElementById('text-font-size');let option=[...select.options].find(o=>Number(o.value)===size);if(!option){option=document.createElement('option');option.value=String(size);option.textContent=String(size);select.appendChild(option)}select.value=String(size);updateTextInputStyle();}
+        function updateBrush() {
+            baseWidth = parseFloat(thicknessPicker.value);
+            currentColor = colorPicker.value;
+            if(currentMode==='pen'||currentMode==='highlighter'||currentMode==='text')toolColors[currentMode]=currentColor;
+            if(currentMode==='text'||textOverlayActive){document.getElementById('text-color-picker').value=currentColor;textToolInput.style.color=currentColor;syncTextSizeFromSlider();}
         }
         colorPicker.addEventListener('input', updateBrush);
         thicknessPicker.addEventListener('input', updateBrush);
@@ -1072,6 +1075,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (!cmd || cmd.type !== 'path' || cmd.points.length === 0) return;
             
             const isEraser = cmd.isEraser;
+            context.save();
+            context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.34) : 1;
             context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
             context.lineCap = 'round';
             context.lineJoin = 'round';
@@ -1083,6 +1088,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 context.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, Math.PI * 2);
                 context.fill();
                 context.globalCompositeOperation = 'source-over';
+                context.restore();
                 return;
             }
 
@@ -1109,6 +1115,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
             if (isIncremental) cmd.renderIndex = Math.max(1, pts.length - 1);
             context.globalCompositeOperation = 'source-over';
+            context.restore();
         }
 
         draftCanvas.addEventListener('pointerdown', e => {
@@ -1146,13 +1153,16 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 const pos = getPointerPos(e);
                 
                 const initP = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.5;
-                const w = baseWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
+                const toolWidth = currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth;
+                const w = toolWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
 
                 currentPath = { 
                     type: 'path', 
                     color: currentColor, 
                     points: [{ x: pos.x, y: pos.y, w: w }], 
                     isEraser: currentMode === 'eraser',
+                    isHighlighter: currentMode === 'highlighter',
+                    opacity: currentMode === 'highlighter' ? 0.34 : 1,
                     renderIndex: 1
                 };
                 
@@ -1160,12 +1170,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 pointerVelocity = 0;
                 
                 const targetCtx = currentMode === 'eraser' ? mainCtx : draftCtx;
+                targetCtx.save();
+                targetCtx.globalAlpha = currentMode === 'highlighter' ? 0.34 : 1;
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
                 targetCtx.fillStyle = currentMode === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
                 targetCtx.beginPath();
                 targetCtx.arc(pos.x, pos.y, currentPath.points[0].w / 2, 0, Math.PI * 2);
                 targetCtx.fill();
                 if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
+                targetCtx.restore();
             } else if (activePointers.size === 2) {
                 // v14.1: il pan+pinch a due dita e' gestito dallo script touch dedicato
                 // (vedi #mobileViewport touch handlers piu' sotto). Qui basta interrompere il disegno.
@@ -1195,10 +1208,10 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     const pos = getPointerPos(ev);
                     const lastPt = currentPath.points[currentPath.points.length - 1];
 
-                    let targetW = baseWidth;
+                    let targetW = currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth;
                     
                     if (ev.pointerType === 'pen' && ev.pressure > 0) {
-                        targetW = baseWidth * (0.72 + Math.pow(ev.pressure, 1.25) * 0.72);
+                        targetW = (currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth) * (0.72 + Math.pow(ev.pressure, 1.25) * 0.72);
                     } else if (lastEventData) {
                         const dx = ev.clientX - lastEventData.clientX;
                         const dy = ev.clientY - lastEventData.clientY;
@@ -1207,7 +1220,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                         
                         pointerVelocity = pointerVelocity * 0.7 + vel * 0.3;
                         const velFactor = Math.min(1, pointerVelocity / 4);
-                        targetW = baseWidth * (1.2 - velFactor * 0.8);
+                        targetW = (currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth) * (1.2 - velFactor * 0.8);
                     }
                     lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
 
@@ -1676,17 +1689,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         
         const toolPenBtn = document.getElementById('toolPenBtn');
         const toolEraserBtn = document.getElementById('toolEraserBtn');
+        const toolHighlighterBtn = document.getElementById('toolHighlighterBtn');
         const toolTextBtn = document.getElementById('toolTextBtn');
 
         function updateToolButtons(mode) {
             toolPenBtn.classList.toggle('active-tool', mode === 'pen');
             toolEraserBtn.classList.toggle('active-tool', mode === 'eraser');
+            toolHighlighterBtn.classList.toggle('active-tool', mode === 'highlighter');
             toolTextBtn.classList.toggle('active-tool', mode === 'text');
         }
 
-        toolPenBtn.addEventListener('click', () => { currentMode = 'pen'; updateToolButtons('pen'); draftCanvas.style.cursor = 'crosshair'; });
+        function activateColorTool(mode){currentMode=mode;colorPicker.value=toolColors[mode];currentColor=toolColors[mode];updateToolButtons(mode);updateBrush();}
+        toolPenBtn.addEventListener('click', () => { activateColorTool('pen'); draftCanvas.style.cursor = 'crosshair'; });
+        toolHighlighterBtn.addEventListener('click', () => { activateColorTool('highlighter'); draftCanvas.style.cursor = 'crosshair'; });
         toolEraserBtn.addEventListener('click', () => { currentMode = 'eraser'; updateToolButtons('eraser'); draftCanvas.style.cursor = 'cell'; });
-        toolTextBtn.addEventListener('click', () => { currentMode = 'text'; updateToolButtons('text'); draftCanvas.style.cursor = 'text'; });
+        toolTextBtn.addEventListener('click', () => { activateColorTool('text'); syncTextSizeFromSlider(); draftCanvas.style.cursor = 'text'; });
 
         document.getElementById('addPageBtn').addEventListener('click',()=>{const max=ajMe?.limits?.pages||5;if(TOTAL_PAGES>=max){alert('Il piano '+String(ajMe?.plan||'free').toUpperCase()+' consente massimo '+max+' pagine per Jotter.');return;}TOTAL_PAGES++; initCanvas(); document.getElementById('pageCountNumber').innerText = TOTAL_PAGES; ajSendPageCount(); });
         document.getElementById('removePageBtn').addEventListener('click',()=>{if(TOTAL_PAGES>1)deletePageFromCanvas(TOTAL_PAGES-1);});
@@ -1745,7 +1762,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
-            document.querySelectorAll('#toolPenBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
+            document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
         }
         async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');lastRevision=Math.max(lastRevision,Number(result.revision)||0);document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
@@ -2448,6 +2465,6 @@ document.addEventListener('click', function(event) {
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
-<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9c";</script>
+<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="16.0";</script>
 </body>
 </html>
