@@ -1727,7 +1727,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
         }
-        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
+        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');lastRevision=Math.max(lastRevision,Number(result.revision)||0);document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
@@ -1955,7 +1955,7 @@ document.addEventListener('click', function(event) {
     const latest=latestOf(boards);if(!latest?.roomCode)throw new Error('Nessun Jotter di proprietà disponibile');
     await ajJoin(latest.roomCode);return;
    }
-   const board=await ajApi('/api/boards',{method:'POST',body:'{}'});await ajOpenBoard(board);
+   const board=await ajApi('/api/boards',{method:'POST',body:JSON.stringify({currentBoardId:ajBoard?.id||null})});await ajOpenBoard(board);
   }catch(error){alert('Impossibile aprire o creare il Jotter: '+error.message)}
   finally{button.disabled=false;await refreshLobbyButton();if(button.textContent==='Attendi...')button.textContent=original}
  }
@@ -1967,7 +1967,7 @@ document.addEventListener('click', function(event) {
     alert('Hai esaurito il limite di '+limit+' Jotter previsto per il piano '+planName()+'.');
     return;
    }
-   const board=await ajApi('/api/boards',{method:'POST',body:'{}'});
+   const board=await ajApi('/api/boards',{method:'POST',body:JSON.stringify({currentBoardId:ajBoard?.id||null})});
    document.getElementById('jotterArchiveModal').style.display='none';await ajOpenBoard(board);
   }catch(error){alert('Impossibile creare il Jotter: '+error.message)}finally{button.disabled=false;refreshLobbyButton()}
  }
@@ -2103,7 +2103,18 @@ document.addEventListener('click', function(event) {
  const baseInit=initCanvas;initCanvas=function(){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;const result=baseInit.apply(this,arguments);userZoom=keepZoom;renderPageGrids();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}return result};renderPageGrids();
 
  // Polling di recupero: conserva zoom e posizione durante una ricostruzione.
- async function syncCheck(){if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;polling=true;try{const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);if(lastRevision<0){lastRevision=revision;return}if(revision!==lastRevision){const keepZoom=userZoom,keepLeft=vp.scrollLeft,keepTop=vp.scrollTop;lastRevision=revision;commands=[];redoCommands=[];TOTAL_PAGES=2;ajRemote=true;operations.filter(o=>o.is_active!==false).forEach(ajApplyOperation);ajRemote=false;userZoom=keepZoom;baseInit();renderPageGrids();redrawMainCanvas();if(mobile()){setGeometry(fitScale()*userZoom);requestAnimationFrame(()=>{vp.scrollLeft=keepLeft;vp.scrollTop=keepTop})}}}catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}}
+ async function syncCheck(){
+  if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;
+  polling=true;
+  try{
+   const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');
+   const revision=operations.reduce((m,o)=>Math.max(m,Number(o.revision)||0),0);
+   if(lastRevision<0)lastRevision=revision;
+   // Non ricostruire mai il canvas per il semplice avanzamento della revisione:
+   // le operazioni remote arrivano gia via socket e quelle locali sono gia disegnate.
+   else if(revision>lastRevision)lastRevision=revision;
+  }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
+ }
  const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;const result=await baseOpen(board);await syncCheck();apply(false);return result};
  ajSocket.on('board:operation',op=>{lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
 
@@ -2398,33 +2409,27 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterTabletTouchV152">
+<script id="airjotterTabletTouchV153">
 (function(){
  const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);if(!tablet)return;
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard'),header=document.querySelector('header');if(!vp||!stage||!wrapper||!draft||!header)return;
  let zoom=1,pinch=null,raf=0,pending=null,gridFrame=0;
  const fit=()=>Math.min(1,Math.max(.20,(vp.clientWidth-32)/LOGICAL_W));
- function toolbarOffset(){const vr=vp.getBoundingClientRect(),hr=header.getBoundingClientRect();return Math.max(18,Math.ceil(hr.bottom-vr.top+16))}
- function positionSheet(){vp.style.paddingTop=toolbarOffset()+'px'}
- function geom(s){positionSheet();stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
- function label(){const b=document.getElementById('tabletFitBtnV15');if(b)b.querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
- function paint(){raf=0;const g=pending;pending=null;if(!g||!pinch)return;zoom=g.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*s-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*s-g.cy));label();ensureGrid()}
- function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
- function reset(){zoom=1;geom(fit());ensureGrid();requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});label()}
- function ensureGrid(){if(gridFrame)return;gridFrame=requestAnimationFrame(()=>{gridFrame=0;let layer=document.getElementById('tabletGridLayerV152');if(!layer){layer=document.createElement('div');layer.id='tabletGridLayerV152';wrapper.insertBefore(layer,wrapper.firstChild)}const grids=layer.querySelectorAll('.aj-page-grid116');if(grids.length===TOTAL_PAGES)return;layer.replaceChildren();for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}layer.appendChild(grid)}})}
- // Workaround iPadOS Scribble: preventDefault on canvas touchmove keeps Pencil pointer sequences from being swallowed.
+ function offset(){const vr=vp.getBoundingClientRect(),hr=header.getBoundingClientRect();return Math.max(18,Math.ceil(hr.bottom-vr.top+16))}
+ function geom(s){vp.style.paddingTop=offset()+'px';stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
+ function ensureFit(){let b=document.getElementById('tabletFitBtnV15');if(b)return b;const undo=document.getElementById('undoBtn'),g=document.createElement('div');g.className='tools-group';b=document.createElement('button');b.id='tabletFitBtnV15';b.className='btn';b.type='button';b.innerHTML='Adatta<small>Zoom: 100%</small>';g.appendChild(b);undo.closest('.tools-group').before(g);return b}
+ function label(){ensureFit().querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
+ function grid(){if(gridFrame)return;gridFrame=requestAnimationFrame(()=>{gridFrame=0;let l=document.getElementById('tabletGridLayerV152');if(!l){l=document.createElement('div');l.id='tabletGridLayerV152';wrapper.insertBefore(l,wrapper.firstChild)}if(l.querySelectorAll('.aj-page-grid116').length===TOTAL_PAGES)return;l.replaceChildren();for(let p=0;p<TOTAL_PAGES;p++){const g=document.createElement('div');g.className='aj-page-grid116';g.style.top=p*BASE_A4_H+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=i*20+'%';x.textContent=i*20+'%';g.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=i*20+'%';y.textContent=i*20+'%';g.appendChild(y)}l.appendChild(g)}})}
+ function paint(){raf=0;const d=pending;pending=null;if(!d||!pinch)return;zoom=d.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*s-d.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*s-d.cy));label();grid()}
+ function reset(){zoom=1;geom(fit());grid();requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});label()}
+ ensureFit().onclick=reset;
  draft.addEventListener('touchmove',e=>{if(e.touches.length<2)e.preventDefault()},{capture:true,passive:false});
- draft.addEventListener('pointerdown',e=>{if(e.pointerType==='pen'){const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur();try{draft.setPointerCapture(e.pointerId)}catch{}}},{capture:true,passive:true});
- ['contextmenu','selectstart','dragstart'].forEach(type=>draft.addEventListener(type,e=>e.preventDefault(),true));
  vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-r.left,cy=(a.clientY+b.clientY)/2-r.top,s=fit()*zoom;pinch={distance:Math.max(20,Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)),zoom,docX:(vp.scrollLeft+cx)/s,docY:(vp.scrollTop+cy)/s};try{isDrawing=false;currentPath=null;activePointers.clear();draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H)}catch{}e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),distance=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),raw=pinch.zoom*distance/pinch.distance;pending={cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,zoom:Math.max(.5,Math.min(3,pinch.zoom+(raw-pinch.zoom)*.50))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- function endGesture(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null;ensureGrid()}
- vp.addEventListener('touchend',endGesture,{capture:true,passive:true});vp.addEventListener('touchcancel',endGesture,{capture:true,passive:true});
- const fitBtn=document.getElementById('tabletFitBtnV15');if(fitBtn)fitBtn.onclick=reset;
- const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;ensureGrid();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label();ensureGrid()});return out};
- const observer=new MutationObserver(ensureGrid);observer.observe(wrapper,{childList:true});
- window.addEventListener('resize',()=>setTimeout(()=>{positionSheet();geom(fit()*zoom);ensureGrid()},120));
- positionSheet();ensureGrid();setTimeout(reset,250);
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),raw=pinch.zoom*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.distance;pending={cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,zoom:Math.max(.5,Math.min(3,pinch.zoom+(raw-pinch.zoom)*.46))};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ function end(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null;grid()}
+ vp.addEventListener('touchend',end,{capture:true,passive:true});vp.addEventListener('touchcancel',end,{capture:true,passive:true});
+ const base=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop},out=base.apply(this,arguments);zoom=keep.zoom;grid();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label();grid()});return out};
+ new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
 </body>
