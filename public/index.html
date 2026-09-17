@@ -1752,7 +1752,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
         }
-        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean }).catch(error=>{console.error('Sincronizzazione comando:',error);alert('Il contenuto è visibile solo su questo dispositivo perché non è stato sincronizzato. Riprova con un file più leggero.');if(!ajSocket.connected)ajSocket.connect();throw error;}); }
+        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean }).catch(error=>{console.error('Sincronizzazione comando:',error);if(!ajSocket.connected)ajSocket.connect();throw error;}); }
         function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
         function ajSendClear() { ajSend('board:clear', {}); }
         function ajApplyOperation(op) {
@@ -2448,6 +2448,6 @@ document.addEventListener('click', function(event) {
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
-<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9b";</script>
+<script id="airjotterEmptyLifecycleV157">window.AIRJOTTER_EMPTY_LIFECYCLE="15.9c";</script>
 </body>
 </html>
