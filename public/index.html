@@ -567,6 +567,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  header.aj-hint-scroll { animation:ajScrollHint 1.8s ease-in-out; }
 }
 
+
+/* v15 touch tablet: barra desktop touch con Adatta integrato e gesture controllate. */
+@media (min-width:761px) and (any-pointer:coarse){
+ #tabletFitBtnV15{display:flex!important;flex-direction:column;align-items:center;justify-content:center;min-width:68px!important;line-height:1.05!important}
+ #tabletFitBtnV15 small{font-size:.60rem;color:var(--text-soft);margin-top:3px}
+ #mobileViewport{touch-action:none!important;overscroll-behavior:contain!important}
+ #draftBoard{touch-action:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -1183,18 +1192,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     }
                     lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
 
-                    const coordSmoothing = 0.45; 
-                    const widthSmoothing = 0.25; 
-
-                    const sx = lastPt.x + (pos.x - lastPt.x) * (1 - coordSmoothing);
-                    const sy = lastPt.y + (pos.y - lastPt.y) * (1 - coordSmoothing);
+                    const widthSmoothing = ev.pointerType === 'pen' ? 0.55 : 0.30;
                     const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
-
-                    const distSq = (sx - lastPt.x)**2 + (sy - lastPt.y)**2;
-                    
-                    if (distSq > 0.2) { 
-                        currentPath.points.push({ x: sx, y: sy, w: sw });
-                        expandCanvasIfNeeded(sy);
+                    const distSq = (pos.x - lastPt.x)**2 + (pos.y - lastPt.y)**2;
+                    if (distSq > 0.01) {
+                        currentPath.points.push({ x: pos.x, y: pos.y, w: sw });
                         modified = true;
                     }
                 }
@@ -1700,7 +1702,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
-            document.getElementById('ajUser').textContent = `${ajMe.name} · ${role}`;
+            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
@@ -2019,7 +2021,7 @@ document.addEventListener('click', function(event) {
  const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
  let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
  let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;
- const touch=()=>matchMedia('(pointer:coarse)').matches||/iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);const mobile=touch;
+ const touch=()=>matchMedia('(max-width:760px)').matches;const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';if(document.documentElement.classList.contains('aj-old-ipad')){wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';wrapper.style.transformOrigin='0 0'}else{wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left'}wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
  function apply(center=false){if(!mobile())return;setGeometry(fitScale()*userZoom);if(center)requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0})}
@@ -2148,27 +2150,6 @@ document.addEventListener('click', function(event) {
  setInterval(refreshHistory,1200);
 })();
 </script>
-<script id="airjotterCameraGpuV146">
-(function(){
- // v14.6: attiva la modalita' camera GPU per tablet e PC touch (viewport >761px con
- // touchscreen), NON per smartphone. Gli smartphone tornano al comportamento originale
- // (ajPaintStandard con scroll del viewport), che era corretto e collaudato.
- // v14.5 aveva attivato aj-old-ipad ovunque introducendo sensibilita' eccessiva agli
- // smartphone che prima funzionavano bene.
- const hasTouch = matchMedia('(any-pointer:coarse)').matches
-                  || (navigator.maxTouchPoints||0) > 0
-                  || /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
- const isSmartphone = matchMedia('(max-width:760px)').matches;
- if(!hasTouch || isSmartphone) return;
- document.documentElement.classList.add('aj-old-ipad');
- document.documentElement.classList.remove('aj-tablet-v13','aj-camera-moving');
- const input=document.getElementById('joinCode');
- if(input){input.disabled=false;input.readOnly=false;input.removeAttribute('disabled');input.removeAttribute('readonly')}
- setTimeout(()=>{try{handleResize()}catch{}},200);
-})();
-</script>
-
-
 <script id="airjotterPcTouchDisabledV145">
 /* v14.5: lo script airjotterPcTouchPanV143 e' stato rimosso perche' il PC touch ora
    usa la stessa camera GPU dei tablet (via aj-old-ipad universale), unificando il
@@ -2238,7 +2219,7 @@ document.addEventListener('click', function(event) {
    '<button class="btn archive-pdf export-board"><span class="archive-pdf-icon">&#128229;</span> PDF</button>' +
    (isOwner ? '<button class="btn danger delete-board">Elimina</button>' : '<button class="btn leave-board">Esci</button>') +
    '</div>';
-  item.querySelector('.archive-title-button').textContent = b.title || 'Jotter senza titolo';
+  item.querySelector('.archive-title-button').textContent = (b.title || 'Jotter senza titolo') + (b.isCurrent ? ' · corrente' : '');
   if (isOwner && typeof window.ajOpenBoardAccess === 'function') {
    item.querySelector('.archive-title-button').onclick = () => window.ajOpenBoardAccess(b.id);
   } else {
@@ -2397,75 +2378,28 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterTabletFitButtonV145">
-/* v14.5 - pulsante "Adatta 100%" flottante per tablet (mancante nel layout tablet
-   perche' la mobileTopbar dove sta il pulsante Fit e' nascosta). Cliccando riporta
-   il canvas a fitScale, azzerando pinch/pan attivi. */
+<script id="airjotterTabletTouchV15">
 (function(){
- const isTablet = matchMedia('(min-width:761px)').matches
-                  && matchMedia('(any-pointer:coarse)').matches;
- if (!isTablet) return;
-
- function ensureButton(){
-  if (document.getElementById('tabletFitBtn')) return;
-  const btn = document.createElement('button');
-  btn.id = 'tabletFitBtn';
-  btn.type = 'button';
-  btn.setAttribute('aria-label', 'Adatta al 100%');
-  btn.innerHTML = '<span style="display:block;font-size:11px;line-height:1.1;text-align:center">Adatta<br>100%</span>';
-  btn.style.cssText = [
-   'position:fixed',
-   'bottom:calc(env(safe-area-inset-bottom, 0px) + 20px)',
-   'right:20px',
-   'z-index:250',
-   'width:62px',
-   'height:62px',
-   'border-radius:50%',
-   'background:var(--accent, #4b71ff)',
-   'color:#fff',
-   'border:none',
-   'box-shadow:0 4px 14px rgba(0,0,0,0.22)',
-   'cursor:pointer',
-   'display:flex',
-   'align-items:center',
-   'justify-content:center',
-   'font-family:inherit',
-   'font-weight:600',
-   'padding:0',
-   '-webkit-tap-highlight-color:transparent',
-   'touch-action:manipulation'
-  ].join(';');
-  btn.onclick = () => {
-   // Simula click del pulsante "Fit" della mobileTopbar
-   const fitBtn = document.getElementById('mobileZoomFit');
-   if (fitBtn && typeof fitBtn.onclick === 'function') { fitBtn.onclick(); return; }
-   // Fallback: se il fit button non c'e', prova a resettare mobileZoom e ricalcolare
-   try { window.mobileZoom = 1; if (typeof window.applyMobileZoom === 'function') window.applyMobileZoom(true); } catch {}
-  };
-  document.body.appendChild(btn);
- }
-
- // Attende che il DOM sia pronto e che l'utente sia dentro un jotter (mostra solo li')
- function checkAndShow(){
-  const inBoard = !document.getElementById('ajLogin')?.classList.contains('aj-hidden') ? false : true;
-  const login = document.getElementById('ajLogin');
-  const lobby = document.getElementById('ajLobby');
-  const isInBoard = login && login.classList.contains('aj-hidden')
-                    && (!lobby || lobby.classList.contains('aj-hidden'));
-  const btn = document.getElementById('tabletFitBtn');
-  if (isInBoard) {
-   ensureButton();
-   const b = document.getElementById('tabletFitBtn');
-   if (b) b.style.display = 'flex';
-  } else if (btn) {
-   btn.style.display = 'none';
-  }
- }
- setTimeout(checkAndShow, 500);
- setInterval(checkAndShow, 1500);
+ const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);
+ if(!tablet)return;
+ const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
+ if(!vp||!stage||!wrapper||!draft)return;
+ let zoom=1,contacts=new Map(),gesture=null,raf=0,pending=null;
+ const fit=()=>Math.min(1,Math.max(.20,(vp.clientWidth-32)/LOGICAL_W));
+ function geom(s){stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
+ function updateLabel(){const b=document.getElementById('tabletFitBtnV15');if(b)b.querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
+ function paint(){raf=0;const p=pending;pending=null;if(!p||!gesture)return;zoom=p.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(gesture.docX*s-p.cx));vp.scrollTop=Math.max(0,Math.round(gesture.docY*s-p.cy));updateLabel()}
+ function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
+ function reset(){zoom=1;geom(fit());requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});updateLabel()}
+ const pts=()=>[...contacts.values()].slice(0,2);
+ vp.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;contacts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(contacts.size!==2)return;const p=pts(),r=vp.getBoundingClientRect(),cx=(p[0].x+p[1].x)/2-r.left,cy=(p[0].y+p[1].y)/2-r.top,s=fit()*zoom;gesture={distance:Math.max(20,Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)),zoom,docX:(vp.scrollLeft+cx)/s,docY:(vp.scrollTop+cy)/s};try{isDrawing=false;currentPath=null;draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H)}catch{}e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ vp.addEventListener('pointermove',e=>{if(e.pointerType!=='touch'||!contacts.has(e.pointerId))return;contacts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!gesture||contacts.size<2)return;const p=pts(),r=vp.getBoundingClientRect(),distance=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),raw=gesture.zoom*distance/gesture.distance;pending={cx:(p[0].x+p[1].x)/2-r.left,cy:(p[0].y+p[1].y)/2-r.top,zoom:Math.max(.5,Math.min(3.0,gesture.zoom+(raw-gesture.zoom)*.62))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ function end(e){if(e.pointerType!=='touch')return;const active=!!gesture;contacts.delete(e.pointerId);if(active){if(raf){cancelAnimationFrame(raf);paint()}gesture=null;pending=null;e.preventDefault();e.stopImmediatePropagation()}if(!contacts.size)contacts.clear()}
+ vp.addEventListener('pointerup',end,true);vp.addEventListener('pointercancel',end,true);
+ const header=document.querySelector('header'),undo=document.getElementById('undoBtn');let fitBtn=document.getElementById('tabletFitBtnV15');if(!fitBtn){fitBtn=document.createElement('button');fitBtn.id='tabletFitBtnV15';fitBtn.className='btn';fitBtn.type='button';fitBtn.innerHTML='Adatta<small>Zoom: 100%</small>';const group=document.createElement('div');group.className='tools-group';group.appendChild(fitBtn);undo.closest('.tools-group').before(group)}fitBtn.onclick=reset;
+ const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;updateLabel()});return out};
+ setTimeout(reset,250);
 })();
 </script>
-
-
 </body>
 </html>
