@@ -53,23 +53,19 @@ async function deleteDueEmptyBoards(){
  if(ids.length)await pool.query('DELETE FROM boards WHERE id=ANY($1::uuid[])',[ids]);return ids;
 }
 async function cleanupOwnerEmptyBoardsNow(userId,exceptId=null){
- // Compatibilita: non elimina durante una richiesta UI; accoda la pulizia differita.
- return queueEmptyOwnedBoards(userId,exceptId);
- /*
- const q=await pool.query(`SELECT b.id FROM boards b WHERE b.owner_user_id=$1
- AND NOT EXISTS(SELECT 1 FROM board_members bm WHERE bm.board_id=b.id AND bm.user_id<>b.owner_user_id)
- AND NOT EXISTS(SELECT 1 FROM access_requests ar WHERE ar.board_id=b.id AND ar.status='pending')
- AND NOT EXISTS(SELECT 1 FROM board_operations bo WHERE bo.board_id=b.id AND bo.is_active=true
+ const active=await activeBoardIds();
+ const q=await pool.query(`SELECT b.id FROM boards b
+  WHERE b.owner_user_id=$1 AND ($2::uuid IS NULL OR b.id<>$2::uuid)
+  AND NOT EXISTS(SELECT 1 FROM board_members bm WHERE bm.board_id=b.id AND bm.user_id<>b.owner_user_id)
+  AND NOT EXISTS(SELECT 1 FROM access_requests ar WHERE ar.board_id=b.id AND ar.status='pending')
+  AND NOT EXISTS(
+   SELECT 1 FROM board_operations bo WHERE bo.board_id=b.id AND bo.is_active=true
    AND bo.operation_type IN ('command:add','stroke:add','text:add')
-   AND bo.revision>COALESCE((SELECT max(c.revision) FROM board_operations c WHERE c.board_id=b.id AND c.is_active=true AND c.operation_type='board:clear'),0))`,[userId]);
- let ids=q.rows.map(x=>x.id);
- // v14.6: esclude il Jotter corrente (quello che l'utente sta usando in questo momento)
- // per non cancellarlo mentre lo apre. Prima il cleanup era troppo aggressivo e cancellava
- // il Jotter appena creato mentre l'utente stava per scriverci qualcosa, causando l'errore
- // "Impossibile aprire o creare il Jotter".
- if(exceptId)ids=ids.filter(id=>id!==exceptId);
- if(ids.length)await pool.query('DELETE FROM boards WHERE owner_user_id=$1 AND id=ANY($2::uuid[])',[userId,ids]);return ids;
- */
+   AND bo.revision>COALESCE((SELECT max(c.revision) FROM board_operations c WHERE c.board_id=b.id AND c.is_active=true AND c.operation_type='board:clear'),0)
+  )`,[userId,exceptId]);
+ const ids=q.rows.map(x=>x.id).filter(id=>!active.has(id));
+ if(ids.length)await pool.query('DELETE FROM boards WHERE owner_user_id=$1 AND id=ANY($2::uuid[])',[userId,ids]);
+ return ids;
 }
 async function role(boardId,userId){const q=await pool.query('SELECT role,status FROM board_members WHERE board_id=$1 AND user_id=$2',[boardId,userId]); return q.rows[0]}
 app.get('/privacy',(req,res)=>res.sendFile(path.join(process.cwd(),'public','privacy.html')));
@@ -82,7 +78,7 @@ app.post('/api/auth/dev',async(req,res)=>{try{if(process.env.DEV_AUTH!=='true')r
 app.get('/api/me',auth,async(req,res)=>{await deleteDueEmptyBoards();const isAdmin=String(req.user.email||'').toLowerCase()===ADMIN_EMAIL;const plan=isAdmin?'unlimited':await userPlan(req.user.sub);if(isAdmin)await pool.query("UPDATE users SET plan_code='unlimited' WHERE id=$1",[req.user.sub]);res.json({...req.user,plan,limits:PLAN_LIMITS[plan],isAdmin})});
 app.post('/api/boards',auth,async(req,res)=>{await deleteDueEmptyBoards();const plan=await userPlan(req.user.sub),isOwner=String(req.user.email||'').toLowerCase()===ADMIN_EMAIL,limit=isOwner?Number.MAX_SAFE_INTEGER:PLAN_LIMITS[plan].boards,count=Number((await pool.query('SELECT count(*) FROM boards WHERE owner_user_id=$1',[req.user.sub])).rows[0].count);if(count>=limit)return res.status(403).json({error:`Il piano ${plan.toUpperCase()} consente massimo ${limit} Jotter di proprietà.`});for(let i=0;i<12;i++){const id=crypto.randomUUID(),code=randomCode();try{await pool.query('BEGIN');await pool.query('INSERT INTO boards(id,room_code,owner_user_id,title) VALUES($1,$2,$3,$4)',[id,code,req.user.sub,req.body.title||'Jotter senza titolo']);await pool.query("INSERT INTO board_members(board_id,user_id,role,status) VALUES($1,$2,'owner','approved')",[id,req.user.sub]);await pool.query('COMMIT');return res.status(201).json({id,roomCode:code,title:req.body.title||'Jotter senza titolo',url:`${process.env.APP_URL}/?room=${code}`,role:'owner',ownerName:req.user.name})}catch(e){await pool.query('ROLLBACK');if(e.code!=='23505')throw e}}res.status(503).json({error:'Impossibile generare un codice univoco'})});
 app.post('/api/boards/join',auth,async(req,res)=>{const raw=String(req.body.roomCode||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');const c=raw.length===8?raw.slice(0,4)+'-'+raw.slice(4):String(req.body.roomCode||'').trim().toUpperCase();const q=await pool.query('SELECT b.*,u.display_name AS owner_name FROM boards b JOIN users u ON u.id=b.owner_user_id WHERE b.room_code=$1',[c]);if(!q.rows[0])return res.status(404).json({error:'Jotter non trovato'});const b=q.rows[0];if(b.owner_user_id===req.user.sub)await cancelEmptyCleanup(b.id,req.user.sub);await pool.query("INSERT INTO board_members(board_id,user_id,role,status) VALUES($1,$2,'viewer','approved') ON CONFLICT DO NOTHING",[b.id,req.user.sub]);const r=await role(b.id,req.user.sub);if(!r||r.status==='revoked')return res.status(403).json({error:'Accesso a questo Jotter sospeso dal proprietario'});res.json({id:b.id,roomCode:b.room_code,title:b.title,revision:b.revision,role:r.role,ownerName:b.owner_name})});
-app.get('/api/my/boards',auth,async(req,res)=>{try{await deleteDueEmptyBoards();const q=await pool.query("SELECT b.id,b.room_code,b.title,b.created_at,b.content_updated_at,u.display_name AS owner_name,m.role FROM board_members m JOIN boards b ON b.id=m.board_id JOIN users u ON u.id=b.owner_user_id WHERE m.user_id=$1 AND m.status='approved' ORDER BY (b.id=$2::uuid) DESC,b.content_updated_at DESC",[req.user.sub,req.query.currentBoardId||null]);res.json(q.rows.map(x=>({id:x.id,roomCode:x.room_code,title:x.title||'Jotter senza titolo',createdAt:x.created_at,contentUpdatedAt:x.content_updated_at,ownerName:x.owner_name,role:x.role,isCurrent:x.id===req.query.currentBoardId})));}catch(error){console.error('Elenco Jotter:',error);res.status(500).json({error:'Impossibile caricare i Jotter'})}});
+app.get('/api/my/boards',auth,async(req,res)=>{try{const currentId=req.query.currentBoardId||null;await deleteDueEmptyBoards();await cleanupOwnerEmptyBoardsNow(req.user.sub,currentId);const q=await pool.query("SELECT b.id,b.room_code,b.title,b.created_at,b.content_updated_at,u.display_name AS owner_name,m.role FROM board_members m JOIN boards b ON b.id=m.board_id JOIN users u ON u.id=b.owner_user_id WHERE m.user_id=$1 AND m.status='approved' ORDER BY (b.id=$2::uuid) DESC,b.content_updated_at DESC",[req.user.sub,currentId]);res.json(q.rows.map(x=>({id:x.id,roomCode:x.room_code,title:x.title||'Jotter senza titolo',createdAt:x.created_at,contentUpdatedAt:x.content_updated_at,ownerName:x.owner_name,role:x.role,isCurrent:x.id===currentId})));}catch(error){console.error('Elenco Jotter:',error);res.status(500).json({error:'Impossibile caricare i Jotter'})}});
 app.post('/api/boards/:id/leave',auth,async(req,res)=>{const b=await pool.query('SELECT owner_user_id FROM boards WHERE id=$1',[req.params.id]);if(!b.rows[0])return res.sendStatus(404);if(b.rows[0].owner_user_id===req.user.sub)return res.status(400).json({error:'Il proprietario non puo uscire dal proprio Jotter (puo solo eliminarlo).'});const q=await pool.query('DELETE FROM board_members WHERE board_id=$1 AND user_id=$2 RETURNING board_id',[req.params.id,req.user.sub]);if(!q.rows[0])return res.sendStatus(404);res.json({left:true,id:req.params.id})});
 app.patch('/api/boards/:id/title',auth,async(req,res)=>{const title=String(req.body.title||'').trim().slice(0,120);if(!title)return res.status(400).json({error:'Titolo non valido'});const q=await pool.query('UPDATE boards SET title=$1 WHERE id=$2 AND owner_user_id=$3 RETURNING id,title,content_updated_at',[title,req.params.id,req.user.sub]);if(!q.rows[0])return res.sendStatus(403);res.json({id:q.rows[0].id,title:q.rows[0].title,contentUpdatedAt:q.rows[0].content_updated_at})});
 app.delete('/api/boards/:id',auth,async(req,res)=>{const q=await pool.query('DELETE FROM boards WHERE id=$1 AND owner_user_id=$2 RETURNING id',[req.params.id,req.user.sub]);if(!q.rows[0])return res.sendStatus(403);res.json({deleted:true,id:q.rows[0].id})});

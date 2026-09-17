@@ -585,6 +585,16 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #mobileViewport{touch-action:none!important}
 }
 
+
+/* v15.2 tablet: griglia persistente, foglio sotto toolbar, Pencil/Scribble hardening. */
+@media (min-width:761px) and (any-pointer:coarse){
+ #mobileViewport{scroll-padding-top:16px!important}
+ #tabletGridLayerV152{position:absolute;inset:0;z-index:1;pointer-events:none!important}
+ #tabletGridLayerV152 .aj-page-grid116{display:block!important;position:absolute!important;left:0!important;width:100%!important;height:var(--a4-h)!important;z-index:1!important;pointer-events:none!important}
+ #drawingBoard{z-index:2!important}#draftBoard{z-index:3!important;pointer-events:auto!important;touch-action:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+ #canvas-wrapper{padding-top:0!important}
+}
+
 </style>
 </head>
 <body>
@@ -1219,7 +1229,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         function endPointer(e) {
             activePointers.delete(e.pointerId);
-            if (isDrawing && activePointers.size === 0) {
+            if (isDrawing && (activePointers.size === 0 || e.pointerType === 'pen')) {
                 const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
                 for (const ev of evs) {
                     const pos = getPointerPos(ev);
@@ -1238,12 +1248,13 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 document.getElementById('undoBtn').disabled = commands.length === 0;
 
                 draftCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
-                isDrawing = false; currentPath = null; lastEventData = null;
+                isDrawing = false; currentPath = null; lastEventData = null; if(e.pointerType === 'pen') activePointers.clear();
                 try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
             }
         }
         draftCanvas.addEventListener('pointerup', endPointer);
         draftCanvas.addEventListener('pointercancel', endPointer);
+        draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e); });
 
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
@@ -2387,28 +2398,33 @@ document.addEventListener('click', function(event) {
 </script>
 
 
-<script id="airjotterTabletTouchV151">
+<script id="airjotterTabletTouchV152">
 (function(){
- const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);
- if(!tablet)return;
- const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard');
- if(!vp||!stage||!wrapper||!draft)return;
- let zoom=1,pinch=null,raf=0,pending=null;
+ const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);if(!tablet)return;
+ const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard'),header=document.querySelector('header');if(!vp||!stage||!wrapper||!draft||!header)return;
+ let zoom=1,pinch=null,raf=0,pending=null,gridFrame=0;
  const fit=()=>Math.min(1,Math.max(.20,(vp.clientWidth-32)/LOGICAL_W));
- function geom(s){stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
+ function toolbarOffset(){const vr=vp.getBoundingClientRect(),hr=header.getBoundingClientRect();return Math.max(18,Math.ceil(hr.bottom-vr.top+16))}
+ function positionSheet(){vp.style.paddingTop=toolbarOffset()+'px'}
+ function geom(s){positionSheet();stage.style.width=Math.round(LOGICAL_W*s)+'px';stage.style.height=Math.round(LOGICAL_H*s)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+s+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0'}
  function label(){const b=document.getElementById('tabletFitBtnV15');if(b)b.querySelector('small').textContent='Zoom: '+Math.round(fit()*zoom*100)+'%'}
- function paint(){raf=0;const g=pending;pending=null;if(!g||!pinch)return;zoom=g.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*s-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*s-g.cy));label()}
+ function paint(){raf=0;const g=pending;pending=null;if(!g||!pinch)return;zoom=g.zoom;const s=fit()*zoom;geom(s);vp.scrollLeft=Math.max(0,Math.round(pinch.docX*s-g.cx));vp.scrollTop=Math.max(0,Math.round(pinch.docY*s-g.cy));label();ensureGrid()}
  function schedule(){if(!raf)raf=requestAnimationFrame(paint)}
- function reset(){zoom=1;geom(fit());requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});label()}
- function renderTabletGrids(){wrapper.querySelectorAll('.aj-page-grid116').forEach(x=>x.remove());for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}wrapper.insertBefore(grid,wrapper.firstChild)}}
- // Touch Events are used only for two-finger navigation. A single finger and Apple Pencil remain entirely owned by the drawing Pointer Events.
+ function reset(){zoom=1;geom(fit());ensureGrid();requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2);vp.scrollTop=0});label()}
+ function ensureGrid(){if(gridFrame)return;gridFrame=requestAnimationFrame(()=>{gridFrame=0;let layer=document.getElementById('tabletGridLayerV152');if(!layer){layer=document.createElement('div');layer.id='tabletGridLayerV152';wrapper.insertBefore(layer,wrapper.firstChild)}const grids=layer.querySelectorAll('.aj-page-grid116');if(grids.length===TOTAL_PAGES)return;layer.replaceChildren();for(let page=0;page<TOTAL_PAGES;page++){const grid=document.createElement('div');grid.className='aj-page-grid116';grid.style.top=(page*BASE_A4_H)+'px';for(let i=1;i<5;i++){const x=document.createElement('span');x.className='gx';x.style.left=(i*20)+'%';x.textContent=(i*20)+'%';grid.appendChild(x);const y=document.createElement('span');y.className='gy';y.style.top=(i*20)+'%';y.textContent=(i*20)+'%';grid.appendChild(y)}layer.appendChild(grid)}})}
+ // Workaround iPadOS Scribble: preventDefault on canvas touchmove keeps Pencil pointer sequences from being swallowed.
+ draft.addEventListener('touchmove',e=>{if(e.touches.length<2)e.preventDefault()},{capture:true,passive:false});
+ draft.addEventListener('pointerdown',e=>{if(e.pointerType==='pen'){const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur();try{draft.setPointerCapture(e.pointerId)}catch{}}},{capture:true,passive:true});
+ ['contextmenu','selectstart','dragstart'].forEach(type=>draft.addEventListener(type,e=>e.preventDefault(),true));
  vp.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-r.left,cy=(a.clientY+b.clientY)/2-r.top,s=fit()*zoom;pinch={distance:Math.max(20,Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)),zoom,docX:(vp.scrollLeft+cx)/s,docY:(vp.scrollTop+cy)/s};try{isDrawing=false;currentPath=null;activePointers.clear();draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H)}catch{}e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),distance=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),raw=pinch.zoom*distance/pinch.distance;pending={cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,zoom:Math.max(.5,Math.min(3,pinch.zoom+(raw-pinch.zoom)*.58))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
- function end(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null}
- vp.addEventListener('touchend',end,{capture:true,passive:true});vp.addEventListener('touchcancel',end,{capture:true,passive:true});
- const undo=document.getElementById('undoBtn');let fitBtn=document.getElementById('tabletFitBtnV15');if(!fitBtn){fitBtn=document.createElement('button');fitBtn.id='tabletFitBtnV15';fitBtn.className='btn';fitBtn.type='button';fitBtn.innerHTML='Adatta<small>Zoom: 100%</small>';const group=document.createElement('div');group.className='tools-group';group.appendChild(fitBtn);undo.closest('.tools-group').before(group)}fitBtn.onclick=reset;
- const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;renderTabletGrids();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label()});return out};
- renderTabletGrids();setTimeout(reset,250);
+ vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),distance=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),raw=pinch.zoom*distance/pinch.distance;pending={cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,zoom:Math.max(.5,Math.min(3,pinch.zoom+(raw-pinch.zoom)*.50))};schedule();e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+ function endGesture(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null;ensureGrid()}
+ vp.addEventListener('touchend',endGesture,{capture:true,passive:true});vp.addEventListener('touchcancel',endGesture,{capture:true,passive:true});
+ const fitBtn=document.getElementById('tabletFitBtnV15');if(fitBtn)fitBtn.onclick=reset;
+ const baseInit=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop};const out=baseInit.apply(this,arguments);zoom=keep.zoom;ensureGrid();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label();ensureGrid()});return out};
+ const observer=new MutationObserver(ensureGrid);observer.observe(wrapper,{childList:true});
+ window.addEventListener('resize',()=>setTimeout(()=>{positionSheet();geom(fit()*zoom);ensureGrid()},120));
+ positionSheet();ensureGrid();setTimeout(reset,250);
 })();
 </script>
 </body>
