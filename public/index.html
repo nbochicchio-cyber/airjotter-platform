@@ -918,10 +918,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             
             const ajIPadPencilDevice=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
             draftDpr = dpr;
-            draftCanvas.width = Math.round(LOGICAL_W * draftDpr); draftCanvas.height = Math.round(LOGICAL_H * draftDpr); 
+            // v18.0 AirInk: #draftBoard resta il bersaglio trasparente degli eventi (nessun pixel da
+            // disegnare) e #pencilPredictionBoard e' ora il foglio d'inchiostro bagnato, dimensionato
+            // dal motore sulla sola area visibile. Niente piu' due canvas extra da decine di Mpx.
+            if (draftCanvas.width !== 1 || draftCanvas.height !== 1) { draftCanvas.width = 1; draftCanvas.height = 1; }
             draftCtx.setTransform(draftDpr, 0, 0, draftDpr, 0, 0);
-            predictionCanvas.width = draftCanvas.width; predictionCanvas.height = draftCanvas.height;
-            predictionCtx.setTransform(draftDpr, 0, 0, draftDpr, 0, 0);
 
             updateBrush();
             redrawMainCanvas();
@@ -1133,6 +1134,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         colorPicker.addEventListener('input', updateBrush);
         thicknessPicker.addEventListener('input', updateBrush);
 
+        // =====================================================================================
+        // AIRINK v18.0 — motore d'inchiostro "wet/dry" a bassa latenza
+        // -------------------------------------------------------------------------------------
+        // Come le app native (PencilKit, Bamboo Paper) il tratto in corso NON viene disegnato
+        // sui canvas giganti del documento (fino a 16 milioni di pixel ciascuno, ridimensionati
+        // via CSS), ma su un foglio d'inchiostro "bagnato" che copre solo la parte di pagina
+        // visibile, alla stessa densita' del canvas principale. Si aggiornano solo i pochi pixel
+        // toccati dalla punta. Al sollevamento della penna l'inchiostro "asciuga" nel canvas
+        // principale nello stesso frame (nessun lampeggio) e il foglio bagnato torna trasparente.
+        // Geometria: il tratto e' l'unione di capsule a raggio variabile lungo una B-spline
+        // quadratica suddivisa in modo adattivo: bordi tondi, niente "perline" tra i segmenti,
+        // spessore che sfuma in modo continuo. Filtro adattivo 1-Euro su dita e Pencil,
+        // punta predittiva reversibile (nativa del browser o calcolata) mai salvata nei dati.
+        // Formato dei dati invariato: { type:'path', points:[{x,y,w}], color, ... }.
+        // =====================================================================================
         function getPointerPos(e) {
             const rect = draftCanvas.getBoundingClientRect();
             return {
@@ -1141,56 +1157,567 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             };
         }
 
-        function renderPathToCtx(context, cmd, isIncremental = false) {
-            if (!cmd || cmd.type !== 'path' || cmd.points.length === 0) return;
-            const isEraser = cmd.isEraser;
-            const pts = cmd.points;
-            context.save();
-            context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.18) : 1;
-            context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-            context.lineCap = 'round';
-            context.lineJoin = 'round';
-            context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
-            if (pts.length === 1 && !isIncremental) {
-                context.fillStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
-                context.beginPath();
-                context.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, Math.PI * 2);
-                context.fill();
+        const AJInk = (() => {
+            const TAU = Math.PI * 2;
+            const QUIET_MS = 1200;          // finestra di "scrittura attiva" dopo ogni tratto
+            const r2 = v => Math.round(v * 100) / 100;
+            const clamp = (v, a, b) => (v < a ? a : (v > b ? b : v));
+            const rad = w => { const v = Number(w); return Math.max(0.05, (v > 0 ? v : 1) / 2); };
+            let quietUntil = 0;
+
+            // ---------------------------------------------------------------- geometria
+            function ext(bb, x, y, r) {
+                if (!bb) return;
+                if (x - r < bb.x0) bb.x0 = x - r; if (y - r < bb.y0) bb.y0 = y - r;
+                if (x + r > bb.x1) bb.x1 = x + r; if (y + r > bb.y1) bb.y1 = y + r;
+            }
+            const newBox = () => ({ x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity });
+            function addCircle(p, x, y, r, bb) { p.moveTo(x + r, y); p.arc(x, y, r, 0, TAU); ext(bb, x, y, r); }
+            // Capsula = inviluppo convesso di due cerchi (A, ra) e (B, rb). Tutti i sotto-percorsi
+            // sono orientati in senso orario: l'unione con regola nonzero e' esatta, senza buchi.
+            function addCapsule(p, ax, ay, ar, bx, by, br, bb) {
+                const dx = bx - ax, dy = by - ay, d = Math.hypot(dx, dy);
+                if (d <= Math.abs(ar - br) + 1e-6) {
+                    if (ar >= br) addCircle(p, ax, ay, ar, bb); else addCircle(p, bx, by, br, bb);
+                    return;
+                }
+                const th = Math.atan2(dy, dx), ph = Math.acos((ar - br) / d);
+                const a1 = th + ph, a2 = th - ph;
+                p.moveTo(ax + ar * Math.cos(a1), ay + ar * Math.sin(a1));
+                p.arc(ax, ay, ar, a1, a2);
+                p.lineTo(bx + br * Math.cos(a2), by + br * Math.sin(a2));
+                p.arc(bx, by, br, a2, a1);
+                p.closePath();
+                ext(bb, ax, ay, ar); ext(bb, bx, by, br);
+            }
+            // Percorre i "pezzi" della B-spline quadratica per punti medi:
+            // pezzo 0 = P0 -> M01 (retta), pezzo j = M(j-1,j) -[Pj]-> M(j,j+1), ultimo = M -> Pn-1.
+            // Suddivisione adattiva: ogni arco viene spezzato solo quanto serve perche' lo scarto
+            // dalla curva vera resti sotto "tol" (frazioni di pixel): stessa rotondita', molti meno calcoli.
+            function walk(pts, from, to, tol, emit) {
+                const n = pts.length;
+                if (from === 0) emit(pts[0].x, pts[0].y, rad(pts[0].w), true);
+                else { const a = pts[from - 1], b = pts[from]; emit((a.x + b.x) / 2, (a.y + b.y) / 2, (rad(a.w) + rad(b.w)) / 2, true); }
+                for (let j = from; j <= to; j++) {
+                    if (j === 0 || j === n - 1) {
+                        if (j === 0) { const p0 = pts[0], p1 = pts[1]; emit((p0.x + p1.x) / 2, (p0.y + p1.y) / 2, (rad(p0.w) + rad(p1.w)) / 2, false); }
+                        else { const b = pts[n - 1]; emit(b.x, b.y, rad(b.w), false); }
+                    } else {
+                        const a = pts[j - 1], c = pts[j], b = pts[j + 1];
+                        const ax = (a.x + c.x) / 2, ay = (a.y + c.y) / 2, bx = (c.x + b.x) / 2, by = (c.y + b.y) / 2;
+                        const ra = (rad(a.w) + rad(c.w)) / 2, rc = rad(c.w), rb = (rad(c.w) + rad(b.w)) / 2;
+                        const dev = Math.max(Math.hypot(ax + bx - 2 * c.x, ay + by - 2 * c.y), Math.abs(ra + rb - 2 * rc)) / 4;
+                        const k = clamp(Math.ceil(Math.sqrt(dev / tol)), 1, 48);
+                        for (let s = 1; s <= k; s++) {
+                            const t = s / k, u = 1 - t, uu = u * u, ut2 = 2 * u * t, tt = t * t;
+                            emit(uu * ax + ut2 * c.x + tt * bx, uu * ay + ut2 * c.y + tt * by, uu * ra + ut2 * rc + tt * rb, false);
+                        }
+                    }
+                }
+            }
+            function addPieces(p, pts, from, to, tol, bb) {
+                let px = 0, py = 0, pr = 0;
+                walk(pts, from, to, tol, (x, y, r, first) => {
+                    if (!first) addCapsule(p, px, py, pr, x, y, r, bb); else ext(bb, x, y, r);
+                    px = x; py = y; pr = r;
+                });
+            }
+            function addChain(p, chain, bb) {
+                if (chain.length === 1) { addCircle(p, chain[0][0], chain[0][1], chain[0][2], bb); return; }
+                for (let i = 1; i < chain.length; i++) addCapsule(p, chain[i - 1][0], chain[i - 1][1], chain[i - 1][2], chain[i][0], chain[i][1], chain[i][2], bb);
+            }
+            // Tratto completo su un contesto qualsiasi (canvas principale, redraw, PDF, remoti).
+            function fillStroke(ctx, pts, tol) {
+                ctx.beginPath();
+                if (pts.length === 1) addCircle(ctx, pts[0].x, pts[0].y, rad(pts[0].w), null);
+                else addPieces(ctx, pts, 0, pts.length - 1, tol, null);
+                ctx.fill('nonzero');
+            }
+
+            // Renderer storico dell'evidenziatore, mantenuto identico per non cambiarne l'aspetto.
+            function legacySegments(context, pts, from, to) {
+                for (let i = from; i <= to; i++) {
+                    const p0 = i === 1 ? pts[0] : pts[i - 2] || pts[0];
+                    const p1 = pts[i - 1];
+                    const p2 = pts[i];
+                    const cp1x = p0.x + (p1.x - p0.x) / 2, cp1y = p0.y + (p1.y - p0.y) / 2;
+                    const cp2x = p1.x + (p2.x - p1.x) / 2, cp2y = p1.y + (p2.y - p1.y) / 2;
+                    context.beginPath();
+                    context.moveTo(cp1x, cp1y);
+                    context.quadraticCurveTo(p1.x, p1.y, cp2x, cp2y);
+                    context.lineWidth = p1.w;
+                    context.stroke();
+                }
+            }
+            function renderLegacy(context, cmd) {
+                const isEraser = cmd.isEraser, pts = cmd.points;
+                context.save();
+                context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.18) : 1;
+                context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+                context.lineCap = 'round';
+                context.lineJoin = 'round';
+                context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
+                if (pts.length === 1) {
+                    context.fillStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
+                    context.beginPath();
+                    context.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, Math.PI * 2);
+                    context.fill();
+                } else legacySegments(context, pts, 1, pts.length - 1);
                 context.restore();
-                return;
             }
-            const startIndex = isIncremental ? Math.max(1, cmd.renderIndex || 1) : 1;
-            for (let i = startIndex; i < pts.length; i++) {
-                const p0 = i === 1 ? pts[0] : pts[i - 2] || pts[0];
-                const p1 = pts[i - 1];
-                const p2 = pts[i];
-                const cp1x = p0.x + (p1.x - p0.x) / 2;
-                const cp1y = p0.y + (p1.y - p0.y) / 2;
-                const cp2x = p1.x + (p2.x - p1.x) / 2;
-                const cp2y = p1.y + (p2.y - p1.y) / 2;
-                context.beginPath();
-                context.moveTo(cp1x, cp1y);
-                context.quadraticCurveTo(p1.x, p1.y, cp2x, cp2y);
-                context.lineWidth = p1.w;
-                context.stroke();
+            function render(context, cmd) {
+                if (!cmd || cmd.type !== 'path' || !cmd.points || cmd.points.length === 0) return;
+                if (cmd.isHighlighter && !cmd.isEraser) { renderLegacy(context, cmd); return; }
+                context.save();
+                context.globalAlpha = 1;
+                context.globalCompositeOperation = cmd.isEraser ? 'destination-out' : 'source-over';
+                context.fillStyle = cmd.isEraser ? 'rgba(0,0,0,1)' : cmd.color;
+                fillStroke(context, cmd.points, 0.3 / Math.max(dpr, 1));
+                context.restore();
             }
-            if (isIncremental) cmd.renderIndex = Math.max(1, pts.length - 1);
-            context.restore();
+
+            // ---------------------------------------------------------------- livello "wet"
+            // Il vecchio canvas di predizione (#pencilPredictionBoard) diventa il foglio d'inchiostro
+            // bagnato: resta dentro #canvas-wrapper, quindi eredita esattamente zoom, pan, ritagli e
+            // ordine di sovrapposizione dell'interfaccia esistente, ma copre solo la porzione di
+            // foglio visibile sullo schermo (pochi milioni di pixel invece di decine).
+            const inkCanvas = predictionCanvas;
+            const inkCtx = predictionCtx;
+            inkCanvas.style.pointerEvents = 'none';
+            let dirtyBox = null, lastRegion = null;
+            const MAX_INK_AREA = 12000000;
+
+            function sizeInk(bw, bh) {
+                if (inkCanvas.width !== bw || inkCanvas.height !== bh) {
+                    inkCanvas.width = bw; inkCanvas.height = bh;
+                    dirtyBox = null;
+                }
+            }
+            const viewportEl = () => document.getElementById('mobileViewport');
+            function measure() {
+                const r = draftCanvas.getBoundingClientRect();
+                if (!(r.width > 0 && r.height > 0)) return null;
+                // Parte del foglio realmente visibile: finestra ∩ viewport scorrevole (se ritaglia).
+                let L = Math.max(r.left, 0), T = Math.max(r.top, 0);
+                let R = Math.min(r.right, window.innerWidth || r.right), B = Math.min(r.bottom, window.innerHeight || r.bottom);
+                const vp = viewportEl();
+                if (vp) {
+                    const cs = getComputedStyle(vp);
+                    if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+                        const v = vp.getBoundingClientRect();
+                        L = Math.max(L, v.left); T = Math.max(T, v.top); R = Math.min(R, v.right); B = Math.min(B, v.bottom);
+                    }
+                }
+                if (!(R > L && B > T)) { L = r.left; T = r.top; R = r.right; B = r.bottom; }
+                const sx = LOGICAL_W / r.width, sy = LOGICAL_H / r.height, vs = r.width / LOGICAL_W;
+                // Densita' identica a quella con cui il canvas principale appare a schermo:
+                // l'"asciugatura" nel documento e' pixel-per-pixel invisibile.
+                const screenDensity = vs * (window.devicePixelRatio || 1);
+                let K = Math.max(0.25, Math.min(dpr, screenDensity));
+                const m = 16;                                            // margine in px schermo
+                let x0 = Math.max(0, Math.floor((L - m - r.left) * sx)), y0 = Math.max(0, Math.floor((T - m - r.top) * sy));
+                let x1 = Math.min(LOGICAL_W, Math.ceil((R + m - r.left) * sx)), y1 = Math.min(LOGICAL_H, Math.ceil((B + m - r.top) * sy));
+                let w = Math.max(1, x1 - x0), h = Math.max(1, y1 - y0);
+                if (w * h * K * K > MAX_INK_AREA) K = Math.sqrt(MAX_INK_AREA / (w * h));
+                // Dimensioni arrotondate a multipli di 64 px: il buffer si rialloca solo se cambia lo zoom.
+                const bw = Math.max(64, Math.ceil(w * K / 64) * 64), bh = Math.max(64, Math.ceil(h * K / 64) * 64);
+                w = bw / K; h = bh / K;
+                if (x0 + w > LOGICAL_W) x0 = Math.max(0, LOGICAL_W - w);
+                if (y0 + h > LOGICAL_H) y0 = Math.max(0, LOGICAL_H - h);
+                sizeInk(bw, bh);
+                const st = inkCanvas.style, key = x0 + ',' + y0 + ',' + w + ',' + h;
+                if (lastRegion !== key) {
+                    lastRegion = key;
+                    st.left = x0 + 'px'; st.top = y0 + 'px'; st.width = w + 'px'; st.height = h + 'px';
+                    st.right = 'auto'; st.bottom = 'auto';
+                }
+                return { left: r.left, top: r.top, sx, sy, vs, K, x0, y0 };
+            }
+            function applyGeom(g) {
+                inkCtx.setTransform(g.K, 0, 0, g.K, -g.x0 * g.K, -g.y0 * g.K);
+            }
+            function devBox(g, bb, pad) {
+                if (!g || !bb || !(bb.x1 >= bb.x0)) return null;
+                const x0 = Math.max(0, Math.floor((bb.x0 - g.x0) * g.K - pad)), y0 = Math.max(0, Math.floor((bb.y0 - g.y0) * g.K - pad));
+                const x1 = Math.min(inkCanvas.width, Math.ceil((bb.x1 - g.x0) * g.K + pad)), y1 = Math.min(inkCanvas.height, Math.ceil((bb.y1 - g.y0) * g.K + pad));
+                return (x1 > x0 && y1 > y0) ? [x0, y0, x1 - x0, y1 - y0] : null;
+            }
+            function unionDirty(box) {
+                if (!box) return;
+                if (!dirtyBox) { dirtyBox = box.slice(); return; }
+                const x0 = Math.min(dirtyBox[0], box[0]), y0 = Math.min(dirtyBox[1], box[1]);
+                const x1 = Math.max(dirtyBox[0] + dirtyBox[2], box[0] + box[2]), y1 = Math.max(dirtyBox[1] + dirtyBox[3], box[1] + box[3]);
+                dirtyBox = [x0, y0, x1 - x0, y1 - y0];
+            }
+            function wipe() {
+                if (dirtyBox) {
+                    inkCtx.save(); inkCtx.setTransform(1, 0, 0, 1, 0, 0); inkCtx.clearRect(dirtyBox[0], dirtyBox[1], dirtyBox[2], dirtyBox[3]); inkCtx.restore();
+                    dirtyBox = null;
+                }
+            }
+
+            // ---------------------------------------------------------------- filtro 1-Euro 2D
+            function makeFilter(pointerType) {
+                // Pencil: filtro leggerissimo (l'hardware e' gia' preciso); dito: filtro piu' deciso sul tremolio.
+                const minCut = pointerType === 'pen' ? 26 : 9, beta = pointerType === 'pen' ? 0.02 : 0.03, dCut = 8;
+                let has = false, fx = 0, fy = 0, dx = 0, dy = 0;
+                const alpha = (cut, dtS) => 1 / (1 + 1 / (TAU * cut * dtS));
+                return (x, y, dtMs) => {
+                    if (!has) { has = true; fx = x; fy = y; return { x, y }; }
+                    const dtS = Math.max(dtMs, 0.25) / 1000;
+                    const ad = alpha(dCut, dtS);
+                    dx += ((x - fx) / dtS - dx) * ad; dy += ((y - fy) / dtS - dy) * ad;
+                    const a = alpha(minCut + beta * Math.hypot(dx, dy), dtS);
+                    fx += (x - fx) * a; fy += (y - fy) * a;
+                    return { x: fx, y: fy };
+                };
+            }
+
+            // ---------------------------------------------------------------- stato del tratto
+            let S = null, idleTimer = 0;
+            // Pre-dimensiona il foglio bagnato a riposo (dopo zoom/pan/rotazione), cosi' al primo
+            // contatto della penna non c'e' alcuna allocazione di memoria: il tratto parte subito.
+            function scheduleIdleMeasure() {
+                if (idleTimer) clearTimeout(idleTimer);
+                idleTimer = setTimeout(() => { idleTimer = 0; if (!S && !isDrawing) { try { measure(); } catch (err) {} } }, 160);
+            }
+            const markDirty = () => { if (S) S.geomDirty = true; else scheduleIdleMeasure(); };
+            try {
+                const mo = new MutationObserver(markDirty);
+                mo.observe(wrapper, { attributes: true, attributeFilter: ['style'] });
+                const vpEl = viewportEl(); if (vpEl) mo.observe(vpEl, { attributes: true, attributeFilter: ['style'] });
+                setTimeout(() => { const st = document.getElementById('mobileStageV109'); if (st) mo.observe(st, { attributes: true, attributeFilter: ['style'] }); }, 0);
+            } catch (err) {}
+            document.addEventListener('scroll', markDirty, { capture: true, passive: true });
+            window.addEventListener('resize', markDirty, { passive: true });
+            window.addEventListener('orientationchange', markDirty, { passive: true });
+
+            const mapPt = (g, ev) => ({ x: (ev.clientX - g.left) * g.sx, y: (ev.clientY - g.top) * g.sy });
+
+            function drawDot(ctxs, x, y, r, color, bb) {
+                const p = new Path2D(); addCircle(p, x, y, r, bb);
+                for (const c of ctxs) { c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = color; c.fill(p); }
+            }
+
+            function begin(e) {
+                quietUntil = performance.now() + QUIET_MS;
+                if (S) wipe();
+                S = null;
+                let g = null;
+                try { g = measure(); } catch (err) { g = null; }
+                const mode = currentMode === 'eraser' ? 'eraser' : (currentMode === 'highlighter' ? 'highlighter' : 'pen');
+                const pos = g ? mapPt(g, e) : getPointerPos(e);
+                const initP = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.5;
+                const toolWidth = mode === 'highlighter' ? baseWidth * 3.2 : baseWidth;
+                const w = toolWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
+                const legacy = mode === 'highlighter';
+                currentPath = {
+                    type: 'path',
+                    color: currentColor,
+                    points: [legacy ? { x: pos.x, y: pos.y, w: w } : { x: r2(pos.x), y: r2(pos.y), w: r2(w) }],
+                    isEraser: mode === 'eraser',
+                    isHighlighter: mode === 'highlighter',
+                    opacity: mode === 'highlighter' ? 0.18 : 1,
+                    renderIndex: 1
+                };
+                lastEventData = { clientX: e.clientX, clientY: e.clientY, timeStamp: e.timeStamp };
+                pointerVelocity = 0;
+                const pt = e.pointerType;
+                const vs = g ? g.vs : 1;
+                S = {
+                    id: e.pointerId, type: pt, mode, legacy, g, path: currentPath, toolWidth,
+                    sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
+                    done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
+                    filter: (mode === 'pen' && pt !== 'mouse') ? makeFilter(pt) : null,
+                    minDist: legacy ? 0 : clamp(0.55 / Math.max(vs, 1e-3), 0.2, 1.2),
+                    nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
+                    tauW: pt === 'pen' ? 15 : 23,
+                    predict: mode === 'pen' && (pt === 'pen' || pt === 'touch')
+                };
+                if (mode === 'eraser') {
+                    mainCtx.save();
+                    mainCtx.globalCompositeOperation = 'destination-out';
+                    mainCtx.fillStyle = 'rgba(0,0,0,1)';
+                    mainCtx.beginPath(); mainCtx.arc(pos.x, pos.y, w / 2, 0, Math.PI * 2); mainCtx.fill();
+                    mainCtx.restore();
+                    return;
+                }
+                if (!g) return;
+                applyGeom(g);
+                if (legacy) {
+                    inkCtx.save(); inkCtx.globalAlpha = 0.18; inkCtx.fillStyle = currentColor;
+                    inkCtx.beginPath(); inkCtx.arc(pos.x, pos.y, w / 2, 0, Math.PI * 2); inkCtx.fill(); inkCtx.restore();
+                    ext(S.bb, pos.x, pos.y, w / 2);
+                    S.legacyDot = true;
+                } else {
+                    S.pieces = [];
+                    pushPiece([[currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w)]]);
+                    drawDot([inkCtx], currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w), currentColor, null);
+                }
+                unionDirty(devBox(g, S.bb, 3));
+            }
+
+            function sample(ev) {
+                const g = S.g;
+                const pos = g ? mapPt(g, ev) : getPointerPos(ev);
+                let dt = ev.timeStamp - S.lastT;
+                if (!(dt > 0.25)) dt = S.nominalDt;
+                if (ev.timeStamp > S.lastT) S.lastT = ev.timeStamp;
+                // Spessore: stesso modello di sempre (pressione Pencil, velocita' per dito/mouse).
+                let targetW = S.toolWidth;
+                if (ev.pointerType === 'pen' && ev.pressure > 0) {
+                    targetW = S.toolWidth * (0.72 + Math.pow(ev.pressure, 1.25) * 0.72);
+                } else if (lastEventData) {
+                    const ddx = ev.clientX - lastEventData.clientX, ddy = ev.clientY - lastEventData.clientY;
+                    const ddt = ev.timeStamp - lastEventData.timeStamp;
+                    const vel = Math.hypot(ddx, ddy) / (ddt || 16);
+                    pointerVelocity = pointerVelocity * 0.7 + vel * 0.3;
+                    const velFactor = Math.min(1, pointerVelocity / 4);
+                    targetW = S.toolWidth * (1.2 - velFactor * 0.8);
+                }
+                lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
+                const pts = S.path.points, lastPt = pts[pts.length - 1];
+                if (S.legacy) {
+                    const widthSmoothing = ev.pointerType === 'pen' ? 0.24 : 0.30;
+                    const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
+                    const distSq = (pos.x - lastPt.x) ** 2 + (pos.y - lastPt.y) ** 2;
+                    S.raw = pos;
+                    if (distSq > 0.01) { pts.push({ x: pos.x, y: pos.y, w: sw }); return true; }
+                    return false;
+                }
+                S.sw += (targetW - S.sw) * (1 - Math.exp(-dt / S.tauW));
+                const ivx = (pos.x - S.raw.x) / dt, ivy = (pos.y - S.raw.y) / dt, a = 1 - Math.exp(-dt / 12);
+                S.vx += (ivx - S.vx) * a; S.vy += (ivy - S.vy) * a;
+                if (pos.x !== S.raw.x || pos.y !== S.raw.y) S.moved = true;
+                S.raw = pos;
+                const f = S.filter ? S.filter(pos.x, pos.y, dt) : pos;
+                if (Math.hypot(f.x - lastPt.x, f.y - lastPt.y) >= S.minDist) {
+                    pts.push({ x: r2(f.x), y: r2(f.y), w: r2(S.sw) });
+                    return true;
+                }
+                return false;
+            }
+
+            function predictions(e) {
+                const out = [], g = S.g;
+                if (!S.predict || !g) return out;
+                const maxLen = 16 / Math.max(g.vs, 1e-3);
+                let native = null;
+                try { native = e.getPredictedEvents ? e.getPredictedEvents() : null; } catch (err) { native = null; }
+                if (native && native.length) {
+                    for (let i = 0; i < native.length && i < 2; i++) out.push(mapPt(g, native[i]));
+                } else if (S.moved) {
+                    const speed = Math.hypot(S.vx, S.vy);           // unita' logiche / ms
+                    if (speed > 0.02) {
+                        const H = S.type === 'pen' ? 14 : 18;
+                        out.push({ x: S.raw.x + S.vx * H, y: S.raw.y + S.vy * H });
+                    }
+                }
+                let px = S.raw.x, py = S.raw.y, used = 0;
+                for (let i = 0; i < out.length; i++) {
+                    const dx = out[i].x - px, dy = out[i].y - py, d = Math.hypot(dx, dy);
+                    if (used + d > maxLen) { const k = Math.max(0, maxLen - used) / (d || 1); out[i] = { x: px + dx * k, y: py + dy * k }; out.length = i + 1; break; }
+                    used += d; px = out[i].x; py = out[i].y;
+                }
+                return out;
+            }
+
+            // La punta "provvisoria" (ultimo tratto + predizione) viene cancellata e il tratto stabile
+            // sottostante ridisegnato solo dentro quel riquadro: pochi pezzi, nessuna copia di immagini.
+            function piecesPath(bbL, p) {
+                let any = false;
+                for (const pc of S.pieces) {
+                    const b = pc.bb;
+                    if (bbL && (b[2] < bbL[0] || b[0] > bbL[2] || b[3] < bbL[1] || b[1] > bbL[3])) continue;
+                    addChain(p, pc.chain, null); any = true;
+                }
+                return any;
+            }
+            function restoreTail() {
+                const b = S.tailBox; if (!b) return;
+                const g = S.g;
+                inkCtx.save();
+                inkCtx.setTransform(1, 0, 0, 1, 0, 0);
+                inkCtx.clearRect(b[0], b[1], b[2], b[3]);
+                inkCtx.beginPath(); inkCtx.rect(b[0], b[1], b[2], b[3]); inkCtx.clip();
+                inkCtx.setTransform(g.K, 0, 0, g.K, -g.x0 * g.K, -g.y0 * g.K);
+                const m = 2 / g.K;
+                const bbL = [b[0] / g.K + g.x0 - m, b[1] / g.K + g.y0 - m, (b[0] + b[2]) / g.K + g.x0 + m, (b[1] + b[3]) / g.K + g.y0 + m];
+                const p = new Path2D();
+                if (piecesPath(bbL, p)) { inkCtx.globalAlpha = 1; inkCtx.globalCompositeOperation = 'source-over'; inkCtx.fillStyle = S.path.color; inkCtx.fill(p, 'nonzero'); }
+                inkCtx.restore();
+                S.tailBox = null;
+            }
+            function pushPiece(chain) {
+                const bb = [Infinity, Infinity, -Infinity, -Infinity];
+                for (const q of chain) {
+                    if (q[0] - q[2] < bb[0]) bb[0] = q[0] - q[2]; if (q[1] - q[2] < bb[1]) bb[1] = q[1] - q[2];
+                    if (q[0] + q[2] > bb[2]) bb[2] = q[0] + q[2]; if (q[1] + q[2] > bb[3]) bb[3] = q[1] + q[2];
+                }
+                S.pieces.push({ chain, bb });
+                ext(S.bb, bb[0], bb[1], 0); ext(S.bb, bb[2], bb[3], 0);
+            }
+            function drawStablePieces() {
+                const pts = S.path.points, n = pts.length;
+                if (n < 2 || S.done > n - 2) return;
+                const p = new Path2D(), tol = 0.3 / S.g.K;
+                for (let j = S.done; j <= n - 2; j++) {
+                    const chain = [];
+                    walk(pts, j, j, tol, (x, y, r) => chain.push([x, y, r]));
+                    pushPiece(chain);
+                    addChain(p, chain, null);
+                }
+                S.done = n - 1;
+                inkCtx.globalAlpha = 1; inkCtx.globalCompositeOperation = 'source-over'; inkCtx.fillStyle = S.path.color; inkCtx.fill(p, 'nonzero');
+            }
+            function drawTail(e) {
+                const pts = S.path.points, n = pts.length, chain = [];
+                if (n === 1) chain.push([pts[0].x, pts[0].y, rad(pts[0].w)]);
+                else {
+                    const a = pts[n - 2], b = pts[n - 1];
+                    chain.push([(a.x + b.x) / 2, (a.y + b.y) / 2, (rad(a.w) + rad(b.w)) / 2], [b.x, b.y, rad(b.w)]);
+                }
+                const rr = Math.max(0.05, S.sw / 2);
+                const last = chain[chain.length - 1];
+                if (Math.hypot(S.raw.x - last[0], S.raw.y - last[1]) > 0.05) chain.push([S.raw.x, S.raw.y, rr]);
+                for (const q of predictions(e)) chain.push([q.x, q.y, rr]);
+                const bb = newBox(), p = new Path2D();
+                addChain(p, chain, bb);
+                inkCtx.globalAlpha = 1; inkCtx.globalCompositeOperation = 'source-over'; inkCtx.fillStyle = S.path.color;
+                inkCtx.fill(p, 'nonzero');
+                S.tailBox = devBox(S.g, bb, 3);
+                unionDirty(S.tailBox);
+            }
+            function drawLegacyIncrement() {
+                const pts = S.path.points, n = pts.length;
+                if (n < 2 || S.hlNext > n - 1) return;
+                if (S.legacyDot) { wipe(); applyGeom(S.g); S.bb = newBox(); S.legacyDot = false; }
+                inkCtx.save();
+                inkCtx.globalAlpha = Number(S.path.opacity) || 0.18;
+                inkCtx.globalCompositeOperation = 'source-over';
+                inkCtx.lineCap = 'round'; inkCtx.lineJoin = 'round'; inkCtx.strokeStyle = S.path.color;
+                legacySegments(inkCtx, pts, S.hlNext, n - 1);
+                inkCtx.restore();
+                for (let i = Math.max(0, S.hlNext - 2); i < n; i++) ext(S.bb, pts[i].x, pts[i].y, (pts[i].w || 1));
+                S.hlNext = n;
+                unionDirty(devBox(S.g, S.bb, 3));
+            }
+            function eraseIncrement(final) {
+                const pts = S.path.points, n = pts.length;
+                const to = final ? n - 1 : n - 2;
+                if (n < 2 || S.done > to) return;
+                mainCtx.save();
+                mainCtx.globalAlpha = 1; mainCtx.globalCompositeOperation = 'destination-out'; mainCtx.fillStyle = 'rgba(0,0,0,1)';
+                mainCtx.beginPath(); addPieces(mainCtx, pts, S.done, to, 0.3 / Math.max(dpr, 1), null); mainCtx.fill('nonzero');
+                mainCtx.restore();
+                S.done = to + 1;
+            }
+            function regeom() {
+                S.geomDirty = false;
+                if (S.mode === 'eraser') { try { const g = measure(); if (g) S.g = g; } catch (err) {} return; }
+                wipe();
+                let g = null; try { g = measure(); } catch (err) { g = null; }
+                S.g = g; S.tailBox = null; S.bb = newBox();
+                if (!g) return;
+                applyGeom(g);
+                const pts = S.path.points;
+                if (S.legacy) {
+                    if (pts.length === 1) { S.legacyDot = true; inkCtx.save(); inkCtx.globalAlpha = 0.18; inkCtx.fillStyle = S.path.color; inkCtx.beginPath(); inkCtx.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, TAU); inkCtx.fill(); inkCtx.restore(); ext(S.bb, pts[0].x, pts[0].y, pts[0].w / 2); unionDirty(devBox(g, S.bb, 3)); }
+                    else { S.legacyDot = false; S.hlNext = 1; drawLegacyIncrement(); }
+                    return;
+                }
+                S.pieces = [];
+                pushPiece([[pts[0].x, pts[0].y, rad(pts[0].w)]]);
+                drawDot([inkCtx], pts[0].x, pts[0].y, rad(pts[0].w), S.path.color, null);
+                S.done = 0;
+                drawStablePieces();
+                unionDirty(devBox(g, S.bb, 3));
+            }
+
+            function move(e) {
+                if (!S || !isDrawing || currentPath !== S.path || e.pointerId !== S.id) return;
+                if (S.geomDirty) regeom();
+                let list = null;
+                try { list = e.getCoalescedEvents ? e.getCoalescedEvents() : null; } catch (err) { list = null; }
+                const evs = list && list.length ? list : [e];
+                let added = false;
+                for (const ev of evs) if (sample(ev)) added = true;
+                if (S.mode === 'eraser') { if (added) eraseIncrement(false); return; }
+                if (!S.g) return;
+                if (S.legacy) { if (added) drawLegacyIncrement(); return; }
+                restoreTail();
+                if (added) drawStablePieces();
+                drawTail(e);
+                unionDirty(devBox(S.g, S.bb, 3));
+            }
+
+            // Chiude il tratto: stessa logica di fine tratto di sempre, poi "asciuga" nel canvas principale.
+            function finish(e) {
+                const path = currentPath;
+                const pts = path.points;
+                let list = null;
+                try { list = e.getCoalescedEvents ? e.getCoalescedEvents() : null; } catch (err) { list = null; }
+                const evs = list && list.length ? list : [e];
+                const g = S && S.g;
+                for (const ev of evs) {
+                    const pos = g ? mapPt(g, ev) : getPointerPos(ev);
+                    const lastPt = pts[pts.length - 1];
+                    const distSq = (pos.x - lastPt.x) ** 2 + (pos.y - lastPt.y) ** 2;
+                    if (distSq > 1) {
+                        if (S && S.legacy) pts.push({ x: pos.x, y: pos.y, w: lastPt.w * 0.8 });
+                        else pts.push({ x: r2(pos.x), y: r2(pos.y), w: r2(lastPt.w * 0.8) });
+                    }
+                }
+                if (S && S.mode === 'eraser' && S.path === path) eraseIncrement(true);
+                if (!path.isEraser) renderPathToCtx(mainCtx, path, false);
+                wipe();
+                S = null;
+                quietUntil = performance.now() + QUIET_MS;
+            }
+
+            // Annulla l'anteprima (pinch a due dita, gesture di sistema, palmo...).
+            function discard() { wipe(); S = null; }
+
+            // Compatibilita': ogni codice esistente che "pulisce la bozza" pulisce anche l'inchiostro bagnato.
+            try {
+                const nativeClear = CanvasRenderingContext2D.prototype.clearRect;
+                draftCtx.clearRect = function () { nativeClear.apply(this, arguments); discard(); };
+            } catch (err) {}
+            // iPadOS: con l'Apple Pencil il riconoscitore di sistema (Scribble, lente, doppio tocco)
+            // puo' trattenere o annullare l'inizio del tratto. Per i soli tocchi "stylus" sul foglio,
+            // mentre e' attivo uno strumento di scrittura, il gesto e' tutto nostro.
+            try {
+                const stylusGuard = ev => {
+                    if (currentMode === 'text' || stampActive || textOverlayActive) return;
+                    const t = ev.changedTouches && ev.changedTouches[0];
+                    if (t && t.touchType === 'stylus' && ev.cancelable) ev.preventDefault();
+                };
+                draftCanvas.addEventListener('touchstart', stylusGuard, { passive: false });
+                draftCanvas.addEventListener('touchmove', stylusGuard, { passive: false });
+            } catch (err) {}
+            scheduleIdleMeasure();
+
+            window.ajInkBusy = () => !!isDrawing || !!S || performance.now() < quietUntil;
+            window.AIRJOTTER_INK_ENGINE = { version: '18.0', strategy: 'wet-dry-ink-layer + capsule-union-bspline + one-euro + reversible-prediction' };
+            return { begin, move, finish, discard, render, active: () => !!S };
+        })();
+
+        function renderPathToCtx(context, cmd, isIncremental = false) {
+            AJInk.render(context, cmd);
         }
+
         draftCanvas.addEventListener('pointerdown', e => {
-            if(e.pointerType === 'pen') { predictionCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H); e.preventDefault(); document.documentElement.classList.add('aj-pencil-active-v168'); }
+            if (e.pointerType === 'pen') { e.preventDefault(); document.documentElement.classList.add('aj-pencil-active-v168'); }
             // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
-            // i touch pointer generati dal palmo che appoggia sul tablet. Senza questo,
-            // il palmo aggiunge un pointer a activePointers, size diventa 2, e il
-            // pointermove del disegno viene interrotto ('1) ma non ) ').
+            // i touch pointer generati dal palmo che appoggia sul tablet.
             if (e.pointerType === 'touch') {
                 for (const p of activePointers.values()) {
                     if (p.pointerType === 'pen') return;
                 }
             }
-            if(stampActive || textOverlayActive) return; 
+            if (stampActive || textOverlayActive) return;
             activePointers.set(e.pointerId, e);
-            
+
             if (activePointers.size === 1) {
                 if (currentMode === 'text') {
                     const pos = getPointerPos(e);
@@ -1202,69 +1729,22 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                     textToolInput.style.height='190px';
                     document.getElementById('text-color-picker').value=currentColor;textToolInput.style.color=currentColor;
                     updateTextInputStyle();
-                    
+
                     setTimeout(() => textToolInput.focus(), 50);
                     textOverlayActive = true;
                     return;
                 }
-                
+
                 try { draftCanvas.setPointerCapture(e.pointerId); } catch(err){}
                 isDrawing = true;
-                const pos = getPointerPos(e);
-                
-                const initP = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.5;
-                const toolWidth = currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth;
-                const w = toolWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
-
-                currentPath = { 
-                    type: 'path', 
-                    color: currentColor, 
-                    points: [{ x: pos.x, y: pos.y, w: w }], 
-                    isEraser: currentMode === 'eraser',
-                    isHighlighter: currentMode === 'highlighter',
-                    opacity: currentMode === 'highlighter' ? 0.18 : 1,
-                    renderIndex: 1
-                };
-                
-                lastEventData = { clientX: e.clientX, clientY: e.clientY, timeStamp: e.timeStamp };
-                pointerVelocity = 0;
-                
-                const targetCtx = currentMode === 'eraser' ? mainCtx : draftCtx;
-                targetCtx.save();
-                targetCtx.globalAlpha = currentMode === 'highlighter' ? 0.18 : 1;
-                if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
-                targetCtx.fillStyle = currentMode === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
-                targetCtx.beginPath();
-                targetCtx.arc(pos.x, pos.y, currentPath.points[0].w / 2, 0, Math.PI * 2);
-                targetCtx.fill();
-                if (currentMode === 'eraser') targetCtx.globalCompositeOperation = 'source-over';
-                targetCtx.restore();
+                AJInk.begin(e);
             } else if (activePointers.size === 2) {
-                // v14.1: il pan+pinch a due dita e' gestito dallo script touch dedicato
-                // (vedi #mobileViewport touch handlers piu' sotto). Qui basta interrompere il disegno.
-                isDrawing = false; currentPath = null; draftCtx.clearRect(0,0, LOGICAL_W, LOGICAL_H);
+                // v14.1: il pan+pinch a due dita e' gestito dallo script touch dedicato.
+                // Qui basta interrompere il disegno.
+                isDrawing = false; currentPath = null; AJInk.discard();
             }
         });
 
-        function renderPencilPrediction(e) {
-            predictionCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
-            if (!isDrawing || e.pointerType !== 'pen' || currentMode !== 'pen' || !currentPath?.points?.length) return;
-            const predicted = e.getPredictedEvents ? e.getPredictedEvents() : [];
-            if (!predicted || !predicted.length) return;
-            const real = currentPath.points[currentPath.points.length - 1];
-            const usable = predicted.slice(0, 2);
-            predictionCtx.save();
-            predictionCtx.strokeStyle = currentColor;
-            predictionCtx.lineCap = 'round'; predictionCtx.lineJoin = 'round';
-            predictionCtx.beginPath(); predictionCtx.moveTo(real.x, real.y);
-            let width = real.w;
-            for (const pe of usable) {
-                const p = getPointerPos(pe);
-                predictionCtx.lineTo(p.x, p.y);
-                if (pe.pressure > 0) width = baseWidth * (0.72 + Math.pow(pe.pressure, 1.25) * 0.72);
-            }
-            predictionCtx.lineWidth = width; predictionCtx.stroke(); predictionCtx.restore();
-        }
         draftCanvas.addEventListener('pointermove', e => {
             if (e.pointerType === 'pen') e.preventDefault();
             // v14.5: palm rejection - ignora pointer touch se una pen sta gia' disegnando
@@ -1274,80 +1754,25 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 }
             }
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
-            
-            if (activePointers.size === 2) {
-                // v14.1: pan+pinch gestiti dallo script touch dedicato sul #mobileViewport
-                return;
-            }
-            
-            if (isDrawing && activePointers.size === 1) {
-                const collected = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
-                const evs = collected && collected.length ? collected : [e];
-                let modified = false;
-                
-                for (const ev of evs) {
-                    const pos = getPointerPos(ev);
-                    const lastPt = currentPath.points[currentPath.points.length - 1];
-
-                    let targetW = currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth;
-                    
-                    if (ev.pointerType === 'pen' && ev.pressure > 0) {
-                        targetW = (currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth) * (0.72 + Math.pow(ev.pressure, 1.25) * 0.72);
-                    } else if (lastEventData) {
-                        const dx = ev.clientX - lastEventData.clientX;
-                        const dy = ev.clientY - lastEventData.clientY;
-                        const dt = ev.timeStamp - lastEventData.timeStamp;
-                        const vel = Math.hypot(dx, dy) / (dt || 16);
-                        
-                        pointerVelocity = pointerVelocity * 0.7 + vel * 0.3;
-                        const velFactor = Math.min(1, pointerVelocity / 4);
-                        targetW = (currentMode === 'highlighter' ? baseWidth * 3.2 : baseWidth) * (1.2 - velFactor * 0.8);
-                    }
-                    lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
-
-                    const widthSmoothing = ev.pointerType === 'pen' ? 0.24 : 0.30;
-                    const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
-                    const distSq = (pos.x - lastPt.x)**2 + (pos.y - lastPt.y)**2;
-                    if (distSq > 0.01) {
-                        currentPath.points.push({ x: pos.x, y: pos.y, w: sw });
-                        modified = true;
-                    }
-                }
-                
-                if (modified) {
-                    if (currentMode === 'eraser') renderPathToCtx(mainCtx, currentPath, true);
-                    else if (currentMode === 'highlighter') { draftCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H); currentPath.renderIndex = 1; renderPathToCtx(draftCtx, currentPath, false); }
-                    else renderPathToCtx(draftCtx, currentPath, true);
-                    renderPencilPrediction(e);
-                }
-            }
+            if (activePointers.size === 2) return;
+            if (isDrawing && activePointers.size === 1 && currentPath) AJInk.move(e);
         });
 
         function endPointer(e) {
             activePointers.delete(e.pointerId);
-            predictionCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);
             if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
-            if (isDrawing && (activePointers.size === 0 || e.pointerType === 'pen')) {
-                const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
-                for (const ev of evs) {
-                    const pos = getPointerPos(ev);
-                    const lastPt = currentPath.points[currentPath.points.length - 1];
-                    const distSq = (pos.x - lastPt.x)**2 + (pos.y - lastPt.y)**2;
-                    if(distSq > 1) { 
-                        currentPath.points.push({ x: pos.x, y: pos.y, w: lastPt.w * 0.8 }); 
-                    }
-                }
-                
-                if (currentMode !== 'eraser') renderPathToCtx(mainCtx, currentPath, false);
-                
+            if (isDrawing && currentPath && (activePointers.size === 0 || e.pointerType === 'pen')) {
+                AJInk.finish(e);
+
                 commands.push(currentPath);
                 ajSendCommand(currentPath);
                 redoCommands = [];
                 document.getElementById('undoBtn').disabled = commands.length === 0;
 
-                draftCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
                 isDrawing = false; currentPath = null; lastEventData = null; if(e.pointerType === 'pen') activePointers.clear();
                 try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
+            } else if (!isDrawing && AJInk.active() && activePointers.size === 0) {
+                AJInk.discard();
             }
         }
         draftCanvas.addEventListener('pointerup', endPointer);
@@ -1849,7 +2274,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
         }
-        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');lastRevision=Math.max(lastRevision,Number(result.revision)||0);document.getElementById('ajUser').dataset.saved='true';return result;}
+        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
@@ -1857,16 +2282,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean }).catch(error=>{console.error('Sincronizzazione comando:',error);if(!ajSocket.connected)ajSocket.connect();throw error;}); }
         function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
         function ajSendClear() { ajSend('board:clear', {}); }
+        let ajBatchApply = false; // v18.0: durante una ricostruzione completa si ridisegna una volta sola, alla fine
         function ajApplyOperation(op) {
             const type = op.operation_type || op.type, payload = op.payload || {};
             ajRemote = true;
+            const ajOpId = op.operation_id || op.operationId; if (ajOpId && window.ajSyncMark) window.ajSyncMark(ajOpId); // v18.0: niente doppioni
+            const ajIncrementalPath = type === 'command:add' && payload.command && payload.command.type === 'path';
             if(type==='command:add'&&payload.command){const c=payload.command;if(c.type==='stamp'&&c.imageData){const img=new Image();img.onload=()=>{c.canvas=img;redrawMainCanvas();};img.src=c.imageData;}commands.push(c);}
             else if (type === 'stroke:add') commands.push({ type:'path', points:payload.points, color:payload.color, isEraser:!!payload.eraser });
             else if (type === 'text:add') commands.push({ type:'text', text:payload.text, x:payload.x, y:payload.y, fontFamily:'Arial, sans-serif', fontSize:payload.size || 24, color:payload.color, isBold:false, isItalic:false, isUnderline:false });
-            else if(type==='page:set'){TOTAL_PAGES=Math.max(1,Number(payload.count)||1);initCanvas();document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;}
+            else if(type==='page:set'){TOTAL_PAGES=Math.max(1,Number(payload.count)||1);if(!ajBatchApply)initCanvas();document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;}
             else if(type==='page:delete'){deletePageFromCanvas(Number(payload.pageIndex),true);}
-            else if (type === 'board:clear') { commands=[]; redoCommands=[]; TOTAL_PAGES=2; initCanvas(); }
-            redrawMainCanvas();
+            else if (type === 'board:clear') { commands=[]; redoCommands=[]; TOTAL_PAGES=2; if(!ajBatchApply)initCanvas(); }
+            if (ajBatchApply) { /* ridisegno unico a fine ricostruzione */ }
+            else if (ajIncrementalPath) renderPathToCtx(mainCtx, commands[commands.length - 1], false);
+            else redrawMainCanvas();
             document.getElementById('undoBtn').disabled = commands.length === 0;
             ajRemote = false;
         }
@@ -1874,7 +2304,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             if (!ajBoard) return;
             commands=[]; redoCommands=[]; TOTAL_PAGES=2;
             const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
-            operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)});
+            ajBatchApply = true;
+            try { operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)}); } finally { ajBatchApply = false; }
             initCanvas(); redrawMainCanvas();
         }
         async function ajOpenBoard(board) {
@@ -1937,7 +2368,7 @@ async function ajResolveRequest(approved){if(!ajPendingRequest)return;await ajAp
 document.getElementById('accessApproveBtn').onclick=()=>ajResolveRequest(true);
 document.getElementById('accessDenyBtn').onclick=()=>ajResolveRequest(false);
 ajSocket.on('access:requested',ajShowRequest);
-setInterval(async()=>{if(isDrawing||document.documentElement.classList.contains('aj-pencil-active-v168')||ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
+setInterval(async()=>{if(isDrawing||(window.ajInkBusy&&window.ajInkBusy())||document.documentElement.classList.contains('aj-pencil-active-v168')||ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
 ajSocket.on('access:resolved', result=>{if(result.boardId===ajBoard?.id){ajSetRole(result.role);alert(result.approved?'Accesso in modifica autorizzato.':'Richiesta rifiutata.')}});
     </script>
 <script id="welcomeDiscoverRuntime">
@@ -2164,7 +2595,7 @@ document.addEventListener('click', function(event) {
  const fitButton=document.getElementById('mobileZoomFit'),panButton=document.getElementById('mobilePanBtn');
  const oldZoom=document.getElementById('mobileZoomValue');if(oldZoom)oldZoom.style.display='none';
  let zoomLabel=fitButton.querySelector('.aj-zoom117');if(!zoomLabel){zoomLabel=document.createElement('small');zoomLabel.className='aj-zoom117';fitButton.appendChild(zoomLabel)}
- let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;const appliedOperationIds=new Set();
+ let userZoom=1,panMode=false,pinch=null,drag=null,lastRevision=-1,polling=false;const appliedOperationIds=new Set();window.ajSyncMark=id=>{if(id)appliedOperationIds.add(id)};
  const touch=()=>matchMedia('(max-width:760px)').matches;const mobile=touch;
  const fitScale=()=>Math.min(1,Math.max(.18,(vp.clientWidth-20)/LOGICAL_W));
  function setGeometry(scale){stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';if(document.documentElement.classList.contains('aj-old-ipad')){wrapper.style.transform='translate3d('+ajCamera.x+'px,'+ajCamera.y+'px,0) scale('+scale+')';wrapper.style.transformOrigin='0 0'}else{wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left'}wrapper.style.margin='0';wrapper.style.marginBottom='0';zoomLabel.textContent='Zoom: '+Math.round(scale*100)+'%'}
@@ -2228,7 +2659,7 @@ document.addEventListener('click', function(event) {
 
  // Polling di recupero: conserva zoom e posizione durante una ricostruzione.
  async function syncCheck(){
-  if(polling||!ajBoard||document.hidden||isDrawing||stampActive||textOverlayActive)return;polling=true;
+  if(polling||!ajBoard||document.hidden||isDrawing||(window.ajInkBusy&&window.ajInkBusy())||stampActive||textOverlayActive)return;polling=true;
   try{const operations=await ajApi('/api/boards/'+ajBoard.id+'/operations');
    for(const op of operations){const rev=Number(op.revision)||0,id=op.operation_id||op.operationId;if(op.is_active===false||rev<=lastRevision||appliedOperationIds.has(id))continue;ajApplyOperation(op);if(id)appliedOperationIds.add(id);lastRevision=Math.max(lastRevision,rev)}
   }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
@@ -2282,7 +2713,7 @@ document.addEventListener('click', function(event) {
   desktopUndo.disabled=!state.canUndo;desktopRedo.disabled=!state.canRedo;
   const m=mobileButtons();if(m.undo)m.undo.disabled=!state.canUndo;if(m.redo)m.redo.disabled=!state.canRedo;
  }
- async function refreshHistory(){if(!ajBoard||isDrawing||document.documentElement.classList.contains('aj-pencil-active-v168'))return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
+ async function refreshHistory(){if(!ajBoard||isDrawing||(window.ajInkBusy&&window.ajInkBusy())||document.documentElement.classList.contains('aj-pencil-active-v168'))return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
  async function historyAction(kind){
   if(!ajBoard)return;
   const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});
