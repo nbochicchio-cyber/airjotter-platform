@@ -637,6 +637,26 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 .aj-lobby-discover{display:inline-flex;align-items:center;justify-content:center;margin:2px auto 0;border:0;background:transparent;color:var(--accent-hover);font-size:.95rem;font-weight:700;line-height:1.25;text-decoration:underline;cursor:pointer;padding:8px 12px;min-height:40px}
 @media(max-width:760px){.aj-lobby-discover{font-size:.90rem;padding:7px 10px;min-height:38px}}
 </style>
+
+<style id="airjotterDiscoverMobileV166Styles">
+#welcomeDiscoverModal{z-index:10000!important}
+@media (max-width:1100px), (hover:none) and (pointer:coarse){
+ body.aj-discover-open-v166{overflow:hidden!important}
+ body.aj-discover-open-v166 #mobileTopbar,body.aj-discover-open-v166>header{visibility:hidden!important;pointer-events:none!important}
+ #welcomeDiscoverModal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;box-sizing:border-box!important;padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)!important;align-items:flex-start!important;justify-content:center!important;overflow:hidden!important;background:rgba(48,47,58,.62)!important;touch-action:pan-y!important}
+ #welcomeDiscoverModal .welcome-discover-modal{position:relative!important;box-sizing:border-box!important;width:min(760px,100%)!important;max-width:100%!important;height:auto!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 20px)!important;margin:0 auto!important;padding:54px 18px 18px!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important}
+ #welcomeDiscoverModal .welcome-modal-close{position:sticky!important;float:right!important;top:0!important;right:0!important;z-index:3!important;margin:-42px -4px 8px 0!important;width:42px!important;height:42px!important;background:#fff!important;border-radius:50%!important}
+ #welcomeDiscoverModal .discover-heading{clear:both!important}
+ #welcomeDiscoverModal #welcomeDiscoverDone{position:relative!important;width:100%!important;min-height:48px!important}
+}
+@media (max-width:620px){
+ #welcomeDiscoverModal .welcome-discover-modal{padding:50px 14px 16px!important}
+ #welcomeDiscoverModal .discover-heading{display:block!important;text-align:center!important}
+ #welcomeDiscoverModal .discover-heading-icon{margin:0 auto 10px!important}
+ #welcomeDiscoverModal .discover-heading h2{font-size:1.65rem!important;line-height:1.1!important}
+ #welcomeDiscoverModal .discover-heading p{font-size:.96rem!important;line-height:1.48!important;text-align:left!important}
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -2563,31 +2583,48 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
-<script id="airjotterLobbyHelpV164">
+<script id="airjotterDiscoverMobileV166">
 (function(){
+ const modal=document.getElementById('welcomeDiscoverModal');
+ if(!modal)return;
+ function setOpen(open){
+  modal.style.display=open?'flex':'none';
+  modal.setAttribute('aria-hidden',open?'false':'true');
+  document.body.classList.toggle('aj-discover-open-v166',open);
+  if(open){
+   modal.scrollTop=0;
+   const content=modal.querySelector('.welcome-discover-modal');
+   if(content)content.scrollTop=0;
+  }
+ }
+ window.ajOpenDiscover=function(event){
+  if(event){event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();}
+  setOpen(true);return false;
+ };
+ window.ajCloseDiscover=function(event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  setOpen(false);return false;
+ };
  const card=document.querySelector('#ajLobby .aj-access-card');
  const grid=card&&card.querySelector('.aj-choice-grid');
- const modal=document.getElementById('welcomeDiscoverModal');
- if(!card||!grid||!modal)return;
  let button=document.getElementById('lobbyDiscoverBtnV164');
- if(!button){
+ if(card&&grid&&!button){
   button=document.createElement('button');
   button.id='lobbyDiscoverBtnV164';button.type='button';button.className='aj-lobby-discover';
-  button.textContent='A cosa serve AirJotter?';
-  grid.insertAdjacentElement('afterend',button);
+  button.textContent='A cosa serve AirJotter?';grid.insertAdjacentElement('afterend',button);
  }
- function openDiscover(event){
-  if(event)event.preventDefault();
-  modal.style.display='flex';modal.setAttribute('aria-hidden','false');
-  const content=modal.querySelector('.welcome-discover-modal');if(content)content.scrollTop=0;
+ function bindOpen(element){
+  if(!element||element.dataset.discoverV166)return;
+  element.dataset.discoverV166='1';
+  element.onclick=window.ajOpenDiscover;
+  element.addEventListener('touchend',window.ajOpenDiscover,{passive:false});
  }
- button.addEventListener('click',openDiscover);
- const help=document.getElementById('helpBtn');
- if(help&&!help.dataset.v164){
-  help.dataset.v164='1';help.addEventListener('click',function(event){
-   event.preventDefault();event.stopImmediatePropagation();openDiscover(event);
-  },true);
- }
+ bindOpen(button);bindOpen(document.getElementById('welcomeDiscoverBtn'));bindOpen(document.getElementById('helpBtn'));
+ const close=document.getElementById('welcomeDiscoverClose');
+ const done=document.getElementById('welcomeDiscoverDone');
+ if(close)close.onclick=window.ajCloseDiscover;
+ if(done)done.onclick=window.ajCloseDiscover;
+ modal.addEventListener('click',function(event){if(event.target===modal)window.ajCloseDiscover(event)});
 })();
 </script>
 </body>
