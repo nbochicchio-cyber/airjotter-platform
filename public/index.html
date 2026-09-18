@@ -614,6 +614,24 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 @media (min-width:761px) and (any-pointer:coarse){header .brand{touch-action:manipulation!important}}
 </style>
+
+<style id="airjotterSmartphoneButtonsV163Styles">
+@media (max-width:760px){
+ #mobileToolsBtn,#mobileZoomFit,#mobileUserBtn{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;white-space:normal!important;line-height:1.08!important;font-size:.80rem!important;
+  font-weight:700!important;padding:4px 5px!important;overflow:hidden!important;text-overflow:clip!important;
+ }
+ #mobileToolsBtn .aj-tools-line,#mobileUserBtn .aj-user-line{display:block!important;width:100%!important}
+ #mobileZoomFit .aj-zoom117{display:block!important;margin-top:3px!important;font-size:.66rem!important;line-height:1!important;white-space:nowrap!important}
+ #mobileUndo119,#mobileRedo119{font-size:1.28rem!important;line-height:1!important;font-weight:800!important}
+}
+@media (max-width:390px){
+ #mobileToolsBtn,#mobileZoomFit,#mobileUserBtn{font-size:.75rem!important;padding-left:3px!important;padding-right:3px!important}
+ #mobileZoomFit .aj-zoom117{font-size:.61rem!important}
+ #mobileUndo119,#mobileRedo119{font-size:1.20rem!important}
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -2527,6 +2545,16 @@ if ('serviceWorker' in navigator) {
   if(event.pointerType==='touch'||event.pointerType==='pen')returnToTop(event);
  },true);
  brand.addEventListener('click',returnToTop,true);
+})();
+</script>
+
+<script id="airjotterSmartphoneButtonsV163">
+(function(){
+ const userButton=document.getElementById('mobileUserBtn');
+ if(!userButton)return;
+ userButton.innerHTML='<span class="aj-user-line">I miei</span><span class="aj-user-line">Jotter</span>';
+ userButton.setAttribute('aria-label','I miei Jotter');
+ userButton.title='I miei Jotter';
 })();
 </script>
 </body>
