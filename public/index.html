@@ -876,9 +876,9 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         
         const wrapper = document.getElementById('canvas-wrapper');
         const mainCanvas = document.getElementById('drawingBoard');
-        const mainCtx = mainCanvas.getContext('2d', { alpha: true }); 
+        const mainCtx = mainCanvas.getContext('2d', { alpha: true, desynchronized: true }); 
         const draftCanvas = document.getElementById('draftBoard');
-        const draftCtx = draftCanvas.getContext('2d');
+        const draftCtx = draftCanvas.getContext('2d', { alpha: true, desynchronized: true });
         
         const colorPicker = document.getElementById('colorPicker');
         const thicknessPicker = document.getElementById('thicknessPicker');
@@ -2583,10 +2583,14 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
-<script id="airjotterDiscoverMobileV166">
+<script id="airjotterDiscoverTouchV167">
 (function(){
  const modal=document.getElementById('welcomeDiscoverModal');
  if(!modal)return;
+ // Il popup deve stare fuori dagli overlay login/lobby: su Android evita che resti nascosto
+ // finche la lobby non viene chiusa da "Crea nuovo Jotter".
+ if(modal.parentNode!==document.body)document.body.appendChild(modal);
+ let opening=false,lastOpen=0;
  function setOpen(open){
   modal.style.display=open?'flex':'none';
   modal.setAttribute('aria-hidden',open?'false':'true');
@@ -2597,34 +2601,32 @@ if ('serviceWorker' in navigator) {
    if(content)content.scrollTop=0;
   }
  }
- window.ajOpenDiscover=function(event){
+ function openNow(event){
   if(event){event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();}
-  setOpen(true);return false;
- };
- window.ajCloseDiscover=function(event){
-  if(event){event.preventDefault();event.stopPropagation();}
+  const now=Date.now();if(opening||now-lastOpen<350)return false;
+  opening=true;lastOpen=now;setOpen(true);requestAnimationFrame(()=>{opening=false});return false;
+ }
+ function closeNow(event){
+  if(event){event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();}
   setOpen(false);return false;
- };
+ }
+ window.ajOpenDiscover=openNow;window.ajCloseDiscover=closeNow;
  const card=document.querySelector('#ajLobby .aj-access-card');
  const grid=card&&card.querySelector('.aj-choice-grid');
  let button=document.getElementById('lobbyDiscoverBtnV164');
  if(card&&grid&&!button){
-  button=document.createElement('button');
-  button.id='lobbyDiscoverBtnV164';button.type='button';button.className='aj-lobby-discover';
-  button.textContent='A cosa serve AirJotter?';grid.insertAdjacentElement('afterend',button);
+  button=document.createElement('button');button.id='lobbyDiscoverBtnV164';button.type='button';button.className='aj-lobby-discover';button.textContent='A cosa serve AirJotter?';grid.insertAdjacentElement('afterend',button);
  }
  function bindOpen(element){
-  if(!element||element.dataset.discoverV166)return;
-  element.dataset.discoverV166='1';
-  element.onclick=window.ajOpenDiscover;
-  element.addEventListener('touchend',window.ajOpenDiscover,{passive:false});
+  if(!element||element.dataset.discoverV167)return;
+  element.dataset.discoverV167='1';element.style.pointerEvents='auto';
+  element.onpointerdown=openNow;element.onclick=openNow;
  }
  bindOpen(button);bindOpen(document.getElementById('welcomeDiscoverBtn'));bindOpen(document.getElementById('helpBtn'));
- const close=document.getElementById('welcomeDiscoverClose');
- const done=document.getElementById('welcomeDiscoverDone');
- if(close)close.onclick=window.ajCloseDiscover;
- if(done)done.onclick=window.ajCloseDiscover;
- modal.addEventListener('click',function(event){if(event.target===modal)window.ajCloseDiscover(event)});
+ const close=document.getElementById('welcomeDiscoverClose'),done=document.getElementById('welcomeDiscoverDone');
+ if(close){close.onpointerdown=closeNow;close.onclick=closeNow}
+ if(done){done.onpointerdown=closeNow;done.onclick=closeNow}
+ modal.addEventListener('pointerdown',event=>{if(event.target===modal)closeNow(event)},true);
 })();
 </script>
 </body>
