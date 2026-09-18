@@ -854,7 +854,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         const toolColors={pen:'#1D1D1F',highlighter:'#FFFB9E',text:'#1D1D1F'};
         let currentPath = null;
         let dpr = 1;
-        let draftDpr = 1; // v16.9: anteprima Pencil alla stessa risoluzione Retina del canvas finale
+        let draftDpr = 1; // v17.0: anteprima Pencil Retina con punta live
         
         const LOGICAL_W = 900;
         const BASE_A4_H = 1273; 
@@ -1177,21 +1177,30 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 context.stroke();
             }
 
-            if (isIncremental) cmd.renderIndex = Math.max(1, pts.length - 1);
+            if (isIncremental) {
+                cmd.renderIndex = Math.max(1, pts.length - 1);
+                if (!cmd.isEraser && !cmd.isHighlighter && pts.length >= 2) {
+                    const previous = pts[pts.length - 2];
+                    const tip = pts[pts.length - 1];
+                    const midX = (previous.x + tip.x) / 2;
+                    const midY = (previous.y + tip.y) / 2;
+                    context.beginPath();
+                    context.moveTo(midX, midY);
+                    context.lineTo(tip.x, tip.y);
+                    context.lineWidth = tip.w;
+                    context.stroke();
+                    context.beginPath();
+                    context.fillStyle = cmd.color;
+                    context.arc(tip.x, tip.y, Math.max(.35, tip.w / 2), 0, Math.PI * 2);
+                    context.fill();
+                }
+            }
             context.globalCompositeOperation = 'source-over';
             context.restore();
         }
 
         draftCanvas.addEventListener('pointerdown', e => {
-            if(e.pointerType === 'pen') {
-                e.preventDefault();
-                document.documentElement.classList.add('aj-pencil-active-v168');
-                document.documentElement.classList.add('aj-pencil-active-v169');
-                if(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) document.activeElement.blur();
-                const sel=window.getSelection&&window.getSelection();if(sel&&sel.rangeCount)sel.removeAllRanges();
-                // Safari puo lasciare uno stato sporco dopo pointercancel/lost capture: il nuovo tratto riparte pulito.
-                if(isDrawing && currentPath){draftCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);isDrawing=false;currentPath=null;activePointers.clear();}
-            }
+            if(e.pointerType === 'pen') { e.preventDefault(); document.documentElement.classList.add('aj-pencil-active-v168'); }
             // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
             // i touch pointer generati dal palmo che appoggia sul tablet. Senza questo,
             // il palmo aggiunge un pointer a activePointers, size diventa 2, e il
@@ -1260,7 +1269,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         });
 
         draftCanvas.addEventListener('pointermove', e => {
-            if(e.pointerType === 'pen') e.preventDefault();
+            if (e.pointerType === 'pen') e.preventDefault();
             // v14.5: palm rejection - ignora pointer touch se una pen sta gia' disegnando
             if (e.pointerType === 'touch' && isDrawing) {
                 for (const p of activePointers.values()) {
@@ -1275,8 +1284,8 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             }
             
             if (isDrawing && activePointers.size === 1) {
-                const coalesced = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
-                const evs = coalesced && coalesced.length ? coalesced : [e];
+                const collected = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+                const evs = collected && collected.length ? collected : [e];
                 let modified = false;
                 
                 for (const ev of evs) {
@@ -1318,6 +1327,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         function endPointer(e) {
             activePointers.delete(e.pointerId);
+            if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
             if (isDrawing && (activePointers.size === 0 || e.pointerType === 'pen')) {
                 const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
                 for (const ev of evs) {
@@ -1340,16 +1350,10 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
                 isDrawing = false; currentPath = null; lastEventData = null; if(e.pointerType === 'pen') activePointers.clear();
                 try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
             }
-            if(e.pointerType === 'pen') {
-                requestAnimationFrame(()=>{
-                    document.documentElement.classList.remove('aj-pencil-active-v168');
-                    document.documentElement.classList.remove('aj-pencil-active-v169');
-                });
-            }
         }
         draftCanvas.addEventListener('pointerup', endPointer);
         draftCanvas.addEventListener('pointercancel', endPointer);
-        draftCanvas.addEventListener('lostpointercapture', e => { if(e.pointerType === 'pen' && e.buttons===0 && isDrawing) requestAnimationFrame(()=>{ if(isDrawing && !activePointers.has(e.pointerId)) endPointer(e); }); });
+        draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e); });
 
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
@@ -2650,18 +2654,15 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
-<script id="airjotterPencilStableV169">
+<script id="AIRJOTTER_PENCIL_LIVE_TIP_V170">
 (function(){
  const iPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
  if(!iPad)return;
- const canvas=document.getElementById('draftBoard');if(!canvas)return;
- const block=e=>{if(e.touches&&e.touches.length<2)e.preventDefault()};
- canvas.addEventListener('touchstart',block,{capture:true,passive:false});
- canvas.addEventListener('touchmove',block,{capture:true,passive:false});
- canvas.addEventListener('contextmenu',e=>e.preventDefault(),true);
- canvas.addEventListener('selectstart',e=>e.preventDefault(),true);
- canvas.addEventListener('dragstart',e=>e.preventDefault(),true);
- window.AIRJOTTER_PENCIL_PERFORMANCE={version:'16.9',liveDraftDpr:'retina',finalRetina:true};
+ const c=document.getElementById('draftBoard');if(!c)return;
+ c.style.webkitTouchCallout='none';c.style.webkitUserSelect='none';c.style.userSelect='none';
+ c.addEventListener('contextmenu',e=>e.preventDefault(),true);
+ c.addEventListener('selectstart',e=>e.preventDefault(),true);
+ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.0',strategy:'retina-live-tip'};
 })();
 </script>
 </body>
