@@ -876,9 +876,9 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         
         const wrapper = document.getElementById('canvas-wrapper');
         const mainCanvas = document.getElementById('drawingBoard');
-        const mainCtx = mainCanvas.getContext('2d', { alpha: true, desynchronized: true }); 
+        const mainCtx = mainCanvas.getContext('2d', { alpha: true }); 
         const draftCanvas = document.getElementById('draftBoard');
-        const draftCtx = draftCanvas.getContext('2d', { alpha: true, desynchronized: true });
+        const draftCtx = draftCanvas.getContext('2d');
         
         const colorPicker = document.getElementById('colorPicker');
         const thicknessPicker = document.getElementById('thicknessPicker');
