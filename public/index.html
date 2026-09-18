@@ -805,7 +805,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
     <!-- Help Modal -->
     <div id="privacyModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="privacyModal">×</button><h2>Privacy</h2><p><strong>Versione preliminare pre-lancio.</strong> AirJotter tratta dati identificativi e tecnici necessari per autenticazione, sicurezza, salvataggio e condivisione dei Jotter.</p><h3>Dati trattati</h3><p>Nome, indirizzo email, identificativo dell'account, date di accesso, ruolo, dati tecnici di sessione e contenuti caricati volontariamente nei Jotter.</p><h3>Finalità</h3><p>Fornire il servizio, salvare e sincronizzare il lavoro, gestire autorizzazioni, sicurezza, assistenza e statistiche amministrative essenziali.</p><h3>Conservazione e destinatari</h3><p>I dati sono conservati per il tempo necessario al servizio e possono essere trattati dai fornitori tecnici scelti per hosting, database, autenticazione e storage.</p><h3>Diritti e contatti</h3><p>Gli utenti possono richiedere accesso, rettifica o cancellazione scrivendo a <strong>nbochicchio@gmail.com</strong>.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale e aggiornato con i fornitori definitivi.</p></article></div><div id="termsModal" class="modal legal-modal"><article class="modal-content legal-content"><button class="legal-close" data-close="termsModal">×</button><h2>Condizioni d'Uso</h2><p>AirJotter consente di creare, modificare, condividere ed esportare fogli digitali. Ogni utente è responsabile dei contenuti caricati e delle persone alle quali comunica il codice di accesso.</p><h3>Piani e limiti</h3><div class="plans-grid"><section><b>Free</b><span>2 Jotter</span><span>massimo 5 pagine</span></section><section><b>Plus</b><span>5 Jotter</span><span>massimo 10 pagine</span></section><section><b>Ultra</b><span>20 Jotter</span><span>massimo 50 pagine</span></section></div><p>In fase iniziale sono attivi soltanto utenti Free. Prezzi e modalità di acquisto dei piani superiori saranno pubblicati successivamente.</p><h3>Uso corretto</h3><p>È vietato caricare contenuti illeciti, violare diritti altrui, tentare accessi non autorizzati o compromettere il servizio.</p><p class="legal-warning">Il testo dovrà essere revisionato prima del lancio commerciale.</p></article></div><div id="adminModal" class="modal"><div class="modal-content admin-console"><button class="legal-close" data-close="adminModal">×</button><div class="admin-head"><div><h2>Console AirJotter</h2><p>Monitoraggio riservato a Nicola Bochicchio.</p></div><span id="adminLive">Aggiornamento live</span></div><div id="adminCards" class="admin-cards"></div><h3>Ultimi iscritti</h3><div class="admin-table-wrap"><table><thead><tr><th>Utente</th><th>Email registrazione</th><th>Piano</th><th>Stato</th><th>Iscrizione</th><th>Ultimo accesso</th><th>Jotter</th><th>Azioni</th></tr></thead><tbody id="adminUsers"></tbody></table></div></div></div>
-<div id="welcomeDiscoverModal" class="modal"><div class="modal-content welcome-discover-modal"><button id="welcomeDiscoverClose" class="welcome-modal-close" type="button" aria-label="Chiudi" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">&#10005;</button><div class="discover-heading"><span class="discover-heading-icon">✨</span><div><h2>Cosa fa AirJotter</h2><p><strong>AirJotter: lo stesso foglio digitale, condiviso anche a distanza, in tempo reale.</strong><br>Una paperboard digitale wireless, che funziona su qualsiasi device e con qualsiasi sistema operativo, combinando <strong>scrittura collaborativa in tempo reale</strong> e <strong>funzioni avanzate di PDF editing</strong>.</p></div></div><div class="discover-grid discover-grid-rich"><div><span class="discover-icon">✏️</span><section><strong>Disegna e scrivi</strong><span>Usa <b>penna, gomma e testo</b>, anche con una pencil elettronica.</span></section></div><div><span class="discover-icon">📄</span><section><strong>Lavora sui documenti</strong><span>Importa <b>PDF, immagini e firme:</b> ritagliali, spostali e annotali.</span></section></div><div><span class="discover-icon">🔗</span><section><strong>Condividi in un attimo</strong><span>Invia un <b>codice o un QR</b>. Gli altri vedono subito la stessa board.</span></section></div><div><span class="discover-icon">🛡️</span><section><strong>Collabora in sicurezza</strong><span>Decidi chi può <b>soltanto vedere</b> e chi può <b>modificare</b>.</span></section></div><div><span class="discover-icon">💾</span><section><strong>Non perdi il lavoro</strong><span>Ogni modifica viene <b>salvata</b> e i Jotter restano nel tuo archivio.</span></section></div><div><span class="discover-icon">🎥</span><section><strong>Usalo nella vita reale</strong><span>Condividi la board durante una <b>videoconferenza</b> (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.</span></section></div><div class="discover-pdf-card"><span class="discover-icon">⬇️</span><section><strong>Esporta tutto in PDF</strong><span>Scarica il lavoro in un <b>PDF multipagina con un clic</b>, pronto da archiviare, inviare o stampare. Puoi anche cambiare l'ordine delle pagine e/o eliminarne alcune.</span></section></div></div><button id="welcomeDiscoverDone" class="btn primary welcome-discover-done" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">Ho capito</button></div></div>
+<div id="welcomeDiscoverModal" class="modal"><div class="modal-content welcome-discover-modal"><button id="welcomeDiscoverClose" class="welcome-modal-close" type="button" aria-label="Chiudi" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">&#10005;</button><div class="discover-heading"><span class="discover-heading-icon">✨</span><div><h2>Cosa fa AirJotter</h2><p><strong>AirJotter:</strong> una <strong>paperboard digitale, wireless e condivisibile </strong>tra più utenti <strong>in tempo reale</strong>, che funziona su qualsiasi device e sistema operativo. Un'unica web app per <strong>scrivere, collaborare </strong>e <strong>modificare e firmare PDF</strong>, anche a distanza.</p></div></div><div class="discover-grid discover-grid-rich"><div><span class="discover-icon">✏️</span><section><strong>Disegna e scrivi</strong><span>Usa <b>penna, gomma e testo</b>, anche con una pencil elettronica.</span></section></div><div><span class="discover-icon">📄</span><section><strong>Lavora sui documenti</strong><span>Importa <b>PDF, immagini e firme:</b> ritagliali, spostali e annotali.</span></section></div><div><span class="discover-icon">🔗</span><section><strong>Condividi in un attimo</strong><span>Invia un <b>codice o un QR</b>. Gli altri vedono subito la stessa board.</span></section></div><div><span class="discover-icon">🛡️</span><section><strong>Collabora in sicurezza</strong><span>Decidi chi può <b>soltanto vedere</b> e chi può <b>modificare</b>.</span></section></div><div><span class="discover-icon">💾</span><section><strong>Non perdi il lavoro</strong><span>Ogni modifica viene <b>salvata</b> e i Jotter restano nel tuo archivio.</span></section></div><div><span class="discover-icon">🎥</span><section><strong>Usalo nella vita reale</strong><span>Condividi la board durante una <b>videoconferenza</b> (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.</span></section></div><div class="discover-pdf-card"><span class="discover-icon">⬇️</span><section><strong>Esporta tutto in PDF</strong><span>Scarica il lavoro in un <b>PDF multipagina con un clic</b>, pronto da archiviare, inviare o stampare. Puoi anche cambiare l'ordine delle pagine e/o eliminarne alcune.</span></section></div></div><button id="welcomeDiscoverDone" class="btn primary welcome-discover-done" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='none';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','true');">Ho capito</button></div></div>
 <div id="helpModal" class="modal">
         <div class="modal-content" style="text-align:left;max-width:680px;max-height:88vh;overflow:auto;position:relative;">
             <button onclick="document.getElementById('helpModal').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-soft);">✕</button>
@@ -1137,68 +1137,57 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         function renderPathToCtx(context, cmd, isIncremental = false) {
             if (!cmd || cmd.type !== 'path' || cmd.points.length === 0) return;
-            
             const isEraser = cmd.isEraser;
+            const pts = cmd.points;
             context.save();
             context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.18) : 1;
             context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
             context.lineCap = 'round';
             context.lineJoin = 'round';
-
-            const pts = cmd.points;
+            context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
             if (pts.length === 1 && !isIncremental) {
                 context.fillStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
                 context.beginPath();
                 context.arc(pts[0].x, pts[0].y, pts[0].w / 2, 0, Math.PI * 2);
                 context.fill();
-                context.globalCompositeOperation = 'source-over';
                 context.restore();
                 return;
             }
-
-            context.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : cmd.color;
-            let startIndex = isIncremental ? Math.max(1, cmd.renderIndex || 1) : 1;
-            
+            // v17.1: durante il contatto della Pencil disegna segmenti continui fino
+            // all'ultimo campione reale. Nessun punto medio, previsione o pallino in punta.
+            // Al rilascio resta invariato il rendering finale morbido a curve quadratiche.
+            if (isIncremental && !isEraser && !cmd.isHighlighter) {
+                const startIndex = Math.max(1, cmd.renderIndex || 1);
+                for (let i = startIndex; i < pts.length; i++) {
+                    const a = pts[i - 1], b = pts[i];
+                    context.beginPath();
+                    context.moveTo(a.x, a.y);
+                    context.lineTo(b.x, b.y);
+                    context.lineWidth = (a.w + b.w) / 2;
+                    context.stroke();
+                }
+                cmd.renderIndex = pts.length;
+                context.restore();
+                return;
+            }
+            const startIndex = isIncremental ? Math.max(1, cmd.renderIndex || 1) : 1;
             for (let i = startIndex; i < pts.length; i++) {
                 const p0 = i === 1 ? pts[0] : pts[i - 2] || pts[0];
                 const p1 = pts[i - 1];
                 const p2 = pts[i];
-                
                 const cp1x = p0.x + (p1.x - p0.x) / 2;
                 const cp1y = p0.y + (p1.y - p0.y) / 2;
-                
                 const cp2x = p1.x + (p2.x - p1.x) / 2;
                 const cp2y = p1.y + (p2.y - p1.y) / 2;
-                
                 context.beginPath();
                 context.moveTo(cp1x, cp1y);
                 context.quadraticCurveTo(p1.x, p1.y, cp2x, cp2y);
                 context.lineWidth = p1.w;
                 context.stroke();
             }
-
-            if (isIncremental) {
-                cmd.renderIndex = Math.max(1, pts.length - 1);
-                if (!cmd.isEraser && !cmd.isHighlighter && pts.length >= 2) {
-                    const previous = pts[pts.length - 2];
-                    const tip = pts[pts.length - 1];
-                    const midX = (previous.x + tip.x) / 2;
-                    const midY = (previous.y + tip.y) / 2;
-                    context.beginPath();
-                    context.moveTo(midX, midY);
-                    context.lineTo(tip.x, tip.y);
-                    context.lineWidth = tip.w;
-                    context.stroke();
-                    context.beginPath();
-                    context.fillStyle = cmd.color;
-                    context.arc(tip.x, tip.y, Math.max(.35, tip.w / 2), 0, Math.PI * 2);
-                    context.fill();
-                }
-            }
-            context.globalCompositeOperation = 'source-over';
+            if (isIncremental) cmd.renderIndex = Math.max(1, pts.length - 1);
             context.restore();
         }
-
         draftCanvas.addEventListener('pointerdown', e => {
             if(e.pointerType === 'pen') { e.preventDefault(); document.documentElement.classList.add('aj-pencil-active-v168'); }
             // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
@@ -2654,16 +2643,8 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
-<script id="AIRJOTTER_PENCIL_LIVE_TIP_V170">
-(function(){
- const iPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
- if(!iPad)return;
- const c=document.getElementById('draftBoard');if(!c)return;
- c.style.webkitTouchCallout='none';c.style.webkitUserSelect='none';c.style.userSelect='none';
- c.addEventListener('contextmenu',e=>e.preventDefault(),true);
- c.addEventListener('selectstart',e=>e.preventDefault(),true);
- window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.0',strategy:'retina-live-tip'};
-})();
+<script id="AIRJOTTER_PENCIL_DIRECT_V171">
+window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.1',strategy:'direct-real-samples-live-preview',finalRendering:'quadratic-retina'};
 </script>
 </body>
 </html>
