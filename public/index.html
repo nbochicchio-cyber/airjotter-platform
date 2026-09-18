@@ -660,8 +660,9 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 </style>
 
 <style id="airjotterIpadV159InkV182Style">
-#ajIpadInkV182{display:none}
-html.aj-ipad-v182 #ajIpadInkV182{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;touch-action:none}
+#ajIpadInkV182,#ajIpadTipV183{display:none}
+html.aj-ipad-v182 #ajIpadInkV182,html.aj-ipad-v182 #ajIpadTipV183{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;touch-action:none}
+html.aj-ipad-v182 #ajIpadInkV182{z-index:6}html.aj-ipad-v182 #ajIpadTipV183{z-index:7}
 </style>
 </head>
 <body>
@@ -3093,7 +3094,7 @@ if ('serviceWorker' in navigator) {
 window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-plus-reversible-browser-prediction',predictionSaved:false};
 </script>
 
-<script id="AIRJOTTER_IPAD_V159_INK_V182">
+<script id="AIRJOTTER_IPAD_LOW_LAG_V183">
 (function(){
  const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
  if(!isIPad)return;
@@ -3103,12 +3104,16 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  if(!host||!input)return;
  const live=document.createElement('canvas');
  live.id='ajIpadInkV182';live.setAttribute('aria-hidden','true');host.appendChild(live);
+ const tip=document.createElement('canvas');
+ tip.id='ajIpadTipV183';tip.setAttribute('aria-hidden','true');host.appendChild(tip);
  const ctx=live.getContext('2d');
+ const tipCtx=tip.getContext('2d');
  let active=false,pointerId=null,path=null,lastWidth=0;
  function resize(){
   const ratio=Math.max(1,Math.min(window.devicePixelRatio||1,2.5));
   live.width=Math.round(LOGICAL_W*ratio);live.height=Math.round(LOGICAL_H*ratio);
-  ctx.setTransform(ratio,0,0,ratio,0,0);
+  tip.width=live.width;tip.height=live.height;
+  ctx.setTransform(ratio,0,0,ratio,0,0);tipCtx.setTransform(ratio,0,0,ratio,0,0);
  }
  function pos(e){const r=input.getBoundingClientRect();return{x:(e.clientX-r.left)*(LOGICAL_W/r.width),y:(e.clientY-r.top)*(LOGICAL_H/r.height)}}
  function widthFor(e){
@@ -3140,7 +3145,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  function down(e){
   if(e.pointerType!=='pen')return;
   stop(e);if(stampActive||textOverlayActive||currentMode==='text')return;
-  resize();ctx.clearRect(0,0,LOGICAL_W,LOGICAL_H);active=true;pointerId=e.pointerId;lastWidth=0;
+  resize();ctx.clearRect(0,0,LOGICAL_W,LOGICAL_H);tipCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);active=true;pointerId=e.pointerId;lastWidth=0;
   const q=pos(e),w=widthFor(e);path={type:'path',color:currentColor,points:[{x:q.x,y:q.y,w}],isEraser:currentMode==='eraser',isHighlighter:currentMode==='highlighter',opacity:currentMode==='highlighter'?.18:1};
   ctx.save();ctx.globalAlpha=path.opacity;ctx.fillStyle=path.color;ctx.beginPath();ctx.arc(q.x,q.y,w/2,0,Math.PI*2);ctx.fill();ctx.restore();
   try{input.setPointerCapture(e.pointerId)}catch{}
@@ -3152,18 +3157,25 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
    const p={x:q.x,y:q.y,w:widthFor(ev)};path.points.push(p);
    const n=path.points.length;if(n>=3)drawSegment(ctx,path.points[n-3],path.points[n-2],path.points[n-1],path.color,false,path.opacity);
   }
+  tipCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);
+  if(path&&path.points.length>=2){
+   const n=path.points.length,a=path.points[n-2],b=path.points[n-1];
+   const from=n>=3?{x:(path.points[n-3].x+a.x)/2,y:(path.points[n-3].y+a.y)/2,w:a.w}:a;
+   tipCtx.save();tipCtx.globalAlpha=path.opacity;tipCtx.strokeStyle=path.color;tipCtx.lineCap='round';tipCtx.lineJoin='round';
+   tipCtx.beginPath();tipCtx.moveTo(from.x,from.y);tipCtx.quadraticCurveTo(a.x,a.y,b.x,b.y);tipCtx.lineWidth=b.w;tipCtx.stroke();tipCtx.restore();
+  }
  }
  function finish(e){
   if(!active||e.pointerId!==pointerId||e.pointerType!=='pen')return;stop(e);
   for(const ev of events(e)){const q=pos(ev),last=path.points[path.points.length-1];if((q.x-last.x)**2+(q.y-last.y)**2>.01)path.points.push({x:q.x,y:q.y,w:widthFor(ev)})}
-  ctx.clearRect(0,0,LOGICAL_W,LOGICAL_H);drawFull(mainCtx,path);commands.push(path);ajSendCommand(path);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
+  tipCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);ctx.clearRect(0,0,LOGICAL_W,LOGICAL_H);drawFull(mainCtx,path);commands.push(path);ajSendCommand(path);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
   active=false;pointerId=null;path=null;lastWidth=0;try{input.releasePointerCapture(e.pointerId)}catch{}
  }
  function blockPalm(e){if(active&&e.pointerType==='touch')stop(e)}
  input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',finish,true);
  input.addEventListener('pointerdown',blockPalm,true);input.addEventListener('pointermove',blockPalm,true);
  window.addEventListener('resize',()=>{if(!active)resize()},{passive:true});resize();
- window.AIRJOTTER_IPAD_INK={version:'18.2',sourceLogic:'v15.9-reconstructed',scope:'iPad Apple Pencil only'};
+ window.AIRJOTTER_IPAD_INK={version:'18.3',sourceLogic:'v15.9-reconstructed',scope:'iPad Apple Pencil only',latencyStrategy:'reversible-real-sample-tail'};
 })();
 </script>
 </body>
