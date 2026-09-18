@@ -854,6 +854,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         const toolColors={pen:'#1D1D1F',highlighter:'#FFFB9E',text:'#1D1D1F'};
         let currentPath = null;
         let dpr = 1;
+        let draftDpr = 1; // v16.8: anteprima Pencil leggera, canvas finale Retina invariato
         
         const LOGICAL_W = 900;
         const BASE_A4_H = 1273; 
@@ -911,8 +912,10 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
             mainCanvas.width = Math.round(LOGICAL_W * dpr); mainCanvas.height = Math.round(LOGICAL_H * dpr); 
             mainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
             
-            draftCanvas.width = Math.round(LOGICAL_W * dpr); draftCanvas.height = Math.round(LOGICAL_H * dpr); 
-            draftCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const ajIPadPencilDevice=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
+            draftDpr = ajIPadPencilDevice ? Math.min(dpr, 1.5) : dpr;
+            draftCanvas.width = Math.round(LOGICAL_W * draftDpr); draftCanvas.height = Math.round(LOGICAL_H * draftDpr); 
+            draftCtx.setTransform(draftDpr, 0, 0, draftDpr, 0, 0);
 
             updateBrush();
             redrawMainCanvas();
@@ -1180,6 +1183,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
         }
 
         draftCanvas.addEventListener('pointerdown', e => {
+            if(e.pointerType === 'pen') document.documentElement.classList.add('aj-pencil-active-v168');
             // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
             // i touch pointer generati dal palmo che appoggia sul tablet. Senza questo,
             // il palmo aggiunge un pointer a activePointers, size diventa 2, e il
@@ -1304,6 +1308,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 
         function endPointer(e) {
             activePointers.delete(e.pointerId);
+            if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
             if (isDrawing && (activePointers.size === 0 || e.pointerType === 'pen')) {
                 const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
                 for (const ev of evs) {
@@ -1914,7 +1919,7 @@ async function ajResolveRequest(approved){if(!ajPendingRequest)return;await ajAp
 document.getElementById('accessApproveBtn').onclick=()=>ajResolveRequest(true);
 document.getElementById('accessDenyBtn').onclick=()=>ajResolveRequest(false);
 ajSocket.on('access:requested',ajShowRequest);
-setInterval(async()=>{if(ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
+setInterval(async()=>{if(isDrawing||document.documentElement.classList.contains('aj-pencil-active-v168')||ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
 ajSocket.on('access:resolved', result=>{if(result.boardId===ajBoard?.id){ajSetRole(result.role);alert(result.approved?'Accesso in modifica autorizzato.':'Richiesta rifiutata.')}});
     </script>
 <script id="welcomeDiscoverRuntime">
@@ -2259,7 +2264,7 @@ document.addEventListener('click', function(event) {
   desktopUndo.disabled=!state.canUndo;desktopRedo.disabled=!state.canRedo;
   const m=mobileButtons();if(m.undo)m.undo.disabled=!state.canUndo;if(m.redo)m.redo.disabled=!state.canRedo;
  }
- async function refreshHistory(){if(!ajBoard)return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
+ async function refreshHistory(){if(!ajBoard||isDrawing||document.documentElement.classList.contains('aj-pencil-active-v168'))return;try{applyState(await ajApi('/api/boards/'+ajBoard.id+'/history-state'))}catch(e){console.debug('Stato cronologia:',e.message)}}
  async function historyAction(kind){
   if(!ajBoard)return;
   const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});
@@ -2628,6 +2633,10 @@ if ('serviceWorker' in navigator) {
  if(done){done.onpointerdown=closeNow;done.onclick=closeNow}
  modal.addEventListener('pointerdown',event=>{if(event.target===modal)closeNow(event)},true);
 })();
+</script>
+
+<script id="airjotterPencilPerformanceV168">
+window.AIRJOTTER_PENCIL_PERFORMANCE={version:'16.8',liveDraftDpr:1.5,finalRetina:true};
 </script>
 </body>
 </html>
