@@ -605,6 +605,15 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 }
 
 </style>
+
+<style id="airjotterMobilePolishV162Styles">
+@media (max-width:760px){
+ #mobileToolsBtn{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;white-space:normal!important;line-height:1.05!important}
+ #mobileToolsBtn .aj-tools-line{display:block!important;width:100%!important}
+ header .brand{touch-action:manipulation!important}
+}
+@media (min-width:761px) and (any-pointer:coarse){header .brand{touch-action:manipulation!important}}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -2484,6 +2493,41 @@ if ('serviceWorker' in navigator) {
       .catch(error => console.warn('Service worker AirJotter:', error));
   });
 }
+</script>
+
+<script id="airjotterMobilePolishV162">
+(function(){
+ const toolsButton=document.getElementById('mobileToolsBtn');
+ const viewport=document.getElementById('mobileViewport');
+ const brand=document.getElementById('brandBtn');
+ if(!toolsButton||!viewport||!brand)return;
+ function toolsAreOpen(){return document.body.classList.contains('mobile-tools-open')}
+ function updateToolsLabel(){
+  const first=toolsAreOpen()?'Chiudi':'Apri';
+  toolsButton.innerHTML='<span class="aj-tools-line">'+first+'</span><span class="aj-tools-line">Strumenti</span>';
+  toolsButton.setAttribute('aria-expanded',String(toolsAreOpen()));
+  toolsButton.setAttribute('aria-label',first+' Strumenti');
+ }
+ toolsButton.onclick=function(event){
+  event.preventDefault();
+  document.body.classList.toggle('mobile-tools-open');
+  updateToolsLabel();
+ };
+ new MutationObserver(updateToolsLabel).observe(document.body,{attributes:true,attributeFilter:['class']});
+ updateToolsLabel();
+ let lastTopAction=0;
+ function returnToTop(event){
+  if(event){event.preventDefault();event.stopPropagation()}
+  const now=Date.now();if(now-lastTopAction<350)return;lastTopAction=now;
+  if(typeof viewport.scrollTo==='function')viewport.scrollTo({top:0,left:viewport.scrollLeft,behavior:'smooth'});
+  else viewport.scrollTop=0;
+  window.scrollTo({top:0,behavior:'smooth'});
+ }
+ brand.addEventListener('pointerup',function(event){
+  if(event.pointerType==='touch'||event.pointerType==='pen')returnToTop(event);
+ },true);
+ brand.addEventListener('click',returnToTop,true);
+})();
 </script>
 </body>
 </html>
