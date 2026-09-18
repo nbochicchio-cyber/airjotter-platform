@@ -632,6 +632,11 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
  #mobileUndo119,#mobileRedo119{font-size:1.20rem!important}
 }
 </style>
+
+<style id="airjotterLobbyHelpV164Styles">
+.aj-lobby-discover{display:inline-flex;align-items:center;justify-content:center;margin:2px auto 0;border:0;background:transparent;color:var(--accent-hover);font-size:.95rem;font-weight:700;line-height:1.25;text-decoration:underline;cursor:pointer;padding:8px 12px;min-height:40px}
+@media(max-width:760px){.aj-lobby-discover{font-size:.90rem;padding:7px 10px;min-height:38px}}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -2555,6 +2560,34 @@ if ('serviceWorker' in navigator) {
  userButton.innerHTML='<span class="aj-user-line">I miei</span><span class="aj-user-line">Jotter</span>';
  userButton.setAttribute('aria-label','I miei Jotter');
  userButton.title='I miei Jotter';
+})();
+</script>
+
+<script id="airjotterLobbyHelpV164">
+(function(){
+ const card=document.querySelector('#ajLobby .aj-access-card');
+ const grid=card&&card.querySelector('.aj-choice-grid');
+ const modal=document.getElementById('welcomeDiscoverModal');
+ if(!card||!grid||!modal)return;
+ let button=document.getElementById('lobbyDiscoverBtnV164');
+ if(!button){
+  button=document.createElement('button');
+  button.id='lobbyDiscoverBtnV164';button.type='button';button.className='aj-lobby-discover';
+  button.textContent='A cosa serve AirJotter?';
+  grid.insertAdjacentElement('afterend',button);
+ }
+ function openDiscover(event){
+  if(event)event.preventDefault();
+  modal.style.display='flex';modal.setAttribute('aria-hidden','false');
+  const content=modal.querySelector('.welcome-discover-modal');if(content)content.scrollTop=0;
+ }
+ button.addEventListener('click',openDiscover);
+ const help=document.getElementById('helpBtn');
+ if(help&&!help.dataset.v164){
+  help.dataset.v164='1';help.addEventListener('click',function(event){
+   event.preventDefault();event.stopImmediatePropagation();openDiscover(event);
+  },true);
+ }
 })();
 </script>
 </body>
