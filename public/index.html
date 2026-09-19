@@ -663,39 +663,19 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_DESKTOP_UNIFIED_V203_STYLE">
-/* AirJotter v20.3 - motore unico desktop/notebook, con o senza touch */
-@media (min-width:761px) {
- html.aj-desktop-v203,html.aj-desktop-v203 body{min-width:0!important;overflow-x:hidden!important}
- html.aj-desktop-v203 header{
-  display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;
-  width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;
-  opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important
- }
- html.aj-desktop-v203 #mobileViewport{
-  position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;
-  overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important
- }
- html.aj-desktop-v203 #mobileViewport::-webkit-scrollbar{display:none!important}
- html.aj-desktop-v203 #mobileStageV109{position:relative!important;display:block!important;overflow:visible!important}
- html.aj-desktop-v203 #mobileStageV109>#canvas-wrapper{
-  position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important
- }
- html.aj-desktop-v203 #ajPcFitV203{
-  min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
-  text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important
- }
- html.aj-desktop-v203 #ajPcFitV203 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
- #ajPcScrollV195{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-}
+<style id="AIRJOTTER_DESKTOP_STATIC_V204_STYLE">
 @media (min-width:761px){
- html.aj-windows-hybrid-v203 #mobileTopbar,
- html.aj-windows-hybrid-v203 .mobile-topbar,
- html.aj-windows-hybrid-v203 #mobileFitBtn,
- html.aj-windows-hybrid-v203 [id*="mobileFit"],
- html.aj-windows-hybrid-v203 #tabletFitBtnV15{display:none!important;visibility:hidden!important}
- html.aj-windows-hybrid-v203 #mobileViewport{touch-action:none!important}
+ html.aj-desktop-v204,html.aj-desktop-v204 body{min-width:0!important;overflow-x:hidden!important}
+ html.aj-desktop-v204 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important}
+ html.aj-desktop-v204 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important}
+ html.aj-desktop-v204 #mobileViewport::-webkit-scrollbar{display:none!important}
+ html.aj-desktop-v204 #mobileStageV109{position:relative!important;display:block!important;overflow:visible!important}
+ html.aj-desktop-v204 #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important}
+ #ajPcFitV204{min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important}
+ #ajPcFitV204 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
+ #ajPcScrollV195,#tabletFitBtnV15{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 }
+@media (min-width:761px){html.aj-windows-touch-v204 #mobileTopbar,html.aj-windows-touch-v204 .mobile-topbar,html.aj-windows-touch-v204 [id*="mobileFit"]{display:none!important;visibility:hidden!important}html.aj-windows-touch-v204 #mobileViewport{touch-action:none!important}}
 </style>
 </head>
 <body>
@@ -729,6 +709,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         </div>
         
         <div class="tools-group">
+            <button id="ajPcFitV204" class="btn" type="button" title="Adatta pagina e toolbar"><span>Adatta</span><span>pagina</span></button>
             <button id="toolPenBtn" class="icon-btn active-tool" title="Penna"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
             <input type="color" id="colorPicker" class="tool-color" value="#1D1D1F" title="Colore tratto">
             <button id="toolHighlighterBtn" class="icon-btn" title="Evidenziatore"><svg viewBox="0 0 24 24"><path d="M9 11l6 6"></path><path d="M15 3l6 6-10 10H5v-6L15 3z"></path><path d="M3 21h18"></path></svg></button>
@@ -3216,97 +3197,49 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
-<script id="AIRJOTTER_DESKTOP_UNIFIED_V203">
+<script id="AIRJOTTER_DESKTOP_STATIC_V204">
 (function(){
  'use strict';
- const desktop=innerWidth>760&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
- if(!desktop||window.AIRJOTTER_DESKTOP_UNIFIED_V203)return;
- const hybrid=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
- window.AIRJOTTER_DESKTOP_UNIFIED_V203={version:'20.3',hybrid};
- document.documentElement.classList.add('aj-desktop-v203');if(hybrid)document.documentElement.classList.add('aj-windows-hybrid-v203');
- const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn');
- if(!vp||!stage||!wrapper||!header||!pen)return;
- document.querySelectorAll('#ajPcScrollV195').forEach(el=>el.remove());
- function removeDuplicates(){
-  if(!hybrid)return;
-  ['mobileTopbar','mobileFitBtn','tabletFitBtnV15'].forEach(id=>{const el=document.getElementById(id);if(el)el.remove()});
-  document.querySelectorAll('[id*="mobileFit"]').forEach(el=>el.remove());
- }
- removeDuplicates();
- let fit=document.getElementById('ajPcFitV203');
- if(!fit){fit=document.createElement('button');fit.id='ajPcFitV203';fit.type='button';fit.className='btn';pen.parentNode.insertBefore(fit,pen)}
- fit.innerHTML='<span>Adatta</span><span>pagina</span>';fit.title='Adatta pagina e toolbar alla larghezza disponibile';
- let scale=1,resizeTimer=0;
- function widthAvailable(){return Math.max(360,(window.visualViewport?.width||document.documentElement.clientWidth||innerWidth)-24)}
- function fitToolbar(){
+ const desktop=innerWidth>760&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
+ const touchPC=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
+ document.documentElement.classList.add('aj-desktop-v204');if(touchPC)document.documentElement.classList.add('aj-windows-touch-v204');
+ const header=document.querySelector('header'),vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),fit=document.getElementById('ajPcFitV204');if(!header||!vp||!stage||!wrapper||!fit)return;
+ function clean(){document.querySelectorAll('#ajPcScrollV195,#tabletFitBtnV15').forEach(x=>x.remove());if(touchPC){document.querySelectorAll('#mobileTopbar,[id*="mobileFit"]').forEach(x=>x.remove())}}
+ clean();
+ let pageScale=Math.max(.18,wrapper.getBoundingClientRect().width/LOGICAL_W||1),timer=0;
+ function vw(){return Math.max(360,(visualViewport?.width||document.documentElement.clientWidth||innerWidth)-24)}
+ function fitBar(){
   header.style.setProperty('display','flex','important');header.style.setProperty('visibility','visible','important');header.style.setProperty('opacity','1','important');
-  header.style.zoom='1';header.style.left='50%';header.style.right='auto';header.style.width='max-content';header.style.maxWidth='none';header.style.overflow='visible';header.style.flexWrap='nowrap';
-  header.style.transform='translateX(-50%) scale(1)';header.style.transformOrigin='top center';
-  void header.offsetWidth;
-  const natural=Math.max(header.scrollWidth,header.offsetWidth,1),factor=Math.min(1,widthAvailable()/natural);
-  header.style.transform='translateX(-50%) scale('+factor+')';
+  header.style.setProperty('left','50%','important');header.style.setProperty('right','auto','important');header.style.setProperty('width','max-content','important');header.style.setProperty('max-width','none','important');header.style.setProperty('overflow','visible','important');header.style.setProperty('flex-wrap','nowrap','important');header.style.zoom='1';
+  header.style.setProperty('transform','translateX(-50%) scale(1)','important');void header.offsetWidth;
+  const natural=Math.max(header.scrollWidth,header.offsetWidth,1),k=Math.min(1,vw()/natural);
+  header.style.setProperty('transform','translateX(-50%) scale('+k+')','important');
   return header.getBoundingClientRect();
  }
- function setGeometry(value){
-  scale=Math.max(.18,Math.min(4,Number(value)||1));
-  stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';
-  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
+ function geometry(s){
+  pageScale=Math.max(.18,Math.min(4,Number(s)||1));
+  stage.style.setProperty('width',Math.round(LOGICAL_W*pageScale)+'px','important');stage.style.setProperty('height',Math.round(LOGICAL_H*pageScale)+'px','important');
+  stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important');
+  wrapper.style.setProperty('width',LOGICAL_W+'px','important');wrapper.style.setProperty('height',LOGICAL_H+'px','important');wrapper.style.setProperty('transform','scale('+pageScale+')','important');wrapper.style.setProperty('transform-origin','top left','important');wrapper.style.setProperty('margin','0','important');
  }
- function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
- function layout(center){
-  removeDuplicates();document.querySelectorAll('#ajPcScrollV195').forEach(el=>el.remove());
-  const box=fitToolbar();vp.style.paddingTop=(Math.ceil(box.bottom)+18)+'px';
-  const wide=stage.offsetWidth>vp.clientWidth-24;
-  stage.style.marginLeft=wide?'12px':'auto';stage.style.marginRight=wide?'12px':'auto';
-  if(center&&!wide)vp.scrollLeft=0;
+ function relayout(center){clean();const b=fitBar();vp.style.setProperty('padding-top',Math.ceil(b.bottom+18)+'px','important');if(center){vp.scrollLeft=0;stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important')}}
+ function adapt(){fitBar();geometry(Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W)));requestAnimationFrame(()=>requestAnimationFrame(()=>{relayout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}))}
+ function zoom(next,x){const before=pageScale,r=vp.getBoundingClientRect(),anchor=Math.max(0,Math.min(vp.clientWidth,(x||r.left+vp.clientWidth/2)-r.left)),docX=(vp.scrollLeft+anchor)/before;geometry(next);relayout(false);vp.scrollLeft=Math.max(0,docX*pageScale-anchor)}
+ fit.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();adapt()},true);
+ document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();e.stopImmediatePropagation();zoom(pageScale*(e.deltaY<0?1.12:1/1.12),e.clientX)},{capture:true,passive:false});
+ document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();zoom(pageScale*1.12)}else if(e.key==='-'){e.preventDefault();zoom(pageScale/1.12)}},true);
+ // Do not cancel ordinary wheel events: native touchpad vertical/horizontal scrolling remains intact.
+ let g=null,pending=null,raf=0;
+ const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}),dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
+ function paint(){raf=0;const p=pending;pending=null;if(!g||!p)return;const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,g.scale*p.distance/g.distance));geometry(next);vp.scrollLeft=Math.max(0,g.left-(p.center.x-g.center.x)+(next-g.scale)*(g.center.x/g.scale));root.scrollTop=Math.max(0,g.top-(p.center.y-g.center.y)+(next-g.scale)*(g.center.y/g.scale));relayout(false)}
+ if(touchPC){
+  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;g={center:mid(e.touches),distance:dist(e.touches),scale:pageScale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  window.addEventListener('touchmove',e=>{if(!g||e.touches.length!==2)return;pending={center:mid(e.touches),distance:dist(e.touches)};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  const end=e=>{if(!g||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}g=null;pending=null;relayout(true)};window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
  }
- function adapt(){
-  fitToolbar();setGeometry(fitScale());
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}));
- }
- function zoomAt(next,clientX){
-  const before=scale,box=vp.getBoundingClientRect();
-  const anchor=Math.max(0,Math.min(vp.clientWidth,(clientX||box.left+vp.clientWidth/2)-box.left));
-  const docX=(vp.scrollLeft+anchor)/before;
-  setGeometry(next);layout(false);vp.scrollLeft=Math.max(0,docX*scale-anchor);
- }
- function stepZoom(dir,x){zoomAt(scale*(dir>0?1.12:1/1.12),x)}
- fit.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();adapt()};
- // Ctrl+wheel / Ctrl+plus / Ctrl+minus zoom only the document, never the toolbar.
- document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();stepZoom(e.deltaY<0?1:-1,e.clientX)},{capture:true,passive:false});
- document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();e.stopImmediatePropagation();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();e.stopImmediatePropagation();stepZoom(1)}else if(e.key==='-'){e.preventDefault();e.stopImmediatePropagation();stepZoom(-1)}},true);
- // Touchpad on every PC: vertical gestures scroll the document; horizontal gestures pan the board.
- let wx=0,wy=0,wraf=0;
- function flushWheel(){wraf=0;const root=document.scrollingElement||document.documentElement;if(wx)vp.scrollLeft=Math.max(0,vp.scrollLeft+wx);if(wy)root.scrollTop=Math.max(0,root.scrollTop+wy);wx=wy=0}
- window.addEventListener('wheel',e=>{
-  if(e.ctrlKey)return;
-  const m=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1),dx=e.deltaX*m,dy=e.deltaY*m;
-  if(Math.abs(dy)>=Math.abs(dx)){wy+=dy;wx+=dx*.08}else{wx+=dx;wy+=dy*.08}
-  if(e.cancelable)e.preventDefault();if(!wraf)wraf=requestAnimationFrame(flushWheel);
- },{capture:true,passive:false});
- // Physical touchscreen on Windows 2-in-1: two-finger pan both axes + pinch-to-zoom.
- let gesture=null,pending=null,traf=0;
- const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2});
- const dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
- function paintTouch(){
-  traf=0;const p=pending;pending=null;if(!gesture||!p)return;
-  const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,gesture.scale*p.distance/gesture.distance));
-  setGeometry(next);
-  vp.scrollLeft=Math.max(0,gesture.left-(p.center.x-gesture.center.x)+(next-gesture.scale)*(gesture.center.x/gesture.scale));
-  root.scrollTop=Math.max(0,gesture.top-(p.center.y-gesture.center.y)+(next-gesture.scale)*(gesture.center.y/gesture.scale));
-  layout(false);
- }
- if(hybrid){
-  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;gesture={center:mid(e.touches),distance:dist(e.touches),scale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
-  window.addEventListener('touchmove',e=>{if(!gesture||e.touches.length!==2)return;pending={center:mid(e.touches),distance:dist(e.touches)};if(!traf)traf=requestAnimationFrame(paintTouch);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
-  const end=e=>{if(!gesture||e.touches.length>=2)return;if(traf){cancelAnimationFrame(traf);paintTouch()}gesture=null;pending=null;layout(true)};
-  window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
- }
- const observer=new MutationObserver(()=>{removeDuplicates();document.querySelectorAll('#ajPcScrollV195').forEach(el=>el.remove())});observer.observe(document.body,{childList:true,subtree:true});
- function refresh(){clearTimeout(resizeTimer);requestAnimationFrame(()=>layout(true));resizeTimer=setTimeout(()=>layout(true),160)}
- window.addEventListener('resize',refresh,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',refresh,{passive:true});
- const oldInit=initCanvas;initCanvas=function(){const r=oldInit.apply(this,arguments);setGeometry(scale);requestAnimationFrame(()=>layout(true));return r};
- adapt();
+ new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});
+ function resize(){clearTimeout(timer);requestAnimationFrame(()=>relayout(true));timer=setTimeout(()=>relayout(true),150)}window.addEventListener('resize',resize,{passive:true});visualViewport?.addEventListener('resize',resize,{passive:true});
+ const old=initCanvas;initCanvas=function(){const z=pageScale,r=old.apply(this,arguments);geometry(z);requestAnimationFrame(()=>relayout(true));return r};adapt();
 })();
 </script>
 </body>
