@@ -663,24 +663,22 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_PC_WORKSPACE_FIX_V193_STYLE">
-/* AirJotter PC Workspace Fix v19.3 */
+<style id="AIRJOTTER_PC_WORKSPACE_FIX_V194_STYLE">
 @media (hover:hover) and (pointer:fine){
- html.aj-pc-workspace-v193,html.aj-pc-workspace-v193 body{overflow-x:hidden!important;min-width:0!important}
- #ajPcWorkspaceV193{position:relative;width:100%;overflow-x:auto;overflow-y:visible;box-sizing:border-box;padding:0 0 36px;scrollbar-width:none;overscroll-behavior-x:contain}
- #ajPcWorkspaceV193::-webkit-scrollbar{display:none}
- #ajPcCanvasSlotV193{position:relative;flex:0 0 auto}
- #ajPcTopScrollV193{position:fixed;left:14px;right:14px;height:14px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.96);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s ease}
- #ajPcTopScrollV193.visible{opacity:1;pointer-events:auto}
- #ajPcTopScrollInnerV193{height:1px}
- #ajPcTopScrollV193::-webkit-scrollbar{height:10px}
- #ajPcTopScrollV193::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.96);border-radius:999px}
- #ajPcTopScrollV193::-webkit-scrollbar-track{background:transparent}
- #ajPcFitV193{min-width:62px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;padding:5px 8px;order:0}
- #ajPcFitV193 span{font-size:.78rem;font-weight:700}
- #ajPcFitV193 small{font-size:.60rem;color:var(--text-soft);margin-top:3px}
+ html.aj-pc-v194,html.aj-pc-v194 body{overflow-x:hidden!important;min-width:0!important}
+ #ajPcViewportV194{position:relative;width:100%;overflow-x:auto;overflow-y:visible;box-sizing:border-box;scrollbar-width:none;overscroll-behavior-x:contain;padding-bottom:45px}
+ #ajPcViewportV194::-webkit-scrollbar{display:none}
+ #ajPcStageV194{position:relative;display:block;box-sizing:content-box}
+ #ajPcStageV194>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;max-width:none!important;transform-origin:top left!important}
+ #ajPcTopScrollV194{position:fixed;left:14px;right:14px;height:15px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.97);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s}
+ #ajPcTopScrollV194.visible{opacity:1;pointer-events:auto}
+ #ajPcTopScrollInnerV194{height:1px}
+ #ajPcTopScrollV194::-webkit-scrollbar{height:11px}
+ #ajPcTopScrollV194::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.97);border-radius:999px}
+ #ajPcTopScrollV194::-webkit-scrollbar-track{background:transparent}
+ #ajPcFitV194{min-width:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;padding:5px 8px}
+ #ajPcFitV194 small{font-size:.60rem;color:var(--text-soft);margin-top:3px}
 }
-
 </style>
 </head>
 <body>
@@ -3201,91 +3199,46 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>`r`n
-<script id="AIRJOTTER_PC_WORKSPACE_FIX_V193">
-/* AirJotter PC Workspace Fix v19.3 - desktop only */
+<script id="AIRJOTTER_PC_WORKSPACE_FIX_V194">
 (function(){
- 'use strict';
  const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
  if(!desktop||window.AIRJOTTER_PC_WORKSPACE_FIX)return;
- window.AIRJOTTER_PC_WORKSPACE_FIX={version:'19.3',scope:'desktop-only'};
- const wrapper=document.getElementById('canvas-wrapper');
- const header=document.querySelector('body > header, header');
- if(!wrapper||!header)return;
- document.documentElement.classList.add('aj-pc-workspace-v193');
-
- // A real scroll viewport avoids negative transformed overflow and permanent left anchoring.
- const shell=document.createElement('div');shell.id='ajPcWorkspaceV193';
- const slot=document.createElement('div');slot.id='ajPcCanvasSlotV193';
- wrapper.parentNode.insertBefore(shell,wrapper);shell.appendChild(slot);slot.appendChild(wrapper);
- const topScroll=document.createElement('div');topScroll.id='ajPcTopScrollV193';
- topScroll.innerHTML='<div id="ajPcTopScrollInnerV193"></div>';document.body.appendChild(topScroll);
- const topInner=topScroll.firstElementChild;
-
- // Exact placement: immediately after Help (?) and immediately before Pen.
- const fit=document.createElement('button');fit.id='ajPcFitV193';fit.type='button';fit.className='btn';
- fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV193">100%</small>';
- fit.title='Adatta il foglio allo schermo e riportalo perfettamente al centro';
- const pen=document.querySelector('#penBtn,#penTool,[data-mode="pen"],button[aria-label*="penna" i],button[title*="penna" i]');
- const help=document.querySelector('#welcomeDiscoverBtn,#helpBtn,button[aria-label*="aiuto" i],button[title*="aiuto" i]');
- if(pen&&pen.parentNode){pen.parentNode.insertBefore(fit,pen)}
- else if(help&&help.parentNode){help.parentNode.insertBefore(fit,help.nextSibling)}
- else header.insertBefore(fit,header.firstChild);
-
- let scale=1,fitMode=true,syncing=false,timer=0,previousOverflow=false;
- const logicalW=()=>Number(window.LOGICAL_W)||900;
- const logicalH=()=>Number(window.LOGICAL_H)||1273;
+ window.AIRJOTTER_PC_WORKSPACE_FIX={version:'19.4',scope:'desktop-only'};
+ const wrapper=document.getElementById('canvas-wrapper'),vp0=document.getElementById('mobileViewport'),header=document.querySelector('header');
+ if(!wrapper||!vp0||!header)return;
+ document.documentElement.classList.add('aj-pc-v194');
+ const stage=document.createElement('div');stage.id='ajPcStageV194';
+ const viewport=document.createElement('div');viewport.id='ajPcViewportV194';
+ vp0.insertBefore(viewport,wrapper);viewport.appendChild(stage);stage.appendChild(wrapper);
+ const bar=document.createElement('div');bar.id='ajPcTopScrollV194';bar.innerHTML='<div id="ajPcTopScrollInnerV194"></div>';document.body.appendChild(bar);
+ const barInner=bar.firstElementChild;
+ const fit=document.createElement('button');fit.id='ajPcFitV194';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV194">100%</small>';fit.title='Adatta e centra il foglio';
+ const pen=document.getElementById('toolPenBtn'),help=document.getElementById('helpBtn');
+ if(pen&&pen.parentNode)pen.parentNode.insertBefore(fit,pen);else if(help)help.insertAdjacentElement('afterend',fit);
+ let scale=1,fitMode=true,sync=false,timer=0,wasWide=false;
+ function dimensions(){return {w:LOGICAL_W,h:LOGICAL_H}}
  function headerBottom(){return Math.ceil(header.getBoundingClientRect().bottom)}
- function availableWidth(){return Math.max(260,shell.clientWidth-40)}
- function fitScale(){return Math.min(1,availableWidth()/logicalW())}
- function setScale(value){
-   scale=Math.max(.2,Math.min(1,Number(value)||1));
-   wrapper.style.position='absolute';wrapper.style.inset='0 auto auto 0';
-   wrapper.style.width=logicalW()+'px';wrapper.style.height=logicalH()+'px';
-   wrapper.style.maxWidth='none';wrapper.style.margin='0';
-   wrapper.style.transformOrigin='0 0';wrapper.style.transform='scale('+scale+')';
-   slot.style.width=Math.ceil(logicalW()*scale)+'px';slot.style.height=Math.ceil(logicalH()*scale)+'px';
+ function fitScale(){const d=dimensions();return Math.min(1,Math.max(.18,(viewport.clientWidth-40)/d.w))}
+ function setScale(v){const d=dimensions();scale=Math.max(.18,Math.min(4,Number(v)||1));wrapper.style.width=d.w+'px';wrapper.style.height=d.h+'px';wrapper.style.transform='scale('+scale+')';stage.style.width=Math.ceil(d.w*scale)+'px';stage.style.height=Math.ceil(d.h*scale)+'px'}
+ function layout(centerIfFits){
+  const hb=headerBottom();viewport.style.marginTop=(hb+18)+'px';bar.style.top=(hb+4)+'px';
+  const wide=stage.offsetWidth+40>viewport.clientWidth;
+  if(wide){stage.style.marginLeft='20px';stage.style.marginRight='20px'}else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||wasWide)viewport.scrollLeft=0}
+  barInner.style.width=Math.max(viewport.clientWidth,stage.offsetWidth+40)+'px';bar.classList.toggle('visible',wide);
+  document.getElementById('ajPcZoomV194').textContent=Math.round(scale*100)+'%';wasWide=wide;
+  if(!sync){sync=true;bar.scrollLeft=viewport.scrollLeft;sync=false}
  }
- function effectivePercent(){return Math.round(scale*100)}
- function layout(centerWhenPossible=true){
-   shell.style.marginTop=(headerBottom()+18)+'px';
-   const viewport=Math.max(1,shell.clientWidth),content=slot.offsetWidth;
-   const overflow=content+40>viewport;
-   slot.classList.toggle('wide',overflow);
-   if(overflow){
-     slot.style.marginLeft='20px';slot.style.marginRight='20px';
-   }else{
-     slot.style.marginLeft='auto';slot.style.marginRight='auto';
-     if(centerWhenPossible||previousOverflow)shell.scrollLeft=0;
-   }
-   const scrollWidth=Math.max(viewport,content+40);
-   topInner.style.width=scrollWidth+'px';
-   topScroll.style.top=(headerBottom()+4)+'px';
-   topScroll.classList.toggle('visible',overflow);
-   document.getElementById('ajPcZoomV193').textContent=effectivePercent()+'%';
-   previousOverflow=overflow;
-   if(!syncing){syncing=true;topScroll.scrollLeft=shell.scrollLeft;syncing=false}
- }
- function fitNow(){
-   fitMode=true;setScale(fitScale());
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);shell.scrollLeft=0;window.scrollTo({top:0,left:0,behavior:'auto'})}));
- }
- function nativeZoomStarted(){fitMode=false}
- function schedule(){
-   clearTimeout(timer);
-   requestAnimationFrame(()=>{if(fitMode)setScale(fitScale());layout(true)});
-   timer=setTimeout(()=>{if(fitMode)setScale(fitScale());layout(true)},160);
- }
- fit.addEventListener('click',fitNow);
- shell.addEventListener('scroll',()=>{if(syncing)return;syncing=true;topScroll.scrollLeft=shell.scrollLeft;syncing=false},{passive:true});
- topScroll.addEventListener('scroll',()=>{if(syncing)return;syncing=true;shell.scrollLeft=topScroll.scrollLeft;syncing=false},{passive:true});
- document.addEventListener('wheel',e=>{if(e.ctrlKey){nativeZoomStarted();setTimeout(schedule,60)}},{capture:true,passive:true});
- document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key)){nativeZoomStarted();setTimeout(schedule,60)}},true);
- window.addEventListener('resize',schedule,{passive:true});
- if(window.visualViewport)window.visualViewport.addEventListener('resize',schedule,{passive:true});
- window.addEventListener('pageshow',schedule,{passive:true});
+ function adapt(){fitMode=true;setScale(fitScale());requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);viewport.scrollLeft=0;window.scrollTo({top:0,left:0,behavior:'auto'})}))}
+ function schedule(){clearTimeout(timer);requestAnimationFrame(()=>{if(fitMode)setScale(fitScale());layout(true)});timer=setTimeout(()=>{if(fitMode)setScale(fitScale());layout(true)},180)}
+ fit.onclick=e=>{e.preventDefault();adapt()};
+ viewport.addEventListener('scroll',()=>{if(sync)return;sync=true;bar.scrollLeft=viewport.scrollLeft;sync=false},{passive:true});
+ bar.addEventListener('scroll',()=>{if(sync)return;sync=true;viewport.scrollLeft=bar.scrollLeft;sync=false},{passive:true});
+ document.addEventListener('wheel',e=>{if(e.ctrlKey){fitMode=false;setTimeout(schedule,80)}},{capture:true,passive:true});
+ document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key)){fitMode=false;setTimeout(schedule,80)}},true);
+ window.addEventListener('resize',schedule,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',schedule,{passive:true});
+ const oldInit=initCanvas;initCanvas=function(){const result=oldInit.apply(this,arguments);setScale(fitMode?fitScale():scale);requestAnimationFrame(()=>layout(true));return result};
  setScale(fitScale());schedule();
 })();
-
 </script>
 </body>
 </html>
