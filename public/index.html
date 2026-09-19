@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -680,10 +680,49 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
  #ajPcFitV195 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
 }
 </style>
-<style id="AIRJOTTER_UNIVERSAL_DESKTOP_V199_STYLE">
-@media (hover:hover){html.aj-desktop-v199 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;transform:translateX(-50%)!important;transform-origin:top center!important;flex-wrap:nowrap!important}html.aj-desktop-v199 #ajPcFitV195{display:flex!important}}
-@media (hover:hover) and (pointer:fine){html.aj-hybrid-v199 #mobileTopbar,html.aj-hybrid-v199 .mobile-topbar,html.aj-hybrid-v199 #mobileFitBtn,html.aj-hybrid-v199 [id*="mobileFit"]{display:none!important}html.aj-hybrid-v199 #mobileViewport{touch-action:none!important;overflow-x:auto!important;overflow-y:visible!important}}
-
+<style id="AIRJOTTER_DESKTOP_STABLE_V200_STYLE">
+/* AirJotter v20.0: desktop stabile, nessuna scrollbar superiore artificiale. */
+@media (hover:hover) {
+  #ajPcScrollV195 { display:none!important; visibility:hidden!important; pointer-events:none!important; }
+  html.aj-desktop-stable-v200 header {
+    display:flex!important; position:fixed!important; top:12px!important;
+    left:50%!important; right:auto!important; transform:translateX(-50%)!important;
+    transform-origin:top center!important; width:max-content!important; max-width:calc(100vw - 24px)!important;
+    overflow:visible!important; flex-wrap:nowrap!important; opacity:1!important; visibility:visible!important;
+  }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 { gap:5px!important; padding:7px 9px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .brand-logo { width:122px!important; height:29px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .tools-group { gap:4px!important; padding:0 5px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .btn { padding:5px 8px!important; font-size:.74rem!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .icon-btn { min-width:28px!important; min-height:28px!important; padding:5px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .tool-thickness { width:50px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-compact-v200 .room-code { font-size:.80rem!important; padding:5px 7px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 { gap:3px!important; padding:6px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .brand-logo { width:104px!important; height:27px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .tools-group { gap:2px!important; padding:0 3px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .btn { padding:4px 6px!important; font-size:.68rem!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .icon-btn { min-width:25px!important; min-height:25px!important; padding:4px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .icon-btn svg { width:14px!important; height:14px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .tool-color { width:23px!important; height:23px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .tool-thickness { width:42px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .room-code { font-size:.70rem!important; letter-spacing:1px!important; padding:4px 6px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .page-btn { width:27px!important; height:27px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-ultra-v200 .page-count-display { min-width:36px!important; padding:4px 7px!important; }
+  html.aj-desktop-stable-v200 header.aj-toolbar-wrap-v200 {
+    width:calc(100vw - 24px)!important; max-width:calc(100vw - 24px)!important;
+    flex-wrap:wrap!important; justify-content:center!important; row-gap:5px!important;
+  }
+}
+@media (hover:hover) and (pointer:fine) {
+  html.aj-hybrid-stable-v200 #mobileTopbar,
+  html.aj-hybrid-stable-v200 .mobile-topbar,
+  html.aj-hybrid-stable-v200 #mobileFitBtn,
+  html.aj-hybrid-stable-v200 [id*="mobileFit"],
+  html.aj-hybrid-stable-v200 #tabletFitBtnV15 { display:none!important; }
+  html.aj-hybrid-stable-v200 #mobileViewport {
+    touch-action:none!important; overflow-x:auto!important; overflow-y:visible!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3273,31 +3312,109 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  adapt();
 })();
 </script>
-<script id="AIRJOTTER_UNIVERSAL_DESKTOP_V199">
+<script id="AIRJOTTER_DESKTOP_STABLE_V200">
 (function(){
-'use strict';
-const desktopOS=/Windows|Macintosh|X11|Linux x86_64/i.test(navigator.userAgent);
-const desktopUI=matchMedia('(hover:hover)').matches;
-if(!desktopOS||!desktopUI||window.AIRJOTTER_UNIVERSAL_DESKTOP_FIX)return;
-const hybrid=(navigator.maxTouchPoints||0)>0;
-window.AIRJOTTER_UNIVERSAL_DESKTOP_FIX={version:'19.9',hybrid};
-document.documentElement.classList.add('aj-desktop-v199');if(hybrid)document.documentElement.classList.add('aj-hybrid-v199');
-const header=document.querySelector('header'),vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),fit=document.getElementById('ajPcFitV195');
-if(!header||!vp||!stage||!wrapper||!fit)return;
-function removeDuplicateFit(){for(const el of document.querySelectorAll('button,[role="button"]')){if(el===fit)continue;const t=(el.textContent||'').replace(/\s+/g,' ').trim();if((/Adatta/i.test(t)&&/Zoom\s*:/i.test(t))||/^Adatta\s+Zoom\s*\d+%$/i.test(t))el.remove()}}
-function fitToolbar(){header.style.zoom='1';header.style.left='50%';header.style.right='auto';header.style.transform='translateX(-50%)';header.style.transformOrigin='top center';header.style.width='max-content';header.style.maxWidth='none';header.style.overflow='visible';const natural=Math.max(header.scrollWidth,header.getBoundingClientRect().width),available=Math.max(360,document.documentElement.clientWidth-20),value=Math.min(1,available/natural);header.style.zoom=String(value);return value}
-function setDocumentScale(value){const scale=Math.max(.18,Math.min(4,Number(value)||1));stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';return scale}
-function fitDocumentScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
-function normalize(center){removeDuplicateFit();fitToolbar();vp.style.paddingTop=(Math.ceil(header.getBoundingClientRect().bottom)+18)+'px';const wide=stage.offsetWidth>vp.clientWidth-24;stage.style.marginLeft=wide?'12px':'auto';stage.style.marginRight=wide?'12px':'auto';if(center&&!wide)vp.scrollLeft=0}
-function smartFit(){removeDuplicateFit();fitToolbar();setDocumentScale(fitDocumentScale());requestAnimationFrame(()=>requestAnimationFrame(()=>{normalize(true);vp.scrollLeft=0;window.scrollTo({left:0,top:0,behavior:'auto'})}))}
-fit.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();smartFit()};
-new MutationObserver(removeDuplicateFit).observe(header,{childList:true,subtree:true});
-let wx=0,wy=0,wf=0;function flush(){wf=0;if(wx)vp.scrollLeft=Math.max(0,vp.scrollLeft+wx);if(wy)window.scrollBy({left:0,top:wy,behavior:'auto'});wx=wy=0}
-if(hybrid)window.addEventListener('wheel',e=>{if(e.ctrlKey)return;const m=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1),dx=e.deltaX*m,dy=e.deltaY*m;if(Math.abs(dy)>=Math.abs(dx)){wy+=dy;wx+=dx*.28}else{wx+=dx;wy+=dy*.22}if(e.cancelable)e.preventDefault();if(!wf)wf=requestAnimationFrame(flush)},{capture:true,passive:false});
-window.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});
-removeDuplicateFit();smartFit();
-})();
+ 'use strict';
+ const desktopOS=/Windows|Macintosh|X11|Linux x86_64/i.test(navigator.userAgent);
+ const desktopUI=matchMedia('(hover:hover)').matches;
+ if(!desktopOS||!desktopUI||window.AIRJOTTER_DESKTOP_STABLE_V200)return;
+ const hybrid=(navigator.maxTouchPoints||0)>0;
+ window.AIRJOTTER_DESKTOP_STABLE_V200={version:'20.0',hybrid};
+ document.documentElement.classList.add('aj-desktop-stable-v200');
+ if(hybrid)document.documentElement.classList.add('aj-hybrid-stable-v200');
+ const header=document.querySelector('header');
+ const vp=document.getElementById('mobileViewport');
+ const stage=document.getElementById('mobileStageV109');
+ const wrapper=document.getElementById('canvas-wrapper');
+ const fit=document.getElementById('ajPcFitV195');
+ if(!header||!vp||!stage||!wrapper||!fit)return;
+ const fakeScroll=document.getElementById('ajPcScrollV195');
+ if(fakeScroll){fakeScroll.style.display='none';fakeScroll.setAttribute('aria-hidden','true')}
 
+ function hideDuplicateFit(){
+  if(!hybrid)return;
+  const tabletFit=document.getElementById('tabletFitBtnV15');
+  if(tabletFit){tabletFit.style.display='none';tabletFit.setAttribute('aria-hidden','true');tabletFit.tabIndex=-1}
+  const mobile=document.getElementById('mobileTopbar');
+  if(mobile){mobile.style.display='none';mobile.setAttribute('aria-hidden','true')}
+ }
+ function toolbarFits(){return header.scrollWidth<=document.documentElement.clientWidth-24}
+ function fitToolbar(){
+  header.style.zoom='1';header.style.opacity='1';header.style.visibility='visible';header.style.display='flex';
+  header.classList.remove('aj-toolbar-compact-v200','aj-toolbar-ultra-v200','aj-toolbar-wrap-v200');
+  void header.offsetWidth;
+  if(!toolbarFits()){header.classList.add('aj-toolbar-compact-v200');void header.offsetWidth}
+  if(!toolbarFits()){header.classList.add('aj-toolbar-ultra-v200');void header.offsetWidth}
+  if(!toolbarFits()){header.classList.add('aj-toolbar-wrap-v200');void header.offsetWidth}
+  return header.getBoundingClientRect();
+ }
+ function documentScale(){const r=wrapper.getBoundingClientRect();return r.width>0?r.width/LOGICAL_W:1}
+ function setDocumentScale(value){
+  const scale=Math.max(.18,Math.min(4,Number(value)||1));
+  stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';
+  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
+  return scale;
+ }
+ function fitDocumentScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
+ function normalize(center){
+  hideDuplicateFit();const hr=fitToolbar();
+  vp.style.paddingTop=(Math.ceil(hr.bottom)+18)+'px';
+  const wide=stage.offsetWidth>vp.clientWidth-24;
+  stage.style.marginLeft=wide?'12px':'auto';stage.style.marginRight=wide?'12px':'auto';
+  if(center&&!wide)vp.scrollLeft=0;
+ }
+ function smartFit(){
+  hideDuplicateFit();fitToolbar();setDocumentScale(fitDocumentScale());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{normalize(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})}));
+ }
+ fit.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();smartFit()};
+
+ // Physical touchscreen: preserve the v19.8 two-finger vertical/horizontal pan and pinch.
+ let gesture=null,touchRaf=0,touchPending=null;
+ const center=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2});
+ const distance=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
+ function paintTouch(){
+  touchRaf=0;const d=touchPending;touchPending=null;if(!gesture||!d)return;
+  const next=setDocumentScale(gesture.scale*d.distance/gesture.distance);
+  vp.scrollLeft=Math.max(0,gesture.scrollLeft-(d.center.x-gesture.center.x)+(next-gesture.scale)*(gesture.center.x/gesture.scale));
+  window.scrollTo({left:0,top:Math.max(0,gesture.scrollY-(d.center.y-gesture.center.y)+(next-gesture.scale)*(gesture.center.y/gesture.scale)),behavior:'auto'});
+  normalize(false);
+ }
+ if(hybrid){
+  window.addEventListener('touchstart',e=>{
+   if(e.touches.length!==2)return;
+   gesture={center:center(e.touches),distance:distance(e.touches),scale:documentScale(),scrollLeft:vp.scrollLeft,scrollY:window.scrollY};
+   e.preventDefault();e.stopImmediatePropagation();
+  },{capture:true,passive:false});
+  window.addEventListener('touchmove',e=>{
+   if(!gesture||e.touches.length!==2)return;
+   touchPending={center:center(e.touches),distance:distance(e.touches)};
+   if(!touchRaf)touchRaf=requestAnimationFrame(paintTouch);
+   e.preventDefault();e.stopImmediatePropagation();
+  },{capture:true,passive:false});
+  const endTouch=e=>{if(!gesture||e.touches.length>=2)return;if(touchRaf){cancelAnimationFrame(touchRaf);paintTouch()}gesture=null;touchPending=null;normalize(true)};
+  window.addEventListener('touchend',endTouch,{capture:true,passive:false});
+  window.addEventListener('touchcancel',endTouch,{capture:true,passive:false});
+ }
+
+ // Precision touchpad: restore vertical scrolling and smooth horizontal panning.
+ let wheelX=0,wheelY=0,wheelRaf=0;
+ function flushWheel(){wheelRaf=0;if(wheelX)vp.scrollLeft=Math.max(0,vp.scrollLeft+wheelX);if(wheelY)window.scrollBy({left:0,top:wheelY,behavior:'auto'});wheelX=wheelY=0}
+ if(hybrid){
+  window.addEventListener('wheel',e=>{
+   if(e.ctrlKey)return;
+   const mul=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1),dx=e.deltaX*mul,dy=e.deltaY*mul;
+   if(Math.abs(dy)>=Math.abs(dx)){wheelY+=dy;wheelX+=dx*.2}else{wheelX+=dx;wheelY+=dy*.12}
+   if(e.cancelable)e.preventDefault();
+   if(!wheelRaf)wheelRaf=requestAnimationFrame(flushWheel);
+  },{capture:true,passive:false});
+ }
+ const observer=new MutationObserver(()=>{hideDuplicateFit();if(fakeScroll)fakeScroll.style.display='none'});
+ observer.observe(header,{childList:true,subtree:true});
+ window.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});
+ if(window.visualViewport)visualViewport.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});
+ hideDuplicateFit();normalize(true);
+})();
 </script>
 </body>
 </html>
