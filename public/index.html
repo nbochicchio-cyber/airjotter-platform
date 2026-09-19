@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -3181,6 +3181,79 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.ajInkBusy=()=>active;
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
+</script>
+
+<script id="AIRJOTTER_PC_ZOOM_HOTFIX_V191">
+/* AirJotter PC Zoom Hotfix v19.1
+   Scope: desktop only. Prevents Ctrl+wheel browser zoom from corrupting the board layout,
+   and normalizes centering after browser zoom/resize or Ctrl+0. */
+(function () {
+  'use strict';
+  const DESKTOP = matchMedia('(hover:hover) and (pointer:fine)').matches;
+  if (!DESKTOP || window.AIRJOTTER_PC_ZOOM_HOTFIX) return;
+  window.AIRJOTTER_PC_ZOOM_HOTFIX = { version: '19.1', scope: 'desktop-only' };
+
+  const wrapper = document.getElementById('canvas-wrapper');
+  const viewport = document.getElementById('mobileViewport');
+  const stage = document.getElementById('mobileStageV109');
+  if (!wrapper) return;
+
+  let normalizeTimer = 0;
+  function normalizeDesktopLayout() {
+    if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    try { if (typeof handleResize === 'function') handleResize(); } catch (_) {}
+
+    wrapper.style.position = '';
+    wrapper.style.left = '';
+    wrapper.style.right = '';
+    wrapper.style.marginLeft = 'auto';
+    wrapper.style.marginRight = 'auto';
+    wrapper.style.transformOrigin = 'top center';
+
+    if (stage && wrapper.parentElement === stage) {
+      stage.style.width = '100%';
+      stage.style.maxWidth = 'none';
+      stage.style.marginLeft = 'auto';
+      stage.style.marginRight = 'auto';
+      stage.style.display = 'block';
+    }
+    if (viewport) {
+      viewport.style.overflowX = 'visible';
+      viewport.scrollLeft = 0;
+    }
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  }
+
+  function scheduleNormalize() {
+    clearTimeout(normalizeTimer);
+    requestAnimationFrame(() => requestAnimationFrame(normalizeDesktopLayout));
+    normalizeTimer = setTimeout(normalizeDesktopLayout, 120);
+  }
+
+  // Ctrl+wheel is intercepted before the browser can alter page scale.
+  // This prevents the fixed toolbar and transformed board from entering incompatible coordinate systems.
+  document.addEventListener('wheel', function (event) {
+    if (!event.ctrlKey || !DESKTOP) return;
+    if (event.cancelable) event.preventDefault();
+    event.stopImmediatePropagation();
+    normalizeDesktopLayout();
+  }, { capture: true, passive: false });
+
+  // Keep the native Ctrl+0 reset available, then normalize AirJotter after the browser applies it.
+  document.addEventListener('keydown', function (event) {
+    if (!DESKTOP || !event.ctrlKey || event.key !== '0') return;
+    setTimeout(scheduleNormalize, 0);
+  }, true);
+
+  window.addEventListener('resize', scheduleNormalize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleNormalize, { passive: true });
+  }
+  window.addEventListener('pageshow', scheduleNormalize, { passive: true });
+  scheduleNormalize();
+})();
+
 </script>
 </body>
 </html>
