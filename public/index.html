@@ -663,7 +663,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_PC_LAYOUT_FIX_V195_STYLE">
+<style id="AIRJOTTER_PC_LAYOUT_FIX_V196_STYLE">
 @media (hover:hover) and (pointer:fine){
  html.aj-pc-v195,html.aj-pc-v195 body{overflow-x:hidden!important;min-width:0!important}
  html.aj-pc-v195 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important}
@@ -676,8 +676,8 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
  #ajPcScrollV195::-webkit-scrollbar{height:11px}
  #ajPcScrollV195::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.97);border-radius:999px}
  #ajPcScrollV195::-webkit-scrollbar-track{background:transparent}
- #ajPcFitV195{min-width:62px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important;padding:5px 8px!important}
- #ajPcFitV195 small{font-size:.60rem!important;color:var(--text-soft)!important;margin-top:3px!important}
+ #ajPcFitV195{min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important}
+ #ajPcFitV195 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
 }
 </style>
 </head>
@@ -3200,16 +3200,16 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
 })();
 </script>
 
-<script id="AIRJOTTER_PC_LAYOUT_FIX_V195">
+<script id="AIRJOTTER_PC_LAYOUT_FIX_V196">
 (function(){
  'use strict';
  const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
  if(!desktop||window.AIRJOTTER_PC_LAYOUT_FIX)return;
- window.AIRJOTTER_PC_LAYOUT_FIX={version:'19.5',scope:'desktop-only'};
+ window.AIRJOTTER_PC_LAYOUT_FIX={version:'19.6',scope:'desktop-only'};
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn'),help=document.getElementById('helpBtn');
  if(!vp||!stage||!wrapper||!header||!pen)return;
  document.documentElement.classList.add('aj-pc-v195');
- const fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV195">100%</small>';fit.title='Adatta il foglio allo schermo e centralo';
+ const fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><span>pagina</span>';fit.title='Adatta pagina e barra strumenti alla larghezza dello schermo';
  pen.parentNode.insertBefore(fit,pen);
  const scroll=document.createElement('div');scroll.id='ajPcScrollV195';scroll.innerHTML='<div id="ajPcScrollInnerV195"></div>';document.body.appendChild(scroll);const scrollInner=scroll.firstElementChild;
  let pcScale=1,sync=false,timer=0,previousWide=false;
@@ -3226,12 +3226,24 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
   const wide=stage.offsetWidth>vp.clientWidth-24;
   if(wide){stage.style.marginLeft='12px';stage.style.marginRight='12px'}else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||previousWide)vp.scrollLeft=0}
   scroll.style.top=(Math.ceil(header.getBoundingClientRect().bottom)+3)+'px';scrollInner.style.width=Math.max(vp.clientWidth,stage.offsetWidth+24)+'px';scroll.classList.toggle('visible',wide);
-  document.getElementById('ajPcZoomV195').textContent=Math.round(getScale()*100)+'%';previousWide=wide;
+  previousWide=wide;
   if(!sync){sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false}
  }
+ function fitToolbar(){
+  header.style.zoom='1';
+  header.style.transform='translateX(-50%)';
+  const natural=Math.max(header.scrollWidth,header.getBoundingClientRect().width);
+  const available=Math.max(320,document.documentElement.clientWidth-24);
+  const toolbarScale=Math.min(1,available/natural);
+  header.style.zoom=String(toolbarScale);
+  return toolbarScale;
+ }
  function adapt(){
-  setGeometry(fitScale());
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})}));
+  fitToolbar();
+  requestAnimationFrame(()=>{
+   setGeometry(fitScale());
+   requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})});
+  });
  }
  function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),180)}
  fit.addEventListener('click',e=>{e.preventDefault();adapt()});
@@ -3241,7 +3253,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  document.addEventListener('wheel',e=>{if(e.ctrlKey)setTimeout(refresh,80)},{capture:true,passive:true});
  document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key))setTimeout(refresh,80)},true);
  const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(pcScale);requestAnimationFrame(()=>layout(true));return r};
- setGeometry(fitScale());requestAnimationFrame(()=>layout(true));
+ fitToolbar();requestAnimationFrame(()=>{setGeometry(fitScale());layout(true)});
 })();
 </script>
 </body>
