@@ -663,21 +663,21 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_PC_WORKSPACE_FIX_V194_STYLE">
+<style id="AIRJOTTER_PC_LAYOUT_FIX_V195_STYLE">
 @media (hover:hover) and (pointer:fine){
- html.aj-pc-v194,html.aj-pc-v194 body{overflow-x:hidden!important;min-width:0!important}
- #ajPcViewportV194{position:relative;width:100%;overflow-x:auto;overflow-y:visible;box-sizing:border-box;scrollbar-width:none;overscroll-behavior-x:contain;padding-bottom:45px}
- #ajPcViewportV194::-webkit-scrollbar{display:none}
- #ajPcStageV194{position:relative;display:block;box-sizing:content-box}
- #ajPcStageV194>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;max-width:none!important;transform-origin:top left!important}
- #ajPcTopScrollV194{position:fixed;left:14px;right:14px;height:15px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.97);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s}
- #ajPcTopScrollV194.visible{opacity:1;pointer-events:auto}
- #ajPcTopScrollInnerV194{height:1px}
- #ajPcTopScrollV194::-webkit-scrollbar{height:11px}
- #ajPcTopScrollV194::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.97);border-radius:999px}
- #ajPcTopScrollV194::-webkit-scrollbar-track{background:transparent}
- #ajPcFitV194{min-width:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;padding:5px 8px}
- #ajPcFitV194 small{font-size:.60rem;color:var(--text-soft);margin-top:3px}
+ html.aj-pc-v195,html.aj-pc-v195 body{overflow-x:hidden!important;min-width:0!important}
+ html.aj-pc-v195 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important}
+ html.aj-pc-v195 #mobileViewport::-webkit-scrollbar{display:none!important}
+ html.aj-pc-v195 #mobileStageV109{position:relative!important;display:block!important;margin-left:auto!important;margin-right:auto!important;overflow:visible!important}
+ html.aj-pc-v195 #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important}
+ #ajPcScrollV195{position:fixed;left:14px;right:14px;height:15px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.97);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s ease}
+ #ajPcScrollV195.visible{opacity:1;pointer-events:auto}
+ #ajPcScrollInnerV195{height:1px}
+ #ajPcScrollV195::-webkit-scrollbar{height:11px}
+ #ajPcScrollV195::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.97);border-radius:999px}
+ #ajPcScrollV195::-webkit-scrollbar-track{background:transparent}
+ #ajPcFitV195{min-width:62px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1.05!important;padding:5px 8px!important}
+ #ajPcFitV195 small{font-size:.60rem!important;color:var(--text-soft)!important;margin-top:3px!important}
 }
 </style>
 </head>
@@ -3198,46 +3198,50 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.ajInkBusy=()=>active;
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
-</script>`r`n
-<script id="AIRJOTTER_PC_WORKSPACE_FIX_V194">
+</script>
+
+<script id="AIRJOTTER_PC_LAYOUT_FIX_V195">
 (function(){
+ 'use strict';
  const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
- if(!desktop||window.AIRJOTTER_PC_WORKSPACE_FIX)return;
- window.AIRJOTTER_PC_WORKSPACE_FIX={version:'19.4',scope:'desktop-only'};
- const wrapper=document.getElementById('canvas-wrapper'),vp0=document.getElementById('mobileViewport'),header=document.querySelector('header');
- if(!wrapper||!vp0||!header)return;
- document.documentElement.classList.add('aj-pc-v194');
- const stage=document.createElement('div');stage.id='ajPcStageV194';
- const viewport=document.createElement('div');viewport.id='ajPcViewportV194';
- vp0.insertBefore(viewport,wrapper);viewport.appendChild(stage);stage.appendChild(wrapper);
- const bar=document.createElement('div');bar.id='ajPcTopScrollV194';bar.innerHTML='<div id="ajPcTopScrollInnerV194"></div>';document.body.appendChild(bar);
- const barInner=bar.firstElementChild;
- const fit=document.createElement('button');fit.id='ajPcFitV194';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV194">100%</small>';fit.title='Adatta e centra il foglio';
- const pen=document.getElementById('toolPenBtn'),help=document.getElementById('helpBtn');
- if(pen&&pen.parentNode)pen.parentNode.insertBefore(fit,pen);else if(help)help.insertAdjacentElement('afterend',fit);
- let scale=1,fitMode=true,sync=false,timer=0,wasWide=false;
- function dimensions(){return {w:LOGICAL_W,h:LOGICAL_H}}
- function headerBottom(){return Math.ceil(header.getBoundingClientRect().bottom)}
- function fitScale(){const d=dimensions();return Math.min(1,Math.max(.18,(viewport.clientWidth-40)/d.w))}
- function setScale(v){const d=dimensions();scale=Math.max(.18,Math.min(4,Number(v)||1));wrapper.style.width=d.w+'px';wrapper.style.height=d.h+'px';wrapper.style.transform='scale('+scale+')';stage.style.width=Math.ceil(d.w*scale)+'px';stage.style.height=Math.ceil(d.h*scale)+'px'}
- function layout(centerIfFits){
-  const hb=headerBottom();viewport.style.marginTop=(hb+18)+'px';bar.style.top=(hb+4)+'px';
-  const wide=stage.offsetWidth+40>viewport.clientWidth;
-  if(wide){stage.style.marginLeft='20px';stage.style.marginRight='20px'}else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||wasWide)viewport.scrollLeft=0}
-  barInner.style.width=Math.max(viewport.clientWidth,stage.offsetWidth+40)+'px';bar.classList.toggle('visible',wide);
-  document.getElementById('ajPcZoomV194').textContent=Math.round(scale*100)+'%';wasWide=wide;
-  if(!sync){sync=true;bar.scrollLeft=viewport.scrollLeft;sync=false}
+ if(!desktop||window.AIRJOTTER_PC_LAYOUT_FIX)return;
+ window.AIRJOTTER_PC_LAYOUT_FIX={version:'19.5',scope:'desktop-only'};
+ const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn'),help=document.getElementById('helpBtn');
+ if(!vp||!stage||!wrapper||!header||!pen)return;
+ document.documentElement.classList.add('aj-pc-v195');
+ const fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV195">100%</small>';fit.title='Adatta il foglio allo schermo e centralo';
+ pen.parentNode.insertBefore(fit,pen);
+ const scroll=document.createElement('div');scroll.id='ajPcScrollV195';scroll.innerHTML='<div id="ajPcScrollInnerV195"></div>';document.body.appendChild(scroll);const scrollInner=scroll.firstElementChild;
+ let pcScale=1,sync=false,timer=0,previousWide=false;
+ function getScale(){const rect=wrapper.getBoundingClientRect();return rect.width>0?rect.width/LOGICAL_W:pcScale}
+ function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
+ function setGeometry(scale){
+  pcScale=Math.max(.18,Math.min(1,scale));
+  stage.style.width=Math.round(LOGICAL_W*pcScale)+'px';stage.style.height=Math.round(LOGICAL_H*pcScale)+'px';
+  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+pcScale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
  }
- function adapt(){fitMode=true;setScale(fitScale());requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);viewport.scrollLeft=0;window.scrollTo({top:0,left:0,behavior:'auto'})}))}
- function schedule(){clearTimeout(timer);requestAnimationFrame(()=>{if(fitMode)setScale(fitScale());layout(true)});timer=setTimeout(()=>{if(fitMode)setScale(fitScale());layout(true)},180)}
- fit.onclick=e=>{e.preventDefault();adapt()};
- viewport.addEventListener('scroll',()=>{if(sync)return;sync=true;bar.scrollLeft=viewport.scrollLeft;sync=false},{passive:true});
- bar.addEventListener('scroll',()=>{if(sync)return;sync=true;viewport.scrollLeft=bar.scrollLeft;sync=false},{passive:true});
- document.addEventListener('wheel',e=>{if(e.ctrlKey){fitMode=false;setTimeout(schedule,80)}},{capture:true,passive:true});
- document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key)){fitMode=false;setTimeout(schedule,80)}},true);
- window.addEventListener('resize',schedule,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',schedule,{passive:true});
- const oldInit=initCanvas;initCanvas=function(){const result=oldInit.apply(this,arguments);setScale(fitMode?fitScale():scale);requestAnimationFrame(()=>layout(true));return result};
- setScale(fitScale());schedule();
+ function headerOffset(){return Math.ceil(header.getBoundingClientRect().bottom)+18}
+ function layout(centerIfFits){
+  vp.style.paddingTop=headerOffset()+'px';
+  const wide=stage.offsetWidth>vp.clientWidth-24;
+  if(wide){stage.style.marginLeft='12px';stage.style.marginRight='12px'}else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||previousWide)vp.scrollLeft=0}
+  scroll.style.top=(Math.ceil(header.getBoundingClientRect().bottom)+3)+'px';scrollInner.style.width=Math.max(vp.clientWidth,stage.offsetWidth+24)+'px';scroll.classList.toggle('visible',wide);
+  document.getElementById('ajPcZoomV195').textContent=Math.round(getScale()*100)+'%';previousWide=wide;
+  if(!sync){sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false}
+ }
+ function adapt(){
+  setGeometry(fitScale());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})}));
+ }
+ function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),180)}
+ fit.addEventListener('click',e=>{e.preventDefault();adapt()});
+ vp.addEventListener('scroll',()=>{if(sync)return;sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false},{passive:true});
+ scroll.addEventListener('scroll',()=>{if(sync)return;sync=true;vp.scrollLeft=scroll.scrollLeft;sync=false},{passive:true});
+ window.addEventListener('resize',refresh,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',refresh,{passive:true});
+ document.addEventListener('wheel',e=>{if(e.ctrlKey)setTimeout(refresh,80)},{capture:true,passive:true});
+ document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key))setTimeout(refresh,80)},true);
+ const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(pcScale);requestAnimationFrame(()=>layout(true));return r};
+ setGeometry(fitScale());requestAnimationFrame(()=>layout(true));
 })();
 </script>
 </body>
