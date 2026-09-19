@@ -663,7 +663,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_PC_LAYOUT_FIX_V196_STYLE">
+<style id="AIRJOTTER_PC_SMART_ZOOM_V197_STYLE">
 @media (hover:hover) and (pointer:fine){
  html.aj-pc-v195,html.aj-pc-v195 body{overflow-x:hidden!important;min-width:0!important}
  html.aj-pc-v195 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important}
@@ -3200,60 +3200,72 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
 })();
 </script>
 
-<script id="AIRJOTTER_PC_LAYOUT_FIX_V196">
+<script id="AIRJOTTER_PC_SMART_ZOOM_V197">
 (function(){
  'use strict';
  const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
- if(!desktop||window.AIRJOTTER_PC_LAYOUT_FIX)return;
- window.AIRJOTTER_PC_LAYOUT_FIX={version:'19.6',scope:'desktop-only'};
- const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn'),help=document.getElementById('helpBtn');
+ if(!desktop||window.AIRJOTTER_PC_SMART_ZOOM)return;
+ window.AIRJOTTER_PC_SMART_ZOOM={version:'19.7',scope:'desktop-only',mode:'managed-document-zoom'};
+ const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn');
  if(!vp||!stage||!wrapper||!header||!pen)return;
  document.documentElement.classList.add('aj-pc-v195');
- const fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';fit.innerHTML='<span>Adatta</span><span>pagina</span>';fit.title='Adatta pagina e barra strumenti alla larghezza dello schermo';
- pen.parentNode.insertBefore(fit,pen);
- const scroll=document.createElement('div');scroll.id='ajPcScrollV195';scroll.innerHTML='<div id="ajPcScrollInnerV195"></div>';document.body.appendChild(scroll);const scrollInner=scroll.firstElementChild;
- let pcScale=1,sync=false,timer=0,previousWide=false;
- function getScale(){const rect=wrapper.getBoundingClientRect();return rect.width>0?rect.width/LOGICAL_W:pcScale}
+ let fit=document.getElementById('ajPcFitV195');
+ if(!fit){fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';pen.parentNode.insertBefore(fit,pen)}
+ fit.innerHTML='<span>Adatta</span><span>pagina</span>';
+ fit.title='Adatta pagina alla larghezza disponibile e riportala al centro';
+ const oldSmall=fit.querySelector('small');if(oldSmall)oldSmall.remove();
+ let scroll=document.getElementById('ajPcScrollV195');
+ if(!scroll){scroll=document.createElement('div');scroll.id='ajPcScrollV195';scroll.innerHTML='<div id="ajPcScrollInnerV195"></div>';document.body.appendChild(scroll)}
+ const scrollInner=scroll.firstElementChild;
+ let scale=1,sync=false,timer=0,previousWide=false;
  function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
- function setGeometry(scale){
-  pcScale=Math.max(.18,Math.min(1,scale));
-  stage.style.width=Math.round(LOGICAL_W*pcScale)+'px';stage.style.height=Math.round(LOGICAL_H*pcScale)+'px';
-  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+pcScale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
+ function setGeometry(value){
+  scale=Math.max(.18,Math.min(4,Number(value)||1));
+  stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';
+  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
  }
  function headerOffset(){return Math.ceil(header.getBoundingClientRect().bottom)+18}
  function layout(centerIfFits){
+  // Toolbar always remains at its native AirJotter size. Only the document is zoomed.
+  header.style.zoom='1';header.style.transform='translateX(-50%)';
   vp.style.paddingTop=headerOffset()+'px';
   const wide=stage.offsetWidth>vp.clientWidth-24;
-  if(wide){stage.style.marginLeft='12px';stage.style.marginRight='12px'}else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||previousWide)vp.scrollLeft=0}
-  scroll.style.top=(Math.ceil(header.getBoundingClientRect().bottom)+3)+'px';scrollInner.style.width=Math.max(vp.clientWidth,stage.offsetWidth+24)+'px';scroll.classList.toggle('visible',wide);
-  previousWide=wide;
-  if(!sync){sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false}
- }
- function fitToolbar(){
-  header.style.zoom='1';
-  header.style.transform='translateX(-50%)';
-  const natural=Math.max(header.scrollWidth,header.getBoundingClientRect().width);
-  const available=Math.max(320,document.documentElement.clientWidth-24);
-  const toolbarScale=Math.min(1,available/natural);
-  header.style.zoom=String(toolbarScale);
-  return toolbarScale;
+  if(wide){stage.style.marginLeft='12px';stage.style.marginRight='12px'}
+  else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||previousWide)vp.scrollLeft=0}
+  scroll.style.top=(Math.ceil(header.getBoundingClientRect().bottom)+3)+'px';
+  scrollInner.style.width=Math.max(vp.clientWidth,stage.offsetWidth+24)+'px';scroll.classList.toggle('visible',wide);
+  previousWide=wide;if(!sync){sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false}
  }
  function adapt(){
-  fitToolbar();
-  requestAnimationFrame(()=>{
-   setGeometry(fitScale());
-   requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})});
-  });
+  setGeometry(fitScale());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})}));
  }
- function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),180)}
- fit.addEventListener('click',e=>{e.preventDefault();adapt()});
+ function zoomAt(next,clientX){
+  const before=scale,box=vp.getBoundingClientRect();
+  const anchor=Math.max(0,Math.min(vp.clientWidth,(clientX||box.left+vp.clientWidth/2)-box.left));
+  const docX=(vp.scrollLeft+anchor)/before;
+  setGeometry(next);layout(false);
+  vp.scrollLeft=Math.max(0,docX*scale-anchor);
+ }
+ function stepZoom(direction,clientX){
+  const factor=direction>0?1.12:1/1.12;
+  zoomAt(scale*factor,clientX);
+ }
+ function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),160)}
+ fit.onclick=e=>{e.preventDefault();adapt()};
  vp.addEventListener('scroll',()=>{if(sync)return;sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false},{passive:true});
  scroll.addEventListener('scroll',()=>{if(sync)return;sync=true;vp.scrollLeft=scroll.scrollLeft;sync=false},{passive:true});
- window.addEventListener('resize',refresh,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',refresh,{passive:true});
- document.addEventListener('wheel',e=>{if(e.ctrlKey)setTimeout(refresh,80)},{capture:true,passive:true});
- document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key))setTimeout(refresh,80)},true);
- const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(pcScale);requestAnimationFrame(()=>layout(true));return r};
- fitToolbar();requestAnimationFrame(()=>{setGeometry(fitScale());layout(true)});
+ // Desktop smart zoom: keep browser/UI scale fixed and zoom only the AirJotter document.
+ document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();stepZoom(e.deltaY<0?1:-1,e.clientX)},{capture:true,passive:false});
+ document.addEventListener('keydown',e=>{
+  if(!e.ctrlKey)return;
+  if(e.key==='0'){e.preventDefault();e.stopImmediatePropagation();adapt();return}
+  if(e.key==='+'||e.key==='='){e.preventDefault();e.stopImmediatePropagation();stepZoom(1);return}
+  if(e.key==='-'){e.preventDefault();e.stopImmediatePropagation();stepZoom(-1)}
+ },true);
+ window.addEventListener('resize',refresh,{passive:true});
+ const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(scale);requestAnimationFrame(()=>layout(true));return r};
+ adapt();
 })();
 </script>
 </body>
