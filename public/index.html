@@ -729,6 +729,87 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
  body.mobile-tools-open header #ajPcFitV204{display:none!important}
 }
 </style>
+<style id="AIRJOTTER_TABLET_ARCHIVE_INK_V209_STYLE">
+/* AirJotter v20.9 - solo tablet: archivio accessibile e wet ink Pencil regolare */
+@media (min-width:761px) and (pointer:coarse),
+       (min-width:761px) and (hover:none) and (any-pointer:coarse) {
+ #jotterArchiveModal{
+  position:fixed!important;
+  top:calc(env(safe-area-inset-top,0px) + 92px)!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+  width:auto!important;
+  height:auto!important;
+  padding:10px!important;
+  z-index:9000!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  background:rgba(60,56,74,.42)!important;
+ }
+ #jotterArchiveModal .jotter-archive{
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:min(1100px,100%)!important;
+  height:100%!important;
+  min-height:0!important;
+  max-width:1100px!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:16px!important;
+  background:#fff!important;
+ }
+ #jotterArchiveModal .archive-heading{
+  position:relative!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:16px 58px 12px 16px!important;
+  overflow:visible!important;
+  background:#fff!important;
+  border-bottom:1px solid var(--border-color)!important;
+  z-index:20!important;
+ }
+ #jotterArchiveModal .archive-heading>div:first-child,
+ #jotterArchiveModal .archive-heading h3,
+ #jotterArchiveModal .archive-heading p,
+ #jotterArchiveModal .archive-heading-actions{display:block!important;visibility:visible!important;opacity:1!important}
+ #jotterArchiveModal .archive-heading-actions{margin-top:10px!important;width:100%!important}
+ #jotterArchiveClose{
+  position:absolute!important;
+  top:8px!important;
+  right:8px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  border-radius:50%!important;
+  background:var(--danger-bg)!important;
+  color:var(--danger-color)!important;
+  z-index:40!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+ }
+ #jotterArchiveStatus{flex:0 0 auto!important;padding:8px 16px!important;background:#fff!important}
+ #jotterArchiveList{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
+  padding:8px 12px 24px!important;
+ }
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -3199,19 +3280,27 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  }
  function paintFrame(){
   raf=0;if(!active||!path)return;
-  const n=screenPoints.length;if(n<2||pendingFrom>=n-1)return;
-  ctx.save();ctx.globalAlpha=path.opacity;ctx.strokeStyle=path.color;ctx.lineCap='round';ctx.lineJoin='round';
-  let i=Math.max(1,pendingFrom+1);
-  for(;i<n;i++){
-   const p0=i===1?screenPoints[0]:screenPoints[i-2],p1=screenPoints[i-1],p2=screenPoints[i];
-   ctx.beginPath();
-   const sx=i===1?p0.x:(p0.x+p1.x)/2,sy=i===1?p0.y:(p0.y+p1.y)/2;
-   ctx.moveTo(sx,sy);
-   ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y);
-   ctx.lineWidth=(p1.w+p2.w)/2;
-   ctx.stroke();
+  const n=screenPoints.length;if(n<2)return;
+  // Redraw the complete temporary stroke once per frame. A lightly filtered display-only
+  // centreline removes pressure spikes and segment overlaps without changing saved points.
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  const smooth=[];
+  for(let i=0;i<n;i++){
+   const p=screenPoints[i];
+   if(i===0){smooth.push({x:p.x,y:p.y,w:p.w});continue}
+   const a=smooth[i-1],k=.58;
+   smooth.push({x:a.x+(p.x-a.x)*k,y:a.y+(p.y-a.y)*k,w:a.w+(p.w-a.w)*.28});
   }
-  ctx.restore();pendingFrom=n-1;
+  ctx.save();ctx.globalAlpha=path.opacity;ctx.strokeStyle=path.color;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(smooth[0].x,smooth[0].y);
+  for(let i=1;i<smooth.length-1;i++){
+   const p=smooth[i],q=smooth[i+1];
+   ctx.quadraticCurveTo(p.x,p.y,(p.x+q.x)/2,(p.y+q.y)/2);
+  }
+  const last=smooth[smooth.length-1];ctx.lineTo(last.x,last.y);
+  let width=0,from=Math.max(0,smooth.length-8);for(let i=from;i<smooth.length;i++)width+=smooth[i].w;
+  ctx.lineWidth=Math.max(.5,width/Math.max(1,smooth.length-from));ctx.stroke();ctx.restore();
+  pendingFrom=n-1;
  }
  function queuePaint(){if(!raf)raf=requestAnimationFrame(paintFrame)}
  function down(e){
@@ -3246,7 +3335,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  addEventListener('resize',()=>{if(!active)resize()},{passive:true});resize();
  let desync=false;try{desync=!!ctx.getContextAttributes?.().desynchronized}catch{}
  window.ajInkBusy=()=>active;
- window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
+ window.AIRJOTTER_IPAD_INK={version:'19.1',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
 <script id="AIRJOTTER_DESKTOP_STATIC_V206">
