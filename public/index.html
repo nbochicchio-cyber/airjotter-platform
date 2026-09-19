@@ -663,7 +663,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_DESKTOP_STATIC_V205_STYLE">
+<style id="AIRJOTTER_DESKTOP_STATIC_V206_STYLE">
 @media (min-width:761px){
  html.aj-desktop-v204,html.aj-desktop-v204 body{min-width:0!important;overflow-x:hidden!important}
  html.aj-desktop-v204 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important}
@@ -3197,7 +3197,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
-<script id="AIRJOTTER_DESKTOP_STATIC_V205">
+<script id="AIRJOTTER_DESKTOP_STATIC_V206">
 (function(){
  'use strict';
  const desktop=innerWidth>760&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
@@ -3222,7 +3222,17 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
   stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important');
   wrapper.style.setProperty('width',LOGICAL_W+'px','important');wrapper.style.setProperty('height',LOGICAL_H+'px','important');wrapper.style.setProperty('transform','scale('+pageScale+')','important');wrapper.style.setProperty('transform-origin','top left','important');wrapper.style.setProperty('margin','0','important');
  }
- function relayout(center){clean();const b=fitBar();vp.style.setProperty('padding-top',Math.ceil(b.bottom+18)+'px','important');if(center){vp.scrollLeft=0;stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important')}}
+ function relayout(center){
+  clean();
+  const b=fitBar();
+  vp.style.setProperty('padding-top',Math.ceil(b.bottom+18)+'px','important');
+  const wide=stage.offsetWidth>vp.clientWidth-24;
+  // When zoomed, use a real left origin so scrollLeft can reach the whole right side.
+  // Recenter only when the complete page fits again, or when Adatta pagina explicitly requests it.
+  stage.style.setProperty('margin-left',wide?'12px':'auto','important');
+  stage.style.setProperty('margin-right',wide?'12px':'auto','important');
+  if(center&&!wide)vp.scrollLeft=0;
+ }
  function adapt(){fitBar();geometry(Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W)));requestAnimationFrame(()=>requestAnimationFrame(()=>{relayout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}))}
  function zoom(next,x){const before=pageScale,r=vp.getBoundingClientRect(),anchor=Math.max(0,Math.min(vp.clientWidth,(x||r.left+vp.clientWidth/2)-r.left)),docX=(vp.scrollLeft+anchor)/before;geometry(next);relayout(false);vp.scrollLeft=Math.max(0,docX*pageScale-anchor)}
  fit.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();adapt()},true);
