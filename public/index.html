@@ -680,6 +680,36 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
  #ajPcFitV195 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
 }
 </style>
+<style id="AIRJOTTER_HYBRID_TOUCH_V198_STYLE">
+/* AirJotter Hybrid Desktop Touch Fix v19.8 */
+@media (hover:hover) and (pointer:fine) {
+  html.aj-hybrid-desktop-v198 #mobileTopbar,
+  html.aj-hybrid-desktop-v198 .mobile-topbar,
+  html.aj-hybrid-desktop-v198 #mobileFitBtn,
+  html.aj-hybrid-desktop-v198 [id*="mobileFit"] {
+    display: none !important;
+  }
+  html.aj-hybrid-desktop-v198 header {
+    display: flex !important;
+    position: fixed !important;
+    top: 12px !important;
+    left: 50% !important;
+    right: auto !important;
+    width: max-content !important;
+    max-width: none !important;
+    overflow: visible !important;
+    transform: translateX(-50%) !important;
+    transform-origin: top center !important;
+    flex-wrap: nowrap !important;
+  }
+  html.aj-hybrid-desktop-v198 #mobileViewport {
+    touch-action: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+}
+
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -3267,6 +3297,151 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(scale);requestAnimationFrame(()=>layout(true));return r};
  adapt();
 })();
+</script>
+<script id="AIRJOTTER_HYBRID_TOUCH_V198">
+/* AirJotter Hybrid Desktop Touch Fix v19.8 */
+(function () {
+  'use strict';
+  const isHybridDesktop = /Windows|Macintosh|X11|Linux x86_64/i.test(navigator.userAgent) &&
+    (navigator.maxTouchPoints || 0) > 0 &&
+    matchMedia('(hover:hover)').matches;
+  if (!isHybridDesktop || window.AIRJOTTER_HYBRID_TOUCH_FIX) return;
+  window.AIRJOTTER_HYBRID_TOUCH_FIX = { version: '19.8', scope: 'hybrid-desktop-touch' };
+  document.documentElement.classList.add('aj-hybrid-desktop-v198');
+
+  const header = document.querySelector('header');
+  const vp = document.getElementById('mobileViewport');
+  const stage = document.getElementById('mobileStageV109');
+  const wrapper = document.getElementById('canvas-wrapper');
+  const fit = document.getElementById('ajPcFitV195');
+  if (!header || !vp || !stage || !wrapper || !fit) return;
+
+  // A 2-in-1 is treated as a desktop: remove the duplicate mobile command surface.
+  const mobileTopbar = document.getElementById('mobileTopbar');
+  if (mobileTopbar) mobileTopbar.setAttribute('aria-hidden', 'true');
+
+  let toolbarScale = 1;
+  function fitToolbar() {
+    header.style.zoom = '1';
+    header.style.left = '50%';
+    header.style.transform = 'translateX(-50%)';
+    const naturalWidth = Math.max(header.scrollWidth, header.getBoundingClientRect().width);
+    const availableWidth = Math.max(480, document.documentElement.clientWidth - 20);
+    toolbarScale = Math.min(1, availableWidth / naturalWidth);
+    header.style.zoom = String(toolbarScale);
+    header.style.maxWidth = 'none';
+    header.style.overflow = 'visible';
+    return toolbarScale;
+  }
+
+  function documentScale() {
+    const rect = wrapper.getBoundingClientRect();
+    return rect.width > 0 ? rect.width / LOGICAL_W : 1;
+  }
+  function setDocumentScale(value) {
+    const scale = Math.max(.18, Math.min(4, value));
+    stage.style.width = Math.round(LOGICAL_W * scale) + 'px';
+    stage.style.height = Math.round(LOGICAL_H * scale) + 'px';
+    wrapper.style.width = LOGICAL_W + 'px';
+    wrapper.style.height = LOGICAL_H + 'px';
+    wrapper.style.transform = 'scale(' + scale + ')';
+    wrapper.style.transformOrigin = 'top left';
+    return scale;
+  }
+  function fitDocumentScale() {
+    return Math.min(1, Math.max(.18, (vp.clientWidth - 40) / LOGICAL_W));
+  }
+  function normalizeLayout(center) {
+    fitToolbar();
+    const top = Math.ceil(header.getBoundingClientRect().bottom) + 18;
+    vp.style.paddingTop = top + 'px';
+    const wide = stage.offsetWidth > vp.clientWidth - 24;
+    stage.style.marginLeft = wide ? '12px' : 'auto';
+    stage.style.marginRight = wide ? '12px' : 'auto';
+    if (center && !wide) vp.scrollLeft = 0;
+  }
+
+  function smartFit() {
+    fitToolbar();
+    setDocumentScale(fitDocumentScale());
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        normalizeLayout(true);
+        vp.scrollLeft = 0;
+        window.scrollTo({ left: 0, top: 0, behavior: 'auto' });
+      });
+    });
+  }
+
+  // Replace the existing one-touch command with a complete page + toolbar fit.
+  fit.onclick = function (event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    smartFit();
+  };
+
+  // Two-finger pan and pinch for Windows 2-in-1 devices.
+  // Window capture runs before the older element listeners, preventing horizontal-only gesture handling.
+  let gesture = null;
+  function center(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    };
+  }
+  function distance(touches) {
+    return Math.max(20, Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    ));
+  }
+  window.addEventListener('touchstart', function (event) {
+    if (event.touches.length !== 2) return;
+    const c = center(event.touches);
+    gesture = {
+      centerX: c.x,
+      centerY: c.y,
+      distance: distance(event.touches),
+      scale: documentScale(),
+      scrollLeft: vp.scrollLeft,
+      scrollY: window.scrollY
+    };
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, { capture: true, passive: false });
+
+  window.addEventListener('touchmove', function (event) {
+    if (!gesture || event.touches.length !== 2) return;
+    const c = center(event.touches);
+    const nextScale = setDocumentScale(gesture.scale * distance(event.touches) / gesture.distance);
+    const zoomShiftX = (c.x - gesture.centerX) * -1;
+    const zoomShiftY = (c.y - gesture.centerY) * -1;
+    vp.scrollLeft = Math.max(0, gesture.scrollLeft + zoomShiftX + (nextScale - gesture.scale) * (gesture.centerX / gesture.scale));
+    window.scrollTo({
+      left: 0,
+      top: Math.max(0, gesture.scrollY + zoomShiftY + (nextScale - gesture.scale) * (gesture.centerY / gesture.scale)),
+      behavior: 'auto'
+    });
+    normalizeLayout(false);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, { capture: true, passive: false });
+
+  function endGesture(event) {
+    if (!gesture || event.touches.length >= 2) return;
+    gesture = null;
+    normalizeLayout(true);
+  }
+  window.addEventListener('touchend', endGesture, { capture: true, passive: false });
+  window.addEventListener('touchcancel', endGesture, { capture: true, passive: false });
+
+  window.addEventListener('resize', function () {
+    requestAnimationFrame(function () { normalizeLayout(true); });
+  }, { passive: true });
+
+  smartFit();
+})();
+
 </script>
 </body>
 </html>
