@@ -677,7 +677,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
 }
 @media (min-width:761px){html.aj-windows-touch-v204 #mobileTopbar,html.aj-windows-touch-v204 .mobile-topbar,html.aj-windows-touch-v204 [id*="mobileFit"]{display:none!important;visibility:hidden!important}html.aj-windows-touch-v204 #mobileViewport{touch-action:none!important}}
 </style>
-<style id="AIRJOTTER_TABLET_TOOLBAR_V207_STYLE">
+<style id="AIRJOTTER_TABLET_TOOLBAR_V208_STYLE">
 /* AirJotter v20.7 - ripristino toolbar tablet, nessuna modifica a PC/notebook */
 @media (min-width:761px) and (pointer:coarse),
        (min-width:761px) and (hover:none) and (any-pointer:coarse) {
@@ -710,6 +710,19 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
  html:not(.aj-windows-touch-v204) header>*{flex-shrink:0!important}
  html:not(.aj-windows-touch-v204) header .tools-group{display:flex!important;visibility:visible!important;opacity:1!important;flex-shrink:0!important}
  html:not(.aj-windows-touch-v204) #ajPcFitV204{display:none!important}
+ /* Tablet only: restore the native Adatta + Zoom % control already wired by the tablet runtime. */
+ html:not(.aj-windows-touch-v204) #tabletFitBtnV15{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:68px!important;
+  line-height:1.05!important;
+ }
+ html:not(.aj-windows-touch-v204) #tabletFitBtnV15 small{display:block!important;visibility:visible!important;opacity:1!important}
  html:not(.aj-windows-touch-v204) body::before{right:12px!important}
 }
 @media (max-width:760px){
@@ -3311,14 +3324,14 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const old=initCanvas;initCanvas=function(){const z=pageScale,r=old.apply(this,arguments);geometry(z);requestAnimationFrame(()=>relayout(true));return r};adapt();
 })();
 </script>
-<script id="AIRJOTTER_TABLET_TOOLBAR_V207">
+<script id="AIRJOTTER_TABLET_TOOLBAR_V208">
 (function(){
  'use strict';
  const ipadOS=navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1;
  const tablet=innerWidth>760&&(ipadOS||/iPad|Android/i.test(navigator.userAgent)||((navigator.maxTouchPoints||0)>0&&matchMedia('(pointer:coarse)').matches))&&!/Windows/i.test(navigator.userAgent);
  if(!tablet)return;
  const header=document.querySelector('header');if(!header)return;
- document.documentElement.classList.add('aj-tablet-toolbar-v207');
+ document.documentElement.classList.add('aj-tablet-toolbar-v208');
  function restore(){
   header.style.setProperty('display','flex','important');
   header.style.setProperty('left','12px','important');
