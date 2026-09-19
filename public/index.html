@@ -663,43 +663,41 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_PC_SMART_ZOOM_V197_STYLE">
-@media (hover:hover) and (pointer:fine){
- html.aj-pc-v195,html.aj-pc-v195 body{overflow-x:hidden!important;min-width:0!important}
- html.aj-pc-v195 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important}
- html.aj-pc-v195 #mobileViewport::-webkit-scrollbar{display:none!important}
- html.aj-pc-v195 #mobileStageV109{position:relative!important;display:block!important;margin-left:auto!important;margin-right:auto!important;overflow:visible!important}
- html.aj-pc-v195 #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important}
- #ajPcScrollV195{position:fixed;left:14px;right:14px;height:15px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.97);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s ease}
- #ajPcScrollV195.visible{opacity:1;pointer-events:auto}
- #ajPcScrollInnerV195{height:1px}
- #ajPcScrollV195::-webkit-scrollbar{height:11px}
- #ajPcScrollV195::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.97);border-radius:999px}
- #ajPcScrollV195::-webkit-scrollbar-track{background:transparent}
- #ajPcFitV195{min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important}
- #ajPcFitV195 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
-}
-</style>
-<style id="AIRJOTTER_DESKTOP_RECOVERY_V201_STYLE">
-/* AirJotter v20.1 - recupero desktop e 2-in-1 */
-@media (hover:hover) {
+<style id="AIRJOTTER_DESKTOP_FINAL_V202_STYLE">
+/* AirJotter v20.2 - desktop definitivo e Windows 2-in-1 */
+@media (min-width:761px) {
   #ajPcScrollV195 { display:none!important; visibility:hidden!important; opacity:0!important; pointer-events:none!important; }
-  html.aj-desktop-recovery-v201 header {
-    display:flex!important; position:fixed!important; top:12px!important;
-    left:50%!important; right:auto!important; width:max-content!important; max-width:none!important;
-    overflow:visible!important; flex-wrap:nowrap!important; opacity:1!important; visibility:visible!important;
-    transform-origin:top center!important;
+  html.aj-desktop-final-v202,html.aj-desktop-final-v202 body { min-width:0!important; overflow-x:hidden!important; }
+  html.aj-desktop-final-v202 header {
+    display:flex!important; position:fixed!important; top:12px!important; left:50%!important; right:auto!important;
+    width:max-content!important; max-width:none!important; overflow:visible!important; overflow-x:visible!important;
+    flex-wrap:nowrap!important; opacity:1!important; visibility:visible!important; transform-origin:top center!important;
+    z-index:500!important;
   }
+  html.aj-desktop-final-v202 #mobileViewport {
+    position:relative!important; width:100%!important; height:auto!important; min-height:0!important;
+    margin:0!important; box-sizing:border-box!important; overflow-x:auto!important; overflow-y:visible!important;
+    scrollbar-width:none!important; overscroll-behavior-x:contain!important;
+  }
+  html.aj-desktop-final-v202 #mobileViewport::-webkit-scrollbar { display:none!important; }
+  html.aj-desktop-final-v202 #mobileStageV109 { position:relative!important; display:block!important; overflow:visible!important; }
+  html.aj-desktop-final-v202 #mobileStageV109 > #canvas-wrapper {
+    position:absolute!important; left:0!important; top:0!important; margin:0!important;
+    transform-origin:top left!important; max-width:none!important;
+  }
+  html.aj-desktop-final-v202 #ajPcFitV202 {
+    min-width:64px!important; display:flex!important; flex-direction:column!important; align-items:center!important;
+    justify-content:center!important; text-align:center!important; line-height:1.02!important; padding:6px 9px!important; white-space:normal!important;
+  }
+  html.aj-desktop-final-v202 #ajPcFitV202 span { display:block!important; font-size:.76rem!important; font-weight:700!important; }
 }
-@media (hover:hover) and (pointer:fine) {
-  html.aj-hybrid-recovery-v201 #mobileTopbar,
-  html.aj-hybrid-recovery-v201 .mobile-topbar,
-  html.aj-hybrid-recovery-v201 #mobileFitBtn,
-  html.aj-hybrid-recovery-v201 [id*="mobileFit"],
-  html.aj-hybrid-recovery-v201 #tabletFitBtnV15 { display:none!important; }
-  html.aj-hybrid-recovery-v201 #mobileViewport {
-    touch-action:none!important; overflow-x:auto!important; overflow-y:visible!important;
-  }
+@media (min-width:761px) {
+  html.aj-windows-hybrid-v202 #mobileTopbar,
+  html.aj-windows-hybrid-v202 .mobile-topbar,
+  html.aj-windows-hybrid-v202 #mobileFitBtn,
+  html.aj-windows-hybrid-v202 [id*="mobileFit"],
+  html.aj-windows-hybrid-v202 #tabletFitBtnV15 { display:none!important; visibility:hidden!important; }
+  html.aj-windows-hybrid-v202 #mobileViewport { touch-action:none!important; }
 }
 </style>
 </head>
@@ -3004,7 +3002,7 @@ document.addEventListener('click', function(event) {
 
 <script id="airjotterTabletTouchV153">
 (function(){
- const tablet=innerWidth>760&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);if(!tablet)return;
+ const desktopHybrid=/Windows/i.test(navigator.userAgent)&&innerWidth>760;const tablet=innerWidth>760&&!desktopHybrid&&((navigator.maxTouchPoints||0)>0||matchMedia('(any-pointer:coarse)').matches);if(!tablet)return;
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),draft=document.getElementById('draftBoard'),header=document.querySelector('header');if(!vp||!stage||!wrapper||!draft||!header)return;
  let zoom=1,pinch=null,raf=0,pending=null,gridFrame=0;
  const fit=()=>Math.min(1,Math.max(.20,(vp.clientWidth-32)/LOGICAL_W));
@@ -3221,192 +3219,102 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
-
-<script id="AIRJOTTER_PC_SMART_ZOOM_V197">
+<script id="AIRJOTTER_DESKTOP_FINAL_V202">
 (function(){
  'use strict';
- const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
- if(!desktop||window.AIRJOTTER_PC_SMART_ZOOM)return;
- window.AIRJOTTER_PC_SMART_ZOOM={version:'19.7',scope:'desktop-only',mode:'managed-document-zoom'};
+ const desktop=innerWidth>760 && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+ if(!desktop||window.AIRJOTTER_DESKTOP_FINAL_V202)return;
+ const hybrid=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
+ window.AIRJOTTER_DESKTOP_FINAL_V202={version:'20.2',hybrid};
+ document.documentElement.classList.add('aj-desktop-final-v202');
+ if(hybrid)document.documentElement.classList.add('aj-windows-hybrid-v202');
  const vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),header=document.querySelector('header'),pen=document.getElementById('toolPenBtn');
  if(!vp||!stage||!wrapper||!header||!pen)return;
- document.documentElement.classList.add('aj-pc-v195');
- let fit=document.getElementById('ajPcFitV195');
- if(!fit){fit=document.createElement('button');fit.id='ajPcFitV195';fit.type='button';fit.className='btn';pen.parentNode.insertBefore(fit,pen)}
+ // Remove every obsolete artificial scrollbar and every duplicate tablet/mobile fit button on Windows hybrids.
+ document.querySelectorAll('#ajPcScrollV195').forEach(el=>el.remove());
+ function removeDuplicateControls(){
+  if(!hybrid)return;
+  ['mobileTopbar','mobileFitBtn','tabletFitBtnV15'].forEach(id=>{const el=document.getElementById(id);if(el)el.remove()});
+  document.querySelectorAll('[id*="mobileFit"]').forEach(el=>el.remove());
+ }
+ removeDuplicateControls();
+ let fit=document.getElementById('ajPcFitV202');
+ if(!fit){fit=document.createElement('button');fit.id='ajPcFitV202';fit.type='button';fit.className='btn';pen.parentNode.insertBefore(fit,pen)}
  fit.innerHTML='<span>Adatta</span><span>pagina</span>';
- fit.title='Adatta pagina alla larghezza disponibile e riportala al centro';
- const oldSmall=fit.querySelector('small');if(oldSmall)oldSmall.remove();
- let scroll=document.getElementById('ajPcScrollV195');
- if(!scroll){scroll=document.createElement('div');scroll.id='ajPcScrollV195';scroll.innerHTML='<div id="ajPcScrollInnerV195"></div>';document.body.appendChild(scroll)}
- const scrollInner=scroll.firstElementChild;
- let scale=1,sync=false,timer=0,previousWide=false;
+ fit.title='Adatta pagina e barra strumenti alla larghezza disponibile';
+ let scale=1,timer=0;
+ function availableWidth(){return Math.max(360,(window.visualViewport?.width||document.documentElement.clientWidth||innerWidth)-24)}
+ function fitToolbar(){
+  header.style.setProperty('display','flex','important');header.style.setProperty('visibility','visible','important');header.style.setProperty('opacity','1','important');
+  header.style.zoom='1';header.style.left='50%';header.style.right='auto';header.style.width='max-content';header.style.maxWidth='none';header.style.overflow='visible';header.style.flexWrap='nowrap';
+  header.style.transform='translateX(-50%) scale(1)';header.style.transformOrigin='top center';
+  const natural=Math.max(header.scrollWidth,header.offsetWidth,1);
+  const factor=Math.min(1,availableWidth()/natural);
+  header.style.transform='translateX(-50%) scale('+factor+')';
+  return header.getBoundingClientRect();
+ }
  function fitScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
  function setGeometry(value){
   scale=Math.max(.18,Math.min(4,Number(value)||1));
   stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';
   wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
  }
- function headerOffset(){return Math.ceil(header.getBoundingClientRect().bottom)+18}
  function layout(centerIfFits){
-  // Toolbar always remains at its native AirJotter size. Only the document is zoomed.
-  header.style.zoom='1';header.style.transform='translateX(-50%)';
-  vp.style.paddingTop=headerOffset()+'px';
+  removeDuplicateControls();
+  const hr=fitToolbar();vp.style.paddingTop=(Math.ceil(hr.bottom)+18)+'px';
   const wide=stage.offsetWidth>vp.clientWidth-24;
-  if(wide){stage.style.marginLeft='12px';stage.style.marginRight='12px'}
-  else{stage.style.marginLeft='auto';stage.style.marginRight='auto';if(centerIfFits||previousWide)vp.scrollLeft=0}
-  scroll.style.top=(Math.ceil(header.getBoundingClientRect().bottom)+3)+'px';
-  scrollInner.style.width=Math.max(vp.clientWidth,stage.offsetWidth+24)+'px';scroll.classList.toggle('visible',wide);
-  previousWide=wide;if(!sync){sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false}
+  stage.style.marginLeft=wide?'12px':'auto';stage.style.marginRight=wide?'12px':'auto';
+  if(centerIfFits&&!wide)vp.scrollLeft=0;
  }
  function adapt(){
-  setGeometry(fitScale());
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;window.scrollTo({left:0,top:0,behavior:'auto'})}));
+  fitToolbar();setGeometry(fitScale());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{layout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}));
  }
  function zoomAt(next,clientX){
   const before=scale,box=vp.getBoundingClientRect();
   const anchor=Math.max(0,Math.min(vp.clientWidth,(clientX||box.left+vp.clientWidth/2)-box.left));
   const docX=(vp.scrollLeft+anchor)/before;
-  setGeometry(next);layout(false);
-  vp.scrollLeft=Math.max(0,docX*scale-anchor);
+  setGeometry(next);layout(false);vp.scrollLeft=Math.max(0,docX*scale-anchor);
  }
- function stepZoom(direction,clientX){
-  const factor=direction>0?1.12:1/1.12;
-  zoomAt(scale*factor,clientX);
- }
- function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),160)}
- fit.onclick=e=>{e.preventDefault();adapt()};
- vp.addEventListener('scroll',()=>{if(sync)return;sync=true;scroll.scrollLeft=vp.scrollLeft;sync=false},{passive:true});
- scroll.addEventListener('scroll',()=>{if(sync)return;sync=true;vp.scrollLeft=scroll.scrollLeft;sync=false},{passive:true});
- // Desktop smart zoom: keep browser/UI scale fixed and zoom only the AirJotter document.
+ function stepZoom(direction,clientX){zoomAt(scale*(direction>0?1.12:1/1.12),clientX)}
+ fit.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();adapt()};
+ // Desktop zoom commands affect only the document; toolbar is refitted after every step.
  document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();stepZoom(e.deltaY<0?1:-1,e.clientX)},{capture:true,passive:false});
- document.addEventListener('keydown',e=>{
-  if(!e.ctrlKey)return;
-  if(e.key==='0'){e.preventDefault();e.stopImmediatePropagation();adapt();return}
-  if(e.key==='+'||e.key==='='){e.preventDefault();e.stopImmediatePropagation();stepZoom(1);return}
-  if(e.key==='-'){e.preventDefault();e.stopImmediatePropagation();stepZoom(-1)}
- },true);
- window.addEventListener('resize',refresh,{passive:true});
+ document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();e.stopImmediatePropagation();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();e.stopImmediatePropagation();stepZoom(1)}else if(e.key==='-'){e.preventDefault();e.stopImmediatePropagation();stepZoom(-1)}},true);
+ // Precision touchpad: vertical movement scrolls the document; horizontal movement pans the board.
+ let wx=0,wy=0,wraf=0;
+ function flushWheel(){wraf=0;const root=document.scrollingElement||document.documentElement;if(wx)vp.scrollLeft=Math.max(0,vp.scrollLeft+wx);if(wy)root.scrollTop=Math.max(0,root.scrollTop+wy);wx=wy=0}
+ if(hybrid)window.addEventListener('wheel',e=>{
+  if(e.ctrlKey)return;
+  const m=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1),dx=e.deltaX*m,dy=e.deltaY*m;
+  if(Math.abs(dy)>=Math.abs(dx)){wy+=dy;wx+=dx*.12}else{wx+=dx;wy+=dy*.12}
+  if(e.cancelable)e.preventDefault();if(!wraf)wraf=requestAnimationFrame(flushWheel);
+ },{capture:true,passive:false});
+ // Physical touchscreen: two-finger pan in both axes plus pinch, using cumulative deltas.
+ let gst=null,tp=null,traf=0;
+ const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2});
+ const distance=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
+ function paintTouch(){
+  traf=0;const p=tp;tp=null;if(!gst||!p)return;
+  const root=document.scrollingElement||document.documentElement;
+  const ratio=p.distance/gst.distance;
+  const next=Math.max(.18,Math.min(4,gst.scale*ratio));
+  setGeometry(next);
+  vp.scrollLeft=Math.max(0,gst.left-(p.center.x-gst.center.x)+(next-gst.scale)*(gst.center.x/gst.scale));
+  root.scrollTop=Math.max(0,gst.top-(p.center.y-gst.center.y)+(next-gst.scale)*(gst.center.y/gst.scale));
+  layout(false);
+ }
+ if(hybrid){
+  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;gst={center:mid(e.touches),distance:distance(e.touches),scale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  window.addEventListener('touchmove',e=>{if(!gst||e.touches.length!==2)return;tp={center:mid(e.touches),distance:distance(e.touches)};if(!traf)traf=requestAnimationFrame(paintTouch);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  const end=e=>{if(!gst||e.touches.length>=2)return;if(traf){cancelAnimationFrame(traf);paintTouch()}gst=null;tp=null;layout(true)};
+  window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
+ }
+ const obs=new MutationObserver(()=>{removeDuplicateControls();document.querySelectorAll('#ajPcScrollV195').forEach(el=>el.remove())});obs.observe(document.body,{childList:true,subtree:true});
+ function refresh(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),160)}
+ window.addEventListener('resize',refresh,{passive:true});if(window.visualViewport)visualViewport.addEventListener('resize',refresh,{passive:true});
  const baseInit=initCanvas;initCanvas=function(){const r=baseInit.apply(this,arguments);setGeometry(scale);requestAnimationFrame(()=>layout(true));return r};
  adapt();
-})();
-</script>
-<script id="AIRJOTTER_DESKTOP_RECOVERY_V201">
-(function(){
- 'use strict';
- const desktopOS=/Windows|Macintosh|X11|Linux x86_64/i.test(navigator.userAgent);
- const desktopUI=matchMedia('(hover:hover)').matches;
- if(!desktopOS||!desktopUI||window.AIRJOTTER_DESKTOP_RECOVERY_V201)return;
- const hybrid=(navigator.maxTouchPoints||0)>0;
- window.AIRJOTTER_DESKTOP_RECOVERY_V201={version:'20.1',hybrid};
- document.documentElement.classList.add('aj-desktop-recovery-v201');
- if(hybrid)document.documentElement.classList.add('aj-hybrid-recovery-v201');
- const header=document.querySelector('header');
- const vp=document.getElementById('mobileViewport');
- const stage=document.getElementById('mobileStageV109');
- const wrapper=document.getElementById('canvas-wrapper');
- const fit=document.getElementById('ajPcFitV195');
- if(!header||!vp||!stage||!wrapper||!fit)return;
-
- const fakeScroll=document.getElementById('ajPcScrollV195');
- if(fakeScroll){fakeScroll.classList.remove('visible');fakeScroll.style.display='none';fakeScroll.setAttribute('aria-hidden','true')}
-
- function hideDuplicateMobileUi(){
-  if(!hybrid)return;
-  for(const id of ['mobileTopbar','mobileFitBtn','tabletFitBtnV15']){
-   const el=document.getElementById(id);
-   if(el){el.style.setProperty('display','none','important');el.setAttribute('aria-hidden','true');if('tabIndex' in el)el.tabIndex=-1}
-  }
-  document.querySelectorAll('[id*="mobileFit"]').forEach(el=>{el.style.setProperty('display','none','important');el.setAttribute('aria-hidden','true')});
- }
- function viewportWidth(){return Math.max(360,(window.visualViewport&&visualViewport.width)||document.documentElement.clientWidth||innerWidth)}
- function fitToolbar(){
-  header.style.setProperty('display','flex','important');
-  header.style.setProperty('visibility','visible','important');
-  header.style.setProperty('opacity','1','important');
-  header.style.left='50%';header.style.right='auto';header.style.zoom='1';
-  header.style.transform='translateX(-50%) scale(1)';header.style.transformOrigin='top center';
-  header.style.width='max-content';header.style.maxWidth='none';header.style.overflow='visible';header.style.flexWrap='nowrap';
-  const natural=Math.max(header.scrollWidth,header.offsetWidth,header.getBoundingClientRect().width);
-  const scale=Math.min(1,(viewportWidth()-24)/Math.max(1,natural));
-  header.style.transform='translateX(-50%) scale('+scale+')';
-  return {scale,rect:header.getBoundingClientRect()};
- }
- function currentScale(){const rect=wrapper.getBoundingClientRect();return rect.width>0?rect.width/LOGICAL_W:1}
- function setDocumentScale(value){
-  const scale=Math.max(.18,Math.min(4,Number(value)||1));
-  stage.style.width=Math.round(LOGICAL_W*scale)+'px';stage.style.height=Math.round(LOGICAL_H*scale)+'px';
-  wrapper.style.width=LOGICAL_W+'px';wrapper.style.height=LOGICAL_H+'px';
-  wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0';wrapper.style.marginBottom='0';
-  return scale;
- }
- function fitDocumentScale(){return Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W))}
- function normalize(center){
-  hideDuplicateMobileUi();
-  if(fakeScroll){fakeScroll.classList.remove('visible');fakeScroll.style.display='none'}
-  const h=fitToolbar();
-  vp.style.paddingTop=(Math.ceil(h.rect.bottom)+18)+'px';
-  const wide=stage.offsetWidth>vp.clientWidth-24;
-  stage.style.marginLeft=wide?'12px':'auto';stage.style.marginRight=wide?'12px':'auto';
-  if(center&&!wide)vp.scrollLeft=0;
- }
- function smartFit(){
-  hideDuplicateMobileUi();fitToolbar();setDocumentScale(fitDocumentScale());
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-   normalize(true);vp.scrollLeft=0;vp.scrollTop=0;
-   const root=document.scrollingElement||document.documentElement;root.scrollTop=0;root.scrollLeft=0;
-  }));
- }
- fit.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();smartFit()};
-
- // Touchscreen: two fingers control vertical pan, horizontal pan and pinch.
- let gesture=null,pending=null,touchRaf=0;
- const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2});
- const dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
- function paintTouch(){
-  touchRaf=0;const p=pending;pending=null;if(!gesture||!p)return;
-  const root=document.scrollingElement||document.documentElement;
-  const next=setDocumentScale(gesture.scale*p.distance/gesture.distance);
-  vp.scrollLeft=Math.max(0,gesture.left-(p.center.x-gesture.center.x)+(next-gesture.scale)*(gesture.center.x/gesture.scale));
-  root.scrollTop=Math.max(0,gesture.top-(p.center.y-gesture.center.y)+(next-gesture.scale)*(gesture.center.y/gesture.scale));
- }
- if(hybrid){
-  window.addEventListener('touchstart',e=>{
-   if(e.touches.length!==2)return;
-   const root=document.scrollingElement||document.documentElement;
-   gesture={center:mid(e.touches),distance:dist(e.touches),scale:currentScale(),left:vp.scrollLeft,top:root.scrollTop};
-   e.preventDefault();e.stopImmediatePropagation();
-  },{capture:true,passive:false});
-  window.addEventListener('touchmove',e=>{
-   if(!gesture||e.touches.length!==2)return;
-   pending={center:mid(e.touches),distance:dist(e.touches)};
-   if(!touchRaf)touchRaf=requestAnimationFrame(paintTouch);
-   e.preventDefault();e.stopImmediatePropagation();
-  },{capture:true,passive:false});
-  const end=e=>{if(!gesture||e.touches.length>=2)return;if(touchRaf){cancelAnimationFrame(touchRaf);paintTouch()}gesture=null;pending=null;normalize(true)};
-  window.addEventListener('touchend',end,{capture:true,passive:false});
-  window.addEventListener('touchcancel',end,{capture:true,passive:false});
- }
-
- // Touchpad: leave vertical wheel gestures native; intercept only genuinely horizontal gestures.
- let dxPending=0,wheelRaf=0;
- function flushHorizontal(){wheelRaf=0;vp.scrollLeft=Math.max(0,vp.scrollLeft+dxPending);dxPending=0}
- if(hybrid){
-  window.addEventListener('wheel',e=>{
-   if(e.ctrlKey)return;
-   const mul=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
-   const dx=e.deltaX*mul,dy=e.deltaY*mul;
-   if(Math.abs(dx)<=Math.abs(dy)*1.08)return;
-   dxPending+=dx;
-   if(e.cancelable)e.preventDefault();
-   if(!wheelRaf)wheelRaf=requestAnimationFrame(flushHorizontal);
-  },{capture:true,passive:false});
- }
-
- const observer=new MutationObserver(()=>{hideDuplicateMobileUi();if(fakeScroll){fakeScroll.classList.remove('visible');fakeScroll.style.display='none'}});
- observer.observe(document.body,{childList:true,subtree:true});
- window.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});
- if(window.visualViewport)visualViewport.addEventListener('resize',()=>requestAnimationFrame(()=>normalize(true)),{passive:true});
- hideDuplicateMobileUi();normalize(true);
 })();
 </script>
 </body>
