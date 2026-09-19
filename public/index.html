@@ -663,7 +663,7 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_DESKTOP_STATIC_V204_STYLE">
+<style id="AIRJOTTER_DESKTOP_STATIC_V205_STYLE">
 @media (min-width:761px){
  html.aj-desktop-v204,html.aj-desktop-v204 body{min-width:0!important;overflow-x:hidden!important}
  html.aj-desktop-v204 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important}
@@ -3197,7 +3197,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
-<script id="AIRJOTTER_DESKTOP_STATIC_V204">
+<script id="AIRJOTTER_DESKTOP_STATIC_V205">
 (function(){
  'use strict';
  const desktop=innerWidth>760&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
@@ -3228,7 +3228,27 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  fit.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();adapt()},true);
  document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();e.stopImmediatePropagation();zoom(pageScale*(e.deltaY<0?1.12:1/1.12),e.clientX)},{capture:true,passive:false});
  document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();zoom(pageScale*1.12)}else if(e.key==='-'){e.preventDefault();zoom(pageScale/1.12)}},true);
- // Do not cancel ordinary wheel events: native touchpad vertical/horizontal scrolling remains intact.
+ // Windows 2-in-1 touchpad: explicitly route two-finger wheel deltas.
+ // Vertical deltas scroll the document; horizontal deltas pan the A4 viewport.
+ let padX=0,padY=0,padRaf=0;
+ function flushTouchpad(){
+  padRaf=0;
+  const root=document.scrollingElement||document.documentElement;
+  if(padX)vp.scrollLeft=Math.max(0,Math.min(vp.scrollWidth-vp.clientWidth,vp.scrollLeft+padX));
+  if(padY)root.scrollTop=Math.max(0,Math.min(root.scrollHeight-root.clientHeight,root.scrollTop+padY));
+  padX=0;padY=0;
+ }
+ if(touchPC){
+  window.addEventListener('wheel',e=>{
+   if(e.ctrlKey)return;
+   if(e.target&&e.target.closest&&e.target.closest('dialog,input,textarea,select,[contenteditable=\"true\"],.modal,.aj-overlay'))return;
+   const mul=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
+   padX+=e.deltaX*mul;padY+=e.deltaY*mul;
+   if(e.cancelable)e.preventDefault();
+   e.stopImmediatePropagation();
+   if(!padRaf)padRaf=requestAnimationFrame(flushTouchpad);
+  },{capture:true,passive:false});
+ }
  let g=null,pending=null,raf=0;
  const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}),dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
  function paint(){raf=0;const p=pending;pending=null;if(!g||!p)return;const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,g.scale*p.distance/g.distance));geometry(next);vp.scrollLeft=Math.max(0,g.left-(p.center.x-g.center.x)+(next-g.scale)*(g.center.x/g.scale));root.scrollTop=Math.max(0,g.top-(p.center.y-g.center.y)+(next-g.scale)*(g.center.y/g.scale));relayout(false)}
