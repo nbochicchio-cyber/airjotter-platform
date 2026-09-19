@@ -677,6 +677,45 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
 }
 @media (min-width:761px){html.aj-windows-touch-v204 #mobileTopbar,html.aj-windows-touch-v204 .mobile-topbar,html.aj-windows-touch-v204 [id*="mobileFit"]{display:none!important;visibility:hidden!important}html.aj-windows-touch-v204 #mobileViewport{touch-action:none!important}}
 </style>
+<style id="AIRJOTTER_TABLET_TOOLBAR_V207_STYLE">
+/* AirJotter v20.7 - ripristino toolbar tablet, nessuna modifica a PC/notebook */
+@media (min-width:761px) and (pointer:coarse),
+       (min-width:761px) and (hover:none) and (any-pointer:coarse) {
+ html:not(.aj-windows-touch-v204) header,
+ html:not(.aj-windows-touch-v204) body.mobile-tools-open header {
+  display:flex!important;
+  position:fixed!important;
+  top:calc(env(safe-area-inset-top,0px) + 12px)!important;
+  left:12px!important;
+  right:12px!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:0!important;
+  transform:none!important;
+  transform-origin:center!important;
+  zoom:1!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  flex-wrap:nowrap!important;
+  justify-content:flex-start!important;
+  visibility:visible!important;
+  opacity:1!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+  touch-action:pan-x!important;
+  scrollbar-width:none!important;
+  z-index:500!important;
+ }
+ html:not(.aj-windows-touch-v204) header::-webkit-scrollbar{display:none!important}
+ html:not(.aj-windows-touch-v204) header>*{flex-shrink:0!important}
+ html:not(.aj-windows-touch-v204) header .tools-group{display:flex!important;visibility:visible!important;opacity:1!important;flex-shrink:0!important}
+ html:not(.aj-windows-touch-v204) #ajPcFitV204{display:none!important}
+ html:not(.aj-windows-touch-v204) body::before{right:12px!important}
+}
+@media (max-width:760px){
+ body.mobile-tools-open header #ajPcFitV204{display:none!important}
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -3200,7 +3239,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
 <script id="AIRJOTTER_DESKTOP_STATIC_V206">
 (function(){
  'use strict';
- const desktop=innerWidth>760&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
+ const ipadOS=navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1;const touchFirst=matchMedia('(pointer:coarse)').matches&&!/Windows/i.test(navigator.userAgent);const desktop=innerWidth>760&&!ipadOS&&!touchFirst&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
  const touchPC=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
  document.documentElement.classList.add('aj-desktop-v204');if(touchPC)document.documentElement.classList.add('aj-windows-touch-v204');
  const header=document.querySelector('header'),vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),fit=document.getElementById('ajPcFitV204');if(!header||!vp||!stage||!wrapper||!fit)return;
@@ -3270,6 +3309,42 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});
  function resize(){clearTimeout(timer);requestAnimationFrame(()=>relayout(true));timer=setTimeout(()=>relayout(true),150)}window.addEventListener('resize',resize,{passive:true});visualViewport?.addEventListener('resize',resize,{passive:true});
  const old=initCanvas;initCanvas=function(){const z=pageScale,r=old.apply(this,arguments);geometry(z);requestAnimationFrame(()=>relayout(true));return r};adapt();
+})();
+</script>
+<script id="AIRJOTTER_TABLET_TOOLBAR_V207">
+(function(){
+ 'use strict';
+ const ipadOS=navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1;
+ const tablet=innerWidth>760&&(ipadOS||/iPad|Android/i.test(navigator.userAgent)||((navigator.maxTouchPoints||0)>0&&matchMedia('(pointer:coarse)').matches))&&!/Windows/i.test(navigator.userAgent);
+ if(!tablet)return;
+ const header=document.querySelector('header');if(!header)return;
+ document.documentElement.classList.add('aj-tablet-toolbar-v207');
+ function restore(){
+  header.style.setProperty('display','flex','important');
+  header.style.setProperty('left','12px','important');
+  header.style.setProperty('right','12px','important');
+  header.style.setProperty('width','auto','important');
+  header.style.setProperty('max-width','none','important');
+  header.style.setProperty('transform','none','important');
+  header.style.setProperty('transform-origin','center','important');
+  header.style.setProperty('overflow-x','auto','important');
+  header.style.setProperty('overflow-y','hidden','important');
+  header.style.setProperty('visibility','visible','important');
+  header.style.setProperty('opacity','1','important');
+  header.style.zoom='1';
+ }
+ restore();
+ let timer=0;
+ function refresh(){restore();clearTimeout(timer);timer=setTimeout(restore,120)}
+ addEventListener('resize',refresh,{passive:true});
+ addEventListener('orientationchange',refresh,{passive:true});
+ if(window.visualViewport)visualViewport.addEventListener('resize',refresh,{passive:true});
+ // Pinch can trigger style rewrites; restore only the toolbar, never canvas/page geometry.
+ document.addEventListener('touchend',e=>{if(e.touches.length<2)requestAnimationFrame(restore)},{capture:true,passive:true});
+ const observer=new MutationObserver(()=>requestAnimationFrame(restore));
+ observer.observe(header,{attributes:true,attributeFilter:['style','class']});
+ // Preserve the historic scroll hint animation without scaling the toolbar.
+ setTimeout(()=>{if(header.scrollWidth>header.clientWidth+2){document.body.classList.add('has-scroll-hint');header.classList.remove('aj-hint-scroll');void header.offsetWidth;header.classList.add('aj-hint-scroll');setTimeout(()=>header.classList.remove('aj-hint-scroll'),2000)}},900);
 })();
 </script>
 </body>
