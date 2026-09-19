@@ -663,6 +663,22 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
+<style id="AIRJOTTER_PC_VIEWPORT_FIX_V192_STYLE">
+/* AirJotter PC Viewport & Zoom Fix v19.2 */
+@media (hover:hover) and (pointer:fine){
+ html.aj-pc-view-v192,html.aj-pc-view-v192 body{overflow-x:auto!important;min-width:0}
+ html.aj-pc-view-v192 #canvas-wrapper{top:auto!important;max-width:none!important}
+ #ajPcTopScrollV192{position:fixed;left:12px;right:12px;height:14px;overflow-x:auto;overflow-y:hidden;z-index:260;background:rgba(255,253,249,.94);border:1px solid var(--border-color);border-radius:999px;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .15s}
+ #ajPcTopScrollV192.visible{opacity:1;pointer-events:auto}
+ #ajPcTopScrollInnerV192{height:1px}
+ #ajPcTopScrollV192::-webkit-scrollbar{height:10px}
+ #ajPcTopScrollV192::-webkit-scrollbar-thumb{background:var(--accent-color);border:2px solid rgba(255,253,249,.94);border-radius:999px}
+ #ajPcTopScrollV192::-webkit-scrollbar-track{background:transparent}
+ #ajPcFitV192{min-width:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;padding:5px 9px}
+ #ajPcFitV192 small{font-size:.62rem;color:var(--text-soft);margin-top:3px}
+}
+
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -3181,77 +3197,82 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.ajInkBusy=()=>active;
  window.AIRJOTTER_IPAD_INK={version:'19.0',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
-</script>
+</script>`r`n<script id="AIRJOTTER_PC_VIEWPORT_FIX_V192">
+/* AirJotter PC Viewport & Zoom Fix v19.2
+   Desktop only. Keeps native browser zoom enabled and maintains a recoverable, centered workspace. */
+(function(){
+ 'use strict';
+ const desktop=matchMedia('(hover:hover) and (pointer:fine)').matches;
+ if(!desktop||window.AIRJOTTER_PC_VIEWPORT_FIX)return;
+ window.AIRJOTTER_PC_VIEWPORT_FIX={version:'19.2',scope:'desktop-only'};
+ const wrapper=document.getElementById('canvas-wrapper');
+ const header=document.querySelector('body > header, header');
+ if(!wrapper||!header)return;
 
-<script id="AIRJOTTER_PC_ZOOM_HOTFIX_V191">
-/* AirJotter PC Zoom Hotfix v19.1
-   Scope: desktop only. Prevents Ctrl+wheel browser zoom from corrupting the board layout,
-   and normalizes centering after browser zoom/resize or Ctrl+0. */
-(function () {
-  'use strict';
-  const DESKTOP = matchMedia('(hover:hover) and (pointer:fine)').matches;
-  if (!DESKTOP || window.AIRJOTTER_PC_ZOOM_HOTFIX) return;
-  window.AIRJOTTER_PC_ZOOM_HOTFIX = { version: '19.1', scope: 'desktop-only' };
+ document.documentElement.classList.add('aj-pc-view-v192');
+ const topScroll=document.createElement('div');
+ topScroll.id='ajPcTopScrollV192';
+ topScroll.innerHTML='<div id="ajPcTopScrollInnerV192"></div>';
+ document.body.appendChild(topScroll);
+ const topInner=topScroll.firstElementChild;
 
-  const wrapper = document.getElementById('canvas-wrapper');
-  const viewport = document.getElementById('mobileViewport');
-  const stage = document.getElementById('mobileStageV109');
-  if (!wrapper) return;
+ const fit=document.createElement('button');
+ fit.id='ajPcFitV192';fit.type='button';fit.className='btn';
+ fit.innerHTML='<span>Adatta</span><small id="ajPcZoomV192">100%</small>';
+ fit.title='Centra il foglio e adattalo allo spazio disponibile';
+ const lastGroup=header.querySelector('.tools-group:last-child');
+ (lastGroup||header).appendChild(fit);
 
-  let normalizeTimer = 0;
-  function normalizeDesktopLayout() {
-    if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-    try { if (typeof handleResize === 'function') handleResize(); } catch (_) {}
+ let syncing=false,timer=0,appScale=1;
+ function headerBottom(){return Math.ceil(header.getBoundingClientRect().bottom)}
+ function browserZoomEstimate(){
+   const vv=window.visualViewport;
+   if(vv&&vv.scale&&Math.abs(vv.scale-1)>.01)return vv.scale;
+   const ratio=(window.outerWidth&&window.innerWidth)?window.outerWidth/window.innerWidth:1;
+   return Math.max(.25,Math.min(5,ratio));
+ }
+ function setCanvasScale(scale){
+   appScale=Math.max(.2,Math.min(1,scale));
+   wrapper.style.transform='scale('+appScale+')';
+   wrapper.style.transformOrigin='top center';
+   wrapper.style.marginLeft='auto';wrapper.style.marginRight='auto';
+   wrapper.style.marginBottom=Math.max(30,-(LOGICAL_H*(1-appScale))+60)+'px';
+ }
+ function naturalScale(){
+   const available=Math.max(240,document.documentElement.clientWidth-40);
+   return Math.min(1,available/LOGICAL_W);
+ }
+ function layout(keepHorizontal=true){
+   if(!desktop)return;
+   const top=headerBottom()+18;
+   wrapper.style.marginTop=top+'px';
+   wrapper.style.position='relative';wrapper.style.left='auto';wrapper.style.right='auto';
+   const scaledWidth=LOGICAL_W*appScale;
+   const pageWidth=Math.max(document.documentElement.clientWidth,Math.ceil(scaledWidth+40));
+   document.body.style.minWidth=pageWidth+'px';
+   topScroll.style.top=(headerBottom()+4)+'px';
+   topInner.style.width=pageWidth+'px';
+   topScroll.classList.toggle('visible',pageWidth>document.documentElement.clientWidth+2);
+   if(!keepHorizontal){window.scrollTo({left:Math.max(0,(pageWidth-document.documentElement.clientWidth)/2),top:0,behavior:'auto'})}
+   if(!syncing){syncing=true;topScroll.scrollLeft=window.scrollX;syncing=false}
+   const shown=Math.round(browserZoomEstimate()*appScale*100);
+   document.getElementById('ajPcZoomV192').textContent=shown+'%';
+ }
+ function fitNow(){setCanvasScale(naturalScale());requestAnimationFrame(()=>layout(false))}
+ function schedule(){clearTimeout(timer);requestAnimationFrame(()=>layout(true));timer=setTimeout(()=>layout(true),140)}
 
-    wrapper.style.position = '';
-    wrapper.style.left = '';
-    wrapper.style.right = '';
-    wrapper.style.marginLeft = 'auto';
-    wrapper.style.marginRight = 'auto';
-    wrapper.style.transformOrigin = 'top center';
+ fit.addEventListener('click',fitNow);
+ // Native Ctrl+wheel and Ctrl +/- remain enabled. We only repair layout after browser zoom.
+ window.addEventListener('resize',schedule,{passive:true});
+ if(window.visualViewport)window.visualViewport.addEventListener('resize',schedule,{passive:true});
+ window.addEventListener('pageshow',schedule,{passive:true});
+ window.addEventListener('scroll',()=>{if(syncing)return;syncing=true;topScroll.scrollLeft=window.scrollX;syncing=false},{passive:true});
+ topScroll.addEventListener('scroll',()=>{if(syncing)return;syncing=true;window.scrollTo(topScroll.scrollLeft,window.scrollY);syncing=false},{passive:true});
+ document.addEventListener('keydown',e=>{if(e.ctrlKey&&['+','=','-','0'].includes(e.key))setTimeout(schedule,80)},true);
+ // Explicitly DO NOT cancel Ctrl+wheel.
+ document.addEventListener('wheel',e=>{if(e.ctrlKey)setTimeout(schedule,80)},{capture:true,passive:true});
 
-    if (stage && wrapper.parentElement === stage) {
-      stage.style.width = '100%';
-      stage.style.maxWidth = 'none';
-      stage.style.marginLeft = 'auto';
-      stage.style.marginRight = 'auto';
-      stage.style.display = 'block';
-    }
-    if (viewport) {
-      viewport.style.overflowX = 'visible';
-      viewport.scrollLeft = 0;
-    }
-    document.documentElement.scrollLeft = 0;
-    document.body.scrollLeft = 0;
-  }
-
-  function scheduleNormalize() {
-    clearTimeout(normalizeTimer);
-    requestAnimationFrame(() => requestAnimationFrame(normalizeDesktopLayout));
-    normalizeTimer = setTimeout(normalizeDesktopLayout, 120);
-  }
-
-  // Ctrl+wheel is intercepted before the browser can alter page scale.
-  // This prevents the fixed toolbar and transformed board from entering incompatible coordinate systems.
-  document.addEventListener('wheel', function (event) {
-    if (!event.ctrlKey || !DESKTOP) return;
-    if (event.cancelable) event.preventDefault();
-    event.stopImmediatePropagation();
-    normalizeDesktopLayout();
-  }, { capture: true, passive: false });
-
-  // Keep the native Ctrl+0 reset available, then normalize AirJotter after the browser applies it.
-  document.addEventListener('keydown', function (event) {
-    if (!DESKTOP || !event.ctrlKey || event.key !== '0') return;
-    setTimeout(scheduleNormalize, 0);
-  }, true);
-
-  window.addEventListener('resize', scheduleNormalize, { passive: true });
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', scheduleNormalize, { passive: true });
-  }
-  window.addEventListener('pageshow', scheduleNormalize, { passive: true });
-  scheduleNormalize();
+ setCanvasScale(naturalScale());schedule();
 })();
 
 </script>
