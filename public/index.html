@@ -3279,28 +3279,16 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
   }
  }
  function paintFrame(){
-  raf=0;if(!active||!path)return;
-  const n=screenPoints.length;if(n<2)return;
-  // Redraw the complete temporary stroke once per frame. A lightly filtered display-only
-  // centreline removes pressure spikes and segment overlaps without changing saved points.
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-  const smooth=[];
-  for(let i=0;i<n;i++){
-   const p=screenPoints[i];
-   if(i===0){smooth.push({x:p.x,y:p.y,w:p.w});continue}
-   const a=smooth[i-1],k=.58;
-   smooth.push({x:a.x+(p.x-a.x)*k,y:a.y+(p.y-a.y)*k,w:a.w+(p.w-a.w)*.28});
-  }
-  ctx.save();ctx.globalAlpha=path.opacity;ctx.strokeStyle=path.color;ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.beginPath();ctx.moveTo(smooth[0].x,smooth[0].y);
-  for(let i=1;i<smooth.length-1;i++){
-   const p=smooth[i],q=smooth[i+1];
-   ctx.quadraticCurveTo(p.x,p.y,(p.x+q.x)/2,(p.y+q.y)/2);
-  }
-  const last=smooth[smooth.length-1];ctx.lineTo(last.x,last.y);
-  let width=0,from=Math.max(0,smooth.length-8);for(let i=from;i<smooth.length;i++)width+=smooth[i].w;
-  ctx.lineWidth=Math.max(.5,width/Math.max(1,smooth.length-from));ctx.stroke();ctx.restore();
-  pendingFrom=n-1;
+  raf=0;if(!active||!path||!lockedRect)return;
+  // Draw the live Pencil mark with the exact same renderer, logical coordinates and widths
+  // used for the final committed mark. Lifting the Pencil therefore causes no size/shape jump.
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,wet.width,wet.height);ctx.restore();
+  ctx.save();
+  const k=lockedRect.width/LOGICAL_W;
+  ctx.setTransform(ratio*k,0,0,ratio*k,ratio*lockedRect.left,ratio*lockedRect.top);
+  renderPathToCtx(ctx,path,false);
+  ctx.restore();
+  pendingFrom=screenPoints.length-1;
  }
  function queuePaint(){if(!raf)raf=requestAnimationFrame(paintFrame)}
  function down(e){
@@ -3335,7 +3323,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  addEventListener('resize',()=>{if(!active)resize()},{passive:true});resize();
  let desync=false;try{desync=!!ctx.getContextAttributes?.().desynchronized}catch{}
  window.ajInkBusy=()=>active;
- window.AIRJOTTER_IPAD_INK={version:'19.1',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
+ window.AIRJOTTER_IPAD_INK={version:'19.2',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
 <script id="AIRJOTTER_DESKTOP_STATIC_V206">
