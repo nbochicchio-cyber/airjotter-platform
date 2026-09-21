@@ -1923,7 +1923,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             }
             if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, e);
             if (activePointers.size === 2) return;
-            if (isDrawing && activePointers.size === 1 && currentPath) AJInk.move(e);
+            if (isDrawing && activePointers.size === 1 && currentPath) { AJInk.move(e); ajSendStrokePreviewV224(currentPath); }
         });
 
         function endPointer(e) {
@@ -1931,6 +1931,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
             if (isDrawing && currentPath && (activePointers.size === 0 || e.pointerType === 'pen')) {
                 AJInk.finish(e);
+                ajSendStrokePreviewV224(currentPath,true);
 
                 commands.push(currentPath);
                 ajSendCommand(currentPath);
@@ -2585,12 +2586,45 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el=>el.disabled=!ajCanWrite());
             document.querySelectorAll('.aj-native-file-picker-v218').forEach(wrapper=>{wrapper.classList.toggle('aj-disabled-v218',!ajCanWrite());const input=wrapper.querySelector('input[type=file]');if(input)input.disabled=!ajCanWrite();});
         }
+        // v22.4: sincronizzazione manoscritta immediata. Le preview sono transitorie,
+        // il comando definitivo resta confermato e persistito con board:operation.
+        const ajLivePreviewCanvasesV224=new Map();
+        function ajEnsurePageCanvasV224(pageIndex){
+            let entry=ajInkPageContextsV218.get(pageIndex);if(entry)return entry;
+            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215(),canvas=document.createElement('canvas');
+            canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);
+            canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
+            const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);
+            entry={canvas,ctx,ratio};ajInkPageContextsV218.set(pageIndex,entry);layer.appendChild(canvas);return entry;
+        }
+        function ajDrawPathOnPagesV224(cmd){
+            if(!cmd||!Array.isArray(cmd.points)||!cmd.points.length)return;
+            const pages=new Set(cmd.points.map(p=>Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.y||0)/BASE_A4_H))))),old=dpr;
+            for(const pageIndex of pages){const e=ajEnsurePageCanvasV224(pageIndex);dpr=e.ratio;renderPathToCtx(e.ctx,cmd,false)}dpr=old;
+        }
+        function ajPreviewLayerV224(){let l=document.getElementById('ajLiveStrokeLayerV224');if(!l){l=document.createElement('div');l.id='ajLiveStrokeLayerV224';l.style.cssText='position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden';wrapper.insertBefore(l,draftCanvas)}return l}
+        function ajClearPreviewV224(id){const e=ajLivePreviewCanvasesV224.get(id);if(e){e.canvas.remove();ajLivePreviewCanvasesV224.delete(id)}}
+        function ajPaintPreviewV224(p){
+            if(!p||p.boardId!==ajBoard?.id||!p.strokeId||!Array.isArray(p.points)||!p.points.length)return;
+            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=Math.min(2,window.devicePixelRatio||1);
+            let e=ajLivePreviewCanvasesV224.get(p.strokeId);
+            if(!e||e.page!==page){ajClearPreviewV224(p.strokeId);const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${page*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px`;const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});ctx.setTransform(ratio,0,0,ratio,-0,-page*BASE_A4_H*ratio);e={canvas,ctx,ratio,page};ajLivePreviewCanvasesV224.set(p.strokeId,e);ajPreviewLayerV224().appendChild(canvas)}
+            e.ctx.save();e.ctx.setTransform(1,0,0,1,0,0);e.ctx.clearRect(0,0,e.canvas.width,e.canvas.height);e.ctx.restore();const old=dpr;dpr=e.ratio;renderPathToCtx(e.ctx,{type:'path',points:p.points,color:p.color,isEraser:false},false);dpr=old;
+        }
+        ajSocket.on('stroke:preview',ajPaintPreviewV224);
+        let ajPreviewLastV224=0;
+        function ajSendStrokePreviewV224(path,force=false){
+            if(!ajBoard||!ajSocket.connected||!path||!Array.isArray(path.points)||!path.points.length)return;
+            if(!path._liveStrokeId)path._liveStrokeId=crypto.randomUUID();const now=performance.now();if(!force&&now-ajPreviewLastV224<42)return;ajPreviewLastV224=now;
+            const pts=path.points.length>150?path.points.filter((_,i)=>i%Math.ceil(path.points.length/145)===0||i===path.points.length-1):path.points;
+            ajSocket.volatile.emit('stroke:preview',{boardId:ajBoard.id,strokeId:path._liveStrokeId,points:pts.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,w:Math.round((p.w||1)*10)/10})),color:path.color,isEraser:!!path.isEraser,sentAt:Date.now()});
+        }
         async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
         }
-        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean }).catch(error=>{console.error('Sincronizzazione comando:',error);if(!ajSocket.connected)ajSocket.connect();throw error;}); }
+        function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean, liveStrokeId:cmd?._liveStrokeId||null }).catch(error=>{console.error('Sincronizzazione comando:',error);if(!ajSocket.connected)ajSocket.connect();throw error;}); }
         function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
         function ajSendClear() { ajSend('board:clear', {}); }
         let ajBatchApply = false; // v18.0: durante una ricostruzione completa si ridisegna una volta sola, alla fine
@@ -2599,6 +2633,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             ajRemote = true;
             const ajOpId = op.operation_id || op.operationId; if (ajOpId && window.ajSyncMark) window.ajSyncMark(ajOpId); // v18.0: niente doppioni
             const ajIncrementalPath = type === 'command:add' && payload.command && payload.command.type === 'path';
+            if(payload.liveStrokeId)ajClearPreviewV224(payload.liveStrokeId);
             if(type==='command:add'&&payload.command){const c=payload.command;if(c.type==='stamp'&&c.imageData){const img=new Image();img.onload=()=>{c.canvas=img;redrawMainCanvas();};img.src=c.imageData;}commands.push(c);}
             else if (type === 'stroke:add') commands.push({ type:'path', points:payload.points, color:payload.color, isEraser:!!payload.eraser });
             else if (type === 'text:add') commands.push({ type:'text', text:payload.text, x:payload.x, y:payload.y, fontFamily:'Arial, sans-serif', fontSize:payload.size || 24, color:payload.color, isBold:false, isItalic:false, isUnderline:false });
@@ -2606,7 +2641,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             else if(type==='page:delete'){deletePageFromCanvas(Number(payload.pageIndex),true);}
             else if (type === 'board:clear') { commands=[]; redoCommands=[]; TOTAL_PAGES=2; if(!ajBatchApply)initCanvas(); }
             if (ajBatchApply) { /* ridisegno unico a fine ricostruzione */ }
-            else if (ajIncrementalPath) renderPathToCtx(mainCtx, commands[commands.length - 1], false);
+            else if (ajIncrementalPath) { ajDrawPathOnPagesV224(commands[commands.length - 1]); ajInkPagesKeyV215=''; }
             else redrawMainCanvas();
             document.getElementById('undoBtn').disabled = commands.length === 0;
             ajRemote = false;
@@ -3635,5 +3670,5 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const plans=document.getElementById('ajPlansModalV220');if(plans)new MutationObserver(()=>{if(plans.style.display==='flex')renderPayUse()}).observe(plans,{attributes:true,attributeFilter:['style']});const admin=document.getElementById('adminModal');if(admin)new MutationObserver(()=>{if(admin.style.display==='flex')renderAdminPayUse()}).observe(admin,{attributes:true,attributeFilter:['style']});
  const q=new URLSearchParams(location.search);if(q.get('billing')==='paypal-credit-return'&&q.get('token'))api('/api/pay-use/paypal/capture',{method:'POST',body:JSON.stringify({orderId:q.get('token')})}).then(()=>alert('Credito Pay per Use ricaricato.')).catch(e=>alert(e.message));
 })();
-</script><script id="AIRJOTTER_FRONTEND_FIXES_V223">window.AIRJOTTER_FRONTEND_FIXES="22.3.1";</script></body>
+</script><script id="AIRJOTTER_FRONTEND_FIXES_V223">window.AIRJOTTER_FRONTEND_FIXES="22.3.1";</script><script id="AIRJOTTER_REALTIME_INK_V224">window.AIRJOTTER_REALTIME_INK="22.4";</script></body>
 </html>
