@@ -127,7 +127,10 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(60, 50, 80, 0.35); backdrop-filter: blur(6px); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 28px; border-radius: 18px; text-align: center; max-width: 320px; width: 100%; box-shadow: var(--shadow-strong); }
-        input[type="file"].aj-file-input-v217 { position:fixed!important; left:-10000px!important; top:0!important; width:1px!important; height:1px!important; opacity:0!important; overflow:hidden!important; clip-path:inset(50%)!important; pointer-events:auto!important; }
+        .aj-native-file-picker-v218{position:relative;display:inline-flex;flex:0 0 auto}
+        .aj-native-file-picker-v218>input[type="file"]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;cursor:pointer!important;z-index:5!important;font-size:0!important}
+        .aj-native-file-picker-v218:focus-within>.btn{outline:2px solid #8FA9E0;outline-offset:2px}
+        .aj-native-file-picker-v218.aj-disabled-v218{pointer-events:none;opacity:.45}
 
         #text-tool-overlay { position: absolute; display: none; z-index: 250; border: 2px dashed var(--accent-color); padding: 5px; background: rgba(255,255,255,0.8); border-radius: 8px; flex-direction: column; gap: 5px; box-shadow: var(--shadow-strong); }
         #text-tool-input{background:#fff;border:1px solid var(--border-color);outline:none;resize:both;font-family:Inter,sans-serif;font-size:12px;color:var(--text-color);width:420px;height:190px;min-width:260px;min-height:110px;padding:12px;overflow:auto}.text-color-label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-soft)}#text-color-picker{width:30px;height:28px;padding:0;border:1px solid var(--border-color);border-radius:5px}.text-resize-hint{position:absolute;right:-10px;bottom:-10px;width:25px;height:25px;border-radius:50%;background:var(--accent-color);color:white;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:var(--shadow-medium)}
@@ -857,16 +860,20 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         </div>
 
         <div class="tools-group">
-            <button id="importPdfBtn" class="btn" style="padding: 4px 8px;">
-                <svg viewBox="0 0 24 24" style="margin-right:2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> 
-                <span>PDF</span>
-            </button>
-            <button id="importSignBtn" class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Firma</button>
-            <button id="importRealImgBtn" class="btn success"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Foto</button>
-            
-            <input type="file" class="aj-file-input-v217" id="fileInputSign" accept="image/png, image/jpeg, image/jpg">
-            <input type="file" class="aj-file-input-v217" id="fileInputRealImg" accept="image/png, image/jpeg, image/jpg">
-            <input type="file" class="aj-file-input-v217" id="fileInputPdf" accept="application/pdf">
+            <span class="aj-native-file-picker-v218">
+                <button id="importPdfBtn" class="btn" type="button" tabindex="-1" aria-hidden="true" style="padding: 4px 8px;">
+                    <svg viewBox="0 0 24 24" style="margin-right:2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span>PDF</span>
+                </button>
+                <input type="file" id="fileInputPdf" accept="application/pdf" aria-label="Importa PDF">
+            </span>
+            <span class="aj-native-file-picker-v218">
+                <button id="importSignBtn" class="btn" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Firma</button>
+                <input type="file" id="fileInputSign" accept="image/png, image/jpeg, image/jpg" aria-label="Importa firma">
+            </span>
+            <span class="aj-native-file-picker-v218">
+                <button id="importRealImgBtn" class="btn success" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Foto</button>
+                <input type="file" id="fileInputRealImg" accept="image/png, image/jpeg, image/jpg" aria-label="Importa foto">
+            </span>
         </div>
 
         <div class="tools-group">
@@ -1759,11 +1766,11 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 const pts = S.path.points, n = pts.length;
                 const to = final ? n - 1 : n - 2;
                 if (n < 2 || S.done > to) return;
-                mainCtx.save();
-                mainCtx.globalAlpha = 1; mainCtx.globalCompositeOperation = 'destination-out'; mainCtx.fillStyle = 'rgba(0,0,0,1)';
-                mainCtx.beginPath(); addPieces(mainCtx, pts, S.done, to, 0.3 / Math.max(dpr, 1), null); mainCtx.fill('nonzero');
-                mainCtx.restore();
-                S.done = to + 1;
+                const erasePoints=pts.slice(Math.max(0,S.done-1),to+1);
+                const eraseCmd={type:'path',points:erasePoints,color:'#000000',isEraser:true,isHighlighter:false,opacity:1};
+                const erased=window.ajEraseInkPagesV218&&window.ajEraseInkPagesV218(eraseCmd);
+                if(!erased){mainCtx.save();mainCtx.globalAlpha=1;mainCtx.globalCompositeOperation='destination-out';mainCtx.fillStyle='rgba(0,0,0,1)';mainCtx.beginPath();addPieces(mainCtx,pts,S.done,to,0.3/Math.max(dpr,1),null);mainCtx.fill('nonzero');mainCtx.restore();}
+                S.done=to+1;
             }
             function regeom() {
                 S.geomDirty = false;
@@ -1953,49 +1960,30 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             stamps.filter(cmd=>cmd.mode==='over').forEach(cmd=>appendStamp(over,cmd));
         }
 
-        // v21.5: tratti asciutti su canvas HiDPI separati per pagina.
-        // Evita che il DPR precipiti quando il Jotter contiene molte pagine.
+        // v21.8: tratti, testo e gomma su canvas HiDPI separati per pagina.
+        // Ogni pagina conserva il DPR corretto anche nei Jotter lunghi; la gomma opera sullo stesso livello.
         let ajInkPagesKeyV215='';
-        function ajInkPageDprV215(){
-            const screenDpr=window.devicePixelRatio||1;
-            return Math.max(2,Math.min(3,screenDpr));
-        }
-        function ajEnsureInkPagesLayerV215(){
-            let layer=document.getElementById('ajInkPagesLayerV215');
-            if(!layer){
-                layer=document.createElement('div');layer.id='ajInkPagesLayerV215';
-                layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';
-                wrapper.insertBefore(layer,predictionCanvas);
-            }
-            return layer;
-        }
-        function ajPathTouchesPageV215(cmd,pageIndex){
-            if(!cmd||cmd.type!=='path'||!Array.isArray(cmd.points)||!cmd.points.length)return false;
+        const ajInkPageContextsV218=new Map();
+        function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1;return Math.max(2,Math.min(3,screenDpr));}
+        function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
+        function ajCommandTouchesPageV218(cmd,pageIndex){
             const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
-            for(const p of cmd.points){const r=Math.max(1,(Number(p.w)||1)/2);if(p.y+r>=top&&p.y-r<bottom)return true;}
+            if(cmd?.type==='path'&&Array.isArray(cmd.points))return cmd.points.some(p=>{const r=Math.max(1,(Number(p.w)||1)/2);return p.y+r>=top&&p.y-r<bottom;});
+            if(cmd?.type==='text'){const h=cmd.h||(Number(cmd.fontSize||16)*1.5*String(cmd.text||'').split('\n').length);return Number(cmd.y||0)<bottom&&(Number(cmd.y||0)+h)>top;}
             return false;
         }
-        function ajRenderInkPagesV215(force=false){
-            const paths=commands.filter(c=>c.type==='path');
-            const key=[TOTAL_PAGES,paths.length,paths.map(c=>{let sx=0,sy=0,sw=0;for(const p of (c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return [c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');}).join('|')].join('#');
-            if(!force&&key===ajInkPagesKeyV215)return;
-            ajInkPagesKeyV215=key;
-            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();
-            layer.replaceChildren();
-            for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){
-                const pagePaths=paths.filter(cmd=>ajPathTouchesPageV215(cmd,pageIndex));
-                if(!pagePaths.length)continue;
-                const canvas=document.createElement('canvas');
-                canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);
-                canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-                const ctx=canvas.getContext('2d',{alpha:true});
-                ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);
-                const previousDpr=dpr;dpr=ratio;
-                for(const cmd of pagePaths)renderPathToCtx(ctx,cmd,false);
-                dpr=previousDpr;
-                layer.appendChild(canvas);
-            }
+        function ajDrawTextV218(ctx,cmd){
+            ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.font=`${cmd.isItalic?'italic ':''}${cmd.isBold?'bold ':''}${cmd.fontSize}px ${cmd.fontFamily}`;ctx.fillStyle=cmd.color;ctx.textBaseline='top';
+            const lines=String(cmd.text||'').split('\n'),lineHeight=cmd.fontSize*1.2;
+            lines.forEach((line,i)=>{const y=cmd.y+i*lineHeight;ctx.fillText(line,cmd.x,y);if(cmd.isUnderline){const m=ctx.measureText(line);ctx.beginPath();ctx.moveTo(cmd.x,y+cmd.fontSize);ctx.lineTo(cmd.x+m.width,y+cmd.fontSize);ctx.strokeStyle=cmd.color;ctx.lineWidth=Math.max(1,cmd.fontSize/15);ctx.stroke();}});ctx.restore();
         }
+        function ajInkCommandKeyV218(c){if(c.type==='text')return ['t',c.operationId||'',c.text,c.x,c.y,c.fontSize,c.fontFamily,c.color,c.isBold?1:0,c.isItalic?1:0,c.isUnderline?1:0].join(':');let sx=0,sy=0,sw=0;for(const p of(c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return ['p',c.operationId||'',c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');}
+        function ajRenderInkPagesV215(force=false){
+            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text');const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');if(!force&&key===ajInkPagesKeyV215)return;ajInkPagesKeyV215=key;
+            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();layer.replaceChildren();ajInkPageContextsV218.clear();
+            for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex));if(!pageCommands.length)continue;const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;const ctx=canvas.getContext('2d',{alpha:true});ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;for(const cmd of pageCommands){if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);else ajDrawTextV218(ctx,cmd);}dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio});layer.appendChild(canvas);}
+        }
+        window.ajEraseInkPagesV218=function(cmd){if(!cmd||!Array.isArray(cmd.points)||cmd.points.length<2)return false;let touched=false;const previousDpr=dpr;for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){if(!ajCommandTouchesPageV218(cmd,pageIndex))continue;const entry=ajInkPageContextsV218.get(pageIndex);if(!entry)continue;dpr=entry.ratio;renderPathToCtx(entry.ctx,cmd,false);touched=true;}dpr=previousDpr;return touched;};
 
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
@@ -2006,29 +1994,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 else if (cmd.type === 'stamp') {
                     continue; // v21.3: firme, foto e PDF restano su livelli bitmap indipendenti ad alta definizione
                 }
-                else if (cmd.type === 'text') {
-                    mainCtx.save();
-                    mainCtx.font = `${cmd.isItalic ? 'italic ' : ''}${cmd.isBold ? 'bold ' : ''}${cmd.fontSize}px ${cmd.fontFamily}`;
-                    mainCtx.fillStyle = cmd.color;
-                    mainCtx.textBaseline = 'top';
-                    
-                    const lines = cmd.text.split('\n');
-                    const lineHeight = cmd.fontSize * 1.2;
-                    
-                    lines.forEach((line, i) => {
-                        mainCtx.fillText(line, cmd.x, cmd.y + (i * lineHeight));
-                        if(cmd.isUnderline) {
-                            const metrics = mainCtx.measureText(line);
-                            mainCtx.beginPath();
-                            mainCtx.moveTo(cmd.x, cmd.y + (i * lineHeight) + cmd.fontSize);
-                            mainCtx.lineTo(cmd.x + metrics.width, cmd.y + (i * lineHeight) + cmd.fontSize);
-                            mainCtx.strokeStyle = cmd.color;
-                            mainCtx.lineWidth = Math.max(1, cmd.fontSize / 15);
-                            mainCtx.stroke();
-                        }
-                    });
-                    mainCtx.restore();
-                }
+                else if (cmd.type === 'text') { continue; }
             }
         }
 
@@ -2118,20 +2084,6 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             else if (type === 'photo') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'none'; }
         }
 
-        function ajOpenFilePickerV217(inputId){
-            const input=document.getElementById(inputId);
-            resetStampUI();
-            input.value='';
-            try{
-                input.focus({preventScroll:true});
-                if(typeof input.showPicker==='function') input.showPicker();
-                else input.click();
-            }catch(error){
-                try{input.click();}catch(fallbackError){console.error('Selettore file non disponibile',fallbackError);}
-            }
-        }
-
-        document.getElementById('importSignBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputSign'));
         document.getElementById('fileInputSign').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -2143,7 +2095,6 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importRealImgBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputRealImg'));
         document.getElementById('fileInputRealImg').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -2155,18 +2106,10 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importPdfBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputPdf'));
-
-        let ajLastPickerPointerV217=0;
-        [['importPdfBtn','fileInputPdf'],['importSignBtn','fileInputSign'],['importRealImgBtn','fileInputRealImg']].forEach(([buttonId,inputId])=>{
-            const button=document.getElementById(buttonId);
-            button.addEventListener('pointerup',event=>{
-                if(event.pointerType!=='touch'&&event.pointerType!=='pen')return;
-                const now=performance.now();if(now-ajLastPickerPointerV217<500)return;
-                ajLastPickerPointerV217=now;
-                event.preventDefault();event.stopPropagation();
-                ajOpenFilePickerV217(inputId);
-            },{passive:false});
+        ['fileInputPdf','fileInputSign','fileInputRealImg'].forEach(inputId=>{
+            const input=document.getElementById(inputId);
+            input.addEventListener('click',()=>{input.value='';resetStampUI();});
+            input.addEventListener('cancel',()=>{input.value='';});
         });
 
         function ajPdfLoadingDialog() {
@@ -2587,7 +2530,8 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
-            document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
+            document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el=>el.disabled=!ajCanWrite());
+            document.querySelectorAll('.aj-native-file-picker-v218').forEach(wrapper=>{wrapper.classList.toggle('aj-disabled-v218',!ajCanWrite());const input=wrapper.querySelector('input[type=file]');if(input)input.disabled=!ajCanWrite();});
         }
         async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
