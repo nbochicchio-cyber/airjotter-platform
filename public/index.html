@@ -2200,9 +2200,15 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
 
         function ajEncodeStampForSync(sourceCanvas, type) {
             const isSignature = type === 'signature';
-            const maxArea = isSignature ? 2200000 : 6000000;
-            const maxDim = isSignature ? 2200 : 3200;
-            const scale = Math.min(1, maxDim / Math.max(sourceCanvas.width, sourceCanvas.height), Math.sqrt(maxArea / (sourceCanvas.width * sourceCanvas.height)));
+            const isPdf = type === 'pdf';
+            // v21.1 PDF HQ: il vecchio limite unico 3200px/6MP riduceva l'intero PDF
+            // multipagina, lasciando a ogni pagina solo una frazione della risoluzione.
+            // Ora il budget cresce per pagina, entro limiti prudenti per canvas e payload.
+            const pdfPages = isPdf ? Math.max(1, Math.round((sourceCanvas.height / sourceCanvas.width) / (BASE_A4_H / LOGICAL_W))) : 1;
+            const maxArea = isSignature ? 2200000 : (isPdf ? Math.min(24000000, 7200000 * pdfPages) : 6000000);
+            const maxWidth = isSignature ? 2200 : (isPdf ? 2800 : 3200);
+            const maxHeight = isSignature ? 2200 : (isPdf ? Math.min(16000, 3600 * pdfPages) : 3200);
+            const scale = Math.min(1, maxWidth / sourceCanvas.width, maxHeight / sourceCanvas.height, Math.sqrt(maxArea / (sourceCanvas.width * sourceCanvas.height)));
             const out = document.createElement('canvas');
             out.width = Math.max(1, Math.round(sourceCanvas.width * scale));
             out.height = Math.max(1, Math.round(sourceCanvas.height * scale));
@@ -2212,7 +2218,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             outCtx.imageSmoothingQuality = 'high';
             outCtx.drawImage(sourceCanvas, 0, 0, out.width, out.height);
             const mime = isSignature ? 'image/png' : 'image/jpeg';
-            const imageData = isSignature ? out.toDataURL(mime) : out.toDataURL(mime, 0.86);
+            const imageData = isSignature ? out.toDataURL(mime) : out.toDataURL(mime, isPdf ? 0.96 : 0.86);
             return { canvas: out, imageData };
         }
         function finalizeStamp(mode) {
