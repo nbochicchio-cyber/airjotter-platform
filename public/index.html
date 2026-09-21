@@ -1466,7 +1466,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 // Densita' identica a quella con cui il canvas principale appare a schermo:
                 // l'"asciugatura" nel documento e' pixel-per-pixel invisibile.
                 const screenDensity = vs * (window.devicePixelRatio || 1);
-                let K = Math.max(0.25, Math.min(dpr, screenDensity));
+                let K = Math.max(2, Math.min(3, Math.max(screenDensity, window.devicePixelRatio || 1))); // v21.6: indipendente dal DPR del canvas multipagina
                 const m = 16;                                            // margine in px schermo
                 let x0 = Math.max(0, Math.floor((L - m - r.left) * sx)), y0 = Math.max(0, Math.floor((T - m - r.top) * sy));
                 let x1 = Math.min(LOGICAL_W, Math.ceil((R + m - r.left) * sx)), y1 = Math.min(LOGICAL_H, Math.ceil((B + m - r.top) * sy));
@@ -1822,7 +1822,8 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                     }
                 }
                 if (S && S.mode === 'eraser' && S.path === path) eraseIncrement(true);
-                if (!path.isEraser) renderPathToCtx(mainCtx, path, false);
+                // v21.6: niente asciugatura sul canvas multipagina a DPR ridotto.
+                // Il tratto definitivo viene renderizzato da redrawMainCanvas sul canvas HiDPI della pagina.
                 wipe();
                 S = null;
                 quietUntil = performance.now() + QUIET_MS;
@@ -1924,6 +1925,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 document.getElementById('undoBtn').disabled = commands.length === 0;
 
                 isDrawing = false; currentPath = null; lastEventData = null; if(e.pointerType === 'pen') activePointers.clear();
+                redrawMainCanvas(); // v21.6: trasferimento immediato sul canvas HiDPI della pagina
                 try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
             } else if (!isDrawing && AJInk.active() && activePointers.size === 0) {
                 AJInk.discard();
@@ -1975,7 +1977,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         }
         function ajRenderInkPagesV215(force=false){
             const paths=commands.filter(c=>c.type==='path');
-            const key=[TOTAL_PAGES,paths.length,paths.map(c=>[c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,c.points?.[0]?.x,c.points?.[0]?.y,c.points?.at?.(-1)?.x,c.points?.at?.(-1)?.y].join(':')).join('|')].join('#');
+            const key=[TOTAL_PAGES,paths.length,paths.map(c=>{let sx=0,sy=0,sw=0;for(const p of (c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return [c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');}).join('|')].join('#');
             if(!force&&key===ajInkPagesKeyV215)return;
             ajInkPagesKeyV215=key;
             const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();
