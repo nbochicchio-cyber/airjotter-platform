@@ -1932,35 +1932,29 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         draftCanvas.addEventListener('pointercancel', endPointer);
         draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e); });
 
-        let ajPdfLayerKeyV212='';
-        function ajSyncPdfPageLayerV212() {
-            let layer=document.getElementById('ajPdfPageLayerV212');
-            if(!layer){
-                layer=document.createElement('div'); layer.id='ajPdfPageLayerV212';
-                layer.style.cssText='position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden';
-                wrapper.insertBefore(layer,mainCanvas);
-            }
-            const pdfCommands=commands.filter(c=>c.type==='stamp'&&c.isPdfPage&&c.imageData);
-            const key=pdfCommands.map(c=>[c.pdfPageNumber,c.x,c.y,c.w,c.h,c.imageData.length].join(':')).join('|');
-            if(key===ajPdfLayerKeyV212)return;
-            ajPdfLayerKeyV212=key; layer.replaceChildren();
-            pdfCommands.forEach(cmd=>{
-                const img=document.createElement('img'); img.src=cmd.imageData; img.alt='';
-                img.style.cssText=`position:absolute;left:${cmd.x}px;top:${cmd.y}px;width:${cmd.w}px;height:${cmd.h}px;display:block;object-fit:fill`;
-                layer.appendChild(img);
-            });
+        let ajStampLayerKeyV213='';
+        function ajEnsureStampLayerV213(id,z,beforeEl){
+            let layer=document.getElementById(id);
+            if(!layer){layer=document.createElement('div');layer.id=id;layer.style.cssText=`position:absolute;inset:0;z-index:${z};pointer-events:none;overflow:hidden`;wrapper.insertBefore(layer,beforeEl);}
+            return layer;
+        }
+        function ajSyncStampLayersV213(){
+            const under=ajEnsureStampLayerV213('ajStampUnderLayerV213',1,mainCanvas);
+            const over=ajEnsureStampLayerV213('ajStampOverLayerV213',2.5,predictionCanvas);
+            const stamps=commands.filter(c=>c.type==='stamp'&&c.imageData);
+            const key=stamps.map(c=>[c.operationId||'',c.x,c.y,c.w,c.h,c.mode,c.imageData.length].join(':')).join('|');
+            if(key===ajStampLayerKeyV213)return;
+            ajStampLayerKeyV213=key;under.replaceChildren();over.replaceChildren();
+            stamps.forEach(cmd=>{const img=document.createElement('img');img.src=cmd.imageData;img.alt='';img.style.cssText=`position:absolute;left:${cmd.x}px;top:${cmd.y}px;width:${cmd.w}px;height:${cmd.h}px;display:block;object-fit:fill`; (cmd.mode==='over'?over:under).appendChild(img);});
         }
 
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
-            ajSyncPdfPageLayerV212();
+            ajSyncStampLayersV213();
             for (let cmd of commands) {
                 if (cmd.type === 'path') renderPathToCtx(mainCtx, cmd, false);
                 else if (cmd.type === 'stamp') {
-                    if (cmd.isPdfPage) continue;
-                    mainCtx.globalCompositeOperation = cmd.mode === 'under' ? 'destination-over' : 'source-over';
-                    if(cmd.canvas) mainCtx.drawImage(cmd.canvas, cmd.x, cmd.y, cmd.w, cmd.h);
-                    mainCtx.globalCompositeOperation = 'source-over';
+                    continue; // v21.3: firme, foto e PDF restano su livelli bitmap indipendenti ad alta definizione
                 }
                 else if (cmd.type === 'text') {
                     mainCtx.save();
@@ -2074,19 +2068,19 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             else if (type === 'photo') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'none'; }
         }
 
-        document.getElementById('importSignBtn').addEventListener('click', () => document.getElementById('fileInputSign').click());
+        document.getElementById('importSignBtn').addEventListener('click', () => { const i=document.getElementById('fileInputSign'); i.value=''; resetStampUI(); i.click(); });
         document.getElementById('fileInputSign').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 rawImageObj = new Image();
-                rawImageObj.onload = () => { currentStampType = 'signature'; applyChromaKeyToStamp(); activateStamp('signature', rawImageObj.width, rawImageObj.height); };
+                rawImageObj.onload = () => { stampCanvas.width=rawImageObj.width; stampCanvas.height=rawImageObj.height; stampCtx.clearRect(0,0,stampCanvas.width,stampCanvas.height); currentStampType='signature'; applyChromaKeyToStamp(); activateStamp('signature',rawImageObj.width,rawImageObj.height); };
                 rawImageObj.src = event.target.result;
             };
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importRealImgBtn').addEventListener('click', () => document.getElementById('fileInputRealImg').click());
+        document.getElementById('importRealImgBtn').addEventListener('click', () => { const i=document.getElementById('fileInputRealImg'); i.value=''; resetStampUI(); i.click(); });
         document.getElementById('fileInputRealImg').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -2098,7 +2092,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importPdfBtn').addEventListener('click', () => document.getElementById('fileInputPdf').click());
+        document.getElementById('importPdfBtn').addEventListener('click', () => { const i=document.getElementById('fileInputPdf'); i.value=''; resetStampUI(); i.click(); });
 
         function ajPdfLoadingDialog() {
             let overlay = document.getElementById('ajPdfLoadingOverlayV212');
@@ -2146,6 +2140,22 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             try {
                 const typedarray=new Uint8Array(await file.arrayBuffer());
                 pdf=await pdfjsLib.getDocument({data:typedarray}).promise;
+                if(pdf.numPages===1){
+                    loading.update('Preparazione della pagina...',25);
+                    const page=await pdf.getPage(1);
+                    const baseViewport=page.getViewport({scale:1});
+                    const renderScale=Math.min(2800/baseViewport.width,4000/baseViewport.height);
+                    const viewport=page.getViewport({scale:renderScale});
+                    stampCanvas.width=Math.max(1,Math.round(viewport.width));
+                    stampCanvas.height=Math.max(1,Math.round(viewport.height));
+                    stampCtx.setTransform(1,0,0,1,0,0); stampCtx.clearRect(0,0,stampCanvas.width,stampCanvas.height);
+                    stampCtx.fillStyle='#fff'; stampCtx.fillRect(0,0,stampCanvas.width,stampCanvas.height);
+                    await page.render({canvasContext:stampCtx,viewport}).promise;
+                    page.cleanup();
+                    loading.hide(); btn.disabled=false; btn.innerHTML=originalHTML; this.value='';
+                    activateStamp('pdf',baseViewport.width,baseViewport.height);
+                    return;
+                }
                 const placement=ajPdfPlacementSlotsV212(pdf.numPages);
                 const pageLimit=Number(ajMe?.limits?.pages||5);
                 if(placement.totalPages>pageLimit) throw new Error(`Il PDF richiede ${placement.totalPages} pagine, ma il piano corrente ne consente massimo ${pageLimit}.`);
@@ -2391,10 +2401,14 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 for(let i=0; i < TOTAL_PAGES; i++) {
                     tCtx.fillStyle = '#ffffff'; tCtx.fillRect(0, 0, sliceW, sliceH);
                     for (const cmd of commands) {
-                        if (cmd.type !== 'stamp' || !cmd.isPdfPage || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
+                        if (cmd.type !== 'stamp' || cmd.mode==='over' || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
                         tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
                     }
                     tCtx.drawImage(mainCanvas, 0, i * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
+                    for (const cmd of commands) {
+                        if (cmd.type !== 'stamp' || cmd.mode!=='over' || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
+                        tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
+                    }
                     exportPagesData.push({ id: `page_${i}`, data: tempCanvas.toDataURL('image/jpeg', 0.97) });
                 }
                 
