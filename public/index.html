@@ -1940,12 +1940,14 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         }
         function ajSyncStampLayersV213(){
             const under=ajEnsureStampLayerV213('ajStampUnderLayerV213',1,mainCanvas);
-            const over=ajEnsureStampLayerV213('ajStampOverLayerV213',2.5,predictionCanvas);
+            const over=ajEnsureStampLayerV213('ajStampOverLayerV213',3,predictionCanvas);
             const stamps=commands.filter(c=>c.type==='stamp'&&c.imageData);
-            const key=stamps.map(c=>[c.operationId||'',c.x,c.y,c.w,c.h,c.mode,c.imageData.length].join(':')).join('|');
+            const key=stamps.map((c,i)=>[i,c.operationId||'',c.x,c.y,c.w,c.h,c.mode,c.imageData.length,c.imageData.slice(-24)].join(':')).join('|');
             if(key===ajStampLayerKeyV213)return;
             ajStampLayerKeyV213=key;under.replaceChildren();over.replaceChildren();
-            stamps.forEach(cmd=>{const img=document.createElement('img');img.src=cmd.imageData;img.alt='';img.style.cssText=`position:absolute;left:${cmd.x}px;top:${cmd.y}px;width:${cmd.w}px;height:${cmd.h}px;display:block;object-fit:fill`; (cmd.mode==='over'?over:under).appendChild(img);});
+            const appendStamp=(layer,cmd)=>{const img=document.createElement('img');img.src=cmd.imageData;img.alt='';img.style.cssText=`position:absolute;left:${cmd.x}px;top:${cmd.y}px;width:${cmd.w}px;height:${cmd.h}px;display:block;object-fit:fill`;layer.appendChild(img);};
+            stamps.filter(cmd=>cmd.mode!=='over').reverse().forEach(cmd=>appendStamp(under,cmd));
+            stamps.filter(cmd=>cmd.mode==='over').forEach(cmd=>appendStamp(over,cmd));
         }
 
         function redrawMainCanvas() {
@@ -2100,11 +2102,11 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 overlay = document.createElement('div');
                 overlay.id = 'ajPdfLoadingOverlayV212';
                 overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:12000;background:rgba(239,233,225,.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px';
-                overlay.innerHTML = '<div style="width:min(430px,100%);background:#fff;padding:30px;border-radius:20px;box-shadow:0 12px 40px rgba(80,60,100,.18);text-align:center"><div style="font-size:2rem;margin-bottom:10px">4c4</div><h3 style="margin:0 0 8px">Caricamento PDF in corso...</h3><p id="ajPdfLoadingStatusV212" style="margin:0 0 16px;color:#7A7590">Preparazione del documento</p><div style="height:9px;border-radius:999px;background:#EEF3FC;overflow:hidden"><div id="ajPdfLoadingBarV212" style="height:100%;width:0;background:#8FA9E0;transition:width .15s ease"></div></div><small style="display:block;margin-top:13px;color:#7A7590">Non chiudere la pagina durante l’importazione.</small></div>';
+                overlay.innerHTML = '<div style="width:min(430px,100%);background:#fff;padding:30px;border-radius:20px;box-shadow:0 12px 40px rgba(80,60,100,.18);text-align:center"><div id="ajPdfLoadingNameV214" style="font-size:1.05rem;font-weight:700;margin-bottom:14px;color:#3D3A50;overflow-wrap:anywhere">Documento PDF</div><h3 style="margin:0 0 8px">Caricamento PDF in corso...</h3><p id="ajPdfLoadingStatusV212" style="margin:0 0 16px;color:#7A7590">Preparazione del documento</p><div style="height:9px;border-radius:999px;background:#EEF3FC;overflow:hidden"><div id="ajPdfLoadingBarV212" style="height:100%;width:0;background:#8FA9E0;transition:width .15s ease"></div></div><small style="display:block;margin-top:13px;color:#7A7590">Attendere il termine dell’importazione.</small></div>';
                 document.body.appendChild(overlay);
             }
             return {
-                show(text='Preparazione del documento') { overlay.style.display='flex'; this.update(text,0); },
+                show(fileName='Documento PDF',text='Preparazione del documento') { document.getElementById('ajPdfLoadingNameV214').textContent=fileName; overlay.style.display='flex'; this.update(text,0); },
                 update(text,percent) { document.getElementById('ajPdfLoadingStatusV212').textContent=text; document.getElementById('ajPdfLoadingBarV212').style.width=Math.max(0,Math.min(100,percent))+'%'; },
                 hide() { overlay.style.display='none'; }
             };
@@ -2135,7 +2137,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         document.getElementById('fileInputPdf').addEventListener('change', async function(e) {
             const file=e.target.files[0]; if(!file)return;
             const btn=document.getElementById('importPdfBtn'),originalHTML=btn.innerHTML,loading=ajPdfLoadingDialog();
-            btn.disabled=true; loading.show('Lettura del documento...');
+            btn.disabled=true; loading.show(file.name,'Lettura del documento...');
             let pdf=null;
             try {
                 const typedarray=new Uint8Array(await file.arrayBuffer());
