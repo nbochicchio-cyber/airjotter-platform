@@ -127,7 +127,7 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(60, 50, 80, 0.35); backdrop-filter: blur(6px); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 28px; border-radius: 18px; text-align: center; max-width: 320px; width: 100%; box-shadow: var(--shadow-strong); }
-        input[type="file"] { display: none; }
+        input[type="file"].aj-file-input-v217 { position:fixed!important; left:-10000px!important; top:0!important; width:1px!important; height:1px!important; opacity:0!important; overflow:hidden!important; clip-path:inset(50%)!important; pointer-events:auto!important; }
 
         #text-tool-overlay { position: absolute; display: none; z-index: 250; border: 2px dashed var(--accent-color); padding: 5px; background: rgba(255,255,255,0.8); border-radius: 8px; flex-direction: column; gap: 5px; box-shadow: var(--shadow-strong); }
         #text-tool-input{background:#fff;border:1px solid var(--border-color);outline:none;resize:both;font-family:Inter,sans-serif;font-size:12px;color:var(--text-color);width:420px;height:190px;min-width:260px;min-height:110px;padding:12px;overflow:auto}.text-color-label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-soft)}#text-color-picker{width:30px;height:28px;padding:0;border:1px solid var(--border-color);border-radius:5px}.text-resize-hint{position:absolute;right:-10px;bottom:-10px;width:25px;height:25px;border-radius:50%;background:var(--accent-color);color:white;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:var(--shadow-medium)}
@@ -864,9 +864,9 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             <button id="importSignBtn" class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Firma</button>
             <button id="importRealImgBtn" class="btn success"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Foto</button>
             
-            <input type="file" id="fileInputSign" accept="image/png, image/jpeg, image/jpg">
-            <input type="file" id="fileInputRealImg" accept="image/png, image/jpeg, image/jpg">
-            <input type="file" id="fileInputPdf" accept="application/pdf">
+            <input type="file" class="aj-file-input-v217" id="fileInputSign" accept="image/png, image/jpeg, image/jpg">
+            <input type="file" class="aj-file-input-v217" id="fileInputRealImg" accept="image/png, image/jpeg, image/jpg">
+            <input type="file" class="aj-file-input-v217" id="fileInputPdf" accept="application/pdf">
         </div>
 
         <div class="tools-group">
@@ -2118,7 +2118,20 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             else if (type === 'photo') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'none'; }
         }
 
-        document.getElementById('importSignBtn').addEventListener('click', () => { const i=document.getElementById('fileInputSign'); i.value=''; resetStampUI(); i.click(); });
+        function ajOpenFilePickerV217(inputId){
+            const input=document.getElementById(inputId);
+            resetStampUI();
+            input.value='';
+            try{
+                input.focus({preventScroll:true});
+                if(typeof input.showPicker==='function') input.showPicker();
+                else input.click();
+            }catch(error){
+                try{input.click();}catch(fallbackError){console.error('Selettore file non disponibile',fallbackError);}
+            }
+        }
+
+        document.getElementById('importSignBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputSign'));
         document.getElementById('fileInputSign').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -2130,7 +2143,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importRealImgBtn').addEventListener('click', () => { const i=document.getElementById('fileInputRealImg'); i.value=''; resetStampUI(); i.click(); });
+        document.getElementById('importRealImgBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputRealImg'));
         document.getElementById('fileInputRealImg').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
@@ -2142,7 +2155,19 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             reader.readAsDataURL(file); this.value = '';
         });
 
-        document.getElementById('importPdfBtn').addEventListener('click', () => { const i=document.getElementById('fileInputPdf'); i.value=''; resetStampUI(); i.click(); });
+        document.getElementById('importPdfBtn').addEventListener('click', () => ajOpenFilePickerV217('fileInputPdf'));
+
+        let ajLastPickerPointerV217=0;
+        [['importPdfBtn','fileInputPdf'],['importSignBtn','fileInputSign'],['importRealImgBtn','fileInputRealImg']].forEach(([buttonId,inputId])=>{
+            const button=document.getElementById(buttonId);
+            button.addEventListener('pointerup',event=>{
+                if(event.pointerType!=='touch'&&event.pointerType!=='pen')return;
+                const now=performance.now();if(now-ajLastPickerPointerV217<500)return;
+                ajLastPickerPointerV217=now;
+                event.preventDefault();event.stopPropagation();
+                ajOpenFilePickerV217(inputId);
+            },{passive:false});
+        });
 
         function ajPdfLoadingDialog() {
             let overlay = document.getElementById('ajPdfLoadingOverlayV212');
