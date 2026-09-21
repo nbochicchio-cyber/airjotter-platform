@@ -1919,6 +1919,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
 
                 commands.push(currentPath);
                 ajSendCommand(currentPath);
+                ajInkPagesKeyV215='';
                 redoCommands = [];
                 document.getElementById('undoBtn').disabled = commands.length === 0;
 
@@ -1950,11 +1951,56 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             stamps.filter(cmd=>cmd.mode==='over').forEach(cmd=>appendStamp(over,cmd));
         }
 
+        // v21.5: tratti asciutti su canvas HiDPI separati per pagina.
+        // Evita che il DPR precipiti quando il Jotter contiene molte pagine.
+        let ajInkPagesKeyV215='';
+        function ajInkPageDprV215(){
+            const screenDpr=window.devicePixelRatio||1;
+            return Math.max(2,Math.min(3,screenDpr));
+        }
+        function ajEnsureInkPagesLayerV215(){
+            let layer=document.getElementById('ajInkPagesLayerV215');
+            if(!layer){
+                layer=document.createElement('div');layer.id='ajInkPagesLayerV215';
+                layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';
+                wrapper.insertBefore(layer,predictionCanvas);
+            }
+            return layer;
+        }
+        function ajPathTouchesPageV215(cmd,pageIndex){
+            if(!cmd||cmd.type!=='path'||!Array.isArray(cmd.points)||!cmd.points.length)return false;
+            const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
+            for(const p of cmd.points){const r=Math.max(1,(Number(p.w)||1)/2);if(p.y+r>=top&&p.y-r<bottom)return true;}
+            return false;
+        }
+        function ajRenderInkPagesV215(force=false){
+            const paths=commands.filter(c=>c.type==='path');
+            const key=[TOTAL_PAGES,paths.length,paths.map(c=>[c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,c.points?.[0]?.x,c.points?.[0]?.y,c.points?.at?.(-1)?.x,c.points?.at?.(-1)?.y].join(':')).join('|')].join('#');
+            if(!force&&key===ajInkPagesKeyV215)return;
+            ajInkPagesKeyV215=key;
+            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();
+            layer.replaceChildren();
+            for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){
+                const pagePaths=paths.filter(cmd=>ajPathTouchesPageV215(cmd,pageIndex));
+                if(!pagePaths.length)continue;
+                const canvas=document.createElement('canvas');
+                canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);
+                canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
+                const ctx=canvas.getContext('2d',{alpha:true});
+                ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);
+                const previousDpr=dpr;dpr=ratio;
+                for(const cmd of pagePaths)renderPathToCtx(ctx,cmd,false);
+                dpr=previousDpr;
+                layer.appendChild(canvas);
+            }
+        }
+
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
             ajSyncStampLayersV213();
+            ajRenderInkPagesV215();
             for (let cmd of commands) {
-                if (cmd.type === 'path') renderPathToCtx(mainCtx, cmd, false);
+                if (cmd.type === 'path') continue;
                 else if (cmd.type === 'stamp') {
                     continue; // v21.3: firme, foto e PDF restano su livelli bitmap indipendenti ad alta definizione
                 }
@@ -2407,6 +2453,10 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                         tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
                     }
                     tCtx.drawImage(mainCanvas, 0, i * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
+                    tCtx.save();
+                    tCtx.setTransform(dpr,0,0,dpr,0,-i*BASE_A4_H*dpr);
+                    for(const cmd of commands){if(cmd.type==='path'&&ajPathTouchesPageV215(cmd,i))renderPathToCtx(tCtx,cmd,false);}
+                    tCtx.restore();
                     for (const cmd of commands) {
                         if (cmd.type !== 'stamp' || cmd.mode!=='over' || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
                         tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
