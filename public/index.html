@@ -1932,11 +1932,32 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         draftCanvas.addEventListener('pointercancel', endPointer);
         draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e); });
 
+        let ajPdfLayerKeyV212='';
+        function ajSyncPdfPageLayerV212() {
+            let layer=document.getElementById('ajPdfPageLayerV212');
+            if(!layer){
+                layer=document.createElement('div'); layer.id='ajPdfPageLayerV212';
+                layer.style.cssText='position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden';
+                wrapper.insertBefore(layer,mainCanvas);
+            }
+            const pdfCommands=commands.filter(c=>c.type==='stamp'&&c.isPdfPage&&c.imageData);
+            const key=pdfCommands.map(c=>[c.pdfPageNumber,c.x,c.y,c.w,c.h,c.imageData.length].join(':')).join('|');
+            if(key===ajPdfLayerKeyV212)return;
+            ajPdfLayerKeyV212=key; layer.replaceChildren();
+            pdfCommands.forEach(cmd=>{
+                const img=document.createElement('img'); img.src=cmd.imageData; img.alt='';
+                img.style.cssText=`position:absolute;left:${cmd.x}px;top:${cmd.y}px;width:${cmd.w}px;height:${cmd.h}px;display:block;object-fit:fill`;
+                layer.appendChild(img);
+            });
+        }
+
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+            ajSyncPdfPageLayerV212();
             for (let cmd of commands) {
                 if (cmd.type === 'path') renderPathToCtx(mainCtx, cmd, false);
                 else if (cmd.type === 'stamp') {
+                    if (cmd.isPdfPage) continue;
                     mainCtx.globalCompositeOperation = cmd.mode === 'under' ? 'destination-over' : 'source-over';
                     if(cmd.canvas) mainCtx.drawImage(cmd.canvas, cmd.x, cmd.y, cmd.w, cmd.h);
                     mainCtx.globalCompositeOperation = 'source-over';
@@ -2078,57 +2099,95 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         });
 
         document.getElementById('importPdfBtn').addEventListener('click', () => document.getElementById('fileInputPdf').click());
-        document.getElementById('fileInputPdf').addEventListener('change', async function(e) {
-            const file = e.target.files[0]; if(!file) return;
 
-            const btn = document.getElementById('importPdfBtn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<span style="font-size:0.75rem;">Caricamento...</span>`;
-
-            const fileReader = new FileReader();
-            fileReader.onload = async function() {
-                try {
-                    const typedarray = new Uint8Array(this.result);
-                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                    
-                    const renderScale = Math.max(3, (window.devicePixelRatio || 1) * 1.5); 
-                    const pagesData = [];
-                    
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        const page = await pdf.getPage(pageNum);
-                        const viewport = page.getViewport({ scale: renderScale });
-                        const tempCanv = document.createElement('canvas'); 
-                        tempCanv.width = viewport.width; 
-                        tempCanv.height = viewport.height;
-                        await page.render({ canvasContext: tempCanv.getContext('2d'), viewport: viewport }).promise;
-                        pagesData.push({ canvas: tempCanv, w: viewport.width, h: viewport.height });
-                    }
-                    
-                    const slotW = LOGICAL_W, slotH = BASE_A4_H;
-                    
-                    stampCanvas.width = slotW * renderScale; 
-                    stampCanvas.height = slotH * pdf.numPages * renderScale;
-                    stampCtx.fillStyle = 'white'; 
-                    stampCtx.fillRect(0, 0, stampCanvas.width, stampCanvas.height);
-                    
-                    for (let i = 0; i < pagesData.length; i++) {
-                        const p = pagesData[i];
-                        const pAspect = p.w / p.h, aAspect = slotW / slotH;
-                        
-                        let dw = pAspect > aAspect ? stampCanvas.width : (slotH * renderScale) * pAspect;
-                        let dh = pAspect > aAspect ? stampCanvas.width / pAspect : (slotH * renderScale);
-                        let dx = (stampCanvas.width - dw) / 2;
-                        let dy = i * (slotH * renderScale) + ((slotH * renderScale) - dh) / 2;
-                        
-                        stampCtx.drawImage(p.canvas, dx, dy, dw, dh);
-                    }
-                    
-                    const pagesNeeded=Math.max(TOTAL_PAGES,pdf.numPages); if(pagesNeeded!==TOTAL_PAGES){TOTAL_PAGES=pagesNeeded;initCanvas();ajSendPageCount();}
-                    activateStamp('pdf', slotW, slotH * pdf.numPages);
-                    btn.innerHTML = originalHTML;
-                } catch (err) { console.error("Errore PDF", err); alert("Impossibile importare il PDF!"); btn.innerHTML = originalHTML;}
+        function ajPdfLoadingDialog() {
+            let overlay = document.getElementById('ajPdfLoadingOverlayV212');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'ajPdfLoadingOverlayV212';
+                overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:12000;background:rgba(239,233,225,.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px';
+                overlay.innerHTML = '<div style="width:min(430px,100%);background:#fff;padding:30px;border-radius:20px;box-shadow:0 12px 40px rgba(80,60,100,.18);text-align:center"><div style="font-size:2rem;margin-bottom:10px">4c4</div><h3 style="margin:0 0 8px">Caricamento PDF in corso...</h3><p id="ajPdfLoadingStatusV212" style="margin:0 0 16px;color:#7A7590">Preparazione del documento</p><div style="height:9px;border-radius:999px;background:#EEF3FC;overflow:hidden"><div id="ajPdfLoadingBarV212" style="height:100%;width:0;background:#8FA9E0;transition:width .15s ease"></div></div><small style="display:block;margin-top:13px;color:#7A7590">Non chiudere la pagina durante l’importazione.</small></div>';
+                document.body.appendChild(overlay);
+            }
+            return {
+                show(text='Preparazione del documento') { overlay.style.display='flex'; this.update(text,0); },
+                update(text,percent) { document.getElementById('ajPdfLoadingStatusV212').textContent=text; document.getElementById('ajPdfLoadingBarV212').style.width=Math.max(0,Math.min(100,percent))+'%'; },
+                hide() { overlay.style.display='none'; }
             };
-            fileReader.readAsArrayBuffer(file); this.value = '';
+        }
+
+        function ajPageHasContentV212(pageIndex) {
+            const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
+            return commands.some(cmd=>{
+                if(cmd.type==='path') return Array.isArray(cmd.points)&&cmd.points.some(pt=>pt.y>=top&&pt.y<bottom);
+                if(cmd.type==='stamp') return cmd.y<bottom&&(cmd.y+(cmd.h||0))>top;
+                if(cmd.type==='text') { const h=cmd.h||(cmd.fontSize*1.5*String(cmd.text||'').split('\n').length); return cmd.y<bottom&&(cmd.y+h)>top; }
+                return false;
+            });
+        }
+
+        function ajPdfPlacementSlotsV212(pageCount) {
+            const slots=[];
+            for(let i=0;i<TOTAL_PAGES&&slots.length<pageCount;i++) if(!ajPageHasContentV212(i)) slots.push(i);
+            let next=TOTAL_PAGES;
+            while(slots.length<pageCount) slots.push(next++);
+            return {slots,totalPages:next};
+        }
+
+        function ajImageFromDataUrlV212(dataUrl) {
+            return new Promise((resolve,reject)=>{ const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=dataUrl; });
+        }
+
+        document.getElementById('fileInputPdf').addEventListener('change', async function(e) {
+            const file=e.target.files[0]; if(!file)return;
+            const btn=document.getElementById('importPdfBtn'),originalHTML=btn.innerHTML,loading=ajPdfLoadingDialog();
+            btn.disabled=true; loading.show('Lettura del documento...');
+            let pdf=null;
+            try {
+                const typedarray=new Uint8Array(await file.arrayBuffer());
+                pdf=await pdfjsLib.getDocument({data:typedarray}).promise;
+                const placement=ajPdfPlacementSlotsV212(pdf.numPages);
+                const pageLimit=Number(ajMe?.limits?.pages||5);
+                if(placement.totalPages>pageLimit) throw new Error(`Il PDF richiede ${placement.totalPages} pagine, ma il piano corrente ne consente massimo ${pageLimit}.`);
+
+                if(placement.totalPages!==TOTAL_PAGES){ TOTAL_PAGES=placement.totalPages; initCanvas(); await ajSend('page:set',{count:TOTAL_PAGES}); }
+
+                for(let pageNum=1;pageNum<=pdf.numPages;pageNum++){
+                    loading.update(`Pagina ${pageNum} di ${pdf.numPages}`,((pageNum-1)/pdf.numPages)*100);
+                    await new Promise(requestAnimationFrame);
+                    const page=await pdf.getPage(pageNum);
+                    const baseViewport=page.getViewport({scale:1});
+                    const renderScale=Math.min(2400/baseViewport.width,3400/baseViewport.height);
+                    const viewport=page.getViewport({scale:renderScale});
+                    const pageCanvas=document.createElement('canvas');
+                    pageCanvas.width=Math.max(1,Math.round(viewport.width)); pageCanvas.height=Math.max(1,Math.round(viewport.height));
+                    const pageCtx=pageCanvas.getContext('2d',{alpha:false});
+                    pageCtx.fillStyle='#fff'; pageCtx.fillRect(0,0,pageCanvas.width,pageCanvas.height);
+                    await page.render({canvasContext:pageCtx,viewport}).promise;
+
+                    const encoded=ajEncodeStampForSync(pageCanvas,'pdf');
+                    const image=await ajImageFromDataUrlV212(encoded.imageData);
+                    const sourceAspect=baseViewport.width/baseViewport.height,pageAspect=LOGICAL_W/BASE_A4_H;
+                    const w=sourceAspect>pageAspect?LOGICAL_W:BASE_A4_H*sourceAspect;
+                    const h=sourceAspect>pageAspect?LOGICAL_W/sourceAspect:BASE_A4_H;
+                    const pageIndex=placement.slots[pageNum-1];
+                    const cmd={type:'stamp',canvas:image,imageData:encoded.imageData,x:(LOGICAL_W-w)/2,y:pageIndex*BASE_A4_H+(BASE_A4_H-h)/2,w,h,mode:'under',isPdfPage:true,pdfPageNumber:pageNum};
+                    commands.push(cmd);
+                    await ajSendCommand(cmd);
+                    page.cleanup();
+                    pageCanvas.width=1; pageCanvas.height=1; encoded.canvas.width=1; encoded.canvas.height=1;
+                    loading.update(`Pagina ${pageNum} di ${pdf.numPages}`,(pageNum/pdf.numPages)*100);
+                }
+                redoCommands=[]; document.getElementById('undoBtn').disabled=commands.length===0; redrawMainCanvas();
+                loading.update('PDF importato correttamente',100);
+                await new Promise(r=>setTimeout(r,350));
+            } catch(err) {
+                console.error('Errore PDF',err);
+                alert(err?.message||'Impossibile importare il PDF.');
+            } finally {
+                try{await pdf?.cleanup?.()}catch{}
+                loading.hide(); btn.disabled=false; btn.innerHTML=originalHTML; this.value='';
+            }
         });
 
         stampContainer.addEventListener('pointerdown', (e) => {
@@ -2331,8 +2390,12 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 
                 for(let i=0; i < TOTAL_PAGES; i++) {
                     tCtx.fillStyle = '#ffffff'; tCtx.fillRect(0, 0, sliceW, sliceH);
+                    for (const cmd of commands) {
+                        if (cmd.type !== 'stamp' || !cmd.isPdfPage || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
+                        tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
+                    }
                     tCtx.drawImage(mainCanvas, 0, i * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
-                    exportPagesData.push({ id: `page_${i}`, data: tempCanvas.toDataURL('image/jpeg', 0.95) });
+                    exportPagesData.push({ id: `page_${i}`, data: tempCanvas.toDataURL('image/jpeg', 0.97) });
                 }
                 
                 renderPdfThumbnails();
