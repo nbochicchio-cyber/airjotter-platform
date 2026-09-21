@@ -57,3 +57,90 @@ UPDATE boards b SET is_empty = NOT EXISTS (
  AND bo.revision > COALESCE((SELECT max(c.revision) FROM board_operations c WHERE c.board_id=b.id AND c.is_active=true AND c.operation_type='board:clear'),0)
 );
 CREATE INDEX IF NOT EXISTS boards_owner_empty_idx ON boards(owner_user_id,is_empty);
+
+
+-- AIRJOTTER BILLING V22.0
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_plan_code_check;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_id UUID;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS billing_customer_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS paypal_payer_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_provider TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_external_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spot_jotters INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spot_pages INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spot_exports INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS billing_plans (
+ id UUID PRIMARY KEY,
+ code TEXT UNIQUE NOT NULL,
+ name TEXT NOT NULL,
+ description TEXT NOT NULL DEFAULT '',
+ status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','active','suspended','archived')),
+ billing_type TEXT NOT NULL DEFAULT 'subscription' CHECK(billing_type IN ('free','subscription','per_seat','consumable')),
+ currency CHAR(3) NOT NULL DEFAULT 'EUR',
+ amount_cents INTEGER NOT NULL DEFAULT 0 CHECK(amount_cents>=0),
+ interval_unit TEXT CHECK(interval_unit IN ('month','year') OR interval_unit IS NULL),
+ interval_count INTEGER NOT NULL DEFAULT 1 CHECK(interval_count>0),
+ min_seats INTEGER NOT NULL DEFAULT 1 CHECK(min_seats>0),
+ max_seats INTEGER,
+ boards_limit INTEGER NOT NULL DEFAULT 1 CHECK(boards_limit>0),
+ pages_limit INTEGER NOT NULL DEFAULT 3 CHECK(pages_limit>0),
+ guests_limit INTEGER,
+ exports_limit INTEGER,
+ history_days INTEGER,
+ included_spot_jotters INTEGER NOT NULL DEFAULT 0,
+ included_spot_pages INTEGER NOT NULL DEFAULT 0,
+ included_spot_exports INTEGER NOT NULL DEFAULT 0,
+ features JSONB NOT NULL DEFAULT '[]'::jsonb,
+ consumable_kind TEXT CHECK(consumable_kind IN ('jotter','page','export') OR consumable_kind IS NULL),
+ consumable_units INTEGER NOT NULL DEFAULT 0,
+ sort_order INTEGER NOT NULL DEFAULT 0,
+ featured BOOLEAN NOT NULL DEFAULT false,
+ public BOOLEAN NOT NULL DEFAULT true,
+ stripe_product_id TEXT,
+ stripe_price_id TEXT,
+ paypal_product_id TEXT,
+ paypal_plan_id TEXT,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS billing_plans_public_idx ON billing_plans(status,public,sort_order);
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_plan_id_fkey;
+ALTER TABLE users ADD CONSTRAINT users_plan_id_fkey FOREIGN KEY(plan_id) REFERENCES billing_plans(id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS billing_orders (
+ id UUID PRIMARY KEY,
+ user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ plan_id UUID REFERENCES billing_plans(id),
+ provider TEXT NOT NULL CHECK(provider IN ('stripe','paypal','admin')),
+ kind TEXT NOT NULL CHECK(kind IN ('subscription','one_time')),
+ external_id TEXT UNIQUE,
+ status TEXT NOT NULL DEFAULT 'pending',
+ amount_cents INTEGER NOT NULL DEFAULT 0,
+ currency CHAR(3) NOT NULL DEFAULT 'EUR',
+ quantity INTEGER NOT NULL DEFAULT 1,
+ raw JSONB NOT NULL DEFAULT '{}'::jsonb,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS billing_orders_user_idx ON billing_orders(user_id,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS billing_webhook_events (
+ provider TEXT NOT NULL,
+ external_event_id TEXT NOT NULL,
+ received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ payload JSONB NOT NULL,
+ PRIMARY KEY(provider,external_event_id)
+);
+
+INSERT INTO billing_plans(id,code,name,description,status,billing_type,currency,amount_cents,interval_unit,boards_limit,pages_limit,features,sort_order,featured,public)
+VALUES
+ ('00000000-0000-4000-8000-000000000001','free','Free','Per iniziare','active','free','EUR',0,NULL,1,3,'["Ospiti illimitati"]',10,false,true),
+ ('00000000-0000-4000-8000-000000000002','plus','Plus','Per uso personale avanzato','active','subscription','EUR',499,'month',3,7,'["Export PDF completo","Firma scontornata"]',20,true,true),
+ ('00000000-0000-4000-8000-000000000003','ultra','Ultra','Per uso professionale','active','subscription','EUR',999,'month',10,20,'["Cronologia estesa"]',30,false,true),
+ ('00000000-0000-4000-8000-000000000004','team-edu','Team & Edu','Per organizzazioni e formazione','draft','per_seat','EUR',799,'month',20,30,'["Console admin"]',40,false,true)
+ON CONFLICT(code) DO NOTHING;
+
+UPDATE users u SET plan_id=p.id FROM billing_plans p WHERE p.code=u.plan_code AND u.plan_id IS NULL;
