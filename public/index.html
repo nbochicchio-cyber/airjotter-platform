@@ -1911,34 +1911,26 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             if (isDrawing && activePointers.size === 1 && currentPath) AJInk.move(e);
         });
 
-        function endPointer(e, cancelled = false) {
+        function endPointer(e) {
             activePointers.delete(e.pointerId);
             if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
             if (isDrawing && currentPath && (activePointers.size === 0 || e.pointerType === 'pen')) {
-                const completed = currentPath;
-                if (cancelled) {
-                    AJInk.discard();
-                } else {
-                    AJInk.finish(e);
-                    if (ajPathIsMeaningful(completed)) {
-                        commands.push(completed);
-                        ajSendCommand(completed);
-                        redoCommands = [];
-                    } else {
-                        // AJInk ha gia' mostrato il punto sul canvas principale: lo rimuove senza alterare altro.
-                        redrawMainCanvas();
-                    }
-                }
+                AJInk.finish(e);
+
+                commands.push(currentPath);
+                ajSendCommand(currentPath);
+                redoCommands = [];
                 document.getElementById('undoBtn').disabled = commands.length === 0;
+
                 isDrawing = false; currentPath = null; lastEventData = null; if(e.pointerType === 'pen') activePointers.clear();
                 try { draftCanvas.releasePointerCapture(e.pointerId); } catch(err){}
             } else if (!isDrawing && AJInk.active() && activePointers.size === 0) {
                 AJInk.discard();
             }
         }
-        draftCanvas.addEventListener('pointerup', e => endPointer(e, false));
-        draftCanvas.addEventListener('pointercancel', e => endPointer(e, true));
-        draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e, true); });
+        draftCanvas.addEventListener('pointerup', endPointer);
+        draftCanvas.addEventListener('pointercancel', endPointer);
+        draftCanvas.addEventListener('lostpointercapture', e => { if(isDrawing && e.pointerType === 'pen') endPointer(e); });
 
         function redrawMainCanvas() {
             mainCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
@@ -2434,21 +2426,6 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el => el.disabled = !ajCanWrite());
-        }
-        // v21.1: un tocco, un cancel o un brevissimo movimento non costituiscono contenuto.
-        function ajPathIsMeaningful(path) {
-            if (!path || path.type !== 'path' || path.isEraser) return true;
-            const pts = Array.isArray(path.points) ? path.points : [];
-            if (pts.length < 2) return false;
-            let length = 0, minX = pts[0].x, maxX = pts[0].x, minY = pts[0].y, maxY = pts[0].y;
-            for (let i = 1; i < pts.length; i++) {
-                const a = pts[i - 1], b = pts[i];
-                if (![a.x,a.y,b.x,b.y].every(Number.isFinite)) return false;
-                length += Math.hypot(b.x - a.x, b.y - a.y);
-                minX = Math.min(minX, b.x); maxX = Math.max(maxX, b.x);
-                minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y);
-            }
-            return length >= 12 || Math.hypot(maxX - minX, maxY - minY) >= 10;
         }
         async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
@@ -3329,33 +3306,24 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
   if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
   stop(e);collect(e);queuePaint();
  }
- function resetPencilState(pointerId){
-  active=false;pid=null;path=null;screenPoints=[];pendingFrom=0;lastWidth=0;lockedRect=null;
-  try{input.releasePointerCapture(pointerId)}catch{}
- }
  function finish(e){
   if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
   stop(e);collect(e);
   if(raf){cancelAnimationFrame(raf);raf=0}paintFrame();
-  const done=path,meaningful=ajPathIsMeaningful(done);
-  if(meaningful){
-   renderPathToCtx(mainCtx,done,false);
-   commands.push(done);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
-  }
-  resetPencilState(e.pointerId);
-  requestAnimationFrame(()=>{ctx.clearRect(0,0,innerWidth,innerHeight);if(meaningful)setTimeout(()=>ajSendCommand(done),0)});
- }
- function cancel(e){
-  if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
-  stop(e);if(raf){cancelAnimationFrame(raf);raf=0}ctx.clearRect(0,0,innerWidth,innerHeight);resetPencilState(e.pointerId);
+  const done=path;
+  renderPathToCtx(mainCtx,done,false);
+  commands.push(done);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
+  active=false;pid=null;path=null;screenPoints=[];pendingFrom=0;lastWidth=0;lockedRect=null;
+  try{input.releasePointerCapture(e.pointerId)}catch{}
+  requestAnimationFrame(()=>{ctx.clearRect(0,0,innerWidth,innerHeight);setTimeout(()=>ajSendCommand(done),0)});
  }
  function palm(e){if(active&&e.pointerType==='touch')stop(e)}
- input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',cancel,true);
+ input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',finish,true);
  input.addEventListener('pointerdown',palm,true);input.addEventListener('pointermove',palm,true);
  addEventListener('resize',()=>{if(!active)resize()},{passive:true});resize();
  let desync=false;try{desync=!!ctx.getContextAttributes?.().desynchronized}catch{}
  window.ajInkBusy=()=>active;
- window.AIRJOTTER_IPAD_INK={version:'19.3',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
+ window.AIRJOTTER_IPAD_INK={version:'19.2',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
 <script id="AIRJOTTER_DESKTOP_STATIC_V206">
