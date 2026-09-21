@@ -144,3 +144,32 @@ VALUES
 ON CONFLICT(code) DO NOTHING;
 
 UPDATE users u SET plan_id=p.id FROM billing_plans p WHERE p.code=u.plan_code AND u.plan_id IS NULL;
+
+
+-- AIRJOTTER V22.2 - CREDITO PAY PER USE
+ALTER TABLE users ADD COLUMN IF NOT EXISTS spot_credit_cents INTEGER NOT NULL DEFAULT 0 CHECK(spot_credit_cents >= 0);
+CREATE TABLE IF NOT EXISTS pay_use_settings (
+ id SMALLINT PRIMARY KEY DEFAULT 1 CHECK(id=1),
+ enabled BOOLEAN NOT NULL DEFAULT true,
+ currency CHAR(3) NOT NULL DEFAULT 'EUR',
+ minimum_topup_cents INTEGER NOT NULL DEFAULT 300 CHECK(minimum_topup_cents>=1),
+ jotter_cost_cents INTEGER NOT NULL DEFAULT 100 CHECK(jotter_cost_cents>=1),
+ page_cost_cents INTEGER NOT NULL DEFAULT 25 CHECK(page_cost_cents>=1),
+ export_cost_cents INTEGER NOT NULL DEFAULT 50 CHECK(export_cost_cents>=1),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+INSERT INTO pay_use_settings(id) VALUES(1) ON CONFLICT(id) DO NOTHING;
+CREATE TABLE IF NOT EXISTS pay_use_transactions (
+ id UUID PRIMARY KEY,
+ user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ transaction_type TEXT NOT NULL CHECK(transaction_type IN ('topup','spend','refund','admin_adjustment')),
+ amount_cents INTEGER NOT NULL,
+ item_type TEXT CHECK(item_type IN ('jotter','page','export','credit') OR item_type IS NULL),
+ units INTEGER NOT NULL DEFAULT 0,
+ provider TEXT,
+ external_id TEXT,
+ description TEXT NOT NULL DEFAULT '',
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS pay_use_tx_external_idx ON pay_use_transactions(provider,external_id) WHERE external_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS pay_use_tx_user_idx ON pay_use_transactions(user_id,created_at DESC);
