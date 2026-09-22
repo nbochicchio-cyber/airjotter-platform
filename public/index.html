@@ -883,7 +883,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         </div>
 
         <div class="tools-group">
-            <button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
+            <span class="aj-user-jotter-v2263"><button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><small id="ajCurrentJotterV2263"></small></span><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
             <button id="toggleCodeBtn" class="icon-btn" title="Mostra Codice"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
             <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
         </div>
@@ -2609,7 +2609,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
-            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;
+            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role==='viewer'?'reader':role}`;const currentTitle=document.getElementById('ajCurrentJotterV2263');if(currentTitle)currentTitle.textContent=ajBoard?.title||'Jotter senza titolo';
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el=>el.disabled=!ajCanWrite());
@@ -3180,7 +3180,7 @@ document.addEventListener('click', function(event) {
    '<div class="archive-meta"><span class="save-dot"></span>' +
    'Ultima modifica: ' + contentUpdated +
    (isOwner ? '<br>Creato: ' + created : '<br>Owner: ' + esc(b.ownerName) + ' &middot; Ruolo: ' + roleLabel) +
-   ' | Codice: ' + esc(b.roomCode) + '</div></div>' +
+   ' | N° pagine: ' + Number(b.pages||1) + ' | Codice: ' + esc(b.roomCode) + '</div></div>' +
    '<div class="archive-actions">' +
    '<button class="btn open-board">Apri</button>' +
    (isOwner ? '<button class="btn rename-board">Rinomina</button>' : '') +
@@ -3247,7 +3247,7 @@ document.addEventListener('click', function(event) {
    if (owned.length) {
     const h = document.createElement('div');
     h.style.cssText = 'font-weight:700;color:var(--text-soft);margin:6px 0 4px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px';
-    h.textContent = 'Creati da te (' + owned.length + ')';
+    h.innerHTML = 'Creati da te (' + owned.length + ') <span class="aj-archive-tip-v2263">Clicca sul link per vedere chi ha accesso al Jotter</span>';
     list.appendChild(h);
     for (const b of owned) list.appendChild(renderBoard(b, true));
    }
@@ -3489,7 +3489,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  let ctx=wet.getContext('2d',{alpha:true,desynchronized:true})||wet.getContext('2d');
  let ratio=1,active=false,pid=null,path=null,screenPoints=[],pendingFrom=0,raf=0,lastWidth=0,lockedRect=null,screenScale=1;
  function resize(){
-  ratio=Math.max(1,Math.min(window.devicePixelRatio||1,2.5));
+  ratio=1;
   const w=Math.ceil(innerWidth*ratio),h=Math.ceil(innerHeight*ratio);
   if(wet.width!==w||wet.height!==h){wet.width=w;wet.height=h}
   ctx.setTransform(ratio,0,0,ratio,0,0);
@@ -3862,7 +3862,19 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
  function markPage(i){if(document.querySelector('.aj-watermark-v226[data-page="'+i+'"]'))return;const d=document.createElement('div');d.className='aj-watermark-v226';d.dataset.page=i;d.style.top=(i*BASE_A4_H)+'px';d.innerHTML='<span>AirJotter.com</span>';document.getElementById('canvas-wrapper').appendChild(d)}
  async function extras(show=true){try{const d=await ajApi('/api/extras/me');window.ajExtrasV226=d;clearMarks();if(ajBoard){const boardExtras=d.extras.filter(x=>x.board_id===ajBoard.id),expiredJ=boardExtras.some(x=>x.kind==='jotter'&&x.expired),expiredPages=boardExtras.filter(x=>x.kind==='page'&&x.expired).reduce((a,x)=>a+Number(x.units),0);if(expiredJ){for(let i=0;i<TOTAL_PAGES;i++)markPage(i);ajSetRole('viewer')}else for(let i=Math.max(0,TOTAL_PAGES-expiredPages);i<TOTAL_PAGES;i++)markPage(i)}const relevant=d.extras.filter(x=>x.expired||new Date(x.expires_at)-Date.now()<7*864e5);if(show&&relevant.length){let m=document.getElementById('ajExpiryModalV226');if(!m){m=document.createElement('div');m.id='ajExpiryModalV226';m.className='modal aj-expiry-modal-v226';m.innerHTML='<div class="modal-content" style="max-width:650px"><h2>Extra AirJotter e scadenze</h2><p>Jotter e pagine extra durano 30 giorni. Puoi rinnovarli anticipatamente: i 30 giorni si aggiungono alla scadenza esistente.</p><div class="aj-expiry-list-v226"></div><button class="btn primary" onclick="this.closest(\'.modal\').style.display=\'none\'">Continua</button></div>';document.body.appendChild(m)}m.querySelector('.aj-expiry-list-v226').innerHTML=relevant.map(x=>'<div class="aj-expiry-row-v226 '+(x.expired?'expired':'')+'"><b>'+(x.kind==='jotter'?'Jotter extra':'Pagine extra: '+x.units)+'</b><br>'+(x.title||'Da assegnare')+'<br>Scadenza: '+new Date(x.expires_at).toLocaleDateString('it-IT')+'<br><button class="btn renew-extra-v226" data-id="'+x.id+'">Rinnova 30 giorni</button></div>').join('');m.style.display='flex'}}catch(e){console.warn(e)}}
  document.addEventListener('click',async e=>{const b=e.target.closest('.renew-extra-v226');if(!b)return;try{await ajApi('/api/extras/'+b.dataset.id+'/renew',{method:'POST',body:'{}'});await extras(true)}catch(x){alert(x.message)}},true);
- window.ajApplyExtrasV226=extras;window.addEventListener('pageshow',event=>{if(event.persisted&&ajBoard){setTimeout(()=>{try{redrawMainCanvas()}catch(e){}},120)}});window.AIRJOTTER_FRONTEND_VERSION='22.6.2';
+ window.ajApplyExtrasV226=extras;window.AIRJOTTER_FRONTEND_VERSION='22.6.2';
+})();
+</script>
+
+<style id="AIRJOTTER_V2263_UI_STYLE">
+.aj-user-jotter-v2263{display:flex;flex-direction:column;align-items:center;min-width:130px;max-width:240px}.aj-user-jotter-v2263 small{display:block;width:100%;margin-top:3px;color:#53627a;font-size:.72rem;font-weight:750;line-height:1.15;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-archive-tip-v2263{display:inline-block;margin-left:10px;color:#1769d2;font-size:.76rem;font-weight:600;text-transform:none;letter-spacing:0}.aj-ipad-memory-safe-v2263 .aj-watermark-v226{transform:none!important;contain:none!important}@media(max-width:700px){.aj-user-jotter-v2263{max-width:155px}.aj-archive-tip-v2263{display:block;margin:4px 0 0}}
+</style>
+<script id="AIRJOTTER_V2263_IPAD_MEMORY">
+(()=>{
+ const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(!ipad)return;document.documentElement.classList.add('aj-ipad-memory-safe-v2263');
+ window.ajReleaseCanvasV2263=function(canvas){if(!canvas||canvas===document.getElementById('draftBoard'))return;try{const c=canvas.getContext('2d');c&&c.clearRect(0,0,canvas.width,canvas.height)}catch{}canvas.width=1;canvas.height=1};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){document.querySelectorAll('canvas').forEach(c=>{if(c.id==='draftBoard'||c.id==='ajInkPagesV215'||c.id==='ajIpadSmartWetV19')return;if(!c.closest('#pdfModal'))window.ajReleaseCanvasV2263(c)})}});
+ window.AIRJOTTER_FRONTEND_VERSION='22.6.3';
 })();
 </script>
 </body>
