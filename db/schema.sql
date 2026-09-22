@@ -173,3 +173,24 @@ CREATE TABLE IF NOT EXISTS pay_use_transactions (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS pay_use_tx_external_idx ON pay_use_transactions(provider,external_id) WHERE external_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS pay_use_tx_user_idx ON pay_use_transactions(user_id,created_at DESC);
+
+
+-- AIRJOTTER V22.6 - EXTRA TEMPORANEI E SCADENZE
+CREATE TABLE IF NOT EXISTS user_extra_entitlements (
+ id UUID PRIMARY KEY,
+ user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ kind TEXT NOT NULL CHECK(kind IN ('jotter','page')),
+ board_id UUID REFERENCES boards(id) ON DELETE CASCADE,
+ units INTEGER NOT NULL DEFAULT 1 CHECK(units > 0),
+ source TEXT NOT NULL DEFAULT 'purchase' CHECK(source IN ('purchase','admin_gift','migration')),
+ amount_cents INTEGER NOT NULL DEFAULT 0,
+ starts_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ expires_at TIMESTAMPTZ NOT NULL DEFAULT (now()+interval '30 days'),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ renewed_at TIMESTAMPTZ,
+ metadata JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+CREATE INDEX IF NOT EXISTS user_extra_entitlements_user_idx ON user_extra_entitlements(user_id,expires_at);
+CREATE INDEX IF NOT EXISTS user_extra_entitlements_board_idx ON user_extra_entitlements(board_id,kind,expires_at);
+ALTER TABLE billing_plans ALTER COLUMN exports_limit SET DEFAULT 1;
+UPDATE billing_plans SET exports_limit=1 WHERE code='free' AND exports_limit IS NULL;
