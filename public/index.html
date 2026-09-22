@@ -883,7 +883,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         </div>
 
         <div class="tools-group">
-            <button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
+            <button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span class="aj-room-current-v2266"><span id="roomCode" class="room-code">***-***</span><small id="ajCurrentJotterV2266">Jotter senza titolo</small></span>
             <button id="toggleCodeBtn" class="icon-btn" title="Mostra Codice"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
             <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
         </div>
@@ -1956,6 +1956,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 ajSendStrokePreviewV224(currentPath,true);
 
                 commands.push(currentPath);
+                ajDrawPathOnPagesV224(currentPath);
                 ajSendCommand(currentPath);
                 ajInkPagesKeyV215='';
                 redoCommands = [];
@@ -2621,7 +2622,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
-            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;
+            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role}`;const currentTitle=document.getElementById('ajCurrentJotterV2266');if(currentTitle)currentTitle.textContent=ajBoard?.title||'Jotter senza titolo';
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el=>el.disabled=!ajCanWrite());
@@ -2641,7 +2642,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         function ajDrawPathOnPagesV224(cmd){
             if(!cmd||!Array.isArray(cmd.points)||!cmd.points.length)return;
             const pages=new Set(cmd.points.map(p=>Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.y||0)/BASE_A4_H))))),old=dpr;
-            for(const pageIndex of pages){const e=ajEnsurePageCanvasV224(pageIndex);if(!e)continue;dpr=e.ratio;renderPathToCtx(e.ctx,cmd,false);e.key=''}dpr=old;
+            for(const pageIndex of pages){const e=ajEnsurePageCanvasV224(pageIndex);if(!e)continue;dpr=e.ratio;renderPathToCtx(e.ctx,cmd,false);const pageCommands=commands.filter(c=>(c.type==='path'||c.type==='text'||c.type==='stamp')&&ajCommandTouchesPageV218(c,pageIndex));e.key=ajPageCommandKeyV2265(pageIndex,pageCommands)}dpr=old;
         }
         function ajPreviewLayerV224(){let l=document.getElementById('ajLiveStrokeLayerV224');if(!l){l=document.createElement('div');l.id='ajLiveStrokeLayerV224';l.style.cssText='position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden';wrapper.insertBefore(l,draftCanvas)}return l}
         function ajClearPreviewV224(id){const e=ajLivePreviewCanvasesV224.get(id);if(e){try{e.ctx?.setTransform(1,0,0,1,0,0);e.ctx?.clearRect(0,0,e.canvas.width,e.canvas.height);e.canvas.width=1;e.canvas.height=1;e.canvas.remove()}catch{}ajLivePreviewCanvasesV224.delete(id)}}
@@ -2663,11 +2664,11 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         let ajPreviewLastV224=0;
         function ajSendStrokePreviewV224(path,force=false){
             if(!ajBoard||!ajSocket.connected||!path||!Array.isArray(path.points)||!path.points.length)return;
-            if(!path._liveStrokeId)path._liveStrokeId=crypto.randomUUID();const now=performance.now();if(!force&&now-ajPreviewLastV224<42)return;ajPreviewLastV224=now;
+            if(!path._liveStrokeId)path._liveStrokeId=crypto.randomUUID();const now=performance.now();if(!force&&now-ajPreviewLastV224<16)return;ajPreviewLastV224=now;
             const pts=path.points.length>150?path.points.filter((_,i)=>i%Math.ceil(path.points.length/145)===0||i===path.points.length-1):path.points;
             ajSocket.volatile.emit('stroke:preview',{boardId:ajBoard.id,strokeId:path._liveStrokeId,points:pts.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,w:Math.round((p.w||1)*10)/10})),color:path.color,isEraser:!!path.isEraser,sentAt:Date.now()});
         }
-        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
+        async function ajSend(type,payload){if(!ajBoard||ajRemote||!ajCanWrite())return;const operationId=crypto.randomUUID();if(typeof appliedOperationIds!=='undefined')appliedOperationIds.add(operationId);if(window.ajSyncMark)window.ajSyncMark(operationId);const result=await ajSocket.emitWithAck('board:operation',{boardId:ajBoard.id,operationId,type,payload});if(!result?.ok)throw new Error(result?.error||'Salvataggio non confermato');document.getElementById('ajUser').dataset.saved='true';return result;}
         function ajSerializableCommand(cmd) {
             if (!cmd || !['path','text','stamp'].includes(cmd.type)) return null;
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
@@ -2688,7 +2689,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             else if(type==='page:delete'){deletePageFromCanvas(Number(payload.pageIndex),true);}
             else if (type === 'board:clear') { commands=[]; redoCommands=[]; TOTAL_PAGES=2; if(!ajBatchApply)initCanvas(); }
             if (ajBatchApply) { /* ridisegno unico a fine ricostruzione */ }
-            else if (ajIncrementalPath) { ajDrawPathOnPagesV224(commands[commands.length - 1]); ajInkPagesKeyV215=''; }
+            else if (ajIncrementalPath) { ajDrawPathOnPagesV224(commands[commands.length - 1]); }
             else redrawMainCanvas();
             if(payload.liveStrokeId)requestAnimationFrame(()=>ajClearPreviewV224(payload.liveStrokeId));
             document.getElementById('undoBtn').disabled = commands.length === 0;
@@ -2760,7 +2761,7 @@ document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById(
         
         
         document.getElementById('ajRequestEdit').onclick=()=>window.ajSendEditRequest?.();
-        ajSocket.on('board:operation', ajApplyOperation); ajSocket.on('board:reload', ajReload);
+        ajSocket.on('board:reload', ajReload);
         let ajRejoining=false;
         ajSocket.on('connect',async()=>{if(!ajBoard||ajRejoining)return;ajRejoining=true;try{const joined=await ajSocket.emitWithAck('board:join',{boardId:ajBoard.id});if(joined?.ok)await ajReload()}catch(error){console.debug('Rientro automatico nel Jotter:',error.message)}finally{ajRejoining=false}});
         let ajPendingRequest=null;
@@ -3066,7 +3067,7 @@ document.addEventListener('click', function(event) {
   }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
  }
  const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;appliedOperationIds.clear();const result=await baseOpen(board);await syncCheck();apply(false);return result};
- ajSocket.on('board:operation',op=>{const id=op.operation_id||op.operationId;if(id&&!appliedOperationIds.has(id)){appliedOperationIds.add(id);ajApplyOperation(op)}lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,1500);
+ ajSocket.on('board:operation',op=>{const id=op.operation_id||op.operationId;if(id&&!appliedOperationIds.has(id)){appliedOperationIds.add(id);ajApplyOperation(op)}lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,8000);
 
  // Archivio mobile gia abbassato dalla v11.6.
  const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');if(close)close.onclick=()=>modal.style.display='none';if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});const previousArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
@@ -3880,5 +3881,8 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
 
 <style id="AIRJOTTER_V2265_STYLE">.aj-plans-wrap-v2265{display:flex;flex-direction:column;align-items:center;justify-content:center}.aj-plans-wrap-v2265 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-access-hint-v2265{margin-left:10px;color:#1769d2;font-size:.76rem;font-weight:700;text-transform:none;letter-spacing:0}@media(max-width:700px){.aj-access-hint-v2265{display:block;margin:4px 0 0}}</style>
 <script id="AIRJOTTER_V2265_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.5';</script>
+
+<style id="AIRJOTTER_V2266_STYLE">.aj-room-current-v2266{display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:180px}.aj-room-current-v2266 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}</style>
+<script id="AIRJOTTER_V2266_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6';</script>
 </body>
 </html>
