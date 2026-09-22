@@ -2480,43 +2480,40 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         }
 
         document.getElementById('exportPdfBtn').addEventListener('click', async () => {
-            try{const cfg=await ajJsonV225('/api/pay-use');ajExportCostCentsV225=Number(cfg.exportCostCents||0)}catch{}
-            ajExportFreeLimitedV225=ajIsFreePlanV225()&&!ajExportFullAuthorizedV225;
-            const btn = document.getElementById('exportPdfBtn'); 
-            const originalText = btn.innerHTML; btn.innerHTML = 'Elaborazione...';
-            
-            setTimeout(() => {
-                exportPagesData = [];
-                const container = document.getElementById('pdfPagesContainer'); container.innerHTML = '';
-                
-                const sliceW = mainCanvas.width; const sliceH = Math.round(BASE_A4_H * dpr);
-                const tempCanvas = document.createElement('canvas'); tempCanvas.width = sliceW; tempCanvas.height = sliceH;
-                const tCtx = tempCanvas.getContext('2d');
-                
-                const ajExportPageCountV225=ajExportFreeLimitedV225?1:TOTAL_PAGES;
-                for(let i=0; i < ajExportPageCountV225; i++) {
-                    tCtx.fillStyle = '#ffffff'; tCtx.fillRect(0, 0, sliceW, sliceH);
-                    for (const cmd of commands) {
-                        if (cmd.type !== 'stamp' || cmd.mode==='over' || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
-                        tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
-                    }
-                    tCtx.drawImage(mainCanvas, 0, i * sliceH, sliceW, sliceH, 0, 0, sliceW, sliceH);
-                    tCtx.save();
-                    tCtx.setTransform(dpr,0,0,dpr,0,-i*BASE_A4_H*dpr);
-                    for(const cmd of commands){if(cmd.type==='path'&&ajPathTouchesPageV215(cmd,i))renderPathToCtx(tCtx,cmd,false);}
-                    tCtx.restore();
-                    for (const cmd of commands) {
-                        if (cmd.type !== 'stamp' || cmd.mode!=='over' || !cmd.canvas || cmd.y >= (i+1)*BASE_A4_H || (cmd.y+cmd.h) <= i*BASE_A4_H) continue;
-                        tCtx.drawImage(cmd.canvas, cmd.x*dpr, (cmd.y-i*BASE_A4_H)*dpr, cmd.w*dpr, cmd.h*dpr);
-                    }
-                    exportPagesData.push({ id: `page_${i}`, data: tempCanvas.toDataURL('image/jpeg', 0.97) });
+            const btn=document.getElementById('exportPdfBtn');
+            if(btn.dataset.exportBusyV2251==='1')return;
+            const originalText=btn.innerHTML;btn.dataset.exportBusyV2251='1';btn.innerHTML='Elaborazione...';btn.disabled=true;
+            try{
+                try{const cfg=await ajJsonV225('/api/pay-use');ajExportCostCentsV225=Number(cfg.exportCostCents||0)}catch{}
+                ajExportFreeLimitedV225=ajIsFreePlanV225()&&!ajExportFullAuthorizedV225;
+                exportPagesData=[];
+                const container=document.getElementById('pdfPagesContainer');container.innerHTML='';
+                // Il composito HiDPI per pagina contiene PDF, foto, firme, testo, inchiostro e cancellazioni.
+                ajRenderInkPagesV215(true);
+                const pageCount=ajExportFreeLimitedV225?1:TOTAL_PAGES;
+                for(let i=0;i<pageCount;i++){
+                    const entry=ajInkPageContextsV218.get(i);
+                    if(!entry?.canvas)throw new Error('La pagina '+(i+1)+' non è pronta per l’esportazione.');
+                    const tempCanvas=document.createElement('canvas');
+                    tempCanvas.width=entry.canvas.width;tempCanvas.height=entry.canvas.height;
+                    const tCtx=tempCanvas.getContext('2d',{alpha:false});
+                    if(!tCtx)throw new Error('Impossibile preparare il PDF.');
+                    tCtx.fillStyle='#fff';tCtx.fillRect(0,0,tempCanvas.width,tempCanvas.height);
+                    tCtx.drawImage(entry.canvas,0,0);
+                    exportPagesData.push({id:`page_${i}`,data:tempCanvas.toDataURL('image/jpeg',.97)});
+                    tempCanvas.width=1;tempCanvas.height=1;
+                    await new Promise(resolve=>requestAnimationFrame(resolve));
                 }
-                
                 renderPdfThumbnails();
                 const notice=document.getElementById('ajFreeExportNoticeV225');
-                if(ajExportFreeLimitedV225){notice.style.display='block';notice.innerHTML=`<strong>Esportazione Free</strong><br>Il piano Free consente di esportare gratuitamente solo la prima pagina del Jotter. L’esportazione completa di tutte le pagine è a pagamento: <strong>${ajMoneyV225(ajExportCostCentsV225)}</strong> per esportazione.<div style="margin-top:10px"><button id="ajUnlockFullExportV225" class="btn primary" type="button">Acquista export completo</button></div>`;document.getElementById('ajUnlockFullExportV225').onclick=ajUnlockFullExportV225}else{notice.style.display='none';notice.innerHTML=''}
-                btn.innerHTML = originalText; document.getElementById('pdfExportModal').style.display = 'flex';
-            }, 50);
+                if(ajExportFreeLimitedV225){
+                    notice.style.display='block';
+                    notice.innerHTML=`<strong>Esportazione Free</strong><br>Il piano Free consente di esportare gratuitamente solo la prima pagina del Jotter. L’esportazione completa di tutte le pagine è a pagamento: <strong>${ajMoneyV225(ajExportCostCentsV225)}</strong> per esportazione.<div style="margin-top:10px"><button id="ajUnlockFullExportV225" class="btn primary" type="button">Acquista export completo</button></div>`;
+                    document.getElementById('ajUnlockFullExportV225').onclick=ajUnlockFullExportV225;
+                }else{notice.style.display='none';notice.innerHTML=''}
+                const modal=document.getElementById('pdfExportModal');modal.style.display='flex';modal.style.zIndex='12050';
+            }catch(error){console.error('Esportazione PDF:',error);alert('Esportazione PDF non riuscita: '+error.message)}
+            finally{btn.innerHTML=originalText;btn.disabled=false;delete btn.dataset.exportBusyV2251}
         });
 
         document.getElementById('confirmExportBtn').addEventListener('click', () => {
@@ -3712,6 +3709,40 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
 <script id="AIRJOTTER_EXPORT_ADMIN_V225">
 (()=>{const modal=document.getElementById('adminModal');if(!modal)return;const buttons=[...modal.querySelectorAll('[data-admin-tab]')],users=document.getElementById('ajAdminUsersTabV225'),plans=document.getElementById('ajAdminPlansTabV225');function open(name){buttons.forEach(b=>b.classList.toggle('active',b.dataset.adminTab===name));users.classList.toggle('active',name==='users');plans.classList.toggle('active',name==='plans')}buttons.forEach(b=>b.onclick=()=>open(b.dataset.adminTab));open('users')})();
 window.AIRJOTTER_EXPORT_ADMIN_VERSION='22.5';
+</script>
+
+<style id="AIRJOTTER_V2251_URGENT_FIX_STYLE">
+/* Tablet: il dettaglio accessi deve sovrapporsi all'archivio. */
+@media (min-width:761px) and (max-width:1366px), (hover:none) and (pointer:coarse){
+ #boardAccessModal{position:fixed!important;inset:0!important;z-index:13050!important;isolation:isolate!important;background:rgba(15,23,42,.54)!important;pointer-events:auto!important}
+ #boardAccessModal .access-manager{position:relative!important;z-index:13051!important;max-height:88dvh!important;overflow:auto!important;pointer-events:auto!important}
+ #jotterArchiveModal{z-index:7000!important}
+}
+#pdfExportModal{z-index:12050!important}
+</style>
+<script id="AIRJOTTER_V2251_URGENT_FIX">
+(()=>{
+ // Smartphone: il tasto di ingresso non deve mai propagare il gesto al comando di creazione.
+ async function joinStrict(input,errorBox,modal){
+  const raw=String(input?.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const code=raw.length===8?raw.slice(0,4)+'-'+raw.slice(4):String(input?.value||'').trim().toUpperCase();
+  errorBox.textContent='';
+  if(!code){errorBox.textContent='Inserisci il codice del Jotter.';input?.focus();return}
+  try{await ajJoin(code);if(modal)modal.style.display='none'}catch(error){errorBox.textContent=error.message||'Impossibile entrare nel Jotter.'}
+ }
+ function bindJoin(id,inputId,errorId,modalId){
+  const button=document.getElementById(id),input=document.getElementById(inputId),error=document.getElementById(errorId),modal=modalId?document.getElementById(modalId):null;
+  if(!button||button.dataset.strictJoinV2251)return;button.dataset.strictJoinV2251='1';
+  button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();joinStrict(input,error,modal)},true);
+  if(input&&!input.dataset.strictJoinV2251){input.dataset.strictJoinV2251='1';input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();joinStrict(input,error,modal)}},true)}
+ }
+ bindJoin('joinBtn','joinCode','joinError',null);
+ bindJoin('archiveJoinConfirm','archiveJoinCode','archiveJoinError','archiveJoinModal');
+ // Garantisce la sovrapposizione anche se altri script riscrivono gli stili inline.
+ const access=document.getElementById('boardAccessModal');
+ if(access)new MutationObserver(()=>{if(access.style.display==='flex')access.style.setProperty('z-index','13050','important')}).observe(access,{attributes:true,attributeFilter:['style','class']});
+ window.AIRJOTTER_FRONTEND_VERSION='22.5.1';
+})();
 </script>
 </body>
 </html>
