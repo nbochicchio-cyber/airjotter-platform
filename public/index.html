@@ -2018,7 +2018,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             let sx=0,sy=0,sw=0;for(const p of(c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return ['p',c.operationId||'',c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');
         }
         const ajIOSVirtualV2265=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
-        function ajIOSPageDprV2265(){return /iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)?1.35:1;}
+        function ajIOSPageDprV2265(){const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);return ipad?Math.min(2,Math.max(1.75,window.devicePixelRatio||1)):1;}
         function ajVisiblePagesV2265(){
             if(!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -2652,7 +2652,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             // la memoria grafica e produrre temporanee superfici nere.
             if(innerWidth<=760&&!ajIOSVirtualV2265)return;
             if(!p||p.boardId!==ajBoard?.id||!p.strokeId||!Array.isArray(p.points)||!p.points.length)return;
-            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?1:Math.min(2,window.devicePixelRatio||1);
+            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():Math.min(2,window.devicePixelRatio||1);
             let e=ajLivePreviewCanvasesV224.get(p.strokeId);
             if(!e||e.page!==page){
                 ajClearPreviewV224(p.strokeId);
@@ -3888,5 +3888,6 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
 <style id="AIRJOTTER_V2266_STYLE">.aj-room-current-v2266{display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:180px}.aj-room-current-v2266 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}</style>
 <script id="AIRJOTTER_V2266_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6';</script>
 <script id="AIRJOTTER_V2266B_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6b';</script>
+<script id="AIRJOTTER_V2266C_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6c';</script>
 </body>
 </html>
