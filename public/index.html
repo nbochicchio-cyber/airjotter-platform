@@ -1145,6 +1145,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         window.addEventListener('resize',handleResize);
 
         function deletePageFromCanvas(pageIndex, remote = false) {
+            if (!remote && !ajCanWrite()) { window.ajReadOnlyAttemptV2253?.(); return; }
             if (TOTAL_PAGES <= 1) {
                 alert("Non puoi eliminare l'unica pagina rimasta.");
                 return;
@@ -1267,6 +1268,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         });
 
         document.getElementById('textConfirmBtn').addEventListener('click', () => {
+            if (!ajCanWrite()) { textToolOverlay.style.display='none'; textOverlayActive=false; window.ajReadOnlyAttemptV2253?.(); return; }
             const text = textToolInput.value;
             if (text.trim() !== '') {
                 // Precise text coordinate calculation avoiding any jumping offsets
@@ -1895,6 +1897,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         }
 
         draftCanvas.addEventListener('pointerdown', e => {
+            if (!ajCanWrite()) { e.preventDefault(); e.stopImmediatePropagation(); window.ajReadOnlyAttemptV2253?.(); return; }
             if (e.pointerType === 'pen') { e.preventDefault(); document.documentElement.classList.add('aj-pencil-active-v168'); }
             // v14.5: palm rejection. Se c'e' gia' una pen (Apple Pencil) attiva, ignora
             // i touch pointer generati dal palmo che appoggia sul tablet.
@@ -3784,6 +3787,66 @@ window.AIRJOTTER_EXPORT_ADMIN_VERSION='22.5';
  document.addEventListener('DOMContentLoaded',installJoin,{once:true});
  if(typeof ajRole!=='undefined')updateViewerPulse(ajRole);
  window.AIRJOTTER_FRONTEND_VERSION='22.5.2';
+})();
+</script>
+
+<style id="AIRJOTTER_V2253_READONLY_CODE_STYLE">
+@keyframes ajReadOnlyRedV2253{0%,100%{background:#fff1f0;color:#a51f1f;border-color:#d93025;box-shadow:0 0 0 0 rgba(217,48,37,.72);transform:scale(1)}50%{background:#d93025;color:#fff;border-color:#a51f1f;box-shadow:0 0 0 9px rgba(217,48,37,0);transform:scale(1.055)}}
+#ajRequestEdit.aj-readonly-alert-v2253{display:flex!important;visibility:visible!important;opacity:1!important;animation:ajReadOnlyRedV2253 .34s linear infinite!important;font-weight:900!important;pointer-events:auto!important}
+body.aj-strict-viewer-v2253 .page-delete-btn{pointer-events:none!important;opacity:.22!important}
+body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-overlay{display:none!important}
+</style>
+<script id="AIRJOTTER_V2253_READONLY_CODE">
+(()=>{
+ let alertTimer=0;
+ window.ajReadOnlyAttemptV2253=function(){
+  if(typeof ajRole==='undefined'||ajRole!=='viewer')return;
+  const button=document.getElementById('ajRequestEdit');if(!button)return;
+  button.classList.remove('aj-viewer-pulse-v2252');
+  button.classList.add('aj-readonly-alert-v2253');
+  clearTimeout(alertTimer);
+  alertTimer=setTimeout(()=>{button.classList.remove('aj-readonly-alert-v2253');if(ajRole==='viewer'&&!button.disabled)button.classList.add('aj-viewer-pulse-v2252')},2800);
+ };
+ function enforceRole(role){
+  const viewer=role==='viewer';
+  document.body.classList.toggle('aj-strict-viewer-v2253',viewer);
+  if(viewer){
+   isDrawing=false;currentPath=null;activePointers.clear();
+   try{AJInk.discard()}catch{}
+   try{predictionCtx.clearRect(0,0,predictionCanvas.width,predictionCanvas.height)}catch{}
+   stampActive=false;textOverlayActive=false;
+   document.getElementById('stamp-panel').style.display='none';
+   document.getElementById('text-tool-overlay').style.display='none';
+  }
+  document.querySelectorAll('.page-delete-btn').forEach(b=>{b.disabled=viewer;b.setAttribute('aria-disabled',String(viewer))});
+ }
+ const previousRoleV2253=window.ajSetRole;
+ if(typeof previousRoleV2253==='function')window.ajSetRole=function(role){const result=previousRoleV2253.apply(this,arguments);enforceRole(role);return result};
+
+ // Capture guard: no modifying control can produce even a local-only change while viewing.
+ const modifyingSelector='#draftBoard,#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#fileInputPdf,#fileInputSign,#fileInputRealImg,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn,.page-delete-btn,#stampOver,#stampUnder,#stampCropBtn,#stampFitA4,#textConfirmBtn';
+ function blockViewerEdit(event){
+  if(typeof ajRole==='undefined'||ajRole!=='viewer')return;
+  const target=event.target?.closest?.(modifyingSelector);if(!target)return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();window.ajReadOnlyAttemptV2253();
+ }
+ ['pointerdown','click','change','input','drop'].forEach(type=>document.addEventListener(type,blockViewerEdit,{capture:true,passive:false}));
+
+ // Format all Jotter-code inputs as ABCD-EFGH while still accepting pasted codes with or without '-'.
+ function formatCode(input){
+  if(!input)return;
+  const raw=String(input.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+  input.value=raw.length>4?raw.slice(0,4)+'-'+raw.slice(4):raw;
+ }
+ ['joinCode','archiveJoinCode'].forEach(id=>{
+  const input=document.getElementById(id);if(!input)return;
+  input.maxLength=9;input.inputMode='text';
+  input.addEventListener('input',()=>formatCode(input));
+  input.addEventListener('paste',()=>setTimeout(()=>formatCode(input),0));
+  input.addEventListener('blur',()=>formatCode(input));
+ });
+ if(typeof ajRole!=='undefined')enforceRole(ajRole);
+ window.AIRJOTTER_FRONTEND_VERSION='22.5.3';
 })();
 </script>
 </body>
