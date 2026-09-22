@@ -864,6 +864,18 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
 @container (max-width:370px){#text-tool-overlay .text-toolbar{grid-template-columns:100px 120px 105px 240px!important}.aj-text-foot-v2266f>span{display:none!important}}
 @media(max-width:720px){.aj-text-lens-v2266h b{width:160px;left:60px}.aj-text-colors-v2266h button{width:24px;height:24px;min-width:24px}}
 </style>
+
+<style id="AIRJOTTER_TEXT_CARD_V2266I_STYLE">
+/* Keep underline visible: color is one compact button, palette lives in a popover. */
+#text-tool-overlay .text-toolbar{grid-template-columns:minmax(105px,1.25fr) minmax(125px,1fr) auto 62px!important;overflow:visible!important}
+.aj-text-color-control-v2266i{position:relative!important;min-width:58px!important}.aj-text-color-wrap-v2266i{position:relative;display:block!important}.aj-text-color-menu-btn-v2266i{width:54px;height:34px;padding:4px;border:1px solid #c9d3e3;border-radius:8px;background:#fff;cursor:pointer}.aj-text-color-menu-btn-v2266i i{display:block;width:100%;height:100%;border-radius:3px;background:var(--aj-selected-text-color,#1D1D1F)}#text-color-picker{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.aj-text-color-popover-v2266i{display:none;position:absolute;right:0;top:42px;z-index:50020;width:205px;padding:10px;border:1px solid #cbd7e8;border-radius:12px;background:rgba(255,255,255,.97);box-shadow:0 12px 30px rgba(20,42,75,.22);backdrop-filter:blur(12px)}.aj-text-color-popover-v2266i.open{display:block}.aj-text-color-popover-v2266i>b{display:block;margin-bottom:8px;font-size:.68rem;color:#53647d}.aj-text-color-grid-v2266i{display:grid!important;grid-template-columns:repeat(6,1fr);gap:7px!important}.aj-text-color-grid-v2266i button{width:24px;height:24px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--ajc);box-shadow:0 0 0 1px #b7c5d9;cursor:pointer}.aj-text-color-grid-v2266i button.active{box-shadow:0 0 0 3px rgba(23,105,232,.28)}.aj-text-custom-color-v2266i{width:100%;margin-top:10px;padding:8px;border:1px solid #cbd7e8;border-radius:8px;background:#f4f7fb;color:#23466f;font-size:.68rem;font-weight:750;cursor:pointer}
+/* Lens: label can never cover the center. */
+.aj-text-lens-v2266i{position:absolute;left:-25px;top:-25px;width:50px;height:50px;padding:0;border:2px solid rgba(255,255,255,.96);border-radius:50%;background:rgba(255,255,255,.34);box-shadow:0 0 0 3px rgba(23,105,232,.68),0 6px 17px rgba(18,52,104,.23);display:flex;align-items:center;justify-content:center;z-index:50030;cursor:grab;touch-action:none;user-select:none!important;backdrop-filter:blur(5px)}.aj-text-lens-v2266i:active{cursor:grabbing}.aj-text-lens-v2266i span{font:600 26px/1 Arial;color:#d92d20;text-shadow:0 1px #fff}.aj-text-lens-v2266i b{position:absolute;width:215px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.96);color:#15447e;font-size:.60rem;line-height:1.22;text-align:left;pointer-events:none;box-shadow:0 2px 8px rgba(20,45,85,.14)}
+/* Actual resizer sits inside the corner and cannot be clipped. */
+.aj-text-card-resize-v2266i{position:absolute!important;right:7px!important;bottom:7px!important;width:32px!important;height:32px!important;border:2px solid #fff!important;border-radius:50%!important;background:#1769e8!important;color:#fff!important;font-size:19px!important;font-weight:900!important;line-height:1!important;box-shadow:0 0 0 2px rgba(23,105,232,.48),0 4px 11px rgba(20,50,100,.22)!important;cursor:nwse-resize!important;touch-action:none!important;z-index:50031!important;transform:rotate(-45deg)}
+.aj-text-foot-v2266f{padding-right:50px!important}.aj-text-foot-v2266f>div{margin-left:auto!important;transform:translateX(-2px)}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Il foglio digitale condiviso</div><h1>Scrivi. Annota. Collabora.</h1><p class="welcome-lead">Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.</p><div class="welcome-google"><div id="googleBtn" aria-label="Accedi con Google"></div><small id="googleStatus">Caricamento accesso Google...</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div></div>
@@ -961,17 +973,17 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
         </div>
         
         <div id="text-tool-overlay" role="dialog" aria-label="Inserisci testo">
-            <button type="button" class="aj-text-lens-v2266h" id="ajTextAnchorV2266f" aria-label="Sposta il cursore e fissa il punto di inserimento del testo"><span>+</span><b>Sposta il cursore e fissa il punto di inserimento del testo</b></button>
+            <button type="button" class="aj-text-lens-v2266i" id="ajTextAnchorV2266f" aria-label="Sposta il cursore e fissa il punto di inserimento del testo"><span>+</span><b>Sposta il cursore e fissa il punto di inserimento del testo</b></button>
             <div class="aj-text-card-head-v2266f" id="text-drag-handle"><span class="aj-text-grip-v2266f">⠿</span><div><strong>Testo</strong><small>trascina la linea</small></div></div>
             <div class="text-toolbar">
                 <label><small>Carattere</small><select id="text-font-family"><option value="Arial, sans-serif">Arial</option><option value="'Times New Roman', serif">Times New Roman</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="'Trebuchet MS', sans-serif">Trebuchet</option><option value="'Courier New', monospace">Courier</option></select></label>
                 <label class="aj-text-size-wrap-v2266f"><small>Dimensione</small><span><button type="button" id="ajTextSizeMinusV2266f">−</button><input id="text-font-size" type="number" min="8" max="96" step="1" value="19" inputmode="numeric"><button type="button" id="ajTextSizePlusV2266f">+</button></span></label>
                 <div class="aj-text-format-v2266f"><small>Stile</small><span><button class="fmt-btn" id="btn-bold" type="button">B</button><button class="fmt-btn" id="btn-italic" type="button"><i>I</i></button><button class="fmt-btn" id="btn-underline" type="button"><u>U</u></button></span></div>
-                <label class="text-color-label"><small>Colore</small><span><span class="aj-text-colors-v2266h" aria-label="Colori standard"><button type="button" data-aj-text-color="#1D1D1F" style="--ajc:#1D1D1F" title="Nero"></button><button type="button" data-aj-text-color="#1769E8" style="--ajc:#1769E8" title="Blu"></button><button type="button" data-aj-text-color="#D92D20" style="--ajc:#D92D20" title="Rosso"></button><button type="button" data-aj-text-color="#176B3A" style="--ajc:#176B3A" title="Verde scuro"></button><button type="button" data-aj-text-color="#E87500" style="--ajc:#E87500" title="Arancione"></button><button type="button" data-aj-text-color="#F4C430" style="--ajc:#F4C430" title="Giallo"></button></span><input type="color" id="text-color-picker" value="#1D1D1F" title="Colore personalizzato"><b id="ajTextColorValueV2266f">Personalizzato</b></span></label>
+                <label class="text-color-label aj-text-color-control-v2266i"><small>Colore</small><span class="aj-text-color-wrap-v2266i"><button type="button" id="ajTextColorMenuV2266i" class="aj-text-color-menu-btn-v2266i" title="Scegli colore"><i></i></button><span id="ajTextColorPopoverV2266i" class="aj-text-color-popover-v2266i" aria-hidden="true"><b>Colori standard</b><span class="aj-text-color-grid-v2266i"><button type="button" data-aj-text-color="#1D1D1F" style="--ajc:#1D1D1F" title="Nero"></button><button type="button" data-aj-text-color="#1769E8" style="--ajc:#1769E8" title="Blu"></button><button type="button" data-aj-text-color="#D92D20" style="--ajc:#D92D20" title="Rosso"></button><button type="button" data-aj-text-color="#176B3A" style="--ajc:#176B3A" title="Verde scuro"></button><button type="button" data-aj-text-color="#E87500" style="--ajc:#E87500" title="Arancione"></button><button type="button" data-aj-text-color="#F4C430" style="--ajc:#F4C430" title="Giallo"></button></span><button type="button" id="ajTextCustomColorV2266i" class="aj-text-custom-color-v2266i">Tavolozza personalizzata…</button></span><input type="color" id="text-color-picker" value="#1D1D1F" title="Colore personalizzato"></span></label>
             </div>
             <textarea id="text-tool-input" placeholder="Scrivi o incolla il testo…"></textarea>
             <div class="aj-text-foot-v2266f"><span>↘ Usa la maniglia blu per ridimensionare la scheda</span><div><button type="button" id="textCancelBtn" class="aj-text-cancel-v2266f">✕ Annulla</button><button type="button" id="textConfirmBtn" class="aj-text-confirm-v2266f">✓ Inserisci testo</button></div></div>
-            <button type="button" id="ajTextCardResizeV2266h" class="aj-text-card-resize-v2266h" aria-label="Ridimensiona casella di testo">↘</button>
+            <button type="button" id="ajTextCardResizeV2266h" class="aj-text-card-resize-v2266i" aria-label="Ridimensiona casella di testo">↔</button>
         </div>
     </div>
 
@@ -1302,12 +1314,18 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
                 const overlayTop = parseFloat(textToolOverlay.style.top) || 0;
                 // Il centro del mirino sul perimetro E' il punto esatto di inserimento.
                 const anchor=document.getElementById('ajTextAnchorV2266f');
-                const finalLogX=overlayLeft+(parseFloat(anchor.dataset.anchorX)||0);
-                const finalLogY=overlayTop+(parseFloat(anchor.dataset.anchorY)||0);
+                const anchorX=(parseFloat(anchor.dataset.anchorX)||0);
+                const anchorY=(parseFloat(anchor.dataset.anchorY)||0);
+                const fontFamily=document.getElementById('text-font-family').value;
+                const fontSize=parseInt(document.getElementById('text-font-size').value);
+                const measureCtx=document.createElement('canvas').getContext('2d');
+                measureCtx.font=`${isTextItalic?'italic ':''}${isTextBold?'bold ':''}${fontSize}px ${fontFamily}`;
+                const metrics=measureCtx.measureText('Mg');
+                const ascent=Number(metrics.actualBoundingBoxAscent)||fontSize*0.82;
+                const finalLogX=overlayLeft+anchorX;
+                const finalLogY=overlayTop+anchorY+ascent;
                 
-                const fontFamily = document.getElementById('text-font-family').value;
-                const fontSize = parseInt(document.getElementById('text-font-size').value);
-                
+
                 commands.push({
                     type: 'text',
                     text: text,
@@ -3948,42 +3966,32 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
 <script id="AIRJOTTER_V2266D_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6d';</script>
 <script id="AIRJOTTER_V2266E_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6e';</script>
 <script id="AIRJOTTER_V2266F_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6f';</script>
-
-<script id="AIRJOTTER_TEXT_ANCHOR_V2266G">
-(()=>{
- const card=document.getElementById('text-tool-overlay'),anchor=document.getElementById('ajTextAnchorV2266f');if(!card||!anchor)return;
- let moving=false,pid=null;
- function setAnchor(x,y){
-  const w=card.offsetWidth,h=card.offsetHeight;x=Math.max(0,Math.min(w,x));y=Math.max(0,Math.min(h,y));
-  const near=Math.min(x,w-x,y,h-y);if(near===x)x=0;else if(near===w-x)x=w;else if(near===y)y=0;else y=h;
-  anchor.dataset.anchorX=String(x);anchor.dataset.anchorY=String(y);anchor.style.left=(x-11)+'px';anchor.style.top=(y-11)+'px';
-  const label=anchor.querySelector('b');if(label){label.style.left=x>w*.62?'-82px':'27px';label.style.top=y>h*.72?'-22px':'1px'}
- }
- function local(e){const r=card.getBoundingClientRect(),sx=card.offsetWidth/r.width,sy=card.offsetHeight/r.height;return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}}
- anchor.addEventListener('pointerdown',e=>{moving=true;pid=e.pointerId;anchor.setPointerCapture?.(pid);e.preventDefault();e.stopPropagation()});
- anchor.addEventListener('pointermove',e=>{if(!moving||e.pointerId!==pid)return;const p=local(e);setAnchor(p.x,p.y);e.preventDefault();e.stopPropagation()});
- function end(e){if(!moving||e.pointerId!==pid)return;moving=false;try{anchor.releasePointerCapture(pid)}catch{}e.preventDefault();e.stopPropagation()}
- anchor.addEventListener('pointerup',end);anchor.addEventListener('pointercancel',end);
- const init=()=>{if(!anchor.dataset.anchorX)setAnchor(0,Math.min(54,card.offsetHeight*.25));else setAnchor(Number(anchor.dataset.anchorX),Number(anchor.dataset.anchorY))};
- new ResizeObserver(()=>{if(card.style.display!=='none')init()}).observe(card);init();
- // Place the card below the toolbar when opened, never behind it.
- const obs=new MutationObserver(()=>{if(card.style.display!=='none'){document.body.classList.add('aj-text-editing-v2266g');requestAnimationFrame(()=>{const cr=card.getBoundingClientRect(),header=document.querySelector('header'),hr=header?.getBoundingClientRect();if(hr&&cr.top<hr.bottom+8){const wr=document.getElementById('canvas-wrapper').getBoundingClientRect(),scale=wr.width/900,dy=(hr.bottom+8-cr.top)/scale;card.style.top=((parseFloat(card.style.top)||0)+dy)+'px'}init()})}else document.body.classList.remove('aj-text-editing-v2266g')});
- obs.observe(card,{attributes:true,attributeFilter:['style']});
-})();
-</script>
 <script id="AIRJOTTER_V2266G_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6g';</script>
+<script id="AIRJOTTER_V2266H_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6h';</script>
 
-<script id="AIRJOTTER_TEXT_CARD_V2266H">
+<script id="AIRJOTTER_TEXT_CARD_V2266I">
 (()=>{
- const card=document.getElementById('text-tool-overlay'),grip=document.getElementById('ajTextCardResizeV2266h'),input=document.getElementById('text-tool-input'),picker=document.getElementById('text-color-picker');if(!card||!grip)return;
- document.querySelectorAll('[data-aj-text-color]').forEach(btn=>btn.addEventListener('click',()=>{const c=btn.dataset.ajTextColor;picker.value=c;document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x===btn));picker.dispatchEvent(new Event('input',{bubbles:true}));const label=document.getElementById('ajTextColorValueV2266f');if(label)label.textContent=c.toUpperCase()}));
- picker.addEventListener('input',()=>{document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajTextColor.toLowerCase()===picker.value.toLowerCase()));const label=document.getElementById('ajTextColorValueV2266f');if(label)label.textContent='Personalizzato'});
- let resizing=false,pid=0,startX=0,startY=0,startW=0,startH=0;
- grip.addEventListener('pointerdown',e=>{resizing=true;pid=e.pointerId;startX=e.clientX;startY=e.clientY;startW=card.getBoundingClientRect().width;startH=card.getBoundingClientRect().height;grip.setPointerCapture?.(pid);e.preventDefault();e.stopPropagation()});
- grip.addEventListener('pointermove',e=>{if(!resizing||e.pointerId!==pid)return;const maxW=Math.max(190,innerWidth-18),maxH=Math.max(124,innerHeight-18);const w=Math.max(190,Math.min(maxW,startW+e.clientX-startX));const h=Math.max(124,Math.min(maxH,startH+e.clientY-startY));card.style.width=w+'px';const fixed=card.querySelector('.aj-text-card-head-v2266f').offsetHeight+card.querySelector('.text-toolbar').offsetHeight+card.querySelector('.aj-text-foot-v2266f').offsetHeight+28;input.style.height=Math.max(32,h-fixed)+'px';window.ajKeepTextCardVisibleV2266f?.();e.preventDefault();e.stopPropagation()});
- const end=e=>{if(!resizing||e.pointerId!==pid)return;resizing=false;try{grip.releasePointerCapture(pid)}catch{}e.preventDefault();e.stopPropagation()};grip.addEventListener('pointerup',end);grip.addEventListener('pointercancel',end);
+ const card=document.getElementById('text-tool-overlay'),lens=document.getElementById('ajTextAnchorV2266f'),grip=document.getElementById('ajTextCardResizeV2266h'),input=document.getElementById('text-tool-input'),picker=document.getElementById('text-color-picker'),menu=document.getElementById('ajTextColorMenuV2266i'),popover=document.getElementById('ajTextColorPopoverV2266i');if(!card||!lens||!grip)return;
+ // Color popover.
+ const syncColor=c=>{picker.value=c;menu.style.setProperty('--aj-selected-text-color',c);input.style.color=c;document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajTextColor.toLowerCase()===c.toLowerCase()));picker.dispatchEvent(new Event('input',{bubbles:true}))};
+ menu.addEventListener('click',e=>{e.stopPropagation();popover.classList.toggle('open');popover.setAttribute('aria-hidden',popover.classList.contains('open')?'false':'true')});
+ document.querySelectorAll('[data-aj-text-color]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();syncColor(b.dataset.ajTextColor);popover.classList.remove('open')}));
+ document.getElementById('ajTextCustomColorV2266i').onclick=e=>{e.stopPropagation();picker.click()};picker.addEventListener('input',()=>{menu.style.setProperty('--aj-selected-text-color',picker.value);input.style.color=picker.value;document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajTextColor.toLowerCase()===picker.value.toLowerCase()))});document.addEventListener('pointerdown',e=>{if(!e.target.closest('.aj-text-color-control-v2266i'))popover.classList.remove('open')},true);syncColor(picker.value||'#1D1D1F');
+ // Lens constrained to whole perimeter. Label is always outside the lens and never overlaps it.
+ let lensDrag=false,lensPid=0;
+ function placeLens(x,y){const w=card.offsetWidth,h=card.offsetHeight;x=Math.max(0,Math.min(w,x));y=Math.max(0,Math.min(h,y));const d=[x,w-x,y,h-y],m=Math.min(...d);let edge='left';if(m===d[0]){x=0;edge='left'}else if(m===d[1]){x=w;edge='right'}else if(m===d[2]){y=0;edge='top'}else{y=h;edge='bottom'}lens.dataset.anchorX=x;lens.dataset.anchorY=y;lens.style.left=(x-25)+'px';lens.style.top=(y-25)+'px';const label=lens.querySelector('b');label.style.left='auto';label.style.right='auto';label.style.top='auto';label.style.bottom='auto';if(edge==='left'){label.style.left='62px';label.style.top='2px'}else if(edge==='right'){label.style.right='62px';label.style.top='2px'}else if(edge==='top'){label.style.left='62px';label.style.top='2px'}else{label.style.left='62px';label.style.bottom='2px'} }
+ function local(e){const r=card.getBoundingClientRect();return{x:(e.clientX-r.left)*card.offsetWidth/r.width,y:(e.clientY-r.top)*card.offsetHeight/r.height}}
+ lens.addEventListener('pointerdown',e=>{lensDrag=true;lensPid=e.pointerId;lens.setPointerCapture?.(lensPid);e.preventDefault();e.stopImmediatePropagation()});lens.addEventListener('pointermove',e=>{if(!lensDrag||e.pointerId!==lensPid)return;const p=local(e);placeLens(p.x,p.y);e.preventDefault();e.stopImmediatePropagation()});const lensEnd=e=>{if(!lensDrag||e.pointerId!==lensPid)return;lensDrag=false;try{lens.releasePointerCapture(lensPid)}catch{}e.preventDefault();e.stopImmediatePropagation()};lens.addEventListener('pointerup',lensEnd);lens.addEventListener('pointercancel',lensEnd);
+ // Resize in viewport pixels, converted to card logical units. Window listeners keep working outside card.
+ let resizing=false,pid=0,sx=0,sy=0,sw=0,sh=0,scaleX=1,scaleY=1;
+ grip.addEventListener('pointerdown',e=>{const r=card.getBoundingClientRect();resizing=true;pid=e.pointerId;sx=e.clientX;sy=e.clientY;sw=card.offsetWidth;sh=card.offsetHeight;scaleX=card.offsetWidth/r.width;scaleY=card.offsetHeight/r.height;e.preventDefault();e.stopImmediatePropagation()},true);
+ const resizeMove=e=>{if(!resizing||e.pointerId!==pid)return;const maxW=Math.max(190,(innerWidth-18)*scaleX),maxH=Math.max(124,(innerHeight-18)*scaleY);const w=Math.max(190,Math.min(maxW,sw+(e.clientX-sx)*scaleX));const h=Math.max(124,Math.min(maxH,sh+(e.clientY-sy)*scaleY));card.style.width=w+'px';const head=card.querySelector('.aj-text-card-head-v2266f').offsetHeight,tools=card.querySelector('.text-toolbar').offsetHeight,foot=card.querySelector('.aj-text-foot-v2266f').offsetHeight;input.style.height=Math.max(32,h-head-tools-foot-28)+'px';window.ajKeepTextCardVisibleV2266f?.();placeLens(Math.min(w,Number(lens.dataset.anchorX)||0),Math.min(h,Number(lens.dataset.anchorY)||0));e.preventDefault();e.stopImmediatePropagation()};
+ const resizeEnd=e=>{if(!resizing||e.pointerId!==pid)return;resizing=false;e.preventDefault();e.stopImmediatePropagation()};window.addEventListener('pointermove',resizeMove,true);window.addEventListener('pointerup',resizeEnd,true);window.addEventListener('pointercancel',resizeEnd,true);
+ // Start at left edge; preserve selected point during resizes.
+ if(!lens.dataset.anchorX)placeLens(0,Math.min(70,card.offsetHeight*.3));else placeLens(+lens.dataset.anchorX,+lens.dataset.anchorY);
+ new ResizeObserver(()=>{if(card.style.display!=='none')placeLens(Math.min(card.offsetWidth,+lens.dataset.anchorX||0),Math.min(card.offsetHeight,+lens.dataset.anchorY||0))}).observe(card);
 })();
 </script>
-<script id="AIRJOTTER_V2266H_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6h';</script>
+<script id="AIRJOTTER_V2266I_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6i';</script>
 </body>
 </html>
