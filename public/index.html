@@ -883,7 +883,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         </div>
 
         <div class="tools-group">
-            <span class="aj-user-jotter-v2263"><button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><small id="ajCurrentJotterV2263"></small></span><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
+            <span class="aj-user-current-v2264"><button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button><small id="ajCurrentJotterV2264"></small></span><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span id="roomCode" class="room-code">***-***</span>
             <button id="toggleCodeBtn" class="icon-btn" title="Mostra Codice"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
             <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
         </div>
@@ -1100,8 +1100,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             document.documentElement.style.setProperty('--a4-h', BASE_A4_H + 'px');
             document.documentElement.style.setProperty('--total-pages', TOTAL_PAGES);
 
-            mainCanvas.width = Math.round(LOGICAL_W * dpr); mainCanvas.height = Math.round(LOGICAL_H * dpr); 
-            mainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const ajIOSMemorySafe=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(ajIOSMemorySafe){mainCanvas.width=1;mainCanvas.height=1;mainCtx.setTransform(1,0,0,1,0,0)}else{mainCanvas.width=Math.round(LOGICAL_W*dpr);mainCanvas.height=Math.round(LOGICAL_H*dpr);mainCtx.setTransform(dpr,0,0,dpr,0,0)}
             
             const ajIPadPencilDevice=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
             draftDpr = dpr;
@@ -1986,7 +1985,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         // Tratti, testo, firme, foto e PDF condividono lo stesso canvas: la gomma cancella ogni elemento.
         let ajInkPagesKeyV215='';
         const ajInkPageContextsV218=new Map();
-        function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1;return Math.max(2,Math.min(3,screenDpr));}
+        function ajInkPageDprV215(){const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(ios)return 1;const screenDpr=window.devicePixelRatio||1;return Math.max(2,Math.min(3,screenDpr));}
         function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
         const ajImportedImageCacheV219=new Map();
         function ajCommandTouchesPageV218(cmd,pageIndex){
@@ -2021,11 +2020,11 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         }
         function ajRenderInkPagesV215(force=false){
             const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp');const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');if(!force&&key===ajInkPagesKeyV215)return;ajInkPagesKeyV215=key;
-            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();layer.replaceChildren();ajInkPageContextsV218.clear();
+            const layer=ajEnsureInkPagesLayerV215(),ratio=ajInkPageDprV215();for(const oldCanvas of layer.querySelectorAll('canvas')){try{oldCanvas.width=1;oldCanvas.height=1}catch{}}layer.replaceChildren();ajInkPageContextsV218.clear();
             for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){
                 const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex));if(!pageCommands.length)continue;
                 const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-                const ctx=canvas.getContext('2d',{alpha:true});ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
+                const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;console.warn('Canvas pagina non allocato: memoria grafica insufficiente',pageIndex);continue}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
                 for(const cmd of pageCommands){if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);else ajDrawImportedV219(ctx,cmd);}
                 dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio});layer.appendChild(canvas);
             }
@@ -2609,7 +2608,7 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
         function ajCanWrite() { return ['owner', 'editor'].includes(ajRole); }
         function ajSetRole(role) {
             ajRole = role;
-            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role==='viewer'?'reader':role}`;const currentTitle=document.getElementById('ajCurrentJotterV2263');if(currentTitle)currentTitle.textContent=ajBoard?.title||'Jotter senza titolo';
+            document.getElementById('ajUser').textContent = `${ajBoard?.ownerName||ajMe.name} · ${role==='viewer'?'reader':role}`;const jt=document.getElementById('ajCurrentJotterV2264');if(jt)jt.textContent=ajBoard?.title||'Jotter senza titolo';
             document.getElementById('ajRequestEdit').classList.toggle('aj-hidden', role !== 'viewer');
             draftCanvas.style.pointerEvents = ajCanWrite() ? 'auto' : 'none';
             document.querySelectorAll('#toolPenBtn,#toolHighlighterBtn,#toolEraserBtn,#toolTextBtn,#colorPicker,#thicknessPicker,#undoBtn,#redoBtn,#importPdfBtn,#importSignBtn,#importRealImgBtn,#addPageBtn,#removePageBtn,#clearBtn').forEach(el=>el.disabled=!ajCanWrite());
@@ -3247,7 +3246,7 @@ document.addEventListener('click', function(event) {
    if (owned.length) {
     const h = document.createElement('div');
     h.style.cssText = 'font-weight:700;color:var(--text-soft);margin:6px 0 4px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px';
-    h.innerHTML = 'Creati da te (' + owned.length + ') <span class="aj-archive-tip-v2263">Clicca sul link per vedere chi ha accesso al Jotter</span>';
+    h.innerHTML = 'Creati da te (' + owned.length + ') <span class="aj-access-hint-v2264">Clicca sul link per vedere chi ha accesso al Jotter</span>';
     list.appendChild(h);
     for (const b of owned) list.appendChild(renderBoard(b, true));
    }
@@ -3681,7 +3680,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const api=async(url,opt={})=>{const r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||r.statusText);return d};
  const modal=document.getElementById('ajPlansModalV220');
  function closePlans(){modal.style.display='none';modal.setAttribute('aria-hidden','true');document.body.classList.remove('aj-plans-open-v221')}
- function ensurePlansButton(){if(document.getElementById('ajPlansBtnV220'))return;const user=document.getElementById('ajUser');if(!user)return;const b=document.createElement('button');b.id='ajPlansBtnV220';b.className='btn';b.textContent='Piani';b.onclick=openPlans;user.parentNode.insertBefore(b,user)}
+ function ensurePlansButton(){if(document.getElementById('ajPlansBtnV220'))return;const exportBtn=document.getElementById('exportPdfBtn');if(!exportBtn)return;const b=document.createElement('button');b.id='ajPlansBtnV220';b.className='btn';b.textContent='Piani';b.onclick=openPlans;exportBtn.parentNode.insertBefore(b,exportBtn)}
  function planCard(p,me,config){const interval=p.billingType==='free'?'per sempre':p.billingType==='consumable'?'acquisto una tantum':`rinnovo automatico ogni ${p.intervalCount>1?p.intervalCount+' ':''}${p.intervalUnit==='year'?'anno':'mese'}`;const current=String(me.plan.code||'').toLowerCase()===String(p.code||'').toLowerCase();const buttons=p.billingType==='free'?`<button class="btn" disabled>${current?'Piano attuale':'Gratuito'}</button>`:`<button class="btn primary aj-stripe-buy" data-id="${p.id}">${current?'Gestisci':'Carta'}</button><button class="btn aj-paypal-buy" data-id="${p.id}">PayPal</button>`;return `<section class="aj-plan-card ${p.featured?'featured':''}">${p.featured?'<span class="aj-status-label-v221">PIÙ SCELTO</span>':''}<h3>${p.name}</h3><div class="aj-plan-price">${money(p.amountCents,p.currency)}</div><div class="aj-plan-meta">${interval}</div><p>${p.description||''}</p><ul class="aj-plan-features"><li><b>${p.limits.boards}</b> Jotter</li><li><b>${p.limits.pages}</b> pagine per Jotter</li>${p.billingType==='free'?`<li>Export gratuito della prima pagina</li><li>PDF completo: <b>${money(window.ajExportCostCentsV225||0,'EUR')}</b> per esportazione</li>`:'<li>Export PDF completo incluso</li>'}${(p.features||[]).map(x=>`<li>${x}</li>`).join('')}</ul><div class="aj-plan-actions">${buttons}</div>${p.billingType!=='free'?'<div class="aj-plan-note">Prima del pagamento vedrai prezzo, periodicità e condizioni di rinnovo. Il rinnovo potrà essere disattivato dalla gestione del piano.</div>':''}</section>`}
  function subscriptionBox(me){const p=me.plan||{};if(!p.subscriptionProvider&&!p.currentPeriodEnd&&!p.subscriptionStatus)return '';const end=p.currentPeriodEnd?new Date(p.currentPeriodEnd).toLocaleDateString('it-IT'):'da confermare';const renewal=p.cancelAtPeriodEnd?'Disattivato':'Attivo';return `<h3>Il tuo abbonamento</h3><div class="aj-sub-grid-v221"><div class="aj-sub-item-v221"><small>Piano</small><b>${p.name||p.code||'-'}</b></div><div class="aj-sub-item-v221"><small>Prossima scadenza</small><b>${end}</b></div><div class="aj-sub-item-v221"><small>Rinnovo automatico</small><b>${renewal}</b></div></div><div class="aj-sub-actions-v221"><button id="ajManageSubscriptionV221" class="btn primary">Gestisci rinnovo e disdetta</button></div>`}
  async function openPlans(){modal.style.display='flex';modal.setAttribute('aria-hidden','false');document.body.classList.add('aj-plans-open-v221');const [plans,me,config,payUse]=await Promise.all([api('/api/plans'),api('/api/billing/me'),api('/api/billing/config'),api('/api/pay-use')]);window.ajExportCostCentsV225=Number(payUse.exportCostCents||0);const configured=config.stripe||config.paypal;document.getElementById('ajBetaBannerV221').style.display=configured?'none':'grid';document.getElementById('ajCurrentPlanV220').textContent=`Piano corrente: ${me.plan.name||me.plan.code} · Crediti: ${me.plan.spotJotters||0} Jotter, ${me.plan.spotPages||0} pagine, ${me.plan.spotExports||0} export`;const sub=document.getElementById('ajSubscriptionV221'),subHtml=subscriptionBox(me);sub.innerHTML=subHtml;sub.style.display=subHtml?'block':'none';document.getElementById('ajPublicPlansV220').innerHTML=plans.map(p=>planCard(p,me,config)).join('');document.getElementById('ajBillingOrdersV220').innerHTML=me.orders.length?me.orders.map(o=>`<div>${new Date(o.created_at).toLocaleDateString('it-IT')} · ${o.provider} · ${o.status} · ${money(o.amount_cents,o.currency)}</div>`).join(''):'Nessun acquisto';modal.querySelectorAll('.aj-stripe-buy').forEach(b=>b.onclick=async()=>{if(!config.stripe)return alert('Il pagamento con carta sarà disponibile al termine della fase Beta.');const d=await api('/api/billing/stripe/checkout',{method:'POST',body:JSON.stringify({planId:b.dataset.id,quantity:1})});location.href=d.url});modal.querySelectorAll('.aj-paypal-buy').forEach(b=>b.onclick=async()=>{if(!config.paypal)return alert('Il pagamento PayPal sarà disponibile al termine della fase Beta.');const d=await api('/api/billing/paypal/create',{method:'POST',body:JSON.stringify({planId:b.dataset.id,quantity:1})});location.href=d.url});const manage=document.getElementById('ajManageSubscriptionV221');if(manage)manage.onclick=async()=>{try{const d=await api('/api/billing/manage',{method:'POST',body:'{}'});if(d.url)location.href=d.url;else alert('La gestione del rinnovo sarà disponibile quando il provider di pagamento sarà collegato.')}catch(e){alert('Gestione abbonamento non ancora disponibile: '+e.message)}};document.getElementById('ajPlansCloseV221').focus()}
@@ -3866,16 +3865,7 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
 })();
 </script>
 
-<style id="AIRJOTTER_V2263_UI_STYLE">
-.aj-user-jotter-v2263{display:flex;flex-direction:column;align-items:center;min-width:130px;max-width:240px}.aj-user-jotter-v2263 small{display:block;width:100%;margin-top:3px;color:#53627a;font-size:.72rem;font-weight:750;line-height:1.15;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-archive-tip-v2263{display:inline-block;margin-left:10px;color:#1769d2;font-size:.76rem;font-weight:600;text-transform:none;letter-spacing:0}.aj-ipad-memory-safe-v2263 .aj-watermark-v226{transform:none!important;contain:none!important}@media(max-width:700px){.aj-user-jotter-v2263{max-width:155px}.aj-archive-tip-v2263{display:block;margin:4px 0 0}}
-</style>
-<script id="AIRJOTTER_V2263_IPAD_MEMORY">
-(()=>{
- const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(!ipad)return;document.documentElement.classList.add('aj-ipad-memory-safe-v2263');
- window.ajReleaseCanvasV2263=function(canvas){if(!canvas||canvas===document.getElementById('draftBoard'))return;try{const c=canvas.getContext('2d');c&&c.clearRect(0,0,canvas.width,canvas.height)}catch{}canvas.width=1;canvas.height=1};
- document.addEventListener('visibilitychange',()=>{if(document.hidden){document.querySelectorAll('canvas').forEach(c=>{if(c.id==='draftBoard'||c.id==='ajInkPagesV215'||c.id==='ajIpadSmartWetV19')return;if(!c.closest('#pdfModal'))window.ajReleaseCanvasV2263(c)})}});
- window.AIRJOTTER_FRONTEND_VERSION='22.6.3';
-})();
-</script>
+<style id="AIRJOTTER_V2264_STYLE">.aj-user-current-v2264{display:flex;flex-direction:column;align-items:center;min-width:130px;max-width:230px}.aj-user-current-v2264 small{width:100%;margin-top:3px;color:#59677d;font-size:.72rem;font-weight:700;line-height:1.15;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-access-hint-v2264{margin-left:10px;color:#1769d2;font-size:.76rem;font-weight:600;text-transform:none;letter-spacing:0}@media(max-width:700px){.aj-user-current-v2264{max-width:155px}.aj-access-hint-v2264{display:block;margin:4px 0 0}}</style>
+<script id="AIRJOTTER_V2264_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.4';</script>
 </body>
 </html>
