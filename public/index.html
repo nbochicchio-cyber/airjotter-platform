@@ -2493,13 +2493,14 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
                 const pageCount=ajExportFreeLimitedV225?1:TOTAL_PAGES;
                 for(let i=0;i<pageCount;i++){
                     const entry=ajInkPageContextsV218.get(i);
-                    if(!entry?.canvas)throw new Error('La pagina '+(i+1)+' non è pronta per l’esportazione.');
+                    const ratio=entry?.ratio||ajInkPageDprV215();
                     const tempCanvas=document.createElement('canvas');
-                    tempCanvas.width=entry.canvas.width;tempCanvas.height=entry.canvas.height;
+                    tempCanvas.width=entry?.canvas?.width||Math.round(LOGICAL_W*ratio);
+                    tempCanvas.height=entry?.canvas?.height||Math.round(BASE_A4_H*ratio);
                     const tCtx=tempCanvas.getContext('2d',{alpha:false});
                     if(!tCtx)throw new Error('Impossibile preparare il PDF.');
                     tCtx.fillStyle='#fff';tCtx.fillRect(0,0,tempCanvas.width,tempCanvas.height);
-                    tCtx.drawImage(entry.canvas,0,0);
+                    if(entry?.canvas)tCtx.drawImage(entry.canvas,0,0);
                     exportPagesData.push({id:`page_${i}`,data:tempCanvas.toDataURL('image/jpeg',.97)});
                     tempCanvas.width=1;tempCanvas.height=1;
                     await new Promise(resolve=>requestAnimationFrame(resolve));
@@ -3742,6 +3743,47 @@ window.AIRJOTTER_EXPORT_ADMIN_VERSION='22.5';
  const access=document.getElementById('boardAccessModal');
  if(access)new MutationObserver(()=>{if(access.style.display==='flex')access.style.setProperty('z-index','13050','important')}).observe(access,{attributes:true,attributeFilter:['style','class']});
  window.AIRJOTTER_FRONTEND_VERSION='22.5.1';
+})();
+</script>
+
+<style id="AIRJOTTER_V2252_RESIDUAL_FIX_STYLE">
+@keyframes ajRequestEditPulseV2252{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(28,99,196,.12);background:#fff;color:#174f98}50%{transform:scale(1.035);box-shadow:0 0 0 7px rgba(28,99,196,.22);background:#1f6ed4;color:#fff}}
+#ajRequestEdit.aj-viewer-pulse-v2252{animation:ajRequestEditPulseV2252 1.8s ease-in-out infinite!important;will-change:transform,box-shadow,background-color;color:#174f98;font-weight:800!important;border-color:#1f6ed4!important;opacity:1!important;visibility:visible!important}
+#ajRequestEdit.aj-viewer-pulse-v2252:disabled{animation:none!important;transform:none!important;box-shadow:none!important;opacity:.72!important}
+@media (prefers-reduced-motion:reduce){#ajRequestEdit.aj-viewer-pulse-v2252{animation-duration:3.2s!important;transform:none!important}}
+</style>
+<script id="AIRJOTTER_V2252_RESIDUAL_FIX">
+(()=>{
+ function normalizedCode(input){const raw=String(input?.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');return raw.length===8?raw.slice(0,4)+'-'+raw.slice(4):''}
+ let joining=false;
+ async function joinFromInitial(event){
+  event?.preventDefault();event?.stopPropagation();event?.stopImmediatePropagation();
+  if(joining)return;
+  const input=document.getElementById('joinCode'),box=document.getElementById('joinError'),code=normalizedCode(input);
+  if(!code){box.textContent='Inserisci un codice valido di 8 caratteri.';input?.focus();return}
+  joining=true;box.textContent='Accesso al Jotter in corso...';
+  try{await ajJoin(code);box.textContent=''}catch(error){box.textContent=error.message||'Impossibile entrare nel Jotter.'}
+  finally{joining=false}
+ }
+ function installJoin(){
+  const button=document.getElementById('joinBtn'),input=document.getElementById('joinCode'),newButton=document.getElementById('newBtn');
+  if(button&&!button.dataset.joinV2252){button.dataset.joinV2252='1';['pointerup','touchend','click'].forEach(type=>button.addEventListener(type,joinFromInitial,{capture:true,passive:false}));}
+  if(input&&!input.dataset.joinV2252){input.dataset.joinV2252='1';input.addEventListener('keydown',event=>{if(event.key==='Enter')joinFromInitial(event)},true)}
+  // Protezione finale: se su smartphone un tap destinato a Entra viene inoltrato al tasto Nuovo,
+  // un codice valido ha priorità e impedisce la creazione accidentale di un Jotter.
+  if(newButton&&!newButton.dataset.joinGuardV2252){newButton.dataset.joinGuardV2252='1';newButton.addEventListener('click',event=>{if(normalizedCode(input))joinFromInitial(event)},true)}
+ }
+ function updateViewerPulse(role){
+  const button=document.getElementById('ajRequestEdit');if(!button)return;
+  const viewer=role==='viewer'&&button.disabled!==true;
+  button.classList.toggle('aj-viewer-pulse-v2252',viewer);
+ }
+ const previousSetRole=window.ajSetRole;
+ if(typeof previousSetRole==='function')window.ajSetRole=function(role){const result=previousSetRole.apply(this,arguments);requestAnimationFrame(()=>updateViewerPulse(role));return result};
+ installJoin();setTimeout(installJoin,300);setTimeout(installJoin,1200);
+ document.addEventListener('DOMContentLoaded',installJoin,{once:true});
+ if(typeof ajRole!=='undefined')updateViewerPulse(ajRole);
+ window.AIRJOTTER_FRONTEND_VERSION='22.5.2';
 })();
 </script>
 </body>
