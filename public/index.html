@@ -2650,21 +2650,21 @@ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;w
             // v22.4.1: sugli smartphone il tratto definitivo incrementale e' gia' rapido.
             // Evitiamo canvas preview a pagina intera, che sui browser mobili possono saturare
             // la memoria grafica e produrre temporanee superfici nere.
-            if(innerWidth<=760||ajIOSVirtualV2265)return;
+            if(innerWidth<=760&&!ajIOSVirtualV2265)return;
             if(!p||p.boardId!==ajBoard?.id||!p.strokeId||!Array.isArray(p.points)||!p.points.length)return;
-            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=Math.min(2,window.devicePixelRatio||1);
+            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?1:Math.min(2,window.devicePixelRatio||1);
             let e=ajLivePreviewCanvasesV224.get(p.strokeId);
             if(!e||e.page!==page){
                 ajClearPreviewV224(p.strokeId);
-                while(ajLivePreviewCanvasesV224.size>=3)ajClearPreviewV224(ajLivePreviewCanvasesV224.keys().next().value);
-                const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${page*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px`;const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});ctx.setTransform(ratio,0,0,ratio,-0,-page*BASE_A4_H*ratio);e={canvas,ctx,ratio,page};ajLivePreviewCanvasesV224.set(p.strokeId,e);ajPreviewLayerV224().appendChild(canvas);setTimeout(()=>ajClearPreviewV224(p.strokeId),1800)}
+                while(ajLivePreviewCanvasesV224.size>=(ajIOSVirtualV2265?1:3))ajClearPreviewV224(ajLivePreviewCanvasesV224.keys().next().value);
+                const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${page*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px`;const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});if(!ctx){canvas.width=1;canvas.height=1;return}ctx.setTransform(ratio,0,0,ratio,-0,-page*BASE_A4_H*ratio);e={canvas,ctx,ratio,page};ajLivePreviewCanvasesV224.set(p.strokeId,e);ajPreviewLayerV224().appendChild(canvas);setTimeout(()=>ajClearPreviewV224(p.strokeId),1800)}
             e.ctx.save();e.ctx.setTransform(1,0,0,1,0,0);e.ctx.clearRect(0,0,e.canvas.width,e.canvas.height);e.ctx.restore();const old=dpr;dpr=e.ratio;renderPathToCtx(e.ctx,{type:'path',points:p.points,color:p.color,isEraser:false},false);dpr=old;
         }
         ajSocket.on('stroke:preview',ajPaintPreviewV224);
         let ajPreviewLastV224=0;
         function ajSendStrokePreviewV224(path,force=false){
             if(!ajBoard||!ajSocket.connected||!path||!Array.isArray(path.points)||!path.points.length)return;
-            if(!path._liveStrokeId)path._liveStrokeId=crypto.randomUUID();const now=performance.now();if(!force&&now-ajPreviewLastV224<16)return;ajPreviewLastV224=now;
+            if(!path._liveStrokeId)path._liveStrokeId=crypto.randomUUID();const now=performance.now();if(!force&&now-ajPreviewLastV224<12)return;ajPreviewLastV224=now;
             const pts=path.points.length>150?path.points.filter((_,i)=>i%Math.ceil(path.points.length/145)===0||i===path.points.length-1):path.points;
             ajSocket.volatile.emit('stroke:preview',{boardId:ajBoard.id,strokeId:path._liveStrokeId,points:pts.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,w:Math.round((p.w||1)*10)/10})),color:path.color,isEraser:!!path.isEraser,sentAt:Date.now()});
         }
@@ -3553,18 +3553,21 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  }
  function move(e){
   if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
-  stop(e);collect(e);queuePaint();
+  stop(e);collect(e);queuePaint();ajSendStrokePreviewV224(path);
  }
  function finish(e){
   if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
   stop(e);collect(e);
   if(raf){cancelAnimationFrame(raf);raf=0}paintFrame();
   const done=path;
-  renderPathToCtx(mainCtx,done,false);
   commands.push(done);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
+  // v22.6.6b: commit locale nel canvas persistente della pagina virtualizzata.
+  // mainCtx su iOS e' volutamente 1x1 e non deve ricevere il tratto Pencil.
+  ajDrawPathOnPagesV224(done);
+  ajSendStrokePreviewV224(done,true);
   active=false;pid=null;path=null;screenPoints=[];pendingFrom=0;lastWidth=0;lockedRect=null;
   try{input.releasePointerCapture(e.pointerId)}catch{}
-  requestAnimationFrame(()=>{ctx.clearRect(0,0,innerWidth,innerHeight);setTimeout(()=>ajSendCommand(done),0)});
+  requestAnimationFrame(()=>{ctx.clearRect(0,0,innerWidth,innerHeight);ajSendCommand(done)});
  }
  function palm(e){if(active&&e.pointerType==='touch')stop(e)}
  input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',finish,true);
@@ -3884,5 +3887,6 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
 
 <style id="AIRJOTTER_V2266_STYLE">.aj-room-current-v2266{display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:180px}.aj-room-current-v2266 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}</style>
 <script id="AIRJOTTER_V2266_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6';</script>
+<script id="AIRJOTTER_V2266B_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6b';</script>
 </body>
 </html>
