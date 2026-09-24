@@ -233,3 +233,5 @@ ALTER TABLE pay_use_transactions DROP CONSTRAINT IF EXISTS pay_use_transactions_
 ALTER TABLE pay_use_transactions ADD CONSTRAINT pay_use_transactions_item_type_check
  CHECK(item_type IN ('jotter','page','export','credit','plan') OR item_type IS NULL);
 CREATE INDEX IF NOT EXISTS pay_use_tx_user_created_v2283_idx ON pay_use_transactions(user_id,created_at DESC);
+
+-- AIRJOTTER V22.8.4 - RIEPILOGO PIANO E TRANSAZIONI USER FRIENDLY
