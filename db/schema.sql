@@ -194,3 +194,11 @@ CREATE INDEX IF NOT EXISTS user_extra_entitlements_user_idx ON user_extra_entitl
 CREATE INDEX IF NOT EXISTS user_extra_entitlements_board_idx ON user_extra_entitlements(board_id,kind,expires_at);
 ALTER TABLE billing_plans ALTER COLUMN exports_limit SET DEFAULT 1;
 UPDATE billing_plans SET exports_limit=1 WHERE code='free' AND exports_limit IS NULL;
+
+
+-- AIRJOTTER V22.8.1 - ACQUISTI EXTRA IDEMPOTENTI E DETTAGLIO AMMINISTRATIVO
+ALTER TABLE user_extra_entitlements ADD COLUMN IF NOT EXISTS page_from INTEGER;
+ALTER TABLE user_extra_entitlements ADD COLUMN IF NOT EXISTS page_to INTEGER;
+ALTER TABLE user_extra_entitlements ADD COLUMN IF NOT EXISTS purchase_request_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS user_extra_entitlements_purchase_request_idx
+ ON user_extra_entitlements(purchase_request_id) WHERE purchase_request_id IS NOT NULL;
