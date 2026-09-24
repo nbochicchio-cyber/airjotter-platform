@@ -225,3 +225,11 @@ WITH active_purchase_totals AS (
 INSERT INTO user_extra_entitlements(id,user_id,kind,board_id,units,source,amount_cents,starts_at,expires_at,metadata)
 SELECT gen_random_uuid(),m.user_id,'jotter',NULL,1,'migration',0,now(),now()+interval '30 days',jsonb_build_object('repair','v22.8.2')
 FROM missing m CROSS JOIN LATERAL generate_series(1,m.missing);
+
+
+-- AIRJOTTER V22.8.3 - PIANI CON CREDITO E STORICO DETTAGLIATO
+ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_purchased_at TIMESTAMPTZ;
+ALTER TABLE pay_use_transactions DROP CONSTRAINT IF EXISTS pay_use_transactions_item_type_check;
+ALTER TABLE pay_use_transactions ADD CONSTRAINT pay_use_transactions_item_type_check
+ CHECK(item_type IN ('jotter','page','export','credit','plan') OR item_type IS NULL);
+CREATE INDEX IF NOT EXISTS pay_use_tx_user_created_v2283_idx ON pay_use_transactions(user_id,created_at DESC);
