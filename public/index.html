@@ -4371,7 +4371,7 @@ async function handleSignal(e){
   try{await state.peer.addIceCandidate(e.data.candidate)}catch(error){if(state.peer.connectionState!=='closed')throw error}
  }
 }
-async function createPeer(asSender,peerInfo){cleanupPeer(false);state.seenDescriptions=new Set();state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;state.cancelled=false;state.startTime=performance.now();state.lastTime=state.startTime;state.lastBytes=0;$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;state.peer.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};state.peer.onconnectionstatechange=()=>{const s=state.peer?.connectionState;if(['failed','disconnected','closed'].includes(s)&&state.active)failTransfer('Connessione interrotta')};if(asSender){state.dc=state.peer.createDataChannel('airjotter-files',{ordered:true});wireDataChannel();const offer=await state.peer.createOffer();await state.peer.setLocalDescription(offer);ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{description:state.peer.localDescription}})}else state.peer.ondatachannel=e=>{state.dc=e.channel;wireDataChannel()};const queued=state.pendingSignals.splice(0);for(const signal of queued)await handleSignal(signal)}
+async function createPeer(asSender,peerInfo){cleanupPeer(false);state.seenDescriptions=new Set();state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;window.ajFtConnectionWaitingV2292?.(peerInfo?.name||'utente');state.cancelled=false;state.startTime=performance.now();state.lastTime=state.startTime;state.lastBytes=0;$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;state.peer.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};state.peer.onconnectionstatechange=()=>{const s=state.peer?.connectionState;if(['failed','disconnected','closed'].includes(s)&&state.active)failTransfer('Connessione interrotta')};if(asSender){state.dc=state.peer.createDataChannel('airjotter-files',{ordered:true});wireDataChannel();const offer=await state.peer.createOffer();await state.peer.setLocalDescription(offer);ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{description:state.peer.localDescription}})}else state.peer.ondatachannel=e=>{state.dc=e.channel;wireDataChannel()};const queued=state.pendingSignals.splice(0);for(const signal of queued)await handleSignal(signal)}
 function wireDataChannel(){state.dc.binaryType='arraybuffer';state.dc.bufferedAmountLowThreshold=2*1024*1024;state.dc.onopen=()=>{window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll().catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};state.dc.onmessage=e=>receiveMessage(e).catch(err=>failTransfer(err.message));state.dc.onerror=()=>failTransfer('Errore nel canale cifrato')}
 async function waitBuffer(){if(state.dc.bufferedAmount<=HIGH_WATER)return;await new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(new Error('Timeout della rete')),30000);state.dc.onbufferedamountlow=()=>{clearTimeout(t);state.dc.onbufferedamountlow=null;resolve()}})}
 async function sendAll(){showSide('Invio in corso','Connessione cifrata stabilita');let sent=0;updateProgress(0,state.manifest.totalSize,'Preparazione');state.dc.send(JSON.stringify({type:'manifest',manifest:state.manifest}));for(let i=0;i<state.files.length;i++){if(state.cancelled)throw new Error('Trasferimento annullato');const file=state.files[i],meta=state.manifest.files[i];state.dc.send(JSON.stringify({type:'file-start',file:meta}));for(let off=0;off<file.size;off+=CHUNK){if(state.cancelled)throw new Error('Trasferimento annullato');const buf=await file.slice(off,Math.min(file.size,off+CHUNK)).arrayBuffer();await waitBuffer();state.dc.send(buf);sent+=buf.byteLength;updateProgress(sent,state.manifest.totalSize,meta.path)}state.dc.send(JSON.stringify({type:'file-end',index:i}))}state.dc.send(JSON.stringify({type:'transfer-end'}));$('ajFtSideStatusV2291').textContent='Invio completato. Attendo conferma…'}
@@ -4434,6 +4434,54 @@ header .aj-file-transfer-btn-v2291{bottom:0!important}
   document.getElementById('ajFtSideV2291')?.classList.remove('aj-ft-connecting-v2292')
  };
  window.AIRJOTTER_FRONTEND_VERSION='22.9.2'
+})();
+</script>
+
+
+
+<!-- AIRJOTTER V22.9.3 SAFE UX: additive patch, startup-neutral -->
+<style id="AIRJOTTER_V2293_SAFE_STYLE">
+/* Desktop archive close button: lower, clear of the title edge. */
+@media (min-width:761px) and (pointer:fine){
+ #jotterArchiveModal #jotterArchiveClose{top:22px!important;right:18px!important}
+}
+/* Color menus must remain above the paper and every drawing layer. */
+@media (max-width:760px),(pointer:coarse){
+ .aj-main-palette-v2287.open,.aj-text-color-popover-v2266i.open,.aj-shape-palette-v227.open{
+  position:fixed!important;z-index:65000!important;max-width:calc(100vw - 20px)!important
+ }
+ .aj-main-palette-v2287.open{top:76px!important;left:50%!important;transform:translateX(-50%)!important}
+}
+/* Transfer restore pill shown only after minimization. */
+#ajFtRestoreV2293{display:none;position:fixed;right:18px;bottom:18px;z-index:19010;border:1px solid #8bb8ff;border-radius:999px;padding:10px 15px;background:#0f58c7;color:#fff;font-weight:850;box-shadow:0 10px 28px rgba(5,30,65,.28);cursor:pointer}
+#ajFtRestoreV2293.open{display:flex;align-items:center;gap:8px}
+@media(max-width:760px){#ajFtRestoreV2293{right:12px;bottom:12px;max-width:calc(100vw - 24px)}}
+</style>
+<button id="ajFtRestoreV2293" type="button" aria-label="Riapri pannello File Transfer">⇄ Riapri File Transfer</button>
+<script id="AIRJOTTER_V2293_SAFE_SCRIPT">
+(()=>{
+ 'use strict';
+ const onReady=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ onReady(()=>{
+  const request=document.getElementById('ajRequestEdit');
+  const side=document.getElementById('ajFtSideV2291');
+  const minimize=document.getElementById('ajFtSideCloseV2291');
+  const restore=document.getElementById('ajFtRestoreV2293');
+  if(request){request.classList.add('aj-hidden');request.style.display='none'}
+  if(!side||!minimize||!restore)return;
+  minimize.title='Riduci a icona';
+  minimize.setAttribute('aria-label','Riduci a icona');
+  minimize.textContent='−';
+  const syncRestore=()=>restore.classList.toggle('open',!side.classList.contains('open')&&(side.classList.contains('aj-ft-connecting-v2292')||/corso|preparazione|collegando|connessione/i.test(document.getElementById('ajFtSideStatusV2291')?.textContent||'')));
+  minimize.addEventListener('click',()=>{side.classList.remove('open');syncRestore()});
+  restore.addEventListener('click',()=>{side.classList.add('open');restore.classList.remove('open')});
+  new MutationObserver(syncRestore).observe(side,{attributes:true,attributeFilter:['class']});
+  const originalWaiting=window.ajFtConnectionWaitingV2292;
+  window.ajFtConnectionWaitingV2292=function(){originalWaiting?.apply(this,arguments);side.classList.add('open');restore.classList.remove('open')};
+  const originalReady=window.ajFtConnectionReadyV2292;
+  window.ajFtConnectionReadyV2292=function(){originalReady?.apply(this,arguments);restore.classList.remove('open')};
+  window.AIRJOTTER_FRONTEND_VERSION='22.9.3-safe';
+ });
 })();
 </script>
 
