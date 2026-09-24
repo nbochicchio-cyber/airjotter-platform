@@ -272,4 +272,4 @@ if(process.env.NODE_ENV==='production'&&process.env.DEV_AUTH==='true')throw new 
 if(process.env.NODE_ENV==='production'&&!process.env.ADMIN_GOOGLE_SUB)throw new Error('ADMIN_GOOGLE_SUB obbligatorio in produzione');
 server.listen(process.env.PORT||3000,()=>console.log(`airjotter su porta ${process.env.PORT||3000}`));
 
-// AIRJOTTER_V2284A_DEPLOY_FIX
+// AIRJOTTER_V2284B_SYNTAX_VALID_20260924
