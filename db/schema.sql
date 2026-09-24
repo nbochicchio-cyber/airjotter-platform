@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS billing_plans (
  min_seats INTEGER NOT NULL DEFAULT 1 CHECK(min_seats>0),
  max_seats INTEGER,
  boards_limit INTEGER NOT NULL DEFAULT 1 CHECK(boards_limit>0),
- pages_limit INTEGER NOT NULL DEFAULT 3 CHECK(pages_limit>0),
+ pages_limit INTEGER NOT NULL DEFAULT 2 CHECK(pages_limit>0),
  guests_limit INTEGER,
  exports_limit INTEGER,
  history_days INTEGER,
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS billing_webhook_events (
 
 INSERT INTO billing_plans(id,code,name,description,status,billing_type,currency,amount_cents,interval_unit,boards_limit,pages_limit,features,sort_order,featured,public)
 VALUES
- ('00000000-0000-4000-8000-000000000001','free','Free','Per iniziare','active','free','EUR',0,NULL,1,3,'["Ospiti illimitati"]',10,false,true),
+ ('00000000-0000-4000-8000-000000000001','free','Free','Per iniziare','active','free','EUR',0,NULL,1,2,'["Ospiti illimitati"]',10,false,true),
  ('00000000-0000-4000-8000-000000000002','plus','Plus','Per uso personale avanzato','active','subscription','EUR',499,'month',3,7,'["Export PDF completo","Firma scontornata"]',20,true,true),
  ('00000000-0000-4000-8000-000000000003','ultra','Ultra','Per uso professionale','active','subscription','EUR',999,'month',10,20,'["Cronologia estesa"]',30,false,true),
  ('00000000-0000-4000-8000-000000000004','team-edu','Team & Edu','Per organizzazioni e formazione','draft','per_seat','EUR',799,'month',20,30,'["Console admin"]',40,false,true)
@@ -235,3 +235,6 @@ ALTER TABLE pay_use_transactions ADD CONSTRAINT pay_use_transactions_item_type_c
 CREATE INDEX IF NOT EXISTS pay_use_tx_user_created_v2283_idx ON pay_use_transactions(user_id,created_at DESC);
 
 -- AIRJOTTER V22.8.4 - RIEPILOGO PIANO E TRANSAZIONI USER FRIENDLY
+
+-- AIRJOTTER V22.8.7: collega gli utenti senza plan_id al piano configurato dall'Admin.
+UPDATE users u SET plan_id=p.id FROM billing_plans p WHERE u.plan_id IS NULL AND p.code=u.plan_code;
