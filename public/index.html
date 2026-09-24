@@ -964,12 +964,15 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
             <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
         </div>
 
-        <div class="tools-group">
-            <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">−</button>
-            <span id="pageCountDisplay" class="page-count-display">
-                <span id="pageCountNumber">2</span>
+        <div class="tools-group aj-page-tools-v2287">
+            <small class="aj-page-label-v2287">N° di pagine:</small>
+            <span class="aj-page-controls-v2287">
+                <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">−</button>
+                <span id="pageCountDisplay" class="page-count-display">
+                    <span id="pageCountNumber">2</span>
+                </span>
+                <button id="addPageBtn" class="page-btn" title="Aggiungi pagina">+</button>
             </span>
-            <button id="addPageBtn" class="page-btn" title="Aggiungi pagina">+</button>
         </div>
 
         <div class="tools-group">
@@ -2101,9 +2104,9 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
             return false;
         }
         function ajDrawTextV218(ctx,cmd){
-            ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.font=`${cmd.isItalic?'italic ':''}${cmd.isBold?'bold ':''}${cmd.fontSize}px ${cmd.fontFamily}`;ctx.fillStyle=cmd.color;ctx.textBaseline='top';
+            ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.font=`${cmd.isItalic?'italic ':''}${cmd.isBold?'bold ':''}${cmd.fontSize}px ${cmd.fontFamily}`;ctx.fillStyle=cmd.color;ctx.textBaseline='alphabetic';
             const lines=String(cmd.text||'').replace(/\r\n?/g,'\n').split('\n'),lineHeight=cmd.fontSize*1.2;
-            lines.forEach((line,i)=>{const y=cmd.y+i*lineHeight;ctx.fillText(line,cmd.x,y);if(cmd.isUnderline){const m=ctx.measureText(line);ctx.beginPath();ctx.moveTo(cmd.x,y+cmd.fontSize);ctx.lineTo(cmd.x+m.width,y+cmd.fontSize);ctx.strokeStyle=cmd.color;ctx.lineWidth=Math.max(1,cmd.fontSize/15);ctx.stroke();}});ctx.restore();
+            lines.forEach((line,i)=>{const metrics=ctx.measureText(line||'M');const ascent=Number.isFinite(metrics.actualBoundingBoxAscent)?metrics.actualBoundingBoxAscent:cmd.fontSize*.78;const left=Number.isFinite(metrics.actualBoundingBoxLeft)?metrics.actualBoundingBoxLeft:0;const inkX=cmd.x+left;const baselineY=cmd.y+(i*lineHeight)+ascent;ctx.fillText(line,inkX,baselineY);if(cmd.isUnderline){const m=ctx.measureText(line);const underlineY=baselineY+Math.max(1,cmd.fontSize*.08);ctx.beginPath();ctx.moveTo(inkX,underlineY);ctx.lineTo(inkX+m.width,underlineY);ctx.strokeStyle=cmd.color;ctx.lineWidth=Math.max(1,cmd.fontSize/15);ctx.stroke();}});ctx.restore();
         }
         function ajGetImportedImageV219(cmd){
             if(!cmd?.imageData)return null;
@@ -4248,5 +4251,16 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
 <!-- AIRJOTTER_V2285_EXTRAS_SUMMARY_AND_HISTORY -->
 <!-- AIRJOTTER_V2286_EXACT_TEXT_ANCHOR -->
 <script id="AIRJOTTER_V2286_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.8.6';</script>
+
+<!-- AIRJOTTER_V2287_UI_PRECISION -->
+<style id="AIRJOTTER_V2287_UI_PRECISION_STYLE">
+#colorPicker{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.aj-main-color-wrap-v2287{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}.aj-main-color-btn-v2287{width:30px;height:30px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--aj-main-color,#1D1D1F);box-shadow:0 0 0 1px #aebdd1,0 3px 8px rgba(20,42,75,.20);cursor:pointer}.aj-main-color-pop-v2287{display:none;position:absolute;top:39px;left:50%;transform:translateX(-50%);z-index:25000;width:244px;padding:11px;border:1px solid #cbd7e8;border-radius:15px;background:#fff;box-shadow:0 14px 34px rgba(20,42,75,.24)}.aj-main-color-pop-v2287.open{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.aj-main-color-swatch-v2287{width:26px;height:26px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--c);box-shadow:0 0 0 1px #aebdd1;cursor:pointer}.aj-main-color-swatch-v2287.active{box-shadow:0 0 0 3px #1769e8}.aj-main-color-custom-v2287{grid-column:1/-1;min-height:40px;border:1px solid #b9c8dc;border-radius:10px;background:#f5f8fc;color:#16345f;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #d0d9e7}
+#ajUser,#ajPlansBtnV220{border:1px solid #c8d2e1!important;background:linear-gradient(#fff,#f2f5fa)!important;box-shadow:0 4px 0 #d0d7e2,0 7px 14px rgba(35,54,82,.14)!important;transform:translateY(-2px)}#ajUser:active,#ajPlansBtnV220:active{box-shadow:0 1px 0 #d0d7e2!important;transform:translateY(1px)!important}.aj-page-tools-v2287{display:flex!important;flex-direction:column!important;align-items:center!important;gap:3px!important}.aj-page-label-v2287{display:block;color:#53657d;font-size:.64rem;font-weight:800;line-height:1;white-space:nowrap}.aj-page-controls-v2287{display:flex;align-items:center;gap:4px}@media (min-width:761px) and (pointer:coarse){.aj-main-color-btn-v2287{width:34px;height:34px}.aj-main-color-pop-v2287{top:44px}.aj-page-label-v2287{font-size:.69rem}}
+</style>
+<script id="AIRJOTTER_V2287_UI_PRECISION_SCRIPT">
+(()=>{const picker=document.getElementById('colorPicker');if(picker&&!document.getElementById('ajMainColorBtnV2287')){const wrap=document.createElement('span');wrap.className='aj-main-color-wrap-v2287';const btn=document.createElement('button');btn.type='button';btn.id='ajMainColorBtnV2287';btn.className='aj-main-color-btn-v2287';btn.title='Colore tratto';btn.setAttribute('aria-label','Scegli colore tratto');const pop=document.createElement('div');pop.className='aj-main-color-pop-v2287';pop.id='ajMainColorPopV2287';pop.setAttribute('aria-hidden','true');const colors=['#1D1D1F','#FFFFFF','#1769E8','#E12D24','#176D3B','#F07800','#F7C62F'];const setColor=c=>{picker.value=c;btn.style.setProperty('--aj-main-color',c);picker.dispatchEvent(new Event('input',{bubbles:true}));pop.querySelectorAll('[data-aj-main-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajMainColor.toLowerCase()===c.toLowerCase()))};colors.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='aj-main-color-swatch-v2287';b.dataset.ajMainColor=c;b.style.setProperty('--c',c);b.title=c==='#FFFFFF'?'Bianco':c;b.onclick=e=>{e.stopPropagation();setColor(c);pop.classList.remove('open');pop.setAttribute('aria-hidden','true')};pop.appendChild(b)});const custom=document.createElement('button');custom.type='button';custom.className='aj-main-color-custom-v2287';custom.textContent='Tavolozza…';custom.onclick=e=>{e.stopPropagation();picker.click()};pop.appendChild(custom);btn.onclick=e=>{e.stopPropagation();const open=!pop.classList.contains('open');pop.classList.toggle('open',open);pop.setAttribute('aria-hidden',String(!open))};picker.parentNode.insertBefore(wrap,picker);wrap.append(btn,picker,pop);picker.addEventListener('input',()=>setColor(picker.value));document.addEventListener('pointerdown',e=>{if(!e.target.closest('.aj-main-color-wrap-v2287')){pop.classList.remove('open');pop.setAttribute('aria-hidden','true')}},true);setColor(picker.value||'#1D1D1F')}window.AIRJOTTER_FRONTEND_VERSION='22.8.7'})();
+</script>
+
 </body>
 </html>
