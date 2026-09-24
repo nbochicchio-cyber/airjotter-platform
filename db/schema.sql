@@ -238,3 +238,5 @@ CREATE INDEX IF NOT EXISTS pay_use_tx_user_created_v2283_idx ON pay_use_transact
 
 -- AIRJOTTER V22.8.7: collega gli utenti senza plan_id al piano configurato dall'Admin.
 UPDATE users u SET plan_id=p.id FROM billing_plans p WHERE u.plan_id IS NULL AND p.code=u.plan_code;
+
+-- AIRJOTTER_FILE_TRANSFER_V2290: nessun file persistito; segnalazione effimera via Socket.IO.
