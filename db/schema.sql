@@ -202,3 +202,26 @@ ALTER TABLE user_extra_entitlements ADD COLUMN IF NOT EXISTS page_to INTEGER;
 ALTER TABLE user_extra_entitlements ADD COLUMN IF NOT EXISTS purchase_request_id TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS user_extra_entitlements_purchase_request_idx
  ON user_extra_entitlements(purchase_request_id) WHERE purchase_request_id IS NOT NULL;
+
+
+-- AIRJOTTER V22.8.2 - EXTRA COME CAPIENZA, NON COME JOTTER CONSUMATO
+-- Ricostruisce esclusivamente acquisti Jotter ancora validi quando vecchie cancellazioni
+-- a cascata hanno eliminato i relativi entitlement.
+WITH active_purchase_totals AS (
+ SELECT user_id,COALESCE(sum(units),0)::int purchased
+ FROM pay_use_transactions
+ WHERE transaction_type='spend' AND item_type='jotter'
+   AND amount_cents<0 AND created_at>now()-interval '30 days'
+ GROUP BY user_id
+), active_entitlement_totals AS (
+ SELECT user_id,COALESCE(sum(units),0)::int entitled
+ FROM user_extra_entitlements
+ WHERE kind='jotter' AND expires_at>now()
+ GROUP BY user_id
+), missing AS (
+ SELECT p.user_id,GREATEST(0,p.purchased-COALESCE(e.entitled,0)) missing
+ FROM active_purchase_totals p LEFT JOIN active_entitlement_totals e USING(user_id)
+)
+INSERT INTO user_extra_entitlements(id,user_id,kind,board_id,units,source,amount_cents,starts_at,expires_at,metadata)
+SELECT gen_random_uuid(),m.user_id,'jotter',NULL,1,'migration',0,now(),now()+interval '30 days',jsonb_build_object('repair','v22.8.2')
+FROM missing m CROSS JOIN LATERAL generate_series(1,m.missing);
