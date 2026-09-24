@@ -108,6 +108,73 @@ app.get('/api/admin/billing/orders',auth,adminOnly,async(req,res)=>{const q=awai
 app.get('/api/extras/me',auth,async(req,res)=>{const p=await resolvedPlan(req.user.sub),q=await pool.query(`SELECT e.id,e.kind,e.board_id,e.units,e.source,e.amount_cents,e.starts_at,e.expires_at,b.title,b.room_code,(e.expires_at<=now()) expired FROM user_extra_entitlements e LEFT JOIN boards b ON b.id=e.board_id WHERE e.user_id=$1 ORDER BY e.expires_at`,[req.user.sub]);res.json({plan:p,extras:q.rows})});
 app.post('/api/extras/:id/renew',auth,async(req,res)=>{const c=await pool.connect();try{await c.query('BEGIN');const e=(await c.query('SELECT * FROM user_extra_entitlements WHERE id=$1 AND user_id=$2 FOR UPDATE',[req.params.id,req.user.sub])).rows[0];if(!e){await c.query('ROLLBACK');return res.sendStatus(404)}const s=await payUseSettings(),unit=e.kind==='jotter'?Number(s.jotter_cost_cents):Number(s.page_cost_cents),total=unit*Number(e.units),u=(await c.query('SELECT spot_credit_cents FROM users WHERE id=$1 FOR UPDATE',[req.user.sub])).rows[0];if(Number(u.spot_credit_cents)<total){await c.query('ROLLBACK');return res.status(402).json({error:'Credito insufficiente per il rinnovo'})}const x=(await c.query("UPDATE user_extra_entitlements SET expires_at=GREATEST(expires_at,now())+interval '30 days',renewed_at=now() WHERE id=$1 RETURNING *",[e.id])).rows[0];await c.query('UPDATE users SET spot_credit_cents=spot_credit_cents-$1 WHERE id=$2',[total,req.user.sub]);await c.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,units,description) VALUES($1,$2,'spend',$3,$4,$5,'Rinnovo extra per ulteriori 30 giorni')",[crypto.randomUUID(),req.user.sub,-total,e.kind,e.units]);await c.query('COMMIT');res.json({ok:true,expiresAt:x.expires_at,balanceCents:Number(u.spot_credit_cents)-total})}catch(e){await c.query('ROLLBACK');throw e}finally{c.release()}});
 app.post('/api/admin/users/:id/gift-credit',auth,adminOnly,async(req,res)=>{const cents=Math.round(Number(req.body.amountCents||0)),reason=String(req.body.reason||'').trim();if(cents<=0||!reason)return res.status(400).json({error:'Importo positivo e motivazione sono obbligatori'});const q=await pool.query('UPDATE users SET spot_credit_cents=spot_credit_cents+$1 WHERE id=$2 RETURNING spot_credit_cents',[cents,req.params.id]);if(!q.rowCount)return res.sendStatus(404);await pool.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,provider,description) VALUES($1,$2,'admin_adjustment',$3,'credit','admin',$4)",[crypto.randomUUID(),req.params.id,cents,'Credito omaggio: '+reason]);res.json({ok:true,balanceCents:Number(q.rows[0].spot_credit_cents)})});
+
+// AIRJOTTER_V2280_EXTRA_PAGES_UX
+async function currentBoardPageCount(client,boardId){
+ const q=await client.query("SELECT operation_type,payload FROM board_operations WHERE board_id=$1 AND is_active=true AND operation_type IN ('page:set','page:delete','board:clear') ORDER BY revision",[boardId]);
+ let pages=2;
+ for(const op of q.rows){
+  if(op.operation_type==='page:set')pages=Math.max(1,Number(op.payload?.count)||1);
+  else if(op.operation_type==='page:delete')pages=Math.max(1,pages-1);
+  else if(op.operation_type==='board:clear')pages=2;
+ }
+ return pages;
+}
+async function pagePurchaseQuote(userId,boardId,units){
+ const board=(await pool.query('SELECT id,title,room_code,owner_user_id FROM boards WHERE id=$1',[boardId])).rows[0];
+ if(!board)throw Object.assign(new Error('Jotter non trovato'),{status:404});
+ if(board.owner_user_id!==userId)throw Object.assign(new Error('Le pagine extra possono essere acquistate soltanto dal proprietario del Jotter.'),{status:403});
+ const settings=await payUseSettings();
+ if(!settings?.enabled)throw Object.assign(new Error('Pay per Use non disponibile'),{status:403});
+ const user=(await pool.query('SELECT spot_credit_cents FROM users WHERE id=$1',[userId])).rows[0];
+ const plan=await resolvedPlan(userId);
+ const activeExtraPages=Number((await pool.query("SELECT COALESCE(sum(units),0) n FROM user_extra_entitlements WHERE board_id=$1 AND kind='page' AND expires_at>now()",[boardId])).rows[0].n||0);
+ const pageLimit=Number(plan.pages||0)+activeExtraPages;
+ const temp=await pool.connect();
+ let currentPages;
+ try{currentPages=await currentBoardPageCount(temp,boardId)}finally{temp.release()}
+ const count=Math.max(1,Math.min(100,Number(units)||1));
+ const unitCostCents=Number(settings.page_cost_cents||0);
+ const totalCostCents=unitCostCents*count;
+ const now=new Date();
+ const expiresAt=new Date(now.getTime()+30*86400000);
+ return {boardId:board.id,boardTitle:board.title||'Jotter senza titolo',roomCode:board.room_code,units:count,currentPages,pageLimit,fromPage:currentPages+1,toPage:currentPages+count,unitCostCents,totalCostCents,balanceCents:Number(user?.spot_credit_cents||0),remainingCents:Number(user?.spot_credit_cents||0)-totalCostCents,expiresAt:expiresAt.toISOString(),currency:settings.currency||'EUR',sufficient:Number(user?.spot_credit_cents||0)>=totalCostCents};
+}
+app.get('/api/pay-use/pages/quote',auth,async(req,res)=>{try{res.json(await pagePurchaseQuote(req.user.sub,String(req.query.boardId||''),req.query.units))}catch(e){res.status(e.status||500).json({error:e.message||'Impossibile calcolare il preventivo'})}});
+app.post('/api/pay-use/pages/purchase',auth,async(req,res)=>{
+ const boardId=String(req.body.boardId||''),units=Math.max(1,Math.min(100,Number(req.body.units)||1)),requestId=String(req.body.requestId||'').trim().slice(0,100);
+ if(!boardId)return res.status(400).json({error:'Seleziona il Jotter al quale assegnare le pagine extra'});
+ if(!requestId)return res.status(400).json({error:'Identificativo richiesta mancante'});
+ const c=await pool.connect();
+ try{
+  await c.query('BEGIN');
+  await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',[req.user.sub+':'+boardId]);
+  const duplicate=await c.query("SELECT id FROM pay_use_transactions WHERE provider='internal-pages' AND external_id=$1 LIMIT 1",[requestId]);
+  if(duplicate.rowCount){await c.query('ROLLBACK');return res.status(409).json({error:'Questa richiesta è già stata elaborata.',duplicate:true})}
+  const board=(await c.query('SELECT id,title,room_code,owner_user_id FROM boards WHERE id=$1 FOR UPDATE',[boardId])).rows[0];
+  if(!board){await c.query('ROLLBACK');return res.status(404).json({error:'Jotter non trovato'})}
+  if(board.owner_user_id!==req.user.sub){await c.query('ROLLBACK');return res.status(403).json({error:'Le pagine extra possono essere acquistate soltanto dal proprietario del Jotter.'})}
+  const settings=(await c.query('SELECT * FROM pay_use_settings WHERE id=1')).rows[0];
+  if(!settings?.enabled){await c.query('ROLLBACK');return res.status(403).json({error:'Pay per Use non disponibile'})}
+  const user=(await c.query('SELECT spot_credit_cents FROM users WHERE id=$1 FOR UPDATE',[req.user.sub])).rows[0];
+  const unitCostCents=Number(settings.page_cost_cents||0),totalCostCents=unitCostCents*units,balanceCents=Number(user?.spot_credit_cents||0);
+  const currentPages=await currentBoardPageCount(c,boardId),fromPage=currentPages+1,toPage=currentPages+units;
+  if(balanceCents<totalCostCents){await c.query('ROLLBACK');return res.status(402).json({error:'Credito insufficiente.',balanceCents,totalCostCents,shortageCents:totalCostCents-balanceCents,minimumTopupCents:Number(settings.minimum_topup_cents||300),currency:settings.currency||'EUR'})}
+  const entitlementId=crypto.randomUUID();
+  const ent=(await c.query("INSERT INTO user_extra_entitlements(id,user_id,kind,board_id,units,source,amount_cents,expires_at) VALUES($1,$2,'page',$3,$4,$5,$6,now()+interval '30 days') RETURNING id,expires_at",[entitlementId,req.user.sub,boardId,units,`purchase_pages:${fromPage}-${toPage}`,totalCostCents])).rows[0];
+  await c.query('UPDATE users SET spot_credit_cents=spot_credit_cents-$1 WHERE id=$2',[totalCostCents,req.user.sub]);
+  const tx=await c.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,units,provider,external_id,description) VALUES($1,$2,'spend',$3,'page',$4,'internal-pages',$5,$6) ON CONFLICT(provider,external_id) DO NOTHING RETURNING id",[crypto.randomUUID(),req.user.sub,-totalCostCents,units,requestId,`Pagine extra ${fromPage}-${toPage} per ${board.title||'Jotter'}; validità 30 giorni`]);
+  if(!tx.rowCount){await c.query('ROLLBACK');return res.status(409).json({error:'Questa richiesta è già stata elaborata.',duplicate:true})}
+  const rev=(await c.query('UPDATE boards SET revision=revision+1,updated_at=now(),content_updated_at=now() WHERE id=$1 RETURNING revision',[boardId])).rows[0].revision;
+  const operationId=crypto.randomUUID();
+  await c.query("INSERT INTO board_operations(board_id,revision,operation_id,user_id,operation_type,payload) VALUES($1,$2,$3,$4,'page:set',$5)",[boardId,rev,operationId,req.user.sub,{count:toPage}]);
+  await c.query('COMMIT');
+  const event={boardId,operationId,type:'page:set',payload:{count:toPage},revision:rev};
+  io.to(`board:${boardId}`).emit('board:operation',event);
+  res.json({ok:true,boardId,boardTitle:board.title||'Jotter senza titolo',units,fromPage,toPage,pageCount:toPage,unitCostCents,totalCostCents,balanceCents:balanceCents-totalCostCents,expiresAt:ent.expires_at,currency:settings.currency||'EUR'});
+ }catch(e){try{await c.query('ROLLBACK')}catch{};console.error('Acquisto pagine extra:',e);res.status(500).json({error:'Acquisto non completato. Nessun credito è stato scalato.'})}finally{c.release()}
+});
+
 app.get('/privacy',(req,res)=>res.sendFile(path.join(process.cwd(),'public','privacy.html')));
 app.get('/terms',(req,res)=>res.sendFile(path.join(process.cwd(),'public','terms.html')));
 app.post('/api/boards/cleanup-empty',auth,async(req,res)=>{const deleted=await startupCleanup(req.user.sub);res.json({deleted})});

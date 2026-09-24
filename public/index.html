@@ -4079,5 +4079,83 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
 })();
 </script>
 <script id="AIRJOTTER_V2277_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.7';</script>
-<script id="AIRJOTTER_V2278_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.8';</script><script id="AIRJOTTER_V2279_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.9';</script></body>
+<script id="AIRJOTTER_V2278_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.8';</script><script id="AIRJOTTER_V2279_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.9';</script>
+<style id="AIRJOTTER_V2280_EXTRA_PAGES_STYLE">
+.aj-extra-pages-modal-v2280{position:fixed;inset:0;z-index:16080;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(9,24,48,.58);backdrop-filter:blur(5px)}
+.aj-extra-pages-card-v2280{width:min(590px,calc(100vw - 24px));max-height:88dvh;overflow:auto;background:rgba(255,255,255,.98);border:1px solid #bed2ee;border-radius:24px;box-shadow:0 24px 70px rgba(9,31,65,.32);padding:24px;color:#1d2e47}
+.aj-extra-pages-card-v2280 h2{margin:0 0 8px;color:#082b59;font-size:1.55rem}.aj-extra-pages-card-v2280 .lead{margin:0 0 18px;color:#5a6d84}
+.aj-extra-pages-summary-v2280{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}.aj-extra-metric-v2280{padding:12px 14px;border-radius:15px;background:#f3f7fd;border:1px solid #d8e3f2}.aj-extra-metric-v2280 small{display:block;color:#687b92}.aj-extra-metric-v2280 strong{display:block;margin-top:3px;font-size:1.08rem;color:#082b59}
+.aj-extra-pages-qty-v2280{display:flex;align-items:center;gap:12px;margin:14px 0}.aj-extra-pages-qty-v2280 label{font-weight:800}.aj-extra-pages-qty-v2280 input{width:92px;padding:12px;border:1px solid #b8c9de;border-radius:13px;font-size:1.05rem;font-weight:800;text-align:center}
+.aj-extra-pages-range-v2280{padding:13px 15px;border-radius:15px;background:#eaf4ff;color:#0b4d8d;font-weight:750;line-height:1.45}.aj-extra-pages-expiry-v2280{margin-top:10px;padding:13px 15px;border-radius:15px;background:#fff7df;color:#654600;line-height:1.45}
+.aj-extra-pages-actions-v2280{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.aj-btn-cancel-v2280,.aj-btn-confirm-v2280,.aj-btn-credit-v2280,.aj-btn-open-v2280{min-height:46px;padding:11px 19px;border-radius:14px;border:1px solid #b7c9df;font-weight:850;cursor:pointer}.aj-btn-cancel-v2280{background:#fff;color:#29415f}.aj-btn-confirm-v2280,.aj-btn-open-v2280{background:#0b3972;color:#fff;border-color:#0b3972;box-shadow:0 5px 14px rgba(11,57,114,.25)}.aj-btn-credit-v2280{background:#e9f5ff;color:#0b3972;border-color:#7eb2ea}.aj-btn-confirm-v2280:disabled{opacity:.55;cursor:wait}
+.aj-extra-pages-insufficient-v2280{border:1px solid #efb7b7;background:#fff2f2;color:#8b1e1e;border-radius:15px;padding:14px;margin-top:12px}
+.aj-extra-select-card-v2280{text-align:center}.aj-extra-select-icon-v2280{width:58px;height:58px;margin:0 auto 12px;border-radius:18px;background:#e9f2ff;color:#0b3972;display:grid;place-items:center;font-size:28px;font-weight:900}
+.aj-extra-expiry-notice-v2280{padding:12px 14px!important;background:#fff8e5!important;border-left:5px solid #e7a400!important}.aj-extra-expiry-notice-v2280 b{color:#684900}
+@media(max-width:600px){.aj-extra-pages-summary-v2280{grid-template-columns:1fr}.aj-extra-pages-card-v2280{padding:18px;border-radius:19px}.aj-extra-pages-actions-v2280>*{flex:1 1 100%}}
+</style>
+<div id="ajExtraPagesModalV2280" class="aj-extra-pages-modal-v2280" role="dialog" aria-modal="true" aria-labelledby="ajExtraPagesTitleV2280">
+ <section class="aj-extra-pages-card-v2280">
+  <h2 id="ajExtraPagesTitleV2280">Aggiungi pagine al Jotter</h2>
+  <p class="lead" id="ajExtraPagesLeadV2280"></p>
+  <div class="aj-extra-pages-qty-v2280"><label for="ajExtraPagesQtyV2280">Numero di pagine</label><input id="ajExtraPagesQtyV2280" type="number" min="1" max="100" value="1"></div>
+  <div class="aj-extra-pages-summary-v2280">
+   <div class="aj-extra-metric-v2280"><small>Credito disponibile</small><strong id="ajExtraBalanceV2280">-</strong></div>
+   <div class="aj-extra-metric-v2280"><small>Credito che sarà scalato</small><strong id="ajExtraCostV2280">-</strong></div>
+   <div class="aj-extra-metric-v2280"><small>Credito residuo dopo l’acquisto</small><strong id="ajExtraRemainingV2280">-</strong></div>
+   <div class="aj-extra-metric-v2280"><small>Validità</small><strong>30 giorni</strong></div>
+  </div>
+  <div id="ajExtraRangeV2280" class="aj-extra-pages-range-v2280"></div>
+  <div id="ajExtraExpiryV2280" class="aj-extra-pages-expiry-v2280"></div>
+  <div id="ajExtraInsufficientV2280" class="aj-extra-pages-insufficient-v2280" hidden></div>
+  <div class="aj-extra-pages-actions-v2280"><button id="ajExtraCancelV2280" class="aj-btn-cancel-v2280">Annulla</button><button id="ajExtraCreditV2280" class="aj-btn-credit-v2280" hidden>Acquista credito</button><button id="ajExtraConfirmV2280" class="aj-btn-confirm-v2280">Conferma acquisto</button></div>
+ </section>
+</div>
+<div id="ajExtraChooseModalV2280" class="aj-extra-pages-modal-v2280" role="dialog" aria-modal="true" aria-labelledby="ajExtraChooseTitleV2280">
+ <section class="aj-extra-pages-card-v2280 aj-extra-select-card-v2280"><div class="aj-extra-select-icon-v2280">＋</div><h2 id="ajExtraChooseTitleV2280">Seleziona il Jotter</h2><p class="lead">Seleziona il Jotter al quale assegnare le pagine extra.</p><p>Apri l’elenco dei tuoi Jotter e scegli quello desiderato. Dopo l’apertura comparirà il riepilogo con quantità, costo, credito residuo e scadenza.</p><div class="aj-extra-pages-actions-v2280"><button id="ajExtraChooseCancelV2280" class="aj-btn-cancel-v2280">Annulla</button><button id="ajExtraOpenArchiveV2280" class="aj-btn-open-v2280">Apri i miei Jotter</button></div></section>
+</div>
+<script id="AIRJOTTER_V2280_EXTRA_PAGES_UX">
+(()=>{
+ const money=(c,cur='EUR')=>new Intl.NumberFormat('it-IT',{style:'currency',currency:cur}).format((Number(c)||0)/100);
+ const dateLabel=v=>new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',year:'2-digit'}).format(new Date(v));
+ const api=async(url,opt={})=>{const r=await fetch(url,{headers:{'Content-Type':'application/json'},...opt});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(d.error||r.statusText);Object.assign(e,d,{status:r.status});throw e}return d};
+ const modal=document.getElementById('ajExtraPagesModalV2280'),choose=document.getElementById('ajExtraChooseModalV2280'),qty=document.getElementById('ajExtraPagesQtyV2280'),confirmBtn=document.getElementById('ajExtraConfirmV2280'),creditBtn=document.getElementById('ajExtraCreditV2280'),insufficient=document.getElementById('ajExtraInsufficientV2280');
+ let boardId=null,quote=null,timer=0,pendingArchiveChoice=false;
+ function hide(el){el.style.display='none'}function show(el){el.style.display='flex'}
+ function openCredit(){hide(modal);hide(choose);const p=document.getElementById('ajPlansModalV220');if(p){p.style.display='flex';p.setAttribute('aria-hidden','false');document.body.classList.add('aj-plans-open-v221');setTimeout(()=>document.querySelector('#ajPayUseV222 .aj-topup-row')?.scrollIntoView({behavior:'smooth',block:'center'}),80)}}
+ async function refresh(){
+  clearTimeout(timer);if(!boardId)return;
+  try{
+   quote=await api('/api/pay-use/pages/quote?boardId='+encodeURIComponent(boardId)+'&units='+encodeURIComponent(Math.max(1,Number(qty.value)||1)));
+   document.getElementById('ajExtraPagesLeadV2280').textContent='Jotter: '+quote.boardTitle;
+   document.getElementById('ajExtraBalanceV2280').textContent=money(quote.balanceCents,quote.currency);
+   document.getElementById('ajExtraCostV2280').textContent=money(quote.totalCostCents,quote.currency);
+   document.getElementById('ajExtraRemainingV2280').textContent=money(Math.max(0,quote.remainingCents),quote.currency);
+   document.getElementById('ajExtraRangeV2280').textContent='Saranno aggiunte le pagine dalla '+quote.fromPage+' alla '+quote.toPage+'.';
+   document.getElementById('ajExtraExpiryV2280').innerHTML='Le pagine extra saranno attive fino al <b>'+dateLabel(quote.expiresAt)+'</b>. Alla riapertura del Jotter, AirJotter ricorderà l’intervallo di pagine e la relativa scadenza.';
+   insufficient.hidden=quote.sufficient;creditBtn.hidden=quote.sufficient;confirmBtn.hidden=!quote.sufficient;
+   if(!quote.sufficient)insufficient.textContent='Credito insufficiente: mancano '+money(Math.max(0,-quote.remainingCents),quote.currency)+'. Vuoi acquistare nuovo credito?';
+  }catch(e){insufficient.hidden=false;insufficient.textContent=e.message;creditBtn.hidden=true;confirmBtn.hidden=true}
+ }
+ function openPurchase(id,units=1){boardId=id;qty.value=Math.max(1,Number(units)||1);insufficient.hidden=true;creditBtn.hidden=true;confirmBtn.hidden=false;show(modal);refresh()}
+ qty.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(refresh,180)});
+ document.getElementById('ajExtraCancelV2280').onclick=()=>hide(modal);document.getElementById('ajExtraChooseCancelV2280').onclick=()=>{pendingArchiveChoice=false;hide(choose)};creditBtn.onclick=openCredit;
+ confirmBtn.onclick=async()=>{if(!quote||!quote.sufficient)return;confirmBtn.disabled=true;confirmBtn.textContent='Attendi...';try{const result=await api('/api/pay-use/pages/purchase',{method:'POST',body:JSON.stringify({boardId,units:quote.units,requestId:crypto.randomUUID()})});hide(modal);if(typeof ajBoard!=='undefined'&&ajBoard?.id===result.boardId){TOTAL_PAGES=result.pageCount;initCanvas();document.getElementById('pageCountNumber').innerText=TOTAL_PAGES}if(window.ajApplyExtrasV226)window.ajApplyExtrasV226(false).catch(()=>{});alert('Acquisto completato. Pagine '+result.fromPage+'–'+result.toPage+' attive fino al '+dateLabel(result.expiresAt)+'.')}catch(e){if(e.status===402){insufficient.hidden=false;insufficient.textContent='Credito insufficiente. Vuoi acquistare nuovo credito?';creditBtn.hidden=false;confirmBtn.hidden=true}else alert(e.message)}finally{confirmBtn.disabled=false;confirmBtn.textContent='Conferma acquisto'}};
+ document.getElementById('ajExtraOpenArchiveV2280').onclick=()=>{pendingArchiveChoice=true;hide(choose);const plans=document.getElementById('ajPlansModalV220');if(plans)plans.style.display='none';const archive=document.getElementById('jotterArchiveModal');if(archive){archive.style.display='flex';window.ajLoadArchive?.()}};
+ document.addEventListener('click',e=>{
+  const pageBuy=e.target.closest('[data-buy-use="page"]');if(pageBuy){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();show(choose);return}
+  const add=e.target.closest('#addPageBtn');if(!add)return;
+  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+  if(typeof ajCanWrite==='function'&&!ajCanWrite()){window.ajReadOnlyAttemptV2253?.();return}
+  if(!ajBoard?.id)return;
+  api('/api/pay-use/pages/quote?boardId='+encodeURIComponent(ajBoard.id)+'&units=1').then(q=>{if(q.currentPages<q.pageLimit){TOTAL_PAGES++;initCanvas();document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;ajSendPageCount();return}openPurchase(ajBoard.id,1)}).catch(err=>alert(err.message));
+ },true);
+ const previousOpen=typeof ajOpenBoard==='function'?ajOpenBoard:null;
+ if(previousOpen)ajOpenBoard=async function(board){const result=await previousOpen(board);if(pendingArchiveChoice&&board?.role==='owner'){pendingArchiveChoice=false;openPurchase(board.id,1)}return result};
+ const previousExtras=window.ajApplyExtrasV226;
+ if(previousExtras)window.ajApplyExtrasV226=async function(showNotice){const result=await previousExtras(false);try{const d=await api('/api/extras/me'),relevant=d.extras.filter(x=>x.board_id===ajBoard?.id&&x.kind==='page'&&(x.expired||new Date(x.expires_at)-Date.now()<7*864e5));if(showNotice&&relevant.length){let box=document.getElementById('ajExpiryModalV226');if(box){const list=box.querySelector('.aj-expiry-list-v226');if(list)list.innerHTML=relevant.map(x=>{let range='';const m=String(x.source||'').match(/purchase_pages:(\d+)-(\d+)/);if(m)range='Pagine '+m[1]+'–'+m[2];else range='Pagine extra: '+x.units;return '<div class="aj-expiry-row-v226 aj-extra-expiry-notice-v2280 '+(x.expired?'expired':'')+'"><b>'+range+'</b><br>'+(x.title||'Jotter')+'<br>Scadenza: '+dateLabel(x.expires_at)+'<br><button class="btn renew-extra-v226" data-id="'+x.id+'">Rinnova 30 giorni</button></div>';}).join('');box.style.display='flex'}}}catch(e){console.warn('Promemoria pagine extra:',e)}return result};
+ window.AIRJOTTER_FRONTEND_VERSION='22.8.0';
+})();
+</script>
+
+</body>
 </html>
