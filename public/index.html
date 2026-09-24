@@ -1344,19 +1344,19 @@ body.aj-text-editing-v2266g>header{opacity:.84!important}
             if (!ajCanWrite()) { textToolOverlay.style.display='none'; textOverlayActive=false; window.ajReadOnlyAttemptV2253?.(); return; }
             const text = textToolInput.value;
             if (text.trim() !== '') {
-                // Precise text coordinate calculation avoiding any jumping offsets
-                const overlayLeft = parseFloat(textToolOverlay.style.left) || 0;
-                const overlayTop = parseFloat(textToolOverlay.style.top) || 0;
-                // Il centro del mirino sul perimetro E' il punto esatto di inserimento.
+                // V22.8.6: il punto viene ricavato dal centro VISIVO reale del mirino
+                // e convertito direttamente dalle coordinate viewport a quelle logiche del canvas.
+                // In questo modo bordi, zoom, ridimensionamento, scroll e spostamento della scheda
+                // non possono introdurre alcuno scostamento tra croce e testo inserito.
                 const anchor=document.getElementById('ajTextAnchorV2266f');
-                const anchorX=(parseFloat(anchor.dataset.anchorX)||0);
-                const anchorY=(parseFloat(anchor.dataset.anchorY)||0);
-                // Il renderer usa textBaseline='top': il centro della croce e' quindi
-                // direttamente l'angolo superiore sinistro effettivo del testo.
+                const anchorRect=anchor.getBoundingClientRect();
+                const canvasRect=draftCanvas.getBoundingClientRect();
+                const anchorClientX=anchorRect.left+(anchorRect.width/2);
+                const anchorClientY=anchorRect.top+(anchorRect.height/2);
                 const fontFamily=document.getElementById('text-font-family').value;
                 const fontSize=parseInt(document.getElementById('text-font-size').value);
-                const finalLogX=overlayLeft+anchorX;
-                const finalLogY=overlayTop+anchorY;
+                const finalLogX=(anchorClientX-canvasRect.left)*(LOGICAL_W/canvasRect.width);
+                const finalLogY=(anchorClientY-canvasRect.top)*(LOGICAL_H/canvasRect.height);
                 
 
                 commands.push({
@@ -4246,5 +4246,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
 </script>
 
 <!-- AIRJOTTER_V2285_EXTRAS_SUMMARY_AND_HISTORY -->
+<!-- AIRJOTTER_V2286_EXACT_TEXT_ANCHOR -->
+<script id="AIRJOTTER_V2286_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.8.6';</script>
 </body>
 </html>
