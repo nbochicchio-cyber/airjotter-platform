@@ -271,3 +271,5 @@ io.on('connection',socket=>{socket.join(`user:${socket.user.sub}`);socket.on('bo
 if(process.env.NODE_ENV==='production'&&process.env.DEV_AUTH==='true')throw new Error('Configurazione non sicura: DEV_AUTH non può essere attivo in produzione');
 if(process.env.NODE_ENV==='production'&&!process.env.ADMIN_GOOGLE_SUB)throw new Error('ADMIN_GOOGLE_SUB obbligatorio in produzione');
 server.listen(process.env.PORT||3000,()=>console.log(`airjotter su porta ${process.env.PORT||3000}`));
+
+// AIRJOTTER_V2284A_DEPLOY_FIX
