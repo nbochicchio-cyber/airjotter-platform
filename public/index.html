@@ -5918,5 +5918,75 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22128_END -->
+<!-- AIRJOTTER_V22129_BEGIN -->
+<style id="AIRJOTTER_V22129_IPAD_PENCIL_STYLE">
+/* Solo iPad/Pencil: priorità assoluta al tratto, nessuna selezione o gesto del browser. */
+@supports (-webkit-touch-callout:none){
+ html.aj-ipad-pencil-v22129 #draftBoard,
+ html.aj-ipad-pencil-v22129 #pencilPredictionBoard{
+  touch-action:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  will-change:contents!important;
+  transform:translateZ(0)!important;
+  backface-visibility:hidden!important;
+ }
+}
+</style>
+<script id="AIRJOTTER_V22129_IPAD_PENCIL_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(!isIPad)return;
+  document.documentElement.classList.add('aj-ipad-pencil-v22129');
+  const board=document.getElementById('draftBoard');
+  const wet=document.getElementById('pencilPredictionBoard');
+  if(!board)return;
+
+  /* Arrotondamento costante del tratto sui canvas live, senza cambiare spessore o logica applicativa. */
+  [board,wet].filter(Boolean).forEach(canvas=>{
+   const ctx=canvas.getContext('2d');
+   if(!ctx||ctx.__ajPencilV22129)return;
+   ctx.__ajPencilV22129=true;
+   const originalStroke=ctx.stroke.bind(ctx);
+   ctx.stroke=function(...args){
+    this.lineCap='round';this.lineJoin='round';this.miterLimit=2;
+    this.imageSmoothingEnabled=true;
+    if('imageSmoothingQuality' in this)this.imageSmoothingQuality='high';
+    return originalStroke(...args);
+   };
+  });
+
+  /* Recupera i campioni Pencil coalescenti che Safari raggruppa: maggiore precisione nei movimenti rapidi. */
+  let replaying=false;
+  board.addEventListener('pointermove',event=>{
+   if(replaying||event.pointerType!=='pen'||!event.isPrimary||typeof event.getCoalescedEvents!=='function')return;
+   const samples=event.getCoalescedEvents();
+   if(!samples||samples.length<2)return;
+   const useful=samples.slice(0,-1).slice(-10);
+   if(!useful.length)return;
+   replaying=true;
+   try{
+    for(const sample of useful){
+     const clone=new PointerEvent('pointermove',{
+      bubbles:true,cancelable:true,composed:true,
+      pointerId:event.pointerId,pointerType:'pen',isPrimary:true,
+      clientX:sample.clientX,clientY:sample.clientY,screenX:sample.screenX,screenY:sample.screenY,
+      pressure:sample.pressure,tiltX:sample.tiltX,tiltY:sample.tiltY,twist:sample.twist,
+      width:sample.width,height:sample.height,buttons:event.buttons,button:event.button
+     });
+     board.dispatchEvent(clone);
+    }
+   }finally{replaying=false}
+  },true);
+
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.29-ipad-pencil-ultra';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22129_END -->
 </body>
 </html>
