@@ -5052,5 +5052,68 @@ header .aj-plan-column-v22107 span{align-self:center!important;text-align:center
 })();
 </script>
 <!-- AIRJOTTER_V22107_END -->
+<!-- AIRJOTTER_V22108_BEGIN -->
+<style id="AIRJOTTER_V22108_SURGICAL_STYLE">
+/* 1 e 3: Adatta pagina e pulsante utente, identici a Piani. */
+header #ajPcFitV204,
+header #ajUser,
+header .aj-plan-column-v22107 button{
+ background:#123d73!important;
+ background-image:none!important;
+ border:1px solid #123d73!important;
+ color:#fff!important;
+ box-shadow:0 2px 0 rgba(7,35,70,.30),0 3px 7px rgba(12,61,116,.18)!important;
+ text-shadow:0 1px 1px rgba(0,0,0,.24)!important;
+ transform:none!important;
+}
+header #ajPcFitV204:hover,
+header #ajUser:hover,
+header .aj-plan-column-v22107 button:hover{
+ background:#0d315e!important;
+ border-color:#0d315e!important;
+ color:#fff!important;
+}
+/* 2: Esporta PDF identico a File Transfer per carattere e colore. */
+header .aj-io-stack-v22107 #exportPdfBtn,
+header .aj-io-stack-v22107 #ajFileTransferBtnV2291{
+ color:#30435e!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:.62rem!important;
+ font-weight:700!important;
+ line-height:1!important;
+ letter-spacing:0!important;
+ text-shadow:none!important;
+}
+header .aj-io-stack-v22107 #exportPdfBtn svg,
+header .aj-io-stack-v22107 #ajFileTransferBtnV2291 svg{stroke:#1769e8!important}
+/* 4: elimina soltanto la vecchia scritta a destra. */
+header .aj-jotter-link-color-v2283{display:none!important}
+</style>
+<script id="AIRJOTTER_V22108_SURGICAL_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');
+  if(!header)return;
+  const fit=document.getElementById('ajPcFitV204');
+  const owner=document.getElementById('ajUser');
+  [fit,owner].filter(Boolean).forEach(b=>{
+   b.classList.remove('aj-flat-blue-v22105','aj-minimal-v22104','aj-visual-raised-v22103','aj-premium-control-v22101');
+   b.classList.add('aj-dark-flat-v22107');
+  });
+  const exportPdf=document.getElementById('exportPdfBtn');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  if(exportPdf&&transfer){
+   exportPdf.classList.remove('aj-download-v22104','aj-output-visual-v22103','aj-flat-blue-v22105');
+   exportPdf.classList.add('aj-io-v22107');
+   transfer.insertAdjacentElement('beforebegin',exportPdf);
+  }
+  header.querySelectorAll('.aj-jotter-link-color-v2283').forEach(x=>x.remove());
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.8-surgical-toolbar';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22108_END -->
 </body>
 </html>
