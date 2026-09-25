@@ -5789,65 +5789,68 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22123_END -->
-<!-- AIRJOTTER_V22126_BEGIN -->
-<style id="AIRJOTTER_V22126_TEXTBOX_REAL_MIN_STYLE">
-/* Minimo reale compatto: testata + comandi + area testo + pulsanti, senza spazio morto. */
-#text-tool-overlay{
- min-height:382px!important;
- box-sizing:border-box!important;
-}
-#text-tool-input{
- height:160px!important;
- min-height:145px!important;
- max-height:55vh!important;
- box-sizing:border-box!important;
-}
-#text-tool-overlay .text-toolbar{min-height:0!important}
-#text-tool-overlay .aj-text-foot-v2266f{
- min-height:48px!important;
- margin:0!important;
- padding:4px 48px 7px 8px!important;
- box-sizing:border-box!important;
-}
-#text-tool-overlay .aj-text-foot-v2266f>div{margin:0!important}
+<!-- AIRJOTTER_V22127_BEGIN -->
+<style id="AIRJOTTER_V22127_CONTENT_MIN_STYLE">
+/* Il bordo inferiore può arrivare fino a circa 10 px sotto i pulsanti. */
+#text-tool-overlay{min-height:0!important;box-sizing:border-box!important}
 </style>
-<script id="AIRJOTTER_V22126_TEXTBOX_REAL_MIN_SCRIPT">
+<script id="AIRJOTTER_V22127_CONTENT_MIN_SCRIPT">
 (()=>{
  'use strict';
- const MIN_HEIGHT=382;
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
   const box=document.getElementById('text-tool-overlay');
-  const textButton=document.getElementById('toolTextBtn');
-  const resizeHandle=document.getElementById('ajTextCardResizeV2266h');
-  if(!box)return;
+  const handle=document.getElementById('ajTextCardResizeV2266h');
+  const footer=box?.querySelector('.aj-text-foot-v2266f');
+  if(!box||!handle||!footer)return;
 
-  /* Elimina soltanto l'altezza enorme già memorizzata dalle prove precedenti. */
-  const resetExcess=()=>{
-   const h=parseFloat(box.style.height)||0;
-   if(h>560)box.style.height=MIN_HEIGHT+'px';
+  const MIN_WIDTH=430;
+  const BOTTOM_SPACE=10;
+  let state=null;
+
+  const contentMinHeight=()=>{
+   const boxRect=box.getBoundingClientRect();
+   const footerRect=footer.getBoundingClientRect();
+   return Math.ceil(footerRect.bottom-boxRect.top+BOTTOM_SPACE);
   };
-  resetExcess();
-  textButton?.addEventListener('click',()=>requestAnimationFrame(resetExcess));
 
-  /* Durante il ridimensionamento impedisce solo di scendere sotto il minimo corretto. */
-  let resizing=false;
-  resizeHandle?.addEventListener('pointerdown',()=>{resizing=true},{capture:true});
-  window.addEventListener('pointermove',()=>{
-   if(!resizing)return;
-   const h=box.getBoundingClientRect().height;
-   if(h<MIN_HEIGHT)box.style.height=MIN_HEIGHT+'px';
-  },true);
-  window.addEventListener('pointerup',()=>{
-   if(!resizing)return;
-   resizing=false;
-   if(box.getBoundingClientRect().height<MIN_HEIGHT)box.style.height=MIN_HEIGHT+'px';
+  handle.addEventListener('pointerdown',event=>{
+   if(event.button!==0)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   const rect=box.getBoundingClientRect();
+   state={x:event.clientX,y:event.clientY,w:rect.width,h:rect.height,id:event.pointerId};
+   handle.setPointerCapture?.(event.pointerId);
   },true);
 
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.26-textbox-real-min';
+  handle.addEventListener('pointermove',event=>{
+   if(!state||event.pointerId!==state.id)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   const maxW=Math.max(MIN_WIDTH,window.innerWidth-12);
+   const width=Math.min(maxW,Math.max(MIN_WIDTH,state.w+(event.clientX-state.x)));
+   box.style.width=width+'px';
+   const minimum=contentMinHeight();
+   const height=Math.max(minimum,state.h+(event.clientY-state.y));
+   box.style.height=height+'px';
+  },true);
+
+  const finish=event=>{
+   if(!state||event.pointerId!==state.id)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   const minimum=contentMinHeight();
+   if(box.getBoundingClientRect().height<minimum)box.style.height=minimum+'px';
+   handle.releasePointerCapture?.(event.pointerId);
+   state=null;
+  };
+  handle.addEventListener('pointerup',finish,true);
+  handle.addEventListener('pointercancel',finish,true);
+
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.27-content-based-textbox-min';
  });
 })();
 </script>
-<!-- AIRJOTTER_V22126_END -->
+<!-- AIRJOTTER_V22127_END -->
 </body>
 </html>
