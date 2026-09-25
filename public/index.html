@@ -5591,5 +5591,75 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22118_END -->
+<!-- AIRJOTTER_V22120_BEGIN -->
+<style id="AIRJOTTER_V22120_TEXTBOX_HELP_STYLE">
+/* La guida non occupa più spazio nel footer: il ridimensionamento resta libero e stabile. */
+#text-tool-overlay .aj-text-guide-v22118{display:none!important}
+#text-tool-overlay .aj-text-foot-v2266f{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;gap:7px!important;padding:0 50px 8px 8px!important;
+}
+#text-tool-overlay .aj-text-foot-v2266f>div{
+ display:flex!important;gap:6px!important;margin:0!important;transform:none!important;
+}
+#text-tool-overlay .aj-text-foot-v2266f button{
+ min-height:30px!important;height:30px!important;padding:0 9px!important;
+ border-radius:8px!important;font-size:.68rem!important;white-space:nowrap!important;
+}
+/* Pulsante ? discreto nella testata. */
+#ajTextHelpBtnV22120{
+ margin-left:auto!important;width:22px!important;height:22px!important;min-width:22px!important;
+ padding:0!important;border:1px solid rgba(39,115,235,.55)!important;border-radius:50%!important;
+ background:#eef5ff!important;color:#1769e8!important;font:bold 13px/1 Arial,sans-serif!important;
+ cursor:pointer!important;display:grid!important;place-items:center!important;z-index:5!important;
+}
+#ajTextHelpBtnV22120:hover{background:#1769e8!important;color:#fff!important}
+/* Popup istruzioni, indipendente dalle dimensioni della text box. */
+#ajTextHelpPopupV22120{
+ display:none;position:fixed;inset:0;z-index:2147483647;align-items:center;justify-content:center;
+ padding:16px;background:rgba(15,23,42,.42);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+#ajTextHelpPopupV22120.open{display:flex!important}
+.aj-text-help-card-v22120{
+ position:relative;width:min(520px,calc(100vw - 28px));padding:24px;border:1px solid #bfd4f2;
+ border-radius:17px;background:#fff;box-shadow:0 22px 60px rgba(15,40,80,.25);color:#173b69;
+}
+.aj-text-help-card-v22120 h3{margin:0 38px 16px 0;font-size:1.25rem;color:#102f5a}
+.aj-text-help-list-v22120{display:flex;flex-direction:column;gap:12px}
+.aj-text-help-step-v22120{display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;font:700 .92rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.aj-text-help-step-v22120 b{font-size:1.15rem}
+#ajTextHelpCloseV22120{position:absolute;right:13px;top:12px;width:32px;height:32px;border:0;border-radius:50%;background:#eef3fb;color:#173b69;font-size:20px;cursor:pointer}
+#ajTextHelpDoneV22120{display:block;margin:20px 0 0 auto;padding:9px 18px;border:0;border-radius:9px;background:#1769e8;color:#fff;font-weight:800;cursor:pointer}
+</style>
+<script id="AIRJOTTER_V22120_TEXTBOX_HELP_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const overlay=document.getElementById('text-tool-overlay');
+  const head=overlay?.querySelector('.aj-text-card-head-v2266f');
+  const footer=overlay?.querySelector('.aj-text-foot-v2266f');
+  if(!overlay||!head||!footer)return;
+  overlay.querySelectorAll('.aj-text-guide-v22118').forEach(x=>x.remove());
+  let help=document.getElementById('ajTextHelpBtnV22120');
+  if(!help){help=document.createElement('button');help.type='button';help.id='ajTextHelpBtnV22120';help.textContent='?';help.title='Istruzioni per posizionare e ridimensionare il testo';help.setAttribute('aria-label',help.title);head.appendChild(help)}
+  let popup=document.getElementById('ajTextHelpPopupV22120');
+  if(!popup){
+   popup=document.createElement('div');popup.id='ajTextHelpPopupV22120';popup.setAttribute('role','dialog');popup.setAttribute('aria-modal','true');popup.setAttribute('aria-labelledby','ajTextHelpTitleV22120');
+   popup.innerHTML='<div class="aj-text-help-card-v22120"><button id="ajTextHelpCloseV22120" type="button" aria-label="Chiudi">×</button><h3 id="ajTextHelpTitleV22120">Come inserire il testo</h3><div class="aj-text-help-list-v22120"><div class="aj-text-help-step-v22120"><b>1️⃣</b><span>Sposta la crocetta rossa nella posizione desiderata</span></div><div class="aj-text-help-step-v22120"><b>2️⃣</b><span>Il testo inizierà esattamente dal punto indicato dalla crocetta</span></div><div class="aj-text-help-step-v22120"><b>3️⃣</b><span>Trascina l’angolo blu per ridimensionare la casella di testo</span></div></div><button id="ajTextHelpDoneV22120" type="button">Ho capito</button></div>';
+   document.body.appendChild(popup);
+  }
+  const open=()=>{popup.classList.add('open');popup.querySelector('#ajTextHelpCloseV22120')?.focus()};
+  const close=()=>{popup.classList.remove('open');help.focus()};
+  help.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open()});
+  popup.querySelector('#ajTextHelpCloseV22120')?.addEventListener('click',close);
+  popup.querySelector('#ajTextHelpDoneV22120')?.addEventListener('click',close);
+  popup.addEventListener('click',e=>{if(e.target===popup)close()});
+  popup.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.20-textbox-help-popup';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22120_END -->
 </body>
 </html>
