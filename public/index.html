@@ -4619,5 +4619,81 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
 })();
 </script>
 <!-- AIRJOTTER_V2299_END -->
+<!-- AIRJOTTER_V22103_BEGIN -->
+<style id="AIRJOTTER_V22103_SKIN_ONLY_TOOLBAR_STYLE">
+/* SOLO restyling visivo. Nessuna regola modifica altezza, larghezza, padding, gap, posizione o ordine. */
+:root{--aj103-ink:#263750;--aj103-muted:#65758d;--aj103-line:#d5dfec;--aj103-hover:#eef5ff;--aj103-blue:#1769e8;--aj103-sky:#49a7ff}
+header{
+ background:rgba(255,255,255,.965)!important;
+ border-color:var(--aj103-line)!important;
+ box-shadow:0 7px 22px rgba(18,45,82,.11)!important;
+ color:var(--aj103-ink)!important;
+}
+header .tools-group{border-color:#e0e7f0!important}
+header button,header .btn,header .icon-btn,header .page-btn,header .aj-user{
+ color:var(--aj103-ink)!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-weight:650!important;
+ text-shadow:none!important;
+ transition:background-color .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease!important;
+}
+header .btn,header .icon-btn,header .page-btn{
+ background:transparent!important;
+ border-color:transparent!important;
+ box-shadow:none!important;
+}
+header .btn:hover:not(:disabled),header .icon-btn:hover:not(:disabled),header .page-btn:hover:not(:disabled){
+ background:var(--aj103-hover)!important;
+ border-color:#bfd5f2!important;
+ color:#0f55b5!important;
+}
+header .btn:active,header .icon-btn:active,header .page-btn:active{transform:none!important;box-shadow:none!important;background:#e3efff!important}
+header .active-tool,header .active-tool:hover{
+ background:#e8f2ff!important;
+ border-color:#8fbaf3!important;
+ color:var(--aj103-blue)!important;
+ box-shadow:inset 0 0 0 1px rgba(73,167,255,.16)!important;
+}
+header .aj-main-color-button-v2287{box-shadow:0 0 0 1px #8ca4c2!important}
+header .aj-visual-raised-v22103{
+ background:linear-gradient(180deg,#fff 0%,#f1f7ff 100%)!important;
+ border-color:var(--aj103-sky)!important;
+ color:#173b69!important;
+ box-shadow:0 2px 0 rgba(16,55,105,.28),0 4px 10px rgba(22,83,157,.13),inset 0 1px 0 #fff!important;
+}
+header .aj-visual-raised-v22103:hover{
+ background:linear-gradient(180deg,#fff,#eaf4ff)!important;
+ border-color:#1688f7!important;
+ color:#0d4f9e!important;
+ box-shadow:0 2px 0 rgba(16,55,105,.32),0 6px 13px rgba(22,83,157,.17),inset 0 1px 0 #fff!important;
+}
+header .aj-upload-visual-v22103 svg{stroke:var(--aj103-blue)!important}
+header .aj-upload-visual-v22103{color:#30435e!important}
+header .aj-output-visual-v22103{color:var(--aj103-blue)!important}
+header .aj-output-visual-v22103:hover{background:#e8f2ff!important;border-color:#9ec3f4!important;color:#0b57bd!important}
+header .btn.danger,header #clearBtn{background:transparent!important;color:#b42318!important;border-color:transparent!important;box-shadow:none!important}
+header #clearBtn svg{stroke:#b42318!important}
+header .aj-user{color:#173b69!important}
+header .room-code{background:#f2f6fb!important;color:#334861!important;border-color:#dce5ef!important}
+header small,header .aj-page-label-v2287,header .aj-jotter-link-color-v2283{color:var(--aj103-muted)!important;font-style:normal!important}
+header button:disabled{opacity:.34!important}
+</style>
+<script id="AIRJOTTER_V22103_SKIN_ONLY_TOOLBAR_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');if(!header)return;
+  const buttons=[...header.querySelectorAll('button')];
+  const has=text=>buttons.find(b=>(b.textContent||'').trim().toLowerCase().includes(text));
+  [document.getElementById('ajPcFitV204'),document.getElementById('ajUser'),has('piani')].filter(Boolean).forEach(b=>b.classList.add('aj-visual-raised-v22103'));
+  [document.getElementById('importPdfBtn'),document.getElementById('importSignBtn'),document.getElementById('importRealImgBtn'),document.getElementById('ajFileTransferBtnV2291')].filter(Boolean).forEach(b=>b.classList.add('aj-upload-visual-v22103'));
+  document.getElementById('exportPdfBtn')?.classList.add('aj-output-visual-v22103');
+  header.setAttribute('role','toolbar');header.setAttribute('aria-label','Strumenti AirJotter');
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.3-toolbar-skin-only';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22103_END -->
 </body>
 </html>
