@@ -4765,5 +4765,102 @@ header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!i
 })();
 </script>
 <!-- AIRJOTTER_V22104_END -->
+<!-- AIRJOTTER_V22105_BEGIN -->
+<style id="AIRJOTTER_V22105_TOOLBAR_ALIGNMENT_STYLE">
+/* Correzione puntuale. L'altezza esterna della toolbar non viene modificata. */
+header .aj-flat-blue-v22105,
+header .aj-flat-blue-v22105:hover,
+header .aj-flat-blue-v22105:active{
+ background:transparent!important;
+ border-color:transparent!important;
+ box-shadow:none!important;
+ transform:none!important;
+ color:#1769e8!important;
+ text-shadow:none!important;
+}
+header .aj-flat-blue-v22105:hover{background:#eef5ff!important;border-color:#bdd4f2!important}
+/* I cinque comandi I/O condividono esattamente la stessa tipografia. */
+header .aj-io-uniform-v22105{
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:.67rem!important;
+ font-weight:700!important;
+ line-height:1!important;
+ letter-spacing:0!important;
+ white-space:nowrap!important;
+ color:#30435e!important;
+}
+header .aj-io-uniform-v22105 svg{stroke:#1769e8!important;fill:none!important}
+header #exportPdfBtn.aj-io-uniform-v22105{font-size:.64rem!important;color:#1769e8!important}
+/* Etichetta centrata esclusivamente sulle due icone Codice e QR. */
+header .aj-code-pair-v22105{
+ position:relative!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:2px!important;
+ padding-top:9px!important;
+ flex:0 0 auto!important;
+}
+header .aj-code-pair-v22105 .aj-code-label-v22105{
+ position:absolute!important;
+ top:-2px!important;
+ left:50%!important;
+ transform:translateX(-50%)!important;
+ width:max-content!important;
+ margin:0!important;
+ font-size:.58rem!important;
+ font-weight:750!important;
+ line-height:1!important;
+ color:#31567f!important;
+ text-align:center!important;
+ pointer-events:none!important;
+ white-space:nowrap!important;
+}
+/* Cestino leggermente più grande, senza aumentare il gruppo Piani. */
+header #clearBtn{width:35px!important;min-width:35px!important;padding-left:6px!important;padding-right:6px!important}
+header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!important;stroke-width:2.1!important}
+</style>
+<script id="AIRJOTTER_V22105_TOOLBAR_ALIGNMENT_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');if(!header)return;
+  const buttons=[...header.querySelectorAll('button')];
+  const byText=text=>buttons.find(b=>(b.textContent||'').trim().toLowerCase().includes(text.toLowerCase()));
+  const fit=document.getElementById('ajPcFitV204');
+  const owner=document.getElementById('ajUser');
+  const plans=byText('piani');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  const exportPdf=document.getElementById('exportPdfBtn');
+  [fit,owner,plans,exportPdf].filter(Boolean).forEach(b=>{
+   b.classList.remove('aj-visual-raised-v22103','aj-premium-control-v22101');
+   b.classList.add('aj-flat-blue-v22105');
+  });
+
+  const io=[document.getElementById('importPdfBtn'),document.getElementById('importSignBtn'),document.getElementById('importRealImgBtn'),transfer,exportPdf].filter(Boolean);
+  io.forEach(b=>b.classList.add('aj-io-uniform-v22105'));
+  if(transfer&&exportPdf)transfer.insertAdjacentElement('afterend',exportPdf);
+
+  const code=document.getElementById('toggleCodeBtn');
+  const qr=document.getElementById('showQrBtn');
+  if(code&&qr){
+   let pair=header.querySelector('.aj-code-pair-v22105');
+   if(!pair){pair=document.createElement('span');pair.className='aj-code-pair-v22105';code.parentNode.insertBefore(pair,code)}
+   pair.append(code,qr);
+   let label=pair.querySelector('.aj-code-label-v22105');
+   if(!label){label=document.createElement('small');label.className='aj-code-label-v22105';label.textContent='Jotter Code';pair.appendChild(label)}
+   header.querySelectorAll('.aj-code-label-v22104').forEach(x=>x.remove());
+  }
+
+  const clear=document.getElementById('clearBtn');
+  const oldClearGroup=clear?.closest('.tools-group');
+  if(plans&&clear)plans.insertAdjacentElement('beforebegin',clear);
+  if(oldClearGroup&&oldClearGroup!==clear?.closest('.tools-group')&&oldClearGroup.children.length===0)oldClearGroup.remove();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.5-toolbar-alignment';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22105_END -->
 </body>
 </html>
