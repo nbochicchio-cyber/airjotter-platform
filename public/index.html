@@ -5918,11 +5918,11 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22128_END -->
-<!-- AIRJOTTER_V22130_BEGIN -->
-<style id="AIRJOTTER_V22130_IPAD_PENCIL_V2_STYLE">
+<!-- AIRJOTTER_V22131_BEGIN -->
+<style id="AIRJOTTER_V22131_IPAD_PENCIL_V3_STYLE">
 @supports (-webkit-touch-callout:none){
- html.aj-ipad-pencil-v22130 #draftBoard,
- html.aj-ipad-pencil-v22130 #pencilPredictionBoard{
+ html.aj-ipad-pencil-v22131 #draftBoard,
+ html.aj-ipad-pencil-v22131 #pencilPredictionBoard{
   touch-action:none!important;
   -webkit-user-select:none!important;
   user-select:none!important;
@@ -5933,74 +5933,86 @@ header .aj-plan-column-v22107 button:active{
  }
 }
 </style>
-<script id="AIRJOTTER_V22130_IPAD_PENCIL_V2_SCRIPT">
+<script id="AIRJOTTER_V22131_IPAD_PENCIL_V3_SCRIPT">
 (()=>{
  'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
   const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(!isIPad)return;
-  document.documentElement.classList.add('aj-ipad-pencil-v22130');
+  document.documentElement.classList.add('aj-ipad-pencil-v22131');
   const board=document.getElementById('draftBoard');
   const wet=document.getElementById('pencilPredictionBoard');
   if(!board)return;
 
   [board,wet].filter(Boolean).forEach(canvas=>{
    const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
-   if(!ctx||ctx.__ajPencilV22130)return;
-   ctx.__ajPencilV22130=true;
+   if(!ctx||ctx.__ajPencilV22131)return;
+   ctx.__ajPencilV22131=true;
    const stroke=ctx.stroke.bind(ctx);
    ctx.stroke=function(...args){
-    this.lineCap='round';
-    this.lineJoin='round';
-    this.miterLimit=1.5;
+    this.lineCap='round';this.lineJoin='round';this.miterLimit=1;
     this.imageSmoothingEnabled=true;
     if('imageSmoothingQuality' in this)this.imageSmoothingQuality='high';
     return stroke(...args);
    };
   });
 
-  /* Campionamento adattivo: più punti nelle curve lente, meno lavoro nei gesti veloci. */
   let replaying=false;
-  let last=null;
-  const reset=event=>{if(event.pointerType==='pen')last=null};
+  let previous=null;
+  let previousVector=null;
+  const reset=event=>{if(event.pointerType==='pen'){previous=null;previousVector=null}};
   board.addEventListener('pointerdown',reset,true);
   board.addEventListener('pointerup',reset,true);
   board.addEventListener('pointercancel',reset,true);
+
   board.addEventListener('pointermove',event=>{
    if(replaying||event.pointerType!=='pen'||!event.isPrimary||typeof event.getCoalescedEvents!=='function')return;
    const raw=event.getCoalescedEvents();
    if(!raw||raw.length<2)return;
-   const stride=Math.max(1,Math.ceil(raw.length/6));
+   /* Quattro campioni al massimo: meno dispatch e quindi meno latenza. */
+   const stride=Math.max(1,Math.ceil((raw.length-1)/4));
    const selected=[];
-   for(let index=0;index<raw.length-1;index+=stride)selected.push(raw[index]);
+   for(let i=0;i<raw.length-1;i+=stride)selected.push(raw[i]);
    replaying=true;
    try{
     for(const sample of selected){
-     const current={x:sample.clientX,y:sample.clientY};
-     if(last){
-      const distance=Math.hypot(current.x-last.x,current.y-last.y);
-      if(distance<0.22)continue;
-      const alpha=Math.min(.88,Math.max(.48,.48+distance*.075));
-      current.x=last.x+(current.x-last.x)*alpha;
-      current.y=last.y+(current.y-last.y)*alpha;
+     let x=sample.clientX,y=sample.clientY;
+     if(previous){
+      const vx=x-previous.x,vy=y-previous.y;
+      const distance=Math.hypot(vx,vy);
+      if(distance<0.18)continue;
+      let turn=0;
+      if(previousVector){
+       const a=Math.hypot(previousVector.x,previousVector.y)||1;
+       const b=distance||1;
+       const cosine=Math.max(-1,Math.min(1,(previousVector.x*vx+previousVector.y*vy)/(a*b)));
+       turn=Math.acos(cosine)/Math.PI;
+      }
+      /* Curva stretta: segue maggiormente la Pencil. Retta: filtra maggiormente il tremolio. */
+      const curvatureGain=Math.min(.34,turn*.55);
+      const speedGain=Math.min(.20,distance*.045);
+      const alpha=Math.min(.96,.54+curvatureGain+speedGain);
+      x=previous.x+vx*alpha;
+      y=previous.y+vy*alpha;
+      previousVector={x:x-previous.x,y:y-previous.y};
      }
-     last=current;
+     previous={x,y};
      board.dispatchEvent(new PointerEvent('pointermove',{
       bubbles:true,cancelable:true,composed:true,
       pointerId:event.pointerId,pointerType:'pen',isPrimary:true,
-      clientX:current.x,clientY:current.y,
-      pressure:sample.pressure,tiltX:sample.tiltX,tiltY:sample.tiltY,twist:sample.twist,
+      clientX:x,clientY:y,pressure:sample.pressure,
+      tiltX:sample.tiltX,tiltY:sample.tiltY,twist:sample.twist,
       width:sample.width,height:sample.height,buttons:event.buttons,button:event.button
      }));
     }
    }finally{replaying=false}
   },true);
 
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.30-ipad-pencil-ultra-v2';
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.31-ipad-pencil-curvature';
  });
 })();
 </script>
-<!-- AIRJOTTER_V22130_END -->
+<!-- AIRJOTTER_V22131_END -->
 </body>
 </html>
