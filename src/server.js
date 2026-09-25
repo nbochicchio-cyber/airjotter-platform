@@ -82,21 +82,12 @@ async function grantPurchase(client,userId,plan,provider,externalId,status='paid
 async function stripeWebhookHandler(req,res){if(!stripe||!process.env.STRIPE_WEBHOOK_SECRET)return res.status(503).send('Stripe non configurato');let event;try{event=stripe.webhooks.constructEvent(req.body,req.headers['stripe-signature'],process.env.STRIPE_WEBHOOK_SECRET)}catch(e){return res.status(400).send('Firma webhook non valida')}const c=await pool.connect();try{await c.query('BEGIN');const ins=await c.query('INSERT INTO billing_webhook_events(provider,external_event_id,payload) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING external_event_id',['stripe',event.id,event]);if(!ins.rowCount){await c.query('ROLLBACK');return res.json({received:true,duplicate:true})}if(event.type==='checkout.session.completed'){const s=event.data.object;if(s.metadata?.kind==='credit_topup'){const cents=Number(s.metadata.amountCents||0);const ins=await c.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,provider,external_id,description) VALUES($1,$2,'topup',$3,'credit','stripe',$4,'Ricarica credito con carta') ON CONFLICT(provider,external_id) DO NOTHING RETURNING id",[crypto.randomUUID(),s.client_reference_id,cents,s.id]);if(ins.rowCount)await c.query('UPDATE users SET spot_credit_cents=spot_credit_cents+$1 WHERE id=$2',[cents,s.client_reference_id]);}else{const plan=await planById(s.metadata?.planId);if(plan)await grantPurchase(c,s.client_reference_id,plan,'stripe',s.subscription||s.payment_intent||s.id,'active')}await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[s,s.id])}else if(event.type==='customer.subscription.deleted'||event.type==='customer.subscription.paused'){const sub=event.data.object;await c.query("UPDATE users SET subscription_status='suspended' WHERE subscription_external_id=$1",[sub.id])}else if(event.type==='invoice.payment_failed'){const inv=event.data.object;await c.query("UPDATE users SET subscription_status='past_due' WHERE billing_customer_id=$1",[inv.customer])}await c.query('COMMIT');res.json({received:true})}catch(e){await c.query('ROLLBACK');console.error('Webhook Stripe:',e);res.sendStatus(500)}finally{c.release()}}
 
 
-// AIRJOTTER FILE TRANSFER V22.9.0 - ICE/TURN temporaneo
-let ajTurnCache={expiresAt:0,iceServers:null};
-app.get('/api/file-transfer/ice',auth,async(req,res)=>{
- try{
-  const keyId=process.env.CLOUDFLARE_TURN_KEY_ID,token=process.env.CLOUDFLARE_TURN_API_TOKEN;
-  if(!keyId||!token)return res.json({turnConfigured:false,iceServers:[{urls:['stun:stun.cloudflare.com:3478']}]});
-  if(ajTurnCache.iceServers&&ajTurnCache.expiresAt>Date.now()+60000)return res.json({turnConfigured:true,iceServers:ajTurnCache.iceServers});
-  const r=await fetch(`https://rtc.live.cloudflare.com/v1/turn/keys/${encodeURIComponent(keyId)}/credentials/generate-ice-servers`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({ttl:3600})});
-  const data=await r.json().catch(()=>({}));
-  if(!r.ok||!Array.isArray(data.iceServers))throw new Error(data?.errors?.[0]?.message||'TURN non disponibile');
-  ajTurnCache={expiresAt:Date.now()+50*60*1000,iceServers:data.iceServers};
-  res.json({turnConfigured:true,iceServers:data.iceServers});
- }catch(error){console.warn('TURN AirJotter:',error.message);res.json({turnConfigured:false,iceServers:[{urls:['stun:stun.cloudflare.com:3478']}],warning:'TURN temporaneamente non disponibile'})}
-});
-
+// AIRJOTTER FILE TRANSFER V22.9.8 - P2P diretto, nessun relay TURN
+app.get('/api/file-transfer/ice',auth,(req,res)=>res.json({
+ turnConfigured:false,
+ iceServers:[{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302']}],
+ notice:'Avvio P2P: la connessione puo richiedere fino a 2 minuti.'
+}));
 app.get('/api/plans',async(req,res)=>{const q=await pool.query("SELECT * FROM billing_plans WHERE status='active' AND public=true ORDER BY sort_order,name");res.json(q.rows.map(planPublic))});
 app.get('/api/billing/config',(req,res)=>res.json({stripe:Boolean(process.env.STRIPE_PUBLISHABLE_KEY&&process.env.STRIPE_SECRET_KEY),stripePublishableKey:process.env.STRIPE_PUBLISHABLE_KEY||'',paypal:Boolean(process.env.PAYPAL_CLIENT_ID&&process.env.PAYPAL_CLIENT_SECRET),paypalClientId:process.env.PAYPAL_CLIENT_ID||'',paypalEnv:process.env.PAYPAL_ENV||'sandbox'}));
 app.get('/api/billing/me',auth,async(req,res)=>{const p=await resolvedPlan(req.user.sub);const u=(await pool.query('SELECT subscription_current_period_end FROM users WHERE id=$1',[req.user.sub])).rows[0];const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);res.json({plan:{...p,currentPeriodEnd:u?.subscription_current_period_end||null},orders:orders.rows})});
