@@ -4348,7 +4348,7 @@ async function closeSinkSafe(){try{if(state.sink?.kind==='stream')await state.si
 function u16(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b}function u32(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n>>>0,true);return b}function u64(n){n=BigInt(n);const b=new Uint8Array(8),d=new DataView(b.buffer);d.setUint32(0,Number(n&0xffffffffn),true);d.setUint32(4,Number((n>>32n)&0xffffffffn),true);return b}function cat(...parts){const len=parts.reduce((s,p)=>s+p.length,0),o=new Uint8Array(len);let at=0;for(const p of parts){o.set(p,at);at+=p.length}return o}
 const crcTable=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();function crcUpdate(crc,bytes){crc=crc^0xffffffff;for(const x of bytes)crc=crcTable[(crc^x)&255]^(crc>>>8);return (crc^0xffffffff)>>>0}
 class ZipWriter{constructor(){this.offset=0n;this.entries=[];this.current=null}async write(b){await sinkWrite(b);this.offset+=BigInt(b.length)}async start(f){const name=new TextEncoder().encode(f.path),zip64=f.size>=0xffffffff,start=this.offset,extra=zip64?cat(u16(1),u16(16),u64(f.size),u64(f.size)):new Uint8Array();const flags=0x0808,version=zip64?45:20;await this.write(cat(u32(0x04034b50),u16(version),u16(flags),u16(0),u16(0),u16(0),u32(0),u32(zip64?0xffffffff:0),u32(zip64?0xffffffff:0),u16(name.length),u16(extra.length),name,extra));this.current={f,name,start,crc:0,zip64}}async chunk(b){this.current.crc=crcUpdate(this.current.crc,b);await this.write(b)}async end(){const c=this.current;await this.write(c.zip64?cat(u32(0x08074b50),u32(c.crc),u64(c.f.size),u64(c.f.size)):cat(u32(0x08074b50),u32(c.crc),u32(c.f.size),u32(c.f.size)));this.entries.push(c);this.current=null}async finish(){const cdStart=this.offset;for(const e of this.entries){const off64=e.start>=0xffffffffn,size64=e.f.size>=0xffffffff,zip64=off64||size64;let payload=[];if(size64)payload.push(u64(e.f.size),u64(e.f.size));if(off64)payload.push(u64(e.start));const data=payload.length?cat(...payload):new Uint8Array(),extra=payload.length?cat(u16(1),u16(data.length),data):new Uint8Array();await this.write(cat(u32(0x02014b50),u16(45),u16(zip64?45:20),u16(0x0808),u16(0),u16(0),u16(0),u32(e.crc),u32(size64?0xffffffff:e.f.size),u32(size64?0xffffffff:e.f.size),u16(e.name.length),u16(extra.length),u16(0),u16(0),u16(0),u32(0),u32(off64?0xffffffff:Number(e.start)),e.name,extra))}const cdSize=this.offset-cdStart,count=BigInt(this.entries.length),needs=count>=65535n||cdStart>=0xffffffffn||cdSize>=0xffffffffn;if(needs){const zStart=this.offset;await this.write(cat(u32(0x06064b50),u64(44),u16(45),u16(45),u32(0),u32(0),u64(count),u64(count),u64(cdSize),u64(cdStart)));await this.write(cat(u32(0x07064b50),u32(0),u64(zStart),u32(1)))}await this.write(cat(u32(0x06054b50),u16(0),u16(0),u16(needs?65535:Number(count)),u16(needs?65535:Number(count)),u32(needs?0xffffffff:Number(cdSize)),u32(needs?0xffffffff:Number(cdStart)),u16(0)))}}
-async function iceConfig(){const r=await fetch('/api/file-transfer/ice',{credentials:'same-origin'}),d=await r.json();if(!r.ok)throw new Error(d.error||'Configurazione WebRTC non disponibile');if(!d.turnConfigured)toast('TURN non è ancora configurato: provo una connessione P2P diretta.',5200);return {iceServers:d.iceServers||[{urls:'stun:stun.cloudflare.com:3478'}]}}
+async function iceConfig(){const r=await fetch('/api/file-transfer/ice',{credentials:'same-origin'}),d=await r.json();if(!r.ok)throw new Error(d.error||'Configurazione WebRTC non disponibile');if(!d.turnConfigured)toast('TURN non è ancora configurato: provo una connessione P2P diretta.',5200);return {iceServers:d.iceServers||[{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302']}],iceCandidatePoolSize:10,bundlePolicy:'max-bundle'}}
 async function handleSignal(e){
  if(!e?.data)return;
  if(!state.peer){state.pendingSignals.push(e);return}
@@ -4485,5 +4485,39 @@ header .aj-file-transfer-btn-v2291{bottom:0!important}
 })();
 </script>
 
+<style id="AIRJOTTER_V2294_FIX_STYLE">
+/* Never show the edit-request alarm at application startup. */
+#ajRequestEdit{display:none!important;animation:none!important}
+#ajRequestEdit.aj-readonly-alert-v2253{display:flex!important}
+</style>
+<script id="AIRJOTTER_V2294_FIX_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const request=document.getElementById('ajRequestEdit');
+  if(request){
+   request.classList.remove('pending-blink','aj-viewer-pulse-v2252');
+   request.classList.add('aj-hidden');
+   request.style.display='none';
+  }
+  const wrap=document.getElementById('ajMainColorV2287');
+  const button=wrap?.querySelector('.aj-main-color-button-v2287');
+  const palette=wrap?.querySelector('.aj-main-palette-v2287');
+  if(button&&palette){
+   const toggle=e=>{
+    e.preventDefault();e.stopPropagation();
+    const open=!palette.classList.contains('open');
+    palette.classList.toggle('open',open);
+    palette.setAttribute('aria-hidden',String(!open));
+   };
+   /* Replace the legacy click handler: one pointerup means exactly one toggle on touch and pen. */
+   button.onclick=null;
+   button.addEventListener('pointerup',toggle,{capture:true});
+  }
+  window.AIRJOTTER_FRONTEND_VERSION='22.9.4-fix';
+ });
+})();
+</script>
 </body>
 </html>
