@@ -4683,5 +4683,81 @@ header button:disabled{opacity:.34!important}
 })();
 </script>
 <!-- AIRJOTTER_V22100_END -->
+<!-- AIRJOTTER_V22101_BEGIN -->
+<style id="AIRJOTTER_V22101_TOOLBAR_REFINEMENT_STYLE">
+/* Tre comandi principali: rilievo minimo, bordo AirJotter e ombra blu cangiante. */
+header .aj-premium-control-v22101{
+ background:linear-gradient(180deg,#ffffff 0%,#f7fbff 58%,#edf5ff 100%)!important;
+ border:1px solid #45a3ff!important;
+ color:#173a67!important;
+ box-shadow:0 2px 0 rgba(12,54,105,.28),0 5px 12px rgba(16,72,145,.14),inset 0 1px 0 rgba(255,255,255,.95)!important;
+ transform:translateY(-1px)!important;
+}
+header .aj-premium-control-v22101:hover{
+ background:linear-gradient(180deg,#fff 0%,#eef7ff 100%)!important;
+ border-color:#1685f5!important;
+ box-shadow:0 2px 0 rgba(12,54,105,.34),0 7px 15px rgba(20,91,178,.18),inset 0 1px 0 #fff!important;
+}
+header .aj-premium-control-v22101:active{transform:translateY(1px)!important;box-shadow:0 1px 0 rgba(12,54,105,.26),0 2px 6px rgba(16,72,145,.12)!important}
+/* Upload coerenti e leggibili. */
+header .aj-upload-v22101{min-width:66px!important;justify-content:center!important;color:#334155!important}
+header .aj-upload-v22101 svg{width:19px!important;height:19px!important;stroke:#1769e8!important}
+header .aj-upload-v22101 .aj-upload-mark-v22101{stroke:#45a3ff!important}
+/* Archivio Jotter. */
+header .aj-jotter-link-color-v2283{font-size:.72rem!important;font-weight:700!important;color:#31567f!important;white-space:nowrap!important;line-height:1.05!important}
+/* Codice e QR raggruppati sotto una sola etichetta. */
+header .aj-code-cluster-v22101{display:grid!important;grid-template-columns:36px 36px!important;grid-template-rows:auto 36px!important;gap:2px 3px!important;align-items:center!important;padding-left:7px!important;padding-right:7px!important}
+header .aj-code-label-v22101{grid-column:1/-1;text-align:center;font-size:.64rem!important;line-height:1!important;font-weight:750!important;color:#31567f!important;white-space:nowrap!important}
+header .aj-code-cluster-v22101 #toggleCodeBtn{grid-column:1;grid-row:2}
+header .aj-code-cluster-v22101 #showQrBtn{grid-column:2;grid-row:2}
+/* Pagine: etichetta sopra e controlli compatti. */
+header .aj-page-tools-v2287{display:grid!important;grid-template-rows:auto 32px!important;grid-template-columns:auto!important;gap:2px!important;align-items:center!important;padding-left:7px!important;padding-right:7px!important}
+header .aj-page-label-v2287{display:block!important;text-align:center!important;font-size:.62rem!important;line-height:1!important;white-space:nowrap!important}
+header .aj-page-row-v2287{display:grid!important;grid-template-columns:27px 34px 27px!important;gap:2px!important;align-items:center!important}
+header .aj-page-row-v2287 .page-btn{width:27px!important;min-width:27px!important;height:29px!important;min-height:29px!important;padding:0!important}
+header .aj-page-row-v2287 .page-count-display{min-width:34px!important;height:29px!important;padding:3px 5px!important}
+/* Cestino più leggibile, senza renderlo dominante. */
+header #clearBtn{width:39px!important;min-width:39px!important;height:38px!important;min-height:38px!important;padding:7px!important}
+header #clearBtn svg{width:23px!important;height:23px!important;stroke:#b42318!important;stroke-width:2.15!important}
+@media(max-width:760px){header .aj-jotter-link-color-v2283{font-size:.68rem!important}header .aj-code-cluster-v22101{grid-template-columns:34px 34px!important}.aj-code-label-v22101{font-size:.60rem!important}}
+</style>
+<script id="AIRJOTTER_V22101_TOOLBAR_REFINEMENT_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');if(!header)return;
+  const buttons=[...header.querySelectorAll('button')];
+  const byText=text=>buttons.find(b=>(b.textContent||'').trim().toLowerCase().includes(text.toLowerCase()));
+  const fit=document.getElementById('ajPcFitV204');
+  const owner=document.getElementById('ajUser');
+  const plans=byText('piani');
+  [fit,owner,plans].filter(Boolean).forEach(x=>x.classList.add('aj-premium-control-v22101'));
+
+  const archiveHint=header.querySelector('.aj-jotter-link-color-v2283');
+  if(archiveHint)archiveHint.textContent='Clicca qui per i tuoi Jotter';
+
+  const pdfButton=document.getElementById('importPdfBtn');
+  const signButton=document.getElementById('importSignBtn');
+  const photoButton=document.getElementById('importRealImgBtn');
+  if(pdfButton){pdfButton.classList.add('aj-upload-v22101');pdfButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5"/><path class="aj-upload-mark-v22101" d="M12 18v-6m0 0-3 3m3-3 3 3"/></svg><span>PDF</span>'}
+  if(signButton){signButton.classList.add('aj-upload-v22101');signButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3.2-5.8 5.4-8.3 7-7.2 1.4 1-1.8 5.4-.1 6.2 1.4.7 3.1-3.2 4.5-2.5 1 .5-.2 2.8 1 3.3 1.2.5 2.5-1.3 5.6-.8"/><path class="aj-upload-mark-v22101" d="M12 8V3m0 0-3 3m3-3 3 3"/></svg><span>Firma</span>'}
+  if(photoButton){photoButton.classList.add('aj-upload-v22101');photoButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="m4 18 5-5 3.5 3.5 2.5-2.5 5 5"/><path class="aj-upload-mark-v22101" d="M17 9V3m0 0-2.5 2.5M17 3l2.5 2.5"/></svg><span>Foto</span>'}
+
+  const toggle=document.getElementById('toggleCodeBtn');
+  const qr=document.getElementById('showQrBtn');
+  if(toggle&&qr){
+   const group=toggle.closest('.tools-group');
+   if(group){group.classList.add('aj-code-cluster-v22101');let label=group.querySelector('.aj-code-label-v22101');if(!label){label=document.createElement('small');label.className='aj-code-label-v22101';label.textContent='Jotter Code';group.insertBefore(label,toggle)}}
+  }
+
+  const clear=document.getElementById('clearBtn');
+  if(plans&&clear){plans.insertAdjacentElement('afterend',clear)}
+  const empty=clear?.closest('.tools-group');if(empty&&empty.children.length===0)empty.remove();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.1-toolbar-refinement';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22101_END -->
 </body>
 </html>
