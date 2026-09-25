@@ -5364,5 +5364,60 @@ header [data-aj-tooltip-v22112]::after{
 })();
 </script>
 <!-- AIRJOTTER_V22113_END -->
+<!-- AIRJOTTER_V22114_BEGIN -->
+<style id="AIRJOTTER_V22114_PERFECT_VERTICAL_CENTER_STYLE">
+/* Un solo asse verticale centrale, senza modificare altezza/larghezza toolbar, dimensioni o coordinate orizzontali. */
+header{
+ align-items:center!important;
+}
+header>*,
+header .tools-group{
+ align-self:center!important;
+}
+/* Annulla esclusivamente tutte le traslazioni verticali introdotte dalle patch precedenti. */
+header .brand,
+header #ajPcFitV204,
+header .aj-import-tools-v2291,
+header .aj-io-stack-v22107,
+header .aj-owner-row-v22107,
+header .aj-room-current-v2266,
+header .aj-code-pair-v22105,
+header .aj-page-tools-v2287,
+header .aj-plan-column-v22107{
+ transform:none!important;
+}
+/* I blocchi compositi vengono centrati come unità complete tra margine superiore e inferiore. */
+header .aj-import-tools-v2291,
+header .aj-io-stack-v22107,
+header .aj-room-current-v2266,
+header .aj-code-pair-v22105,
+header .aj-page-tools-v2287,
+header .aj-plan-column-v22107{
+ align-self:center!important;
+ justify-self:center!important;
+}
+</style>
+<script id="AIRJOTTER_V22114_PERFECT_VERTICAL_CENTER_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  /* Tooltip nativi bianchi mancanti per PDF, Firma e Foto. */
+  const tips={
+   importPdfBtn:'Carica un documento PDF nel Jotter',
+   importSignBtn:'Carica un’immagine della firma nel Jotter',
+   importRealImgBtn:'Carica una foto o un’immagine nel Jotter'
+  };
+  Object.entries(tips).forEach(([id,text])=>{
+   const button=document.getElementById(id);
+   const input=button?.closest('.aj-native-file-picker-v218')?.querySelector('input[type="file"]');
+   if(button)button.title=text;
+   if(input)input.title=text;
+  });
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.14-perfect-vertical-center';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22114_END -->
 </body>
 </html>
