@@ -5333,5 +5333,36 @@ header .aj-plan-column-v22107 button:active{transform:translateY(2px)!important;
 })();
 </script>
 <!-- AIRJOTTER_V22112_END -->
+<!-- AIRJOTTER_V22113_BEGIN -->
+<style id="AIRJOTTER_V22113_NATIVE_TOOLTIPS_ONLY_STYLE">
+/* Disattiva esclusivamente il tooltip personalizzato scuro. Resta il tooltip nativo bianco del browser. */
+header [data-aj-tooltip-v22112]::before,
+header [data-aj-tooltip-v22112]::after{
+ content:none!important;
+ display:none!important;
+ opacity:0!important;
+ visibility:hidden!important;
+}
+</style>
+<script id="AIRJOTTER_V22113_NATIVE_TOOLTIPS_ONLY_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const ids=['importPdfBtn','importSignBtn','importRealImgBtn','exportPdfBtn','ajFileTransferBtnV2291','clearBtn'];
+  ids.forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;
+   const wrap=el.closest('.aj-native-file-picker-v218');
+   if(wrap)wrap.removeAttribute('data-aj-tooltip-v22112');
+   el.removeAttribute('data-aj-tooltip-v22112');
+  });
+  const header=document.querySelector('header');
+  const plans=[...(header?.querySelectorAll('button')||[])].find(b=>(b.textContent||'').trim().toLowerCase().includes('piani'));
+  plans?.removeAttribute('data-aj-tooltip-v22112');
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.13-native-tooltips-only';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22113_END -->
 </body>
 </html>
