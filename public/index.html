@@ -5789,5 +5789,79 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22123_END -->
+<!-- AIRJOTTER_V22124_BEGIN -->
+<style id="AIRJOTTER_V22124_TEXTBOX_MINIMUM_STYLE">
+/* Dimensione minima verticale calibrata sul layout completo mostrato nel secondo screenshot. */
+#text-tool-overlay{
+ min-width:430px!important;
+ min-height:505px!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+}
+/* La casella di digitazione mantiene una dimensione utile al livello minimo. */
+#text-tool-input{
+ height:215px!important;
+ min-height:215px!important;
+ max-height:55vh!important;
+ box-sizing:border-box!important;
+}
+/* La barra dei controlli non viene compressa verticalmente. */
+#text-tool-overlay .text-toolbar{
+ min-height:116px!important;
+ box-sizing:border-box!important;
+ overflow-x:auto!important;
+ overflow-y:hidden!important;
+}
+/* Footer completamente visibile e vicino al bordo inferiore. */
+#text-tool-overlay .aj-text-foot-v2266f{
+ min-height:66px!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ flex-wrap:nowrap!important;
+ gap:6px!important;
+ margin:0!important;
+ padding:7px 48px 8px 8px!important;
+ overflow:visible!important;
+}
+#text-tool-overlay .aj-text-foot-v2266f>div{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ flex-wrap:nowrap!important;
+ gap:6px!important;
+ margin:0!important;
+}
+/* Mantiene il pulsante guida verde prima di Annulla. */
+#ajTextHelpBtnV22120{
+ position:static!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ margin:0!important;padding:0!important;border:1px solid #8fbe9b!important;border-radius:7px!important;
+ background:#ccebd5!important;color:#111!important;box-shadow:none!important;
+ font:800 15px/1 Arial,sans-serif!important;display:grid!important;place-items:center!important;
+}
+@media(max-width:470px){
+ #text-tool-overlay{min-width:calc(100vw - 12px)!important;min-height:520px!important}
+ #text-tool-input{height:200px!important;min-height:200px!important}
+ #text-tool-overlay .aj-text-foot-v2266f{flex-wrap:wrap!important;min-height:72px!important}
+}
+</style>
+<script id="AIRJOTTER_V22124_TEXTBOX_MINIMUM_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const footer=document.querySelector('#text-tool-overlay .aj-text-foot-v2266f');
+  const actions=footer?.querySelector(':scope > div');
+  const help=document.getElementById('ajTextHelpBtnV22120');
+  const cancel=document.getElementById('textCancelBtn');
+  if(actions&&help&&cancel)actions.insertBefore(help,cancel);
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.24-textbox-minimum';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22124_END -->
 </body>
 </html>
