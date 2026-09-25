@@ -5419,5 +5419,34 @@ header .aj-plan-column-v22107{
 })();
 </script>
 <!-- AIRJOTTER_V22114_END -->
+<!-- AIRJOTTER_V22115_BEGIN -->
+<style id="AIRJOTTER_V22115_FINAL_TUNE_STYLE">
+/* 1. Cestino: solo 9px verso destra, senza alterare gli altri elementi. */
+header .aj-owner-row-v22107 #clearBtn{
+ transform:translateX(9px)!important;
+}
+/* 2. Codice e titolo: blocco completo 9px più in alto. */
+header .aj-room-current-v2266{
+ transform:translateY(-9px)!important;
+}
+/* 3. Piani: ombra molto più contenuta. Il blocco resta centrato verticalmente. */
+header .aj-plan-column-v22107{
+ transform:none!important;
+}
+header .aj-plan-column-v22107 button{
+ box-shadow:0 2px 0 #092747,0 2px 3px rgba(11,47,91,.09),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+header .aj-plan-column-v22107 button:hover{
+ box-shadow:0 2px 0 #092747,0 2px 4px rgba(11,47,91,.10),inset 0 1px 0 rgba(255,255,255,.20)!important;
+}
+header .aj-plan-column-v22107 button:active{
+ transform:translateY(1px)!important;
+ box-shadow:0 1px 0 #092747,0 1px 2px rgba(11,47,91,.08)!important;
+}
+</style>
+<script id="AIRJOTTER_V22115_FINAL_TUNE_SCRIPT">
+(()=>{window.AIRJOTTER_FRONTEND_VERSION='22.10.15-final-toolbar-tune'})();
+</script>
+<!-- AIRJOTTER_V22115_END -->
 </body>
 </html>
