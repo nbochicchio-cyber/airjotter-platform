@@ -5502,5 +5502,58 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22116_END -->
+<!-- AIRJOTTER_V22117_BEGIN -->
+<style id="AIRJOTTER_V22117_SHAPE_PALETTES_STYLE">
+/* Le quattro tavolozze Forme/Connettori mostrano sei colori standard nello stesso ordine. */
+.aj-shape-palette-v227 button[data-aj-standard-v22117]{background:var(--c)!important}
+</style>
+<script id="AIRJOTTER_V22117_SHAPE_PALETTES_SCRIPT">
+(()=>{
+ 'use strict';
+ const COLORS=[
+  {value:'#1D1D1F',name:'Nero'},
+  {value:'#FFFFFF',name:'Bianco'},
+  {value:'#49A7FF',name:'Azzurro'},
+  {value:'#D92D20',name:'Rosso'},
+  {value:'#176B3A',name:'Verde'},
+  {value:'#F4C430',name:'Giallo'}
+ ];
+ const paint=palette=>{
+  if(!palette)return;
+  const buttons=[...palette.querySelectorAll(':scope > button')]
+   .filter(b=>!b.classList.contains('aj-custom-palette-v2272'))
+   .slice(0,6);
+  if(buttons.length!==6)return;
+  buttons.forEach((button,index)=>{
+   const color=COLORS[index];
+   button.dataset.ajStandardV22117=color.value;
+   button.dataset.color=color.value;
+   button.dataset.value=color.value;
+   button.value=color.value;
+   button.style.setProperty('--c',color.value);
+   button.style.backgroundColor=color.value;
+   button.title=color.name;
+   button.setAttribute('aria-label',color.name);
+  });
+ };
+ const apply=()=>document.querySelectorAll('.aj-shape-palette-v227').forEach(paint);
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  apply();
+  const observer=new MutationObserver(apply);
+  observer.observe(document.body,{childList:true,subtree:true});
+  /* Prima del listener originale riallinea tutti i possibili campi letti dalla tavolozza. */
+  document.addEventListener('pointerdown',event=>{
+   const button=event.target.closest?.('.aj-shape-palette-v227 button[data-aj-standard-v22117]');
+   if(!button)return;
+   const color=button.dataset.ajStandardV22117;
+   button.dataset.color=color;button.dataset.value=color;button.value=color;
+   button.style.setProperty('--c',color);button.style.backgroundColor=color;
+  },true);
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.17-shape-palettes';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22117_END -->
 </body>
 </html>
