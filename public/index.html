@@ -5242,5 +5242,39 @@ header .aj-io-stack-v22107 #ajFileTransferBtnV2291:active{
 })();
 </script>
 <!-- AIRJOTTER_V22110_END -->
+<!-- AIRJOTTER_V22111_BEGIN -->
+<style id="AIRJOTTER_V22111_VERTICAL_TUNE_STYLE">
+/* Spostamento verticale chirurgico dei due blocchi indicati. */
+header .aj-room-current-v2266{
+ transform:translateY(-13px)!important;
+}
+header .aj-plan-column-v22107{
+ transform:translateY(-8px)!important;
+}
+/* Riduce la toolbar esclusivamente dal bordo inferiore, senza comprimere o tagliare i contenuti. */
+header{
+ padding-bottom:2px!important;
+ overflow-y:visible!important;
+}
+</style>
+<script id="AIRJOTTER_V22111_VERTICAL_TUNE_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const room=document.getElementById('roomCode');
+  if(room){
+   const normalize=()=>{
+    const value=(room.textContent||'').trim();
+    if(/^\*{3}-\*{4}$/.test(value))room.textContent='****-****';
+   };
+   normalize();
+   new MutationObserver(normalize).observe(room,{childList:true,characterData:true,subtree:true});
+  }
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.11-vertical-tune';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22111_END -->
 </body>
 </html>
