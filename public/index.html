@@ -4575,14 +4575,14 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
 })();
 </script>
 <!-- AIRJOTTER_V2297_END -->
-<!-- AIRJOTTER_V2298_BEGIN -->
-<style id="AIRJOTTER_V2298_PALETTE_STYLE">
-#ajMainPaletteV2298{display:none;position:fixed;z-index:2147483646;width:252px;padding:11px;border:1px solid #c8d5e7;border-radius:14px;background:#fff;box-shadow:0 14px 35px rgba(20,42,75,.25);grid-template-columns:repeat(7,1fr);gap:8px;pointer-events:auto!important;touch-action:manipulation!important}
-#ajMainPaletteV2298.open{display:grid!important}
-#ajMainPaletteV2298 button{pointer-events:auto!important;touch-action:manipulation!important}
-#ajMainPaletteV2298 .aj-main-custom-v2287{grid-column:1/-1}
+<!-- AIRJOTTER_V2299_BEGIN -->
+<style id="AIRJOTTER_V2299_PALETTE_HARD_FIX_STYLE">
+#ajMainPaletteV2299{display:none;position:fixed;z-index:2147483647;width:252px;padding:11px;border:1px solid #c8d5e7;border-radius:14px;background:#fff;box-shadow:0 14px 35px rgba(20,42,75,.25);grid-template-columns:repeat(7,1fr);gap:8px;pointer-events:auto!important;touch-action:none!important}
+#ajMainPaletteV2299.open{display:grid!important}
+#ajMainPaletteV2299 button{pointer-events:auto!important;touch-action:none!important}
+#ajMainPaletteV2299 .aj-main-custom-v2287{grid-column:1/-1}
 </style>
-<script id="AIRJOTTER_V2298_PALETTE_SCRIPT">
+<script id="AIRJOTTER_V2299_PALETTE_HARD_FIX_SCRIPT">
 (()=>{
  'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
@@ -4590,25 +4590,34 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
   const input=document.getElementById('colorPicker');
   const wrap=document.getElementById('ajMainColorV2287');
   const oldButton=wrap?.querySelector('.aj-main-color-button-v2287');
-  const oldPalette=document.querySelector('.aj-main-palette-v2287');
-  if(!input||!wrap||!oldButton||!oldPalette)return;
-  const button=oldButton.cloneNode(true);oldButton.replaceWith(button);oldPalette.remove();
-  const palette=document.createElement('div');palette.id='ajMainPaletteV2298';palette.setAttribute('aria-hidden','true');
+  if(!input||!wrap||!oldButton)return;
+  document.querySelectorAll('.aj-main-palette-v2287,#ajMainPaletteV2298,#ajMainPaletteV2299').forEach(x=>x.remove());
+  const button=oldButton.cloneNode(true);oldButton.replaceWith(button);
+  const palette=document.createElement('div');palette.id='ajMainPaletteV2299';palette.setAttribute('aria-hidden','true');
   const colors=[['#1D1D1F','Nero'],['#FFFFFF','Bianco'],['#1769E8','Blu'],['#D92D20','Rosso'],['#176B3A','Verde'],['#E87500','Arancione'],['#F4C430','Giallo']];
-  const select=color=>{input.value=color;button.style.setProperty('--c',color);input.dispatchEvent(new Event('input',{bubbles:true}));palette.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('active',x.dataset.color.toLowerCase()===color.toLowerCase()))};
+  colors.forEach(([color,name])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.ajColorV2299=color;b.title=name;b.setAttribute('aria-label',name);b.style.setProperty('--c',color);palette.appendChild(b)});
+  const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.dataset.ajCustomV2299='1';custom.textContent='Tavolozza...';palette.appendChild(custom);document.body.appendChild(palette);
   const close=()=>{palette.classList.remove('open');palette.setAttribute('aria-hidden','true')};
-  colors.forEach(([color,name])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.color=color;b.title=name;b.setAttribute('aria-label',name);b.style.setProperty('--c',color);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();select(color);close()});palette.appendChild(b)});
-  const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.textContent='Tavolozza...';custom.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();close();input.click()});palette.appendChild(custom);document.body.appendChild(palette);
-  function place(){const r=button.getBoundingClientRect(),w=Math.min(252,innerWidth-16);const left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2));let top=r.bottom+8;if(top+150>innerHeight)top=Math.max(8,r.top-150);palette.style.width=w+'px';palette.style.left=left+'px';palette.style.top=top+'px'}
-  function open(){place();palette.classList.add('open');palette.setAttribute('aria-hidden','false')}
-  button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();palette.classList.contains('open')?close():open()});
-  palette.addEventListener('pointerdown',e=>e.stopPropagation(),true);palette.addEventListener('click',e=>e.stopPropagation(),true);
-  document.addEventListener('pointerdown',e=>{if(!palette.contains(e.target)&&e.target!==button&&!button.contains(e.target))close()},true);
-  addEventListener('resize',()=>{if(palette.classList.contains('open'))place()});input.addEventListener('input',()=>select(input.value));select(input.value||'#1D1D1F');
-  window.AIRJOTTER_FRONTEND_VERSION='22.9.8-p2p-palette';
+  const place=()=>{const r=button.getBoundingClientRect(),w=Math.min(252,innerWidth-16);const left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2));let top=r.bottom+8;if(top+150>innerHeight)top=Math.max(8,r.top-150);palette.style.width=w+'px';palette.style.left=left+'px';palette.style.top=top+'px'};
+  const open=()=>{place();palette.classList.add('open');palette.setAttribute('aria-hidden','false')};
+  const select=color=>{input.value=color;button.style.setProperty('--c',color);input.dispatchEvent(new Event('input',{bubbles:true}));palette.querySelectorAll('[data-aj-color-v2299]').forEach(x=>x.classList.toggle('active',x.dataset.ajColorV2299.toLowerCase()===color.toLowerCase()));close()};
+  /* Window capture precedes every legacy document/header listener. */
+  window.addEventListener('pointerdown',e=>{
+   const color=e.target?.closest?.('[data-aj-color-v2299]')?.dataset?.ajColorV2299;
+   if(color){e.preventDefault();e.stopImmediatePropagation();select(color);return}
+   if(e.target?.closest?.('[data-aj-custom-v2299]')){e.preventDefault();e.stopImmediatePropagation();close();setTimeout(()=>input.click(),0);return}
+   if(e.target===button||button.contains(e.target)){e.preventDefault();e.stopImmediatePropagation();palette.classList.contains('open')?close():open();return}
+   if(palette.contains(e.target)){e.preventDefault();e.stopImmediatePropagation();return}
+   close();
+  },true);
+  window.addEventListener('touchstart',e=>{if(palette.contains(e.target)||e.target===button||button.contains(e.target)){e.stopImmediatePropagation()}},{capture:true,passive:false});
+  addEventListener('resize',()=>{if(palette.classList.contains('open'))place()});
+  input.addEventListener('input',()=>{button.style.setProperty('--c',input.value)});
+  button.style.setProperty('--c',input.value||'#1D1D1F');
+  window.AIRJOTTER_FRONTEND_VERSION='22.9.9-palette-hard-fix';
  });
 })();
 </script>
-<!-- AIRJOTTER_V2298_END -->
+<!-- AIRJOTTER_V2299_END -->
 </body>
 </html>
