@@ -4695,5 +4695,75 @@ header button:disabled{opacity:.34!important}
 })();
 </script>
 <!-- AIRJOTTER_V22103_END -->
+<!-- AIRJOTTER_V22104_BEGIN -->
+<style id="AIRJOTTER_V22104_TOOLBAR_PRECISE_STYLE">
+/* Struttura e altezza della toolbar restano quelle della baseline. */
+header .aj-minimal-v22104{
+ background:transparent!important;border:1px solid transparent!important;
+ box-shadow:none!important;transform:none!important;color:#30435e!important;
+}
+header .aj-minimal-v22104:hover{
+ background:#eef5ff!important;border-color:#bdd4f2!important;
+ box-shadow:none!important;transform:none!important;color:#0f5dbd!important;
+}
+header .aj-upload-v22104 svg,header .aj-download-v22104 svg{stroke:#1769e8!important;fill:none!important}
+header .aj-upload-v22104 .aj-direction-v22104{stroke:#49a7ff!important}
+header .aj-download-v22104{color:#1769e8!important}
+/* Etichetta Jotter Code sovrapposta senza aumentare l'altezza del gruppo. */
+header .aj-code-group-v22104{position:relative!important;padding-top:9px!important}
+header .aj-code-label-v22104{position:absolute;top:-3px;left:50%;transform:translateX(-50%);font-size:.60rem!important;font-weight:750!important;line-height:1!important;color:#31567f!important;white-space:nowrap!important;pointer-events:none}
+/* Pagine più compatte, senza modificare l'altezza esterna della toolbar. */
+header .aj-page-tools-v2287{position:relative!important;padding-top:10px!important}
+header .aj-page-label-v2287{position:absolute!important;top:-2px!important;left:50%!important;transform:translateX(-50%)!important;font-size:.66rem!important;font-weight:750!important;line-height:1!important;white-space:nowrap!important}
+header .aj-page-row-v2287{display:flex!important;align-items:center!important;gap:1px!important}
+header .aj-page-row-v2287 .page-btn{width:25px!important;min-width:25px!important;padding-left:0!important;padding-right:0!important}
+header .aj-page-row-v2287 .page-count-display{min-width:31px!important;padding-left:5px!important;padding-right:5px!important}
+/* Cestino leggermente più grande ma senza influire sull'altezza della barra. */
+header #clearBtn{width:35px!important;min-width:35px!important;padding-left:6px!important;padding-right:6px!important}
+header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!important;stroke-width:2.1!important}
+</style>
+<script id="AIRJOTTER_V22104_TOOLBAR_PRECISE_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');if(!header)return;
+  const buttons=[...header.querySelectorAll('button')];
+  const byText=text=>buttons.find(b=>(b.textContent||'').trim().toLowerCase().includes(text.toLowerCase()));
+  const fit=document.getElementById('ajPcFitV204');
+  const owner=document.getElementById('ajUser');
+  const plans=byText('piani');
+  const exportPdf=document.getElementById('exportPdfBtn');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  [fit,owner,plans,exportPdf].filter(Boolean).forEach(b=>{
+   b.classList.remove('aj-visual-raised-v22103');
+   b.classList.add('aj-minimal-v22104');
+  });
+
+  const pdf=document.getElementById('importPdfBtn');
+  const sign=document.getElementById('importSignBtn');
+  const photo=document.getElementById('importRealImgBtn');
+  if(pdf){pdf.classList.add('aj-upload-v22104');pdf.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5"/><path class="aj-direction-v22104" d="M12 18v-7m0 0-3 3m3-3 3 3"/></svg><span>PDF</span>'}
+  if(sign){sign.classList.add('aj-upload-v22104');sign.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3.1-5.6 5.3-8 6.9-7 1.5 1-1.7 5.2 0 6 1.5.7 3-3.1 4.5-2.4 1 .5-.2 2.7 1.1 3.2 1.2.5 2.4-1.2 5.5-.8"/><path class="aj-direction-v22104" d="M12 8V3m0 0-3 3m3-3 3 3"/></svg><span>Firma</span>'}
+  if(photo){photo.classList.add('aj-upload-v22104');photo.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="m4 18 5-5 3.5 3.5 2.5-2.5 5 5"/><path class="aj-direction-v22104" d="M17 10V3m0 0-3 3m3-3 3 3"/></svg><span>Foto</span>'}
+  if(exportPdf){
+   exportPdf.classList.add('aj-download-v22104');
+   exportPdf.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5"/><path d="M12 10v8m0 0-3-3m3 3 3-3"/></svg><span>Esporta PDF</span>';
+   if(transfer)transfer.insertAdjacentElement('afterend',exportPdf);
+  }
+
+  const code=document.getElementById('toggleCodeBtn');
+  const qr=document.getElementById('showQrBtn');
+  if(code&&qr){const group=code.closest('.tools-group');if(group){group.classList.add('aj-code-group-v22104');let label=group.querySelector('.aj-code-label-v22104');if(!label){label=document.createElement('small');label.className='aj-code-label-v22104';label.textContent='Jotter Code';group.appendChild(label)}}}
+
+  const clear=document.getElementById('clearBtn');
+  if(plans&&clear)plans.insertAdjacentElement('afterend',clear);
+  const sourceGroup=clear?.closest('.tools-group');
+  if(sourceGroup&&sourceGroup.children.length===0)sourceGroup.remove();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.4-toolbar-precise';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22104_END -->
 </body>
 </html>
