@@ -5789,51 +5789,65 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22123_END -->
-<!-- AIRJOTTER_V22125_BEGIN -->
-<style id="AIRJOTTER_V22125_TEXTBOX_HEIGHT_FIX_STYLE">
-/* Minimo verticale reale: compatto ma completo, senza comprimere toolbar, input o pulsanti. */
+<!-- AIRJOTTER_V22126_BEGIN -->
+<style id="AIRJOTTER_V22126_TEXTBOX_REAL_MIN_STYLE">
+/* Minimo reale compatto: testata + comandi + area testo + pulsanti, senza spazio morto. */
 #text-tool-overlay{
- min-height:440px!important;
- height:auto;
+ min-height:382px!important;
  box-sizing:border-box!important;
 }
 #text-tool-input{
- height:180px!important;
- min-height:150px!important;
+ height:160px!important;
+ min-height:145px!important;
  max-height:55vh!important;
+ box-sizing:border-box!important;
 }
-#text-tool-overlay .text-toolbar{
- min-height:0!important;
-}
+#text-tool-overlay .text-toolbar{min-height:0!important}
 #text-tool-overlay .aj-text-foot-v2266f{
  min-height:48px!important;
- padding-top:4px!important;
- padding-bottom:7px!important;
+ margin:0!important;
+ padding:4px 48px 7px 8px!important;
+ box-sizing:border-box!important;
 }
-@media(max-width:470px){
- #text-tool-overlay{min-height:455px!important}
- #text-tool-input{height:165px!important;min-height:145px!important}
-}
+#text-tool-overlay .aj-text-foot-v2266f>div{margin:0!important}
 </style>
-<script id="AIRJOTTER_V22125_TEXTBOX_HEIGHT_FIX_SCRIPT">
+<script id="AIRJOTTER_V22126_TEXTBOX_REAL_MIN_SCRIPT">
 (()=>{
  'use strict';
+ const MIN_HEIGHT=382;
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
   const box=document.getElementById('text-tool-overlay');
+  const textButton=document.getElementById('toolTextBtn');
+  const resizeHandle=document.getElementById('ajTextCardResizeV2266h');
   if(!box)return;
-  const repair=()=>{
-   const inlineHeight=parseFloat(box.style.height)||0;
-   if(inlineHeight>650)box.style.removeProperty('height');
+
+  /* Elimina soltanto l'altezza enorme già memorizzata dalle prove precedenti. */
+  const resetExcess=()=>{
+   const h=parseFloat(box.style.height)||0;
+   if(h>560)box.style.height=MIN_HEIGHT+'px';
   };
-  repair();
-  new MutationObserver(()=>{
-   if(box.style.display!=='none')repair();
-  }).observe(box,{attributes:true,attributeFilter:['style','class']});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.25-textbox-height-fix';
+  resetExcess();
+  textButton?.addEventListener('click',()=>requestAnimationFrame(resetExcess));
+
+  /* Durante il ridimensionamento impedisce solo di scendere sotto il minimo corretto. */
+  let resizing=false;
+  resizeHandle?.addEventListener('pointerdown',()=>{resizing=true},{capture:true});
+  window.addEventListener('pointermove',()=>{
+   if(!resizing)return;
+   const h=box.getBoundingClientRect().height;
+   if(h<MIN_HEIGHT)box.style.height=MIN_HEIGHT+'px';
+  },true);
+  window.addEventListener('pointerup',()=>{
+   if(!resizing)return;
+   resizing=false;
+   if(box.getBoundingClientRect().height<MIN_HEIGHT)box.style.height=MIN_HEIGHT+'px';
+  },true);
+
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.26-textbox-real-min';
  });
 })();
 </script>
-<!-- AIRJOTTER_V22125_END -->
+<!-- AIRJOTTER_V22126_END -->
 </body>
 </html>
