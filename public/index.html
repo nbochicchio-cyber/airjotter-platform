@@ -5276,5 +5276,62 @@ header{
 })();
 </script>
 <!-- AIRJOTTER_V22111_END -->
+<!-- AIRJOTTER_V22112_BEGIN -->
+<style id="AIRJOTTER_V22112_TOOLTIPS_STYLE">
+/* Tooltip chiari, visualizzati solo al passaggio del mouse. */
+header [data-aj-tooltip-v22112]{position:relative!important}
+header [data-aj-tooltip-v22112]::after{
+ content:attr(data-aj-tooltip-v22112);position:absolute;left:50%;top:calc(100% + 9px);
+ transform:translateX(-50%) translateY(-2px);z-index:2147483647;
+ width:max-content;max-width:240px;padding:7px 9px;border-radius:8px;
+ background:#102f5a;color:#fff;font:600 .68rem/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+ text-align:center;white-space:normal;box-shadow:0 6px 18px rgba(9,35,70,.24);
+ opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,transform .14s ease;
+}
+header [data-aj-tooltip-v22112]::before{
+ content:"";position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);
+ border:6px solid transparent;border-bottom-color:#102f5a;z-index:2147483647;
+ opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease;
+}
+header [data-aj-tooltip-v22112]:hover::after,header [data-aj-tooltip-v22112]:focus-visible::after,
+header [data-aj-tooltip-v22112]:hover::before,header [data-aj-tooltip-v22112]:focus-visible::before{
+ opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)
+}
+/* Piani: stesso blu, maggiore rilievo fisico e ombra più corta/discreta. */
+header .aj-plan-column-v22107 button{
+ background:#123d73!important;background-image:linear-gradient(180deg,#174b87 0%,#123d73 78%,#0e315d 100%)!important;
+ border:1px solid #0e315d!important;color:#fff!important;
+ box-shadow:0 3px 0 #092747,0 3px 5px rgba(11,47,91,.13),inset 0 1px 0 rgba(255,255,255,.22)!important;
+ text-shadow:0 1px 1px rgba(0,0,0,.25)!important;transform:translateY(-1px)!important;
+}
+header .aj-plan-column-v22107 button:hover{background-image:linear-gradient(180deg,#1b5597,#123d73)!important}
+header .aj-plan-column-v22107 button:active{transform:translateY(2px)!important;box-shadow:0 1px 0 #092747,0 1px 3px rgba(11,47,91,.11)!important}
+</style>
+<script id="AIRJOTTER_V22112_TOOLTIPS_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const tips={
+   importPdfBtn:'Carica un documento PDF nel Jotter',
+   importSignBtn:'Carica un’immagine della firma nel Jotter',
+   importRealImgBtn:'Carica una foto o un’immagine nel Jotter',
+   exportPdfBtn:'Scarica l’intero Jotter come documento PDF',
+   ajFileTransferBtnV2291:'Invia o ricevi file direttamente tra due dispositivi',
+   clearBtn:'Pulisci contenuto dell’intero Jotter'
+  };
+  Object.entries(tips).forEach(([id,text])=>{
+   const el=document.getElementById(id);if(!el)return;
+   const target=el.closest('.aj-native-file-picker-v218')||el;
+   target.setAttribute('data-aj-tooltip-v22112',text);el.title=text;
+  });
+  const header=document.querySelector('header');
+  const plans=[...(header?.querySelectorAll('button')||[])].find(b=>(b.textContent||'').trim().toLowerCase().includes('piani'));
+  if(plans){const text='Visualizza piani, limiti e opzioni disponibili';plans.setAttribute('data-aj-tooltip-v22112',text);plans.title=text}
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.12-toolbar-tooltips';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22112_END -->
 </body>
 </html>
