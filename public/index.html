@@ -5661,59 +5661,85 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22120_END -->
-<!-- AIRJOTTER_V22121_BEGIN -->
-<style id="AIRJOTTER_V22121_TEXTBOX_SAFE_MIN_STYLE">
-/* Minimi statici, senza observer o crescita automatica. */
+<!-- AIRJOTTER_V22122_BEGIN -->
+<style id="AIRJOTTER_V22122_COMPACT_OUTER_STYLE">
+/* Riduce il CONTORNO ESTERNO senza ridurre la casella di digitazione. */
 #text-tool-overlay{
- min-width:min(700px,calc(100vw - 20px))!important;
- min-height:390px!important;
+ min-width:430px!important;
+ min-height:300px!important;
+ width:min(620px,calc(100vw - 20px))!important;
+ height:auto!important;
+ max-width:calc(100vw - 20px)!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+}
+/* La toolbar interna resta contenuta: se lo spazio diminuisce scorre solo orizzontalmente. */
+#text-tool-overlay .text-toolbar{
+ min-width:0!important;
+ max-width:100%!important;
+ overflow-x:auto!important;
+ overflow-y:hidden!important;
+ box-sizing:border-box!important;
+ scrollbar-width:thin!important;
+}
+/* La casella di digitazione conserva dimensioni utili ma non forza il contorno esterno. */
+#text-tool-input{
+ width:calc(100% - 14px)!important;
+ min-width:0!important;
+ max-width:calc(100% - 14px)!important;
+ height:150px!important;
+ min-height:100px!important;
+ max-height:55vh!important;
  box-sizing:border-box!important;
 }
-/* ? quadrato verde, a sinistra di Annulla. */
-#ajTextHelpBtnV22120{
- position:static!important;
- order:0!important;
- margin:0!important;
- width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
- padding:0!important;border:1px solid #8fbe9b!important;border-radius:7px!important;
- background:#ccebd5!important;color:#111!important;
- box-shadow:none!important;font:800 15px/1 Arial,sans-serif!important;
- display:grid!important;place-items:center!important;cursor:pointer!important;
-}
-#ajTextHelpBtnV22120:hover{background:#b9e1c5!important;color:#111!important}
+/* Footer sempre interno al bordo; i pulsanti non possono uscire. */
 #text-tool-overlay .aj-text-foot-v2266f{
- display:flex!important;flex-direction:row!important;align-items:center!important;
- justify-content:flex-start!important;gap:6px!important;min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ flex-wrap:wrap!important;
+ gap:6px!important;
+ padding:0 48px 8px 8px!important;
+ overflow:hidden!important;
 }
 #text-tool-overlay .aj-text-foot-v2266f>div{
- display:flex!important;align-items:center!important;gap:6px!important;
- margin:0!important;min-width:0!important;
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ gap:6px!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
 }
-/* Nessun elemento del footer può uscire dalla scheda. */
 #text-tool-overlay .aj-text-foot-v2266f button{flex:0 0 auto!important}
-@media(max-width:720px){
- #text-tool-overlay{min-width:calc(100vw - 20px)!important;min-height:470px!important}
- #text-tool-overlay .text-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
- #text-tool-overlay .aj-text-foot-v2266f{flex-wrap:wrap!important;padding-right:44px!important}
+@media(max-width:470px){
+ #text-tool-overlay{min-width:calc(100vw - 12px)!important;width:calc(100vw - 12px)!important}
+ #text-tool-input{height:130px!important}
 }
 </style>
-<script id="AIRJOTTER_V22121_TEXTBOX_SAFE_MIN_SCRIPT">
+<script id="AIRJOTTER_V22122_COMPACT_OUTER_SCRIPT">
 (()=>{
  'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
-  const overlay=document.getElementById('text-tool-overlay');
-  const footer=overlay?.querySelector('.aj-text-foot-v2266f');
-  const actions=footer?.querySelector(':scope > div');
-  const help=document.getElementById('ajTextHelpBtnV22120');
-  const cancel=document.getElementById('textCancelBtn');
-  if(!overlay||!footer||!actions||!help||!cancel)return;
-  /* Sposta il pulsante prima di Annulla, mantenendo invariato il popup già collegato. */
-  actions.insertBefore(help,cancel);
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.21-textbox-safe-min';
+  const box=document.getElementById('text-tool-overlay');
+  if(!box)return;
+  /* Corregge una sola volta eventuali dimensioni enormi salvate dalla patch precedente. */
+  const resetOversize=()=>{
+   const width=parseFloat(box.style.width)||0;
+   const height=parseFloat(box.style.height)||0;
+   if(width>900)box.style.width='620px';
+   if(height>700)box.style.height='auto';
+  };
+  resetOversize();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.22-compact-outer-textbox';
  });
 })();
 </script>
-<!-- AIRJOTTER_V22121_END -->
+<!-- AIRJOTTER_V22122_END -->
 </body>
 </html>
