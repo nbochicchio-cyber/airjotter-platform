@@ -5555,5 +5555,41 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22117_END -->
+<!-- AIRJOTTER_V22118_BEGIN -->
+<style id="AIRJOTTER_V22118_TEXTBOX_GUIDE_STYLE">
+#ajTextCardResizeV2266h{display:grid!important;place-items:center!important;padding:0!important;text-align:center!important;line-height:1!important;font-family:Arial,sans-serif!important}
+#ajTextAnchorV2266f>b{display:none!important}
+#text-tool-overlay .aj-text-foot-v2266f>span{display:none!important}
+#text-tool-overlay .aj-text-guide-v22118{flex:1 1 auto!important;min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;padding:8px 10px!important;border:1px solid #bfd4f2!important;border-radius:10px!important;background:#eef5ff!important;color:#143f78!important;font:750 .69rem/1.28 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;text-align:left!important}
+#text-tool-overlay .aj-text-guide-v22118 div{display:flex!important;align-items:flex-start!important;gap:6px!important}
+#text-tool-overlay .aj-text-guide-v22118 b{flex:0 0 auto!important;font-size:.82rem!important;line-height:1.15!important}
+#text-tool-overlay .aj-text-foot-v2266f{display:flex!important;align-items:center!important;gap:9px!important;padding-right:50px!important}
+#text-tool-overlay .aj-text-foot-v2266f>div{flex:0 0 auto!important;display:flex!important;gap:7px!important;margin-left:0!important;transform:none!important}
+#text-tool-overlay .aj-text-foot-v2266f button{padding-left:11px!important;padding-right:11px!important;white-space:nowrap!important}
+@media(max-width:720px){#text-tool-overlay .aj-text-foot-v2266f{align-items:stretch!important;flex-direction:column!important;padding-right:50px!important}#text-tool-overlay .aj-text-foot-v2266f>div{align-self:flex-end!important}#text-tool-overlay .aj-text-guide-v22118{font-size:.65rem!important}}
+</style>
+<script id="AIRJOTTER_V22118_TEXTBOX_GUIDE_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const overlay=document.getElementById('text-tool-overlay');
+  const footer=overlay?.querySelector('.aj-text-foot-v2266f');
+  if(!overlay||!footer)return;
+  overlay.querySelectorAll('.aj-text-guide-v22118').forEach(x=>x.remove());
+  const guide=document.createElement('div');
+  guide.className='aj-text-guide-v22118';
+  guide.setAttribute('aria-label','Istruzioni per inserire e ridimensionare il testo');
+  guide.innerHTML='<div><b>1️⃣</b><span>Sposta la crocetta rossa nella posizione desiderata</span></div><div><b>2️⃣</b><span>Il testo inizierà esattamente dal punto indicato dalla crocetta</span></div><div><b>3️⃣</b><span>Trascina l’angolo blu per ridimensionare la casella di testo</span></div>';
+  footer.insertBefore(guide,footer.firstChild);
+  const oldHint=footer.querySelector(':scope > span');
+  if(oldHint)oldHint.remove();
+  const crossLabel=document.querySelector('#ajTextAnchorV2266f > b');
+  if(crossLabel)crossLabel.remove();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.18-textbox-guide';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22118_END -->
 </body>
 </html>
