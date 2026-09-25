@@ -4297,7 +4297,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  <section class="aj-ft-card-v2291">
   <div class="aj-ft-hero-v2291">
    <button id="ajFtCloseV2291" class="aj-ft-close-v2291" type="button" aria-label="Chiudi">×</button>
-   <div id="ajFtTitleV2291" class="aj-ft-title-v2291">File Transfer in diretta</div>
+   <div id="ajFtTitleV2291" class="aj-ft-title-v2291">File Transfer by AirJotter</div>
    <div class="aj-ft-sub-v2291">Condividi file e cartelle in diretta con una persona collegata allo stesso Jotter. Il contenuto viaggia protetto tra i dispositivi e non viene conservato da AirJotter.</div>
    <div class="aj-ft-security-v2291"><span class="aj-ft-chip-v2291">🔒 Cifratura WebRTC</span><span class="aj-ft-chip-v2291">⚡ P2P in tempo reale</span><span class="aj-ft-chip-v2291">🛡️ Connessione protetta</span><span class="aj-ft-chip-v2291">📦 Fino a 5 GB</span></div>
   </div>
@@ -4525,5 +4525,55 @@ body>.aj-main-palette-v2287.open{display:grid!important;position:fixed!important
 })();
 </script>
 <!-- AIRJOTTER_V2296_END -->
+<!-- AIRJOTTER_V2297_BEGIN -->
+<style id="AIRJOTTER_V2297_VIEWER_REQUEST_STYLE">
+/* Owner/editor: nascosto. Viewer: lampeggio normale. Tentativo vietato: rosso per due secondi. */
+#ajRequestEdit{display:none!important}
+body.aj-role-viewer-v2297 #ajRequestEdit{
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ animation:ajRequestEditPulseV2252 1.8s ease-in-out infinite!important;
+ color:#174f98!important;background:#fff!important;border-color:#1f6ed4!important;font-weight:800!important;
+}
+body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ animation:ajReadOnlyRedV2253 .34s linear infinite!important;
+ color:#fff!important;background:#d92d20!important;border-color:#a81810!important;font-weight:900!important;
+}
+</style>
+<script id="AIRJOTTER_V2297_VIEWER_REQUEST_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const request=document.getElementById('ajRequestEdit');
+  const board=document.getElementById('draftBoard');
+  let redTimer=0;
+  const syncRole=()=>{
+   let viewer=false;
+   try{viewer=typeof ajRole!=='undefined'&&ajRole==='viewer'}catch{}
+   document.body.classList.toggle('aj-role-viewer-v2297',viewer);
+   if(!viewer){document.body.classList.remove('aj-viewer-red-v2297');clearTimeout(redTimer)}
+   if(request&&viewer){request.classList.remove('aj-hidden','pending-blink','aj-readonly-alert-v2253')}
+  };
+  const warnViewer=()=>{
+   syncRole();
+   if(!document.body.classList.contains('aj-role-viewer-v2297'))return;
+   document.body.classList.add('aj-viewer-red-v2297');
+   clearTimeout(redTimer);
+   redTimer=setTimeout(()=>document.body.classList.remove('aj-viewer-red-v2297'),2000);
+  };
+  board?.addEventListener('pointerdown',warnViewer,true);
+  /* Copre anche strumenti e comandi disabilitati tentati dal viewer. */
+  document.addEventListener('click',e=>{
+   if(!document.body.classList.contains('aj-role-viewer-v2297'))return;
+   if(e.target.closest('#ajRequestEdit'))return;
+   if(e.target.closest('header,#canvas-wrapper,.mobile-tools,#mobileViewport'))warnViewer();
+  },true);
+  syncRole();setInterval(syncRole,500);
+  window.AIRJOTTER_FRONTEND_VERSION='22.9.7-viewer-ui';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V2297_END -->
 </body>
 </html>
