@@ -5115,5 +5115,75 @@ header .aj-jotter-link-color-v2283{display:none!important}
 })();
 </script>
 <!-- AIRJOTTER_V22108_END -->
+<!-- AIRJOTTER_V22109_BEGIN -->
+<style id="AIRJOTTER_V22109_FUNCTION_RESTORE_STYLE">
+/* 1. Adatta pagina: stesso font del pulsante utente, solo leggermente più piccolo. */
+header #ajPcFitV204{
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:.60rem!important;font-weight:700!important;line-height:1.05!important;
+}
+header #ajPcFitV204 span{font:inherit!important;color:inherit!important}
+/* 2. Esporta PDF: identico a File Transfer. */
+header .aj-io-stack-v22107 #exportPdfBtn,
+header .aj-io-stack-v22107 #ajFileTransferBtnV2291{
+ color:#30435e!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:.62rem!important;font-weight:700!important;line-height:1!important;
+ letter-spacing:0!important;text-shadow:none!important;
+}
+/* 3. Ogni upload occupa esclusivamente il proprio rettangolo. Nessun input Foto può coprire gli altri sei comandi. */
+header .aj-io-stack-v22107 .aj-native-file-picker-v218{
+ position:relative!important;display:inline-flex!important;width:auto!important;height:25px!important;
+ min-width:0!important;overflow:hidden!important;isolation:isolate!important;z-index:1!important;
+ align-self:center!important;justify-self:center!important;
+}
+header .aj-io-stack-v22107 .aj-native-file-picker-v218>button{
+ position:relative!important;z-index:1!important;width:auto!important;height:25px!important;pointer-events:none!important;
+}
+header .aj-io-stack-v22107 .aj-native-file-picker-v218>input[type="file"]{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;margin:0!important;padding:0!important;
+ opacity:0!important;z-index:2!important;cursor:pointer!important;pointer-events:auto!important;
+}
+header .aj-io-stack-v22107 #exportPdfBtn,
+header .aj-io-stack-v22107 #ajFileTransferBtnV2291,
+header .aj-owner-row-v22107 #ajUser,
+header .aj-owner-row-v22107 #clearBtn{
+ position:relative!important;z-index:10!important;pointer-events:auto!important;
+}
+header .aj-owner-row-v22107{position:relative!important;z-index:10!important;isolation:isolate!important}
+/* 4. Codice e nome Jotter leggermente più in alto, centrati rispetto a Jotter Code e alle due icone. */
+header .aj-room-current-v2266{
+ position:relative!important;transform:translateY(-5px)!important;
+ align-self:center!important;justify-content:center!important;
+}
+</style>
+<script id="AIRJOTTER_V22109_FUNCTION_RESTORE_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');if(!header)return;
+  const exportPdf=document.getElementById('exportPdfBtn');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  if(exportPdf&&transfer){
+   exportPdf.classList.add('aj-io-v22107');
+   transfer.insertAdjacentElement('beforebegin',exportPdf);
+  }
+  /* Ripristina il funzionamento nativo dei tre upload, senza duplicare listener. */
+  const pairs=[['importPdfBtn','fileInputPdf'],['importSignBtn','fileInputSign'],['importRealImgBtn','fileInputRealImg']];
+  pairs.forEach(([buttonId,inputId])=>{
+   const button=document.getElementById(buttonId),input=document.getElementById(inputId);
+   const wrap=button?.closest('.aj-native-file-picker-v218');
+   if(!button||!input||!wrap)return;
+   wrap.replaceChildren(button,input);
+   button.setAttribute('tabindex','-1');
+   button.setAttribute('aria-hidden','true');
+  });
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.9-function-restore';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22109_END -->
 </body>
 </html>
