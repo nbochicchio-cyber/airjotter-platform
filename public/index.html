@@ -5852,5 +5852,71 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22127_END -->
+<!-- AIRJOTTER_V22128_BEGIN -->
+<style id="AIRJOTTER_V22128_PALETTE_BINDING_STYLE">
+.aj-shape-palette-v227 button[data-aj-fixed-color-v22128].active{box-shadow:0 0 0 3px rgba(23,105,232,.30)!important}
+</style>
+<script id="AIRJOTTER_V22128_PALETTE_BINDING_SCRIPT">
+(()=>{
+ 'use strict';
+ const COLORS=['#1D1D1F','#FFFFFF','#49A7FF','#D92D20','#176B3A','#F4C430'];
+ const standardButtons=palette=>[...palette.querySelectorAll('button')]
+  .filter(button=>!button.classList.contains('aj-custom-palette-v2272'))
+  .slice(0,6);
+ const bindPalette=palette=>{
+  const buttons=standardButtons(palette);
+  if(buttons.length!==6)return;
+  buttons.forEach((button,index)=>{
+   const color=COLORS[index];
+   button.dataset.ajFixedColorV22128=color;
+   button.style.setProperty('--c',color);
+   button.style.backgroundColor=color;
+   button.title=['Nero','Bianco','Azzurro','Rosso','Verde','Giallo'][index];
+   button.setAttribute('aria-label',button.title);
+  });
+ };
+ const associatedInput=palette=>{
+  const direct=palette.querySelector('input[type="color"]');
+  if(direct)return direct;
+  const label=palette.closest('label');
+  if(label){const found=label.querySelector('input[type="color"]');if(found)return found}
+  const parent=palette.parentElement;
+  if(parent){const found=parent.querySelector('input[type="color"]');if(found)return found}
+  const preceding=palette.previousElementSibling;
+  if(preceding?.matches?.('input[type="color"]'))return preceding;
+  return null;
+ };
+ const applyColor=button=>{
+  const palette=button.closest('.aj-shape-palette-v227');
+  if(!palette)return;
+  const color=button.dataset.ajFixedColorV22128;
+  const input=associatedInput(palette);
+  if(!input)return;
+  input.value=color;
+  input.setAttribute('value',color);
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+  standardButtons(palette).forEach(item=>item.classList.toggle('active',item===button));
+  palette.classList.remove('open');
+ };
+ const intercept=event=>{
+  const button=event.target.closest?.('.aj-shape-palette-v227 button[data-aj-fixed-color-v22128]');
+  if(!button)return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  applyColor(button);
+ };
+ const initialize=()=>document.querySelectorAll('.aj-shape-palette-v227').forEach(bindPalette);
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  initialize();
+  new MutationObserver(initialize).observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('pointerdown',intercept,true);
+  window.addEventListener('click',intercept,true);
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.28-shape-palette-binding-fix';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22128_END -->
 </body>
 </html>
