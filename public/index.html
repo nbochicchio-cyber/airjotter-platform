@@ -5741,5 +5741,53 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22122_END -->
+<!-- AIRJOTTER_V22123_BEGIN -->
+<style id="AIRJOTTER_V22123_TEXTBOX_FOOTER_FIT_STYLE">
+/* Il contorno esterno segue il contenuto: niente spazio vuoto sotto i pulsanti. */
+#text-tool-overlay{
+ min-height:0!important;
+ height:auto!important;
+}
+#text-tool-overlay .aj-text-foot-v2266f{
+ min-height:0!important;
+ margin:0!important;
+ padding:0 48px 7px 8px!important;
+ align-items:center!important;
+}
+#text-tool-overlay .aj-text-foot-v2266f>div{
+ margin:0!important;
+ align-items:center!important;
+}
+/* Pulsante guida quadrato verde, immediatamente prima di Annulla. */
+#ajTextHelpBtnV22120{
+ position:static!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ margin:0!important;padding:0!important;
+ border:1px solid #8fbe9b!important;border-radius:7px!important;
+ background:#ccebd5!important;color:#111!important;
+ box-shadow:none!important;font:800 15px/1 Arial,sans-serif!important;
+ display:grid!important;place-items:center!important;cursor:pointer!important;
+}
+#ajTextHelpBtnV22120:hover{background:#b9e1c5!important;color:#111!important}
+</style>
+<script id="AIRJOTTER_V22123_TEXTBOX_FOOTER_FIT_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const box=document.getElementById('text-tool-overlay');
+  const footer=box?.querySelector('.aj-text-foot-v2266f');
+  const actions=footer?.querySelector(':scope > div');
+  const help=document.getElementById('ajTextHelpBtnV22120');
+  const cancel=document.getElementById('textCancelBtn');
+  if(!box||!footer||!actions||!help||!cancel)return;
+  actions.insertBefore(help,cancel);
+  /* Elimina una sola volta l'altezza inline residua: poi il bordo segue il footer. */
+  box.style.removeProperty('height');
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.23-textbox-footer-fit';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22123_END -->
 </body>
 </html>
