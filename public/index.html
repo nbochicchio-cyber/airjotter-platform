@@ -5448,5 +5448,59 @@ header .aj-plan-column-v22107 button:active{
 (()=>{window.AIRJOTTER_FRONTEND_VERSION='22.10.15-final-toolbar-tune'})();
 </script>
 <!-- AIRJOTTER_V22115_END -->
+<!-- AIRJOTTER_V22116_BEGIN -->
+<style id="AIRJOTTER_V22116_CLEAR_MODAL_STYLE">
+/* Dialogo AirJotter per la pulizia completa del Jotter. */
+#ajClearConfirmV22116{display:none;position:fixed;inset:0;z-index:2147483647;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.48);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#ajClearConfirmV22116.open{display:flex}
+.aj-clear-card-v22116{width:min(520px,calc(100vw - 32px));padding:25px;border:1px solid #d8e1ec;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.26);color:#1f2937}
+.aj-clear-card-v22116 h3{margin:0 0 10px;font-size:1.25rem;color:#102f5a}
+.aj-clear-card-v22116 p{margin:0;line-height:1.5;font-size:1rem}
+.aj-clear-actions-v22116{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.aj-clear-actions-v22116 button{min-width:112px;min-height:42px;padding:9px 18px;border-radius:11px;font:750 .92rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer}
+#ajClearConfirmYesV22116{border:1px solid #ad2118;background:#d92d20;color:#fff;box-shadow:0 3px 8px rgba(160,35,25,.18)}
+#ajClearConfirmYesV22116:hover{background:#bd251b}
+#ajClearConfirmNoV22116{border:1px solid #9bc7a6;background:#dff3e5;color:#111}
+#ajClearConfirmNoV22116:hover{background:#ccebd5}
+/* Riduzione di circa 2 mm del margine superiore, senza cambiare la toolbar. */
+@media (min-width:761px){html.aj-desktop-v204 header{top:5px!important}}
+</style>
+<script id="AIRJOTTER_V22116_CLEAR_MODAL_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const clear=document.getElementById('clearBtn');
+  if(!clear)return;
+  const modal=document.createElement('div');
+  modal.id='ajClearConfirmV22116';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','ajClearTitleV22116');
+  modal.innerHTML='<div class="aj-clear-card-v22116"><h3 id="ajClearTitleV22116">Conferma eliminazione</h3><p>Sei sicuro di voler eliminare tutti i contenuti di questo Jotter? L\'operazione è irreversibile.</p><div class="aj-clear-actions-v22116"><button id="ajClearConfirmNoV22116" type="button">Annulla</button><button id="ajClearConfirmYesV22116" type="button">Conferma</button></div></div>';
+  document.body.appendChild(modal);
+  const no=modal.querySelector('#ajClearConfirmNoV22116');
+  const yes=modal.querySelector('#ajClearConfirmYesV22116');
+  let bypass=false;
+  const close=()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true')};
+  const open=()=>{modal.classList.add('open');modal.setAttribute('aria-hidden','false');setTimeout(()=>no.focus(),0)};
+  clear.addEventListener('click',e=>{
+   if(bypass)return;
+   e.preventDefault();e.stopImmediatePropagation();open();
+  },true);
+  no.addEventListener('click',close);
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
+  yes.addEventListener('click',()=>{
+   close();
+   const originalConfirm=window.confirm;
+   try{
+    bypass=true;window.confirm=()=>true;clear.click();
+   }finally{
+    window.confirm=originalConfirm;bypass=false;
+   }
+  });
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.16-clear-confirm-modal';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22116_END -->
 </body>
 </html>
