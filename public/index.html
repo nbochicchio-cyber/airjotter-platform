@@ -4619,5 +4619,69 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
 })();
 </script>
 <!-- AIRJOTTER_V2299_END -->
+<!-- AIRJOTTER_V22100_BEGIN -->
+<style id="AIRJOTTER_V22100_MINIMAL_TOOLBAR_STYLE">
+/* AirJotter v22.10.0 - toolbar professionale, coerente e minimale */
+:root{--aj-tb-ink:#334155;--aj-tb-muted:#64748b;--aj-tb-line:#dbe3ee;--aj-tb-hover:#f1f5f9;--aj-tb-active:#e8f1ff;--aj-tb-blue:#1769e8}
+header{background:rgba(255,255,255,.96)!important;border:1px solid var(--aj-tb-line)!important;border-radius:16px!important;box-shadow:0 8px 24px rgba(15,23,42,.10)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;padding:7px 9px!important;gap:0!important;color:var(--aj-tb-ink)!important}
+header .tools-group{gap:4px!important;padding:0 8px!important;border-right:1px solid var(--aj-tb-line)!important;min-height:38px!important}
+header .tools-group:last-child{border-right:0!important}
+header button,header .btn,header .icon-btn,header .page-btn,header .aj-user{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;font-weight:650!important;color:var(--aj-tb-ink)!important;letter-spacing:0!important;text-shadow:none!important;box-shadow:none!important;transition:background-color .14s ease,border-color .14s ease,color .14s ease!important}
+header .btn,header .icon-btn,header .page-btn,header .aj-user{border:1px solid transparent!important;background:transparent!important;border-radius:9px!important;min-height:36px!important}
+header .btn{padding:6px 9px!important;font-size:.76rem!important;gap:5px!important}
+header .icon-btn{width:36px!important;min-width:36px!important;height:36px!important;padding:8px!important;opacity:1!important}
+header .page-btn{width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important;padding:0!important;font-size:1rem!important}
+header .btn:hover:not(:disabled),header .icon-btn:hover:not(:disabled),header .page-btn:hover:not(:disabled),header .aj-user:hover{background:var(--aj-tb-hover)!important;border-color:#cbd5e1!important;color:#0f172a!important}
+header .btn:active,header .icon-btn:active,header .page-btn:active,header .aj-user:active{transform:none!important;background:#e2e8f0!important}
+header .active-tool,header .active-tool:hover{background:var(--aj-tb-active)!important;border-color:#9ec2fa!important;color:var(--aj-tb-blue)!important;box-shadow:none!important}
+header .btn.primary{background:transparent!important;color:var(--aj-tb-ink)!important;border-color:transparent!important}
+header .btn.danger{background:transparent!important;color:#b42318!important;border-color:transparent!important}
+header .btn.success{background:transparent!important;color:var(--aj-tb-ink)!important;border-color:transparent!important}
+header .brand-logo{width:132px!important;height:30px!important}
+header #helpBtn{width:32px!important;height:32px!important;min-width:32px!important;border:1px solid transparent!important;background:transparent!important;color:var(--aj-tb-muted)!important;font-size:14px!important}
+header #helpBtn:hover{background:var(--aj-tb-hover)!important;border-color:#cbd5e1!important;color:var(--aj-tb-blue)!important}
+header #ajPcFitV204{min-width:56px!important;padding:5px 8px!important;line-height:1.06!important}
+header #ajPcFitV204 span{font-size:.70rem!important}
+header .aj-main-color-button-v2287{width:28px!important;height:28px!important;box-shadow:0 0 0 1px #94a3b8!important;border:2px solid #fff!important}
+header .tool-thickness{width:64px!important;accent-color:var(--aj-tb-blue)!important}
+header .page-count-display{min-width:35px!important;padding:5px 7px!important;border:1px solid #e2e8f0!important;background:#f8fafc!important;color:var(--aj-tb-ink)!important;border-radius:8px!important}
+header .aj-page-label-v2287,header .aj-jotter-link-color-v2283,header small{color:var(--aj-tb-muted)!important;font-style:normal!important;font-weight:600!important}
+header .aj-jotter-link-color-v2283{font-size:.61rem!important;text-decoration:none!important}
+header .aj-user{padding:6px 9px!important;background:#fff!important;border-color:#dbe3ee!important;font-size:.72rem!important}
+header .room-code{background:#f1f5f9!important;color:#334155!important;border:1px solid #e2e8f0!important;padding:6px 9px!important}
+header .aj-file-transfer-btn-v2291{position:static!important;left:auto!important;bottom:auto!important;transform:none!important;height:36px!important;min-height:36px!important;padding:6px 9px!important;border:1px solid transparent!important;background:transparent!important;color:var(--aj-tb-ink)!important;font-size:.76rem!important;font-weight:650!important;border-radius:9px!important;box-shadow:none!important;z-index:auto!important}
+header .aj-file-transfer-btn-v2291:active{transform:none!important;box-shadow:none!important}
+header .aj-import-tools-v2291{position:static!important;padding:0 8px!important;gap:3px!important;align-items:center!important}
+header .aj-import-tools-v2291 .aj-native-file-picker-v218>.btn{min-height:36px!important;padding:6px 8px!important}
+header #exportPdfBtn{white-space:nowrap!important}
+header .aj-output-v22100{color:var(--aj-tb-blue)!important}
+header .aj-output-v22100:hover{background:var(--aj-tb-active)!important;border-color:#9ec2fa!important;color:#0b57c7!important}
+header svg{stroke-width:1.8!important}
+header button:disabled{opacity:.34!important}
+@media (min-width:761px){html.aj-desktop-v204 header{overflow-x:auto!important;overflow-y:visible!important;max-width:calc(100vw - 20px)!important;scrollbar-width:none!important}html.aj-desktop-v204 header::-webkit-scrollbar{display:none!important}}
+@media (max-width:760px){body.mobile-tools-open header{padding:6px!important;gap:0!important}body.mobile-tools-open header .tools-group{padding:0 6px!important}body.mobile-tools-open header .btn{font-size:.72rem!important}}
+</style>
+<script id="AIRJOTTER_V22100_MINIMAL_TOOLBAR_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const ioGroup=document.querySelector('header .aj-import-tools-v2291');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  const exportPdf=document.getElementById('exportPdfBtn');
+  if(ioGroup&&exportPdf){
+   exportPdf.classList.add('aj-output-v22100');
+   exportPdf.title='Esporta il Jotter in PDF';
+   if(transfer)transfer.insertAdjacentElement('afterend',exportPdf);else ioGroup.appendChild(exportPdf);
+  }
+  const oldGroup=document.getElementById('clearBtn')?.closest('.tools-group');
+  if(oldGroup&&oldGroup.children.length===0)oldGroup.remove();
+  const header=document.querySelector('header');
+  if(header){header.setAttribute('role','toolbar');header.setAttribute('aria-label','Strumenti AirJotter')}
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.0-minimal-toolbar';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22100_END -->
 </body>
 </html>
