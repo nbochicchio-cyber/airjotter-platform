@@ -6091,5 +6091,63 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22132_END -->
+<!-- AIRJOTTER_V22133_BEGIN -->
+<style id="AIRJOTTER_V22133_MARKETING_COPY_STYLE">
+/* Solo leggibilita dei nuovi messaggi commerciali, senza cambiare struttura o funzioni. */
+.aj-marketing-lead-v22133{font-weight:800!important;color:#33415f!important}
+.aj-three-in-one-v22133{font-weight:850!important;color:#1769e8!important}
+</style>
+<script id="AIRJOTTER_V22133_MARKETING_COPY_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const normalize=value=>(value||'').replace(/\s+/g,' ').trim();
+  const all=[...document.querySelectorAll('body *')];
+  const exact=(oldText,newText)=>{
+   const node=all.find(el=>el.children.length===0&&normalize(el.textContent)===normalize(oldText));
+   if(node)node.textContent=newText;
+   return node;
+  };
+  const contains=(needle)=>all.find(el=>normalize(el.textContent).includes(normalize(needle)));
+
+  /* Maschera di prima registrazione. */
+  exact('Il foglio digitale condiviso','Tre strumenti. Una sola web app.');
+  exact('Scrivi. Annota. Collabora.','Un solo Jotter. Tutto ciò che ti serve.');
+  const registration=contains('Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.');
+  if(registration){
+   const leaf=[...registration.querySelectorAll('*')].find(el=>el.children.length===0&&normalize(el.textContent).includes('Lavora sullo stesso Jotter'))||registration;
+   leaf.textContent='Crea e condividi una paperboard wireless, modifica e firma PDF, trasferisci file direttamente tra dispositivi. Tutto dal browser, senza cambiare applicazione.';
+  }
+
+  /* Apertura della maschera Cosa fa AirJotter. */
+  const intro=contains('AirJotter è la paperboard digitale wireless e collaborativa');
+  if(intro){
+   intro.innerHTML='<span class="aj-marketing-lead-v22133">AirJotter è la web app <span class="aj-three-in-one-v22133">3 in 1</span> che semplifica il tuo lavoro digitale.</span><br>Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.<br><strong>Meno strumenti, meno passaggi, più libertà.</strong>';
+  }
+
+  /* Aggiorna le sette schede esistenti senza cambiare il layout. */
+  const replacements=[
+   ['Disegna e scrivi','Paperboard wireless multidevice'],
+   ['Usa penna, gomma e testo, anche con una pencil elettronica.','Scrivi, disegna e organizza idee con penna, testo, forme e connettori, anche con Apple Pencil.'],
+   ['Lavora sui documenti','PDF editor avanzato'],
+   ['Importa PDF, immagini e firme: ritagliali, spostali e annotali.','Importa PDF, immagini e firme. Annota, modifica, firma e prepara documenti completi.'],
+   ['Condividi in un attimo','Collabora in tempo reale'],
+   ['Invia un codice o un QR. Gli altri vedono subito la stessa board.','Condividi un codice o un QR e lavora sullo stesso Jotter da qualsiasi dispositivo.'],
+   ['Collabora in sicurezza','Controlla accessi e permessi'],
+   ['Decidi chi può soltanto vedere e chi può modificare.','Assegna il ruolo di owner, editor o reader e mantieni il controllo del Jotter.'],
+   ['Non perdi il lavoro','Tutto resta nel tuo archivio'],
+   ['Ogni modifica viene salvata e i Jotter restano nel tuo archivio.','Le modifiche vengono salvate e ogni Jotter resta disponibile nel tuo archivio personale.'],
+   ['Usalo nella vita reale','File Transfer peer-to-peer'],
+   ['Condividi la board durante una videoconferenza (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.','Invia e ricevi file direttamente tra dispositivi con un trasferimento sicuro peer-to-peer.'],
+   ['Esporta tutto in PDF','Esporta e condividi il risultato'],
+   ["Scarica il lavoro in un PDF multipagina con un clic, pronto da archiviare, inviare o stampare. Puoi anche cambiare l'ordine delle pagine e/o eliminarne alcune.",'Genera un PDF multipagina pronto da archiviare, inviare o stampare. Riordina le pagine ed elimina quelle che non servono.']
+  ];
+  replacements.forEach(([from,to])=>exact(from,to));
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.33-marketing-copy';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22133_END -->
 </body>
 </html>
