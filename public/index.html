@@ -1109,7 +1109,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             <p style="color:var(--text-soft); font-size: 0.9rem; margin-bottom: 18px;">Le pagine visualizzate corrispondono esattamente ai salti di pagina nel canvas.</p>
             <div id="pdfPagesContainer" style="display: flex; gap: 15px; overflow-x: auto; padding: 15px 5px; min-height: 400px; margin-bottom: 20px; border: 1px dashed var(--border-color); border-radius: 8px;"></div>
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button class="btn cancel" style="background:var(--danger-bg); color:var(--danger-color);" onclick="document.getElementById('pdfExportModal').style.display='none'">Annulla</button>
+                <button class="btn cancel" style="background:var(--danger-bg); color:var(--danger-color);" onclick="document.getElementById('pdfExportModal').style.display='none';ajExportFirstPageOnlyV225=false;document.getElementById('confirmExportBtn').textContent='Scarica PDF Definitivo'">Annulla</button>
                 <button class="btn primary" id="confirmExportBtn">Scarica PDF Definitivo</button>
             </div>
         </div>
@@ -1121,7 +1121,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             <p id="ajPdfPurchaseSubtitleV225"></p>
             <div id="ajPdfPurchaseMetricsV225" class="aj-pdf-purchase-metrics-v225"></div>
             <div id="ajPdfPurchaseWarningV225" class="aj-pdf-purchase-warning-v225" hidden></div>
-            <div class="aj-pdf-purchase-actions-v225"><button type="button" class="btn" onclick="document.getElementById('ajPdfPurchaseModalV225').style.display='none'">Annulla</button><button type="button" class="btn primary" id="ajPdfPurchaseActionV225">Acquista export completo</button></div>
+            <div class="aj-pdf-purchase-actions-v225"><button type="button" class="btn" onclick="ajCancelExportPurchaseV225()">Annulla</button><button type="button" class="btn primary" id="ajPdfPurchaseActionV225">Acquista export completo</button></div>
         </div>
     </div>
 
@@ -1160,6 +1160,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         let exportPagesData = [];
         let ajExportFreeLimitedV225 = false;
         let ajExportFullAuthorizedV225 = false;
+        let ajExportFirstPageOnlyV225 = false;
         let ajExportCostCentsV225 = 0;
         const ajMoneyV225 = cents => new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format((Number(cents)||0)/100);
         function ajIsFreePlanV225(){const me=(typeof ajMe!=='undefined'&&ajMe)?ajMe:{};return String(me.plan||me.planCode||'free').toLowerCase()==='free'&&!me.isAdmin}
@@ -1171,6 +1172,14 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             const plansButton=[...document.querySelectorAll('header button')].find(b=>(b.textContent||'').trim().toLowerCase()==='piani');
             if(plansButton)plansButton.click();else{const plans=document.getElementById('ajPlansModalV220');if(plans)plans.style.display='flex'}
             setTimeout(()=>document.querySelector('#ajPayUseV222 h3')?.scrollIntoView({behavior:'smooth',block:'start'}),220);
+        }
+        function ajCancelExportPurchaseV225(){
+            document.getElementById('ajPdfPurchaseModalV225').style.display='none';
+            ajExportFullAuthorizedV225=false;
+            ajExportFirstPageOnlyV225=true;
+            const finalButton=document.getElementById('confirmExportBtn');
+            if(finalButton)finalButton.textContent='Scarica solo prima pagina';
+            document.getElementById('exportPdfBtn').click();
         }
         function ajRenderExportPurchaseV225(q){
             ajExportPurchaseQuoteV225=q;
@@ -2682,13 +2691,13 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         document.getElementById('exportPdfBtn').addEventListener('click', async () => {
             const btn=document.getElementById('exportPdfBtn');
             if(btn.dataset.exportBusyV2251==='1')return;
-            if(ajIsFreePlanV225()&&!ajExportFullAuthorizedV225&&TOTAL_PAGES>Math.max(0,Number(ajMe?.limits?.freePdfPages??1))){
+            if(ajIsFreePlanV225()&&!ajExportFullAuthorizedV225&&!ajExportFirstPageOnlyV225&&TOTAL_PAGES>Math.max(0,Number(ajMe?.limits?.freePdfPages??1))){
                 try{if(await ajShowExportPurchaseV225())return}catch(error){alert(error.message);return}
             }
             const originalText=btn.innerHTML;btn.dataset.exportBusyV2251='1';btn.innerHTML='Elaborazione...';btn.disabled=true;
             try{
                 try{const cfg=await ajJsonV225('/api/pay-use');ajExportCostCentsV225=Number(cfg.exportCostCents||0)}catch{}
-                ajExportFreeLimitedV225=ajIsFreePlanV225()&&!ajExportFullAuthorizedV225;
+                ajExportFreeLimitedV225=ajExportFirstPageOnlyV225||(ajIsFreePlanV225()&&!ajExportFullAuthorizedV225);
                 exportPagesData=[];
                 const container=document.getElementById('pdfPagesContainer');container.innerHTML='';
                 // Il composito HiDPI per pagina contiene PDF, foto, firme, testo, inchiostro e cancellazioni.
@@ -2709,6 +2718,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                     await new Promise(resolve=>requestAnimationFrame(resolve));
                 }
                 renderPdfThumbnails();
+                document.getElementById('confirmExportBtn').textContent=ajExportFirstPageOnlyV225?'Scarica solo prima pagina':'Scarica PDF Definitivo';
                 const modal=document.getElementById('pdfExportModal');modal.style.display='flex';modal.style.zIndex='12050';
             }catch(error){console.error('Esportazione PDF:',error);alert('Esportazione PDF non riuscita: '+error.message)}
             finally{btn.innerHTML=originalText;btn.disabled=false;delete btn.dataset.exportBusyV2251}
@@ -2719,7 +2729,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             if(confirm.dataset.busy==='1')return;
             confirm.dataset.busy='1';confirm.innerText='Generazione in corso...';confirm.disabled=true;
             try{
-                if(ajIsFreePlanV225()&&ajExportFullAuthorizedV225)await ajJsonV225('/api/exports/authorize',{method:'POST',body:'{}'});
+                if(ajIsFreePlanV225()&&ajExportFullAuthorizedV225&&!ajExportFirstPageOnlyV225)await ajJsonV225('/api/exports/authorize',{method:'POST',body:'{}'});
                 await new Promise(resolve=>setTimeout(resolve,50));
                 const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfW = pdf.internal.pageSize.getWidth(); const pdfH = pdf.internal.pageSize.getHeight();
@@ -2727,6 +2737,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 pdf.save('airjotter.com-Document.pdf');
                 document.getElementById('pdfExportModal').style.display='none';
                 ajExportFullAuthorizedV225=false;
+                ajExportFirstPageOnlyV225=false;
             }catch(error){alert(error.message)}finally{confirm.innerText='Scarica PDF Definitivo';confirm.disabled=false;delete confirm.dataset.busy}
         });
 
@@ -6664,6 +6675,11 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </style>
 <script id="AIRJOTTER_V221055_EXPORT_PURCHASE_FLOW_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.55-export-purchase-flow';</script>
 <!-- AIRJOTTER_V221055_EXPORT_PURCHASE_FLOW_END -->
+
+
+<!-- AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_BEGIN -->
+<script id="AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.55.1-cancel-to-first-page';</script>
+<!-- AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_END -->
 
 </body>
 </html>
