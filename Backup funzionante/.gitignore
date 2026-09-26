@@ -1,0 +1,8 @@
+﻿.env
+node_modules/
+npm-debug.log*
+*.backup-*
+Backup file CJS/
+*.cjs
+.DS_Store
+Thumbs.db
