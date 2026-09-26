@@ -6448,27 +6448,48 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ini
 
 
 
-<!-- AIRJOTTER_V221049_SURGICAL_UI_BEGIN -->
-<style id="AIRJOTTER_V221049_SURGICAL_UI_STYLE">
-/* Il setup formato resta esclusivamente globale nella toolbar. */
-#canvas-wrapper .ajPaperPageBtnV221042{display:none!important}
-/* File Transfer flat con icona trasferimento esplicita. */
-html body header #ajFileTransferBtnV2291,html body header #ajFileTransferBtnV2291:hover,html body header #ajFileTransferBtnV2291:focus,html body header #ajFileTransferBtnV2291:active{left:50%!important;right:auto!important;transform:translateX(-50%)!important;background:#fff!important;background-image:none!important;border:1px solid #2086f8!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;filter:none!important}
-html body header #ajFileTransferBtnV2291 svg{display:block!important;visibility:visible!important;opacity:1!important;width:16px!important;height:16px!important;stroke:#173d72!important;fill:none!important;flex:0 0 16px!important}
+
+
+<!-- AIRJOTTER_V221050_THREE_FLAT_BUTTONS_BEGIN -->
+<style id="AIRJOTTER_V221050_THREE_FLAT_BUTTONS_STYLE">
+/* DEFINITIVO: File Transfer, Owner e Piani completamente flat. */
+html body header .aj-io-stack-v22107 button#ajFileTransferBtnV2291,
+html body header .aj-io-stack-v22107 button#ajFileTransferBtnV2291:hover,
+html body header .aj-io-stack-v22107 button#ajFileTransferBtnV2291:focus,
+html body header .aj-io-stack-v22107 button#ajFileTransferBtnV2291:active{
+ background:#fff!important;background-color:#fff!important;background-image:none!important;
+ border:1px solid #2086f8!important;color:#173d72!important;
+ box-shadow:none!important;text-shadow:none!important;filter:none!important;
+ transform:translateX(-50%)!important;top:auto!important;
+}
+html body header button#ajUser,
+html body header button#ajUser:hover,
+html body header button#ajUser:focus,
+html body header button#ajUser:active{
+ background:#fff!important;background-color:#fff!important;background-image:none!important;
+ border:1px solid #0d3f78!important;color:#173d72!important;
+ box-shadow:none!important;text-shadow:none!important;filter:none!important;transform:none!important;
+}
+html body header .aj-plan-column-v22107 button,
+html body header .aj-plan-column-v22107 button:hover,
+html body header .aj-plan-column-v22107 button:focus,
+html body header .aj-plan-column-v22107 button:active{
+ background:#fff!important;background-color:#fff!important;background-image:none!important;
+ border:1px solid #176b3a!important;color:#173d72!important;
+ box-shadow:none!important;text-shadow:none!important;filter:none!important;transform:none!important;
+}
+html body header #ajFileTransferBtnV2291 svg{display:block!important;visibility:visible!important;opacity:1!important;stroke:#173d72!important;fill:none!important}
 </style>
-<script id="AIRJOTTER_V221049_SURGICAL_UI_SCRIPT">
+<script id="AIRJOTTER_V221050_THREE_FLAT_BUTTONS_SCRIPT">
 (()=>{'use strict';
- function apply(){
-  document.querySelectorAll('#canvas-wrapper .ajPaperPageBtnV221042').forEach(b=>b.remove());
-  const label=document.querySelector('.aj-page-label-v2287');if(label)label.textContent='Formato e n° di pagine';
-  const ft=document.getElementById('ajFileTransferBtnV2291');if(ft&&!ft.querySelector('svg'))ft.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3"></path><path d="M17 17H6l3 3m-3-3 3-3"></path></svg>');
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
- setTimeout(apply,300);setTimeout(apply,1000);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.49-surgical-ui';
+ const paint=(b,border,transform='none')=>{if(!b)return;const values={background:'#fff','background-color':'#fff','background-image':'none',border:'1px solid '+border,color:'#173d72','box-shadow':'none','text-shadow':'none',filter:'none',transform};Object.entries(values).forEach(([k,v])=>b.style.setProperty(k,v,'important'))};
+ const apply=()=>{const ft=document.getElementById('ajFileTransferBtnV2291'),owner=document.getElementById('ajUser'),plans=[...document.querySelectorAll('header .aj-plan-column-v22107 button')];paint(ft,'#2086f8','translateX(-50%)');paint(owner,'#0d3f78');plans.forEach(b=>paint(b,'#176b3a'));};
+ const ready=()=>{apply();requestAnimationFrame(apply);[100,350,800,1600].forEach(ms=>setTimeout(apply,ms))};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ready,{once:true}):ready();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.50-three-flat-buttons';
 })();
 </script>
-<!-- AIRJOTTER_V221049_SURGICAL_UI_END -->
+<!-- AIRJOTTER_V221050_THREE_FLAT_BUTTONS_END -->
 
 </body>
 </html>
