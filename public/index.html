@@ -6162,5 +6162,54 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22134_END -->
+<!-- AIRJOTTER_V22135_BEGIN -->
+<script id="AIRJOTTER_V22135_COPY_REFINEMENT_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const normalize=value=>(value||'').replace(/\s+/g,' ').trim();
+  const elements=()=>[...document.querySelectorAll('body *')];
+  const smallestContaining=needle=>{
+   const matches=elements().filter(el=>normalize(el.textContent).includes(normalize(needle)));
+   return matches.find(el=>![...el.children].some(child=>normalize(child.textContent).includes(normalize(needle))))||null;
+  };
+  const replaceText=(oldText,newText)=>{
+   const exact=elements().find(el=>el.children.length===0&&normalize(el.textContent)===normalize(oldText));
+   const target=exact||smallestContaining(oldText);
+   if(target)target.textContent=newText;
+   return target;
+  };
+
+  /* Maschera iniziale di registrazione. */
+  replaceText('Un solo Jotter. Tutto ciò che ti serve.','Crea. Modifica. Condividi. Trasferisci.');
+  replaceText(
+   'Crea e condividi una paperboard wireless, modifica e firma PDF, trasferisci file direttamente tra dispositivi. Tutto dal browser, senza cambiare applicazione.',
+   'Crea e condividi in real time la tua paperboard digitale, carica PDF, foto e firme, ritaglia, annota, modifica, firma ed esporta il tuo lavoro in PDF. Puoi anche trasferire i tuoi file fino a 5 GB. Tutto dal tuo web browser, senza scaricare app, senza cambiare applicazione.'
+  );
+
+  /* Maschera informativa: sostituzioni testuali senza toccare grafica, schede o icone. */
+  replaceText(
+   'Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.',
+   'Paperboard multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.'
+  );
+  replaceText(
+   'Importa PDF, immagini e firme. Annota, modifica, firma e prepara documenti completi.',
+   'Importa PDF, immagini e firme scannerizzate. Ritaglia, annota, aggiungi testo, modifica, firma, anche con la tua pencil.'
+  );
+  replaceText(
+   'Condividi un codice o un QR e lavora sullo stesso Jotter da qualsiasi dispositivo.',
+   'Condividi un codice o un QR e lavora sullo stesso Jotter con chi vuoi, da qualsiasi dispositivo, in tempo reale.'
+  );
+  replaceText(
+   'Assegna il ruolo di owner, editor o reader e mantieni il controllo del Jotter.',
+   'Assegna il ruolo di editor o reader, e mantieni sempre il controllo dei tuoi Jotter.'
+  );
+
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.35-copy-refinement';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22135_END -->
 </body>
 </html>
