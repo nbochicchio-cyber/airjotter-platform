@@ -6091,42 +6091,55 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22132_END -->
-<!-- AIRJOTTER_V22133_BEGIN -->
-<style id="AIRJOTTER_V22133_MARKETING_COPY_STYLE">
-/* Solo leggibilita dei nuovi messaggi commerciali, senza cambiare struttura o funzioni. */
-.aj-marketing-lead-v22133{font-weight:800!important;color:#33415f!important}
-.aj-three-in-one-v22133{font-weight:850!important;color:#1769e8!important}
+<!-- AIRJOTTER_V22134_BEGIN -->
+<style id="AIRJOTTER_V22134_MARKETING_SAFE_STYLE">
+.aj-marketing-lead-v22134{font-weight:800!important;color:#33415f!important}
+.aj-three-in-one-v22134{font-weight:850!important;color:#1769e8!important}
 </style>
-<script id="AIRJOTTER_V22133_MARKETING_COPY_SCRIPT">
+<script id="AIRJOTTER_V22134_MARKETING_SAFE_SCRIPT">
 (()=>{
  'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
-  const normalize=value=>(value||'').replace(/\s+/g,' ').trim();
-  const all=[...document.querySelectorAll('body *')];
-  const exact=(oldText,newText)=>{
-   const node=all.find(el=>el.children.length===0&&normalize(el.textContent)===normalize(oldText));
+  const norm=value=>(value||'').replace(/\s+/g,' ').trim();
+  const elements=()=>[...document.querySelectorAll('body *')];
+  const exactLeaf=(oldText,newText)=>{
+   const node=elements().find(el=>el.children.length===0&&norm(el.textContent)===norm(oldText));
    if(node)node.textContent=newText;
    return node;
   };
-  const contains=(needle)=>all.find(el=>normalize(el.textContent).includes(normalize(needle)));
+  const smallestContaining=needle=>{
+   const matches=elements().filter(el=>norm(el.textContent).includes(norm(needle)));
+   return matches.find(el=>![...el.children].some(child=>norm(child.textContent).includes(norm(needle))))||null;
+  };
+  const replaceSmallest=(needle,newText)=>{
+   const node=smallestContaining(needle);
+   if(node)node.textContent=newText;
+   return node;
+  };
 
-  /* Maschera di prima registrazione. */
-  exact('Il foglio digitale condiviso','Tre strumenti. Una sola web app.');
-  exact('Scrivi. Annota. Collabora.','Un solo Jotter. Tutto ciò che ti serve.');
-  const registration=contains('Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone. Importa documenti, condividi un codice e mostra ogni modifica in tempo reale.');
-  if(registration){
-   const leaf=[...registration.querySelectorAll('*')].find(el=>el.children.length===0&&normalize(el.textContent).includes('Lavora sullo stesso Jotter'))||registration;
-   leaf.textContent='Crea e condividi una paperboard wireless, modifica e firma PDF, trasferisci file direttamente tra dispositivi. Tutto dal browser, senza cambiare applicazione.';
-  }
+  /* Prima registrazione: modifica esclusivamente i tre nodi testuali. */
+  exactLeaf('Il foglio digitale condiviso','Tre strumenti. Una sola web app.');
+  exactLeaf('Scrivi. Annota. Collabora.','Un solo Jotter. Tutto ciò che ti serve.');
+  replaceSmallest(
+   'Lavora sullo stesso Jotter da PC, Mac, tablet e smartphone.',
+   'Crea e condividi una paperboard wireless, modifica e firma PDF, trasferisci file direttamente tra dispositivi. Tutto dal browser, senza cambiare applicazione.'
+  );
 
-  /* Apertura della maschera Cosa fa AirJotter. */
-  const intro=contains('AirJotter è la paperboard digitale wireless e collaborativa');
+  /* Maschera informativa: preserva integralmente modal, griglia, schede, icone e pulsante di chiusura. */
+  const intro=smallestContaining('AirJotter è la paperboard digitale wireless e collaborativa');
   if(intro){
-   intro.innerHTML='<span class="aj-marketing-lead-v22133">AirJotter è la web app <span class="aj-three-in-one-v22133">3 in 1</span> che semplifica il tuo lavoro digitale.</span><br>Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.<br><strong>Meno strumenti, meno passaggi, più libertà.</strong>';
+   intro.replaceChildren();
+   const lead=document.createElement('span');
+   lead.className='aj-marketing-lead-v22134';
+   lead.append('AirJotter è la web app ');
+   const three=document.createElement('span');three.className='aj-three-in-one-v22134';three.textContent='3 in 1';
+   lead.append(three,' che semplifica il tuo lavoro digitale.');
+   intro.append(lead,document.createElement('br'),'Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.',document.createElement('br'));
+   const closing=document.createElement('strong');closing.textContent='Meno strumenti, meno passaggi, più libertà.';
+   intro.append(closing);
   }
 
-  /* Aggiorna le sette schede esistenti senza cambiare il layout. */
   const replacements=[
    ['Disegna e scrivi','Paperboard wireless multidevice'],
    ['Usa penna, gomma e testo, anche con una pencil elettronica.','Scrivi, disegna e organizza idee con penna, testo, forme e connettori, anche con Apple Pencil.'],
@@ -6139,15 +6152,15 @@ header .aj-plan-column-v22107 button:active{
    ['Non perdi il lavoro','Tutto resta nel tuo archivio'],
    ['Ogni modifica viene salvata e i Jotter restano nel tuo archivio.','Le modifiche vengono salvate e ogni Jotter resta disponibile nel tuo archivio personale.'],
    ['Usalo nella vita reale','File Transfer peer-to-peer'],
-   ['Condividi la board durante una videoconferenza (es. Meet, Teams, Zoom, ecc.); usala anche per consulenze, lezioni, presentazioni e revisioni a distanza.','Invia e ricevi file direttamente tra dispositivi con un trasferimento sicuro peer-to-peer.'],
+   ['Condividi la board durante una videoconferenza','Invia e ricevi file direttamente tra dispositivi con un trasferimento sicuro peer-to-peer.'],
    ['Esporta tutto in PDF','Esporta e condividi il risultato'],
-   ["Scarica il lavoro in un PDF multipagina con un clic, pronto da archiviare, inviare o stampare. Puoi anche cambiare l'ordine delle pagine e/o eliminarne alcune.",'Genera un PDF multipagina pronto da archiviare, inviare o stampare. Riordina le pagine ed elimina quelle che non servono.']
+   ['Scarica il lavoro in un PDF multipagina con un clic','Genera un PDF multipagina pronto da archiviare, inviare o stampare. Riordina le pagine ed elimina quelle che non servono.']
   ];
-  replacements.forEach(([from,to])=>exact(from,to));
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.33-marketing-copy';
+  replacements.forEach(([from,to])=>exactLeaf(from,to)||replaceSmallest(from,to));
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.34-marketing-copy-safe';
  });
 })();
 </script>
-<!-- AIRJOTTER_V22133_END -->
+<!-- AIRJOTTER_V22134_END -->
 </body>
 </html>
