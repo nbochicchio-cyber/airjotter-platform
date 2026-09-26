@@ -6002,5 +6002,94 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22130_END -->
+<!-- AIRJOTTER_V22132_BEGIN -->
+<style id="AIRJOTTER_V22132_TOOLBAR_REFINEMENT_STYLE">
+/* 1. Adatta pagina: compatto, flat, senza rilievo, bordo blu sottile. */
+header #ajPcFitV204{
+ min-width:0!important;
+ width:auto!important;
+ padding-left:7px!important;
+ padding-right:7px!important;
+ background:transparent!important;
+ background-image:none!important;
+ border:1px solid #2086F8!important;
+ border-radius:8px!important;
+ color:#123d73!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ transform:none!important;
+}
+header #ajPcFitV204:hover{
+ background:#eef6ff!important;
+ border-color:#1769e8!important;
+ color:#0d315e!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+header #ajPcFitV204:active{
+ background:#e2efff!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+
+/* 2. Scritta archivio e pulsante utente: insieme 2 mm circa verso destra. */
+header .aj-owner-row-v22107{
+ transform:translateX(8px)!important;
+}
+
+/* 3. Etichetta Jotter Code leggermente più grande, senza spostarla. */
+header .aj-code-label-v22105,
+header .aj-code-label-v22101{
+ font-size:.66rem!important;
+ line-height:1!important;
+ font-weight:800!important;
+}
+
+/* 4. Piani: verde scuro, rilievo 3D controllato e ombra minima. */
+header .aj-plan-column-v22107 button{
+ background:#176B3A!important;
+ background-image:linear-gradient(180deg,#21804a 0%,#176B3A 72%,#12572f 100%)!important;
+ border:1px solid #12572f!important;
+ color:#fff!important;
+ box-shadow:0 2px 0 #0d4726,0 2px 3px rgba(13,71,38,.10),inset 0 1px 0 rgba(255,255,255,.20)!important;
+ text-shadow:0 1px 1px rgba(0,0,0,.22)!important;
+ transform:translateY(-1px)!important;
+}
+header .aj-plan-column-v22107 button:hover{
+ background:#146133!important;
+ background-image:linear-gradient(180deg,#1d7743,#146133)!important;
+ border-color:#104d29!important;
+ box-shadow:0 2px 0 #0d4726,0 2px 3px rgba(13,71,38,.10),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+header .aj-plan-column-v22107 button:active{
+ transform:translateY(1px)!important;
+ box-shadow:0 1px 0 #0d4726,0 1px 2px rgba(13,71,38,.08)!important;
+}
+
+/* 5. Recupera circa 1,5 mm soltanto dalla fascia bianca superiore. */
+@media (min-width:761px){
+ html.aj-desktop-v204 header{
+  padding-top:1px!important;
+ }
+}
+</style>
+<script id="AIRJOTTER_V22132_TOOLBAR_REFINEMENT_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const header=document.querySelector('header');
+  if(!header)return;
+  const fit=document.getElementById('ajPcFitV204');
+  if(fit){
+   fit.classList.remove('aj-dark-flat-v22107','aj-visual-raised-v22103','aj-premium-control-v22101');
+  }
+  const plans=[...header.querySelectorAll('button')].find(button=>(button.textContent||'').trim().toLowerCase().includes('piani'));
+  if(plans)plans.setAttribute('data-aj-toolbar-v22132','plans');
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.32-toolbar-refinement';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22132_END -->
 </body>
 </html>
