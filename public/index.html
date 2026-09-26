@@ -6578,5 +6578,55 @@ html body header button[data-aj-toolbar-v22132="plans"]:active{
 </script>
 <!-- AIRJOTTER_V221053_PLANS_FLAT_END -->
 
+
+<!-- AIRJOTTER_V221054_FILE_TRANSFER_STABLE_BEGIN -->
+<style id="AIRJOTTER_V221054_FILE_TRANSFER_STABLE_STYLE">
+/* File Transfer resta nella quinta cella della griglia, senza traslazioni in nessuno stato. */
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291,
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291:hover,
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291:focus,
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291:active{
+ position:static!important;
+ left:auto!important;
+ right:auto!important;
+ top:auto!important;
+ bottom:auto!important;
+ grid-column:5!important;
+ grid-row:1!important;
+ transform:none!important;
+ margin:0!important;
+ z-index:2!important;
+ pointer-events:auto!important;
+ background:#fff!important;
+ background-color:#fff!important;
+ background-image:none!important;
+ border:1px solid #2086f8!important;
+ color:#173d72!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ filter:none!important;
+}
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 svg{
+ display:block!important;
+ visibility:visible!important;
+ opacity:1!important;
+ width:16px!important;
+ height:16px!important;
+ flex:0 0 16px!important;
+ stroke:#173d72!important;
+ fill:none!important;
+ pointer-events:none!important;
+}
+html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events:none!important}
+</style>
+<script id="AIRJOTTER_V221054_FILE_TRANSFER_STABLE_SCRIPT">
+(()=>{'use strict';
+ const fix=()=>{const b=document.getElementById('ajFileTransferBtnV2291');if(!b)return;if(!b.querySelector('svg'))b.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3"></path><path d="M17 17H6l3 3m-3-3 3-3"></path></svg>');const css={position:'static',left:'auto',right:'auto',top:'auto',bottom:'auto',transform:'none',margin:'0','z-index':'2','pointer-events':'auto'};Object.entries(css).forEach(([k,v])=>b.style.setProperty(k,v,'important'))};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fix,{once:true}):fix();requestAnimationFrame(fix);setTimeout(fix,300);
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.54-file-transfer-stable';
+})();
+</script>
+<!-- AIRJOTTER_V221054_FILE_TRANSFER_STABLE_END -->
+
 </body>
 </html>
