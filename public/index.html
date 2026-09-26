@@ -998,6 +998,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         <div class="tools-group aj-page-tools-v2287">
             <small class="aj-page-label-v2287">N° di pagine:</small>
             <span class="aj-page-row-v2287">
+                <button id="ajPaperGlobalBtnV221039" class="page-btn" type="button" title="Formato e orientamento di tutte le pagine" aria-label="Formato e orientamento di tutte le pagine">▱</button>
                 <button id="removePageBtn" class="page-btn" title="Rimuovi ultima pagina">−</button>
                 <span id="pageCountDisplay" class="page-count-display"><span id="pageCountNumber">2</span></span>
                 <button id="addPageBtn" class="page-btn" title="Aggiungi pagina">+</button>
@@ -6397,5 +6398,27 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22137_END -->
+
+<!-- AIRJOTTER_V221039_PAPER_FORMAT_BEGIN -->
+<style id="AIRJOTTER_V221039_STYLE">
+#ajPaperGlobalBtnV221039,.ajPaperPageBtnV221039{color:#173d72;background:#eef5ff;border:1px solid #8fb3df;border-radius:9px;font-weight:900;cursor:pointer}
+.ajPaperPageBtnV221039{position:absolute;right:64px;width:36px;height:36px;z-index:12;pointer-events:auto;font-size:20px}.ajPaperPageBtnV221039:hover,#ajPaperGlobalBtnV221039:hover{background:#dcecff}
+#ajPaperModalV221039{position:fixed;inset:0;z-index:30000;display:none;align-items:center;justify-content:center;background:rgba(15,30,50,.5)}#ajPaperModalV221039.open{display:flex}
+#ajPaperCardV221039{width:min(430px,calc(100vw - 28px));padding:22px;border-radius:18px;background:white;box-shadow:0 24px 70px #173d7260;color:#26364d}#ajPaperCardV221039 h3{margin:0 0 8px}#ajPaperCardV221039 p{color:#64758b}
+.ajPaperFieldsV221039{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ajPaperFieldsV221039 label{font-size:12px;font-weight:800}.ajPaperFieldsV221039 select{width:100%;height:42px;margin-top:5px;border:1px solid #bdcce0;border-radius:10px;background:white;padding:0 10px}
+.ajPaperActionsV221039{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.ajPaperActionsV221039 button{height:40px;border-radius:10px;border:1px solid #bdcce0;padding:0 16px;font-weight:800}.ajPaperActionsV221039 .ok{background:#1769e8;color:white;border-color:#1769e8}
+@media(min-width:761px){html.aj-desktop-v204 #ajPcFitV204{display:none!important}#brandBtn{cursor:pointer!important}}
+</style>
+<div id="ajPaperModalV221039" role="dialog" aria-modal="true"><div id="ajPaperCardV221039"><h3 id="ajPaperTitleV221039">Formato carta</h3><p id="ajPaperTextV221039"></p><div class="ajPaperFieldsV221039"><label>Formato<select id="ajPaperSizeV221039" title="Seleziona il formato della carta"><option>A5</option><option selected>A4</option><option>A3</option><option>A2</option><option>A1</option><option>A0</option></select></label><label>Orientamento<select id="ajPaperOrientationV221039" title="Seleziona l'orientamento"><option value="portrait">Verticale</option><option value="landscape">Orizzontale</option></select></label></div><div class="ajPaperActionsV221039"><button id="ajPaperCancelV221039">Annulla</button><button id="ajPaperApplyV221039" class="ok">Applica</button></div></div></div>
+<script id="AIRJOTTER_V221039_SCRIPT">
+(()=>{'use strict';const $=id=>document.getElementById(id),formats={A5:[148,210],A4:[210,297],A3:[297,420],A2:[420,594],A1:[594,841],A0:[841,1189]};let state={global:{size:'A4',orientation:'portrait'},pages:{}},target=null;
+function total(){return Number($('pageCountNumber')?.textContent||2)}function current(i){return state.pages[i]||state.global}function open(i=null){target=i;const v=i===null?state.global:current(i);$('ajPaperTitleV221039').textContent=i===null?'Formato di tutte le pagine':'Formato della pagina '+(i+1);$('ajPaperTextV221039').textContent=i===null?'Applica formato e orientamento a tutte le pagine del Jotter.':'Personalizza soltanto questa pagina.';$('ajPaperSizeV221039').value=v.size;$('ajPaperOrientationV221039').value=v.orientation;$('ajPaperModalV221039').classList.add('open')}
+function close(){$('ajPaperModalV221039').classList.remove('open')}function geometry(v){let [w,h]=formats[v.size]||formats.A4;if(v.orientation==='landscape')[w,h]=[h,w];const ratio=(w/h)/(210/297),width=Math.round(900*Math.sqrt(ratio)),height=Math.round(1273/Math.sqrt(ratio));return{width,height}}
+function render(){const wrap=$('canvas-wrapper');if(!wrap)return;const g=geometry(state.global);wrap.style.width=g.width+'px';wrap.style.height=(g.height*total())+'px';document.documentElement.style.setProperty('--a4-w',g.width+'px');document.documentElement.style.setProperty('--a4-h',g.height+'px');wrap.querySelectorAll('.ajPaperPageBtnV221039').forEach(x=>x.remove());for(let i=0;i<total();i++){const b=document.createElement('button');b.className='ajPaperPageBtnV221039';b.type='button';b.textContent='▱';b.style.top=(i*g.height+20)+'px';b.title='Formato e orientamento della sola pagina '+(i+1);b.setAttribute('aria-label',b.title);b.onclick=e=>{e.stopPropagation();open(i)};wrap.appendChild(b)}try{window.handleResize&&window.handleResize()}catch{}}
+function applyRemote(p){if(p?.global)state.global=p.global;if(p?.pages)state.pages=p.pages;render()}function save(){const v={size:$('ajPaperSizeV221039').value,orientation:$('ajPaperOrientationV221039').value};if(target===null){state.global=v;state.pages={}}else state.pages[target]=v;close();render();window.ajSend?.('paper:set',state).catch(e=>alert(e.message))}
+function init(){$('ajPaperGlobalBtnV221039').onclick=()=>open(null);$('ajPaperCancelV221039').onclick=close;$('ajPaperApplyV221039').onclick=save;$('ajPaperModalV221039').onclick=e=>{if(e.target===$('ajPaperModalV221039'))close()};const old=window.ajApplyOperation;if(typeof old==='function')window.ajApplyOperation=function(op){const t=op?.operation_type||op?.type;if(t==='paper:set'){applyRemote(op.payload||{});return}const r=old.apply(this,arguments);setTimeout(render,0);return r};const fit=$('ajPcFitV204'),brand=$('brandBtn');if(brand){brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';brand.onclick=e=>{e.preventDefault();if(innerWidth>760)fit?.click();setTimeout(()=>scrollTo({top:0,behavior:'smooth'}),40)}}render();window.AIRJOTTER_FRONTEND_VERSION='22.10.39-paper-format-fix'}document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.ajPaperV221039={applyRemote};})();
+</script>
+<!-- AIRJOTTER_V221039_PAPER_FORMAT_END -->
+
 </body>
 </html>
