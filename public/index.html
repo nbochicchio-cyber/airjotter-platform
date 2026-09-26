@@ -6444,54 +6444,18 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ini
 <script id="AIRJOTTER_V221045_EMERGENCY_ROLLBACK_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.45-emergency-rollback-v44';</script>
 <!-- AIRJOTTER_V221045_EMERGENCY_ROLLBACK_END -->
 
-<!-- AIRJOTTER_V221046_SAFE_FIX_BEGIN -->
-<style id="AIRJOTTER_V221046_SAFE_FIX_STYLE">
-/* Regole finali, statiche e senza osservatori: aspetto flat reale. */
-html body header #ajFileTransferBtnV2291,
-html body header #ajFileTransferBtnV2291:hover,
-html body header #ajFileTransferBtnV2291:active{
- background:#fff!important;background-color:#fff!important;background-image:none!important;
- border:1px solid #2086f8!important;color:#173d72!important;
- box-shadow:none!important;text-shadow:none!important;transform:translateX(-50%)!important;filter:none!important;
-}
-html body header .aj-plan-column-v22107 button,
-html body header .aj-plan-column-v22107 button:hover,
-html body header .aj-plan-column-v22107 button:active,
-html body header button[data-aj-toolbar-v22132="plans"],
-html body header button[data-aj-toolbar-v22132="plans"]:hover,
-html body header button[data-aj-toolbar-v22132="plans"]:active{
- background:#fff!important;background-color:#fff!important;background-image:none!important;
- border:1px solid #176b3a!important;color:#173d72!important;
- box-shadow:none!important;text-shadow:none!important;transform:none!important;filter:none!important;
-}
-/* Il comando pagina resta dentro il foglio, immediatamente a sinistra del cestino. */
-html body #canvas-wrapper .ajPaperPageBtnV221042{
- position:absolute!important;left:auto!important;right:64px!important;z-index:30!important;
- pointer-events:auto!important;background:#fff!important;box-shadow:none!important;transform:none!important;
-}
+<!-- AIRJOTTER_V221047_UI_AND_PAGE_BUTTON_FIX_BEGIN -->
+<style id="AIRJOTTER_V221047_UI_AND_PAGE_BUTTON_FIX_STYLE">
+html body header #ajFileTransferBtnV2291,html body header #ajFileTransferBtnV2291:hover,html body header #ajFileTransferBtnV2291:focus,html body header #ajFileTransferBtnV2291:active{left:50%!important;right:auto!important;transform:translateX(-50%)!important;background:#fff!important;background-image:none!important;border:1px solid #2086f8!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;filter:none!important;padding:3px 9px!important}
+html body header #ajFileTransferBtnV2291 svg{display:block!important;width:16px!important;height:16px!important;opacity:1!important;visibility:visible!important;stroke:currentColor!important;fill:none!important;flex:0 0 16px!important}html body header #ajFileTransferBtnV2291 span{display:inline!important}
+html body header #ajUser,html body header #ajUser:hover,html body header #ajUser:focus,html body header #ajUser:active{background:#fff!important;background-image:none!important;border:1px solid #0d3f78!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;transform:none!important;filter:none!important}
+html body header .aj-plan-column-v22107 button,html body header .aj-plan-column-v22107 button:hover,html body header .aj-plan-column-v22107 button:focus,html body header .aj-plan-column-v22107 button:active,html body header button[data-aj-toolbar-v22132="plans"]{min-width:0!important;width:auto!important;height:34px!important;min-height:34px!important;padding:4px 11px!important;margin:0!important;background:#fff!important;background-image:none!important;border:1px solid #176b3a!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;transform:none!important;filter:none!important;border-radius:9px!important}
+html body #canvas-wrapper .ajPaperPageBtnV221042{position:absolute!important;left:auto!important;right:64px!important;z-index:60!important;pointer-events:auto!important;background:#fff!important;box-shadow:none!important;transform:none!important}
 </style>
-<script id="AIRJOTTER_V221046_SAFE_FIX_SCRIPT">
-(()=>{'use strict';
- function flatten(){
-  const ft=document.getElementById('ajFileTransferBtnV2291');
-  const plans=[...document.querySelectorAll('header button')].filter(b=>(b.textContent||'').trim().toLowerCase()==='piani');
-  if(ft){ft.style.setProperty('background','#fff','important');ft.style.setProperty('background-image','none','important');ft.style.setProperty('box-shadow','none','important');ft.style.setProperty('text-shadow','none','important');ft.style.setProperty('filter','none','important');ft.style.setProperty('border','1px solid #2086f8','important');ft.style.setProperty('color','#173d72','important')}
-  plans.forEach(b=>{b.style.setProperty('background','#fff','important');b.style.setProperty('background-image','none','important');b.style.setProperty('box-shadow','none','important');b.style.setProperty('text-shadow','none','important');b.style.setProperty('transform','none','important');b.style.setProperty('filter','none','important');b.style.setProperty('border','1px solid #176b3a','important');b.style.setProperty('color','#173d72','important')});
- }
- function alignPageButtons(){
-  const wrap=document.getElementById('canvas-wrapper');if(!wrap)return;
-  const dels=[...wrap.querySelectorAll('.page-delete-btn')];
-  [...wrap.querySelectorAll('.ajPaperPageBtnV221042')].forEach((b,i)=>{b.style.setProperty('left','auto','important');b.style.setProperty('right','64px','important');b.style.setProperty('z-index','30','important');b.style.setProperty('pointer-events','auto','important');if(dels[i])b.style.top=dels[i].style.top});
- }
- function run(){flatten();alignPageButtons();setTimeout(()=>{flatten();alignPageButtons()},300)}
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',run,{once:true}):run();
- // Delega stabile: funziona anche quando initCanvas ricrea i pulsanti in un Jotter multipagina.
- document.addEventListener('click',e=>{const b=e.target.closest?.('.ajPaperPageBtnV221042');if(!b)return;e.preventDefault();e.stopPropagation();const list=[...document.querySelectorAll('#canvas-wrapper .ajPaperPageBtnV221042')],index=Math.max(0,list.indexOf(b));window.ajPaperV221042?.open?.(index)},true);
- window.addEventListener('resize',alignPageButtons,{passive:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.46-safe-flat-multipage-button';
-})();
+<script id="AIRJOTTER_V221047_UI_AND_PAGE_BUTTON_FIX_SCRIPT">
+(()=>{'use strict';function align(){const w=document.getElementById('canvas-wrapper');if(!w)return;const p=[...w.querySelectorAll('.ajPaperPageBtnV221042')],d=[...w.querySelectorAll('.page-delete-btn')];p.forEach((b,i)=>{b.style.setProperty('left','auto','important');b.style.setProperty('right','64px','important');b.style.setProperty('z-index','60','important');b.style.setProperty('pointer-events','auto','important');if(d[i])b.style.top=d[i].style.top})}function init(){align();setTimeout(align,250);const w=document.getElementById('canvas-wrapper');if(w)w.addEventListener('pointerup',e=>{const b=e.target.closest?.('.ajPaperPageBtnV221042');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const list=[...w.querySelectorAll('.ajPaperPageBtnV221042')],i=Math.max(0,list.indexOf(b));window.ajPaperV221042?.open?.(i)},true)}document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.addEventListener('resize',align,{passive:true});window.AIRJOTTER_FRONTEND_VERSION='22.10.47-ui-and-page-button-fix'})();
 </script>
-<!-- AIRJOTTER_V221046_SAFE_FIX_END -->
+<!-- AIRJOTTER_V221047_UI_AND_PAGE_BUTTON_FIX_END -->
 
 </body>
 </html>
