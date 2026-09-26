@@ -6211,5 +6211,85 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22135_END -->
+<!-- AIRJOTTER_V22136_BEGIN -->
+<style id="AIRJOTTER_V22136_JOTTER_ACTIONS_STYLE">
+/* I miei Jotter: due pulsanti uguali per ingombro, tipografia e rilievo. */
+.aj-jotter-action-v22136{
+ width:310px!important;
+ min-width:310px!important;
+ max-width:310px!important;
+ height:68px!important;
+ min-height:68px!important;
+ padding:0 20px!important;
+ border-radius:18px!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:1.05rem!important;
+ font-weight:800!important;
+ line-height:1.1!important;
+ letter-spacing:0!important;
+ text-align:center!important;
+ white-space:nowrap!important;
+ transform:translateY(-2px)!important;
+ transition:transform .12s ease,box-shadow .12s ease,filter .12s ease!important;
+}
+/* Crea nuovo Jotter: azzurro polvere pastello, testo blu notte. */
+.aj-jotter-create-v22136{
+ color:#17365f!important;
+ background:#a9c4ee!important;
+ background-image:linear-gradient(180deg,#bed3f3 0%,#a9c4ee 70%,#97b5e5 100%)!important;
+ border:1px solid #8daee0!important;
+ box-shadow:0 4px 0 #7596c9,0 7px 12px rgba(68,103,158,.18),inset 0 1px 0 rgba(255,255,255,.62)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.55)!important;
+}
+.aj-jotter-create-v22136:hover{filter:brightness(1.035)!important}
+/* Entra in un Jotter: verde salvia pastello, testo verde molto scuro. */
+.aj-jotter-enter-v22136{
+ color:#173f32!important;
+ background:#b9dbc8!important;
+ background-image:linear-gradient(180deg,#cde7d8 0%,#b9dbc8 70%,#a8ceb9 100%)!important;
+ border:1px solid #98c3aa!important;
+ box-shadow:0 4px 0 #7fab91,0 7px 12px rgba(68,125,91,.16),inset 0 1px 0 rgba(255,255,255,.62)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.58)!important;
+}
+.aj-jotter-enter-v22136:hover{filter:brightness(1.035)!important}
+.aj-jotter-action-v22136:active{
+ transform:translateY(2px)!important;
+ box-shadow:0 1px 0 rgba(45,73,105,.55),0 2px 4px rgba(45,73,105,.12)!important;
+}
+/* Mantiene l'allineamento anche su schermi stretti. */
+@media(max-width:520px){
+ .aj-jotter-action-v22136{width:min(310px,calc(100vw - 72px))!important;min-width:0!important;max-width:310px!important}
+}
+/* Ripristina circa mezzo millimetro di bordatura bianca sopra la toolbar principale. */
+@media(min-width:761px){
+ html.aj-desktop-v204 header{
+  padding-top:3px!important;
+ }
+}
+</style>
+<script id="AIRJOTTER_V22136_JOTTER_ACTIONS_SCRIPT">
+(()=>{
+ 'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const normalize=value=>(value||'').replace(/\s+/g,' ').trim();
+  const apply=()=>{
+   const all=[...document.querySelectorAll('button,a')];
+   const create=all.find(el=>normalize(el.textContent)==='+ Crea nuovo Jotter'||normalize(el.textContent)==='Crea nuovo Jotter');
+   const enter=all.find(el=>normalize(el.textContent)==='Entra in un Jotter');
+   if(create)create.classList.add('aj-jotter-action-v22136','aj-jotter-create-v22136');
+   if(enter)enter.classList.add('aj-jotter-action-v22136','aj-jotter-enter-v22136');
+  };
+  apply();
+  new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.36-jotter-actions';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22136_END -->
 </body>
 </html>
