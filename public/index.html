@@ -6446,29 +6446,29 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ini
 
 
 
-<!-- AIRJOTTER_V221048_MULTIPAGE_ENGINE_BEGIN -->
-<style id="AIRJOTTER_V221048_MULTIPAGE_ENGINE_STYLE">
-#canvas-wrapper.aj-variable-pages-v221048{background:transparent!important;box-shadow:none!important;overflow:visible!important}
-.aj-page-sheet-v221048{position:absolute;left:0;background:#fff;box-shadow:var(--shadow-strong);pointer-events:none;overflow:hidden}
-.aj-page-sheet-v221048:after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0,transparent calc(20% - 1px),rgba(105,126,156,.10) 20%,transparent calc(20% + 1px),transparent calc(40% - 1px),rgba(105,126,156,.10) 40%,transparent calc(40% + 1px),transparent calc(60% - 1px),rgba(105,126,156,.10) 60%,transparent calc(60% + 1px),transparent calc(80% - 1px),rgba(105,126,156,.10) 80%,transparent calc(80% + 1px))}
-#canvas-wrapper canvas{z-index:3!important}.page-delete-btn,.ajPaperPageBtnV221042{z-index:70!important}
+
+
+<!-- AIRJOTTER_V221049_SURGICAL_UI_BEGIN -->
+<style id="AIRJOTTER_V221049_SURGICAL_UI_STYLE">
+/* Il setup formato resta esclusivamente globale nella toolbar. */
+#canvas-wrapper .ajPaperPageBtnV221042{display:none!important}
+/* File Transfer flat con icona trasferimento esplicita. */
 html body header #ajFileTransferBtnV2291,html body header #ajFileTransferBtnV2291:hover,html body header #ajFileTransferBtnV2291:focus,html body header #ajFileTransferBtnV2291:active{left:50%!important;right:auto!important;transform:translateX(-50%)!important;background:#fff!important;background-image:none!important;border:1px solid #2086f8!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;filter:none!important}
-html body header #ajFileTransferBtnV2291 svg{display:block!important;visibility:visible!important;opacity:1!important;stroke:#173d72!important;width:16px!important;height:16px!important}
-html body header #ajUser,html body header #ajUser:hover,html body header #ajUser:active{background:#fff!important;background-image:none!important;border:1px solid #0d3f78!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;transform:none!important;filter:none!important}
-html body header .aj-plan-column-v22107 button,html body header .aj-plan-column-v22107 button:hover,html body header .aj-plan-column-v22107 button:active,html body header button[data-aj-toolbar-v22132="plans"]{width:auto!important;min-width:0!important;height:32px!important;min-height:32px!important;padding:3px 9px!important;margin:0!important;background:#fff!important;background-image:none!important;border:1px solid #176b3a!important;color:#173d72!important;box-shadow:none!important;text-shadow:none!important;transform:none!important;filter:none!important;border-radius:8px!important}
+html body header #ajFileTransferBtnV2291 svg{display:block!important;visibility:visible!important;opacity:1!important;width:16px!important;height:16px!important;stroke:#173d72!important;fill:none!important;flex:0 0 16px!important}
 </style>
-<script id="AIRJOTTER_V221048_MULTIPAGE_ENGINE_SCRIPT">
+<script id="AIRJOTTER_V221049_SURGICAL_UI_SCRIPT">
 (()=>{'use strict';
- const $=id=>document.getElementById(id);
- function offsets(){const l=window.ajVariablePageLayoutsV221048||[];let y=0;return l.map(x=>{const o=y;y+=x.h;return o})}
- function moveFollowingPages(page,delta){if(!delta||!Array.isArray(window.commands))return;const oldOffsets=offsets(),cut=(oldOffsets[page]||0)+(window.ajVariablePageLayoutsV221048?.[page]?.h||BASE_A4_H);commands.forEach(c=>{if(c.type==='path'&&Array.isArray(c.points)){if(c.points.some(p=>Number(p.y)>=cut))c.points.forEach(p=>{p.y+=delta})}else{if(Number(c.y)>=cut)c.y+=delta;if(Number(c.y2)>=cut)c.y2+=delta}})}
- window.ajRenderVariablePagesV221048=function(){const w=$('canvas-wrapper'),layouts=window.ajVariablePageLayoutsV221048;if(!w||!layouts?.length)return;w.classList.add('aj-variable-pages-v221048');w.querySelectorAll('.aj-page-sheet-v221048').forEach(x=>x.remove());const os=offsets();layouts.forEach((d,i)=>{const sheet=document.createElement('div');sheet.className='aj-page-sheet-v221048';sheet.style.cssText=`top:${os[i]}px;width:${d.w}px;height:${d.h}px;z-index:0`;w.prepend(sheet)});const dels=[...w.querySelectorAll('.page-delete-btn')],btns=[...w.querySelectorAll('.ajPaperPageBtnV221042')];layouts.forEach((d,i)=>{const top=os[i]+20;if(dels[i])dels[i].style.top=top+'px';if(btns[i]){btns[i].style.top=top+'px';btns[i].style.left='auto';btns[i].style.right='64px';btns[i].style.pointerEvents='auto'}})};
- function forceFlat(){const ft=$('ajFileTransferBtnV2291'),owner=$('ajUser'),plans=[...document.querySelectorAll('header button')].filter(b=>(b.textContent||'').trim().toLowerCase()==='piani');[[ft,'#2086f8'],[owner,'#0d3f78'],...plans.map(x=>[x,'#176b3a'])].forEach(([b,border])=>{if(!b)return;['background-image','box-shadow','text-shadow','filter'].forEach(p=>b.style.setProperty(p,'none','important'));b.style.setProperty('background','#fff','important');b.style.setProperty('color','#173d72','important');b.style.setProperty('border','1px solid '+border,'important')});if(ft){ft.style.setProperty('left','50%','important');ft.style.setProperty('transform','translateX(-50%)','important')}}
- function init(){forceFlat();setTimeout(forceFlat,350);setTimeout(forceFlat,1000);window.ajRenderVariablePagesV221048();const w=$('canvas-wrapper');if(w)w.addEventListener('click',e=>{const b=e.target.closest?.('.ajPaperPageBtnV221042');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const list=[...w.querySelectorAll('.ajPaperPageBtnV221042')],i=Math.max(0,list.indexOf(b));window.ajPaperV221042?.open?.(i)},true);const apply=$('ajPaperApplyV221042');if(apply)apply.addEventListener('pointerdown',()=>{const modal=$('ajPaperModalV221042'),title=$('ajPaperTitleV221042')?.textContent||'',m=title.match(/pagina\s+(\d+)/i);if(!m)return;const page=Number(m[1])-1,oldH=window.ajVariablePageLayoutsV221048?.[page]?.h||BASE_A4_H,size=$('ajPaperSizeV221042')?.value,ori=$('ajPaperOrientationV221042')?.value,mm={A5:[148,210],A4:[210,297],A3:[297,420],A2:[420,594],A1:[594,841],A0:[841,1189]},pair=mm[size]||mm.A4,h=Math.round((ori==='landscape'?pair[0]:pair[1])*(900/210));moveFollowingPages(page,h-oldH)},true)}
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.addEventListener('resize',()=>window.ajRenderVariablePagesV221048?.(),{passive:true});window.AIRJOTTER_FRONTEND_VERSION='22.10.48-multipage-engine';
+ function apply(){
+  document.querySelectorAll('#canvas-wrapper .ajPaperPageBtnV221042').forEach(b=>b.remove());
+  const label=document.querySelector('.aj-page-label-v2287');if(label)label.textContent='Formato e n° di pagine';
+  const ft=document.getElementById('ajFileTransferBtnV2291');if(ft&&!ft.querySelector('svg'))ft.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3"></path><path d="M17 17H6l3 3m-3-3 3-3"></path></svg>');
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
+ setTimeout(apply,300);setTimeout(apply,1000);
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.49-surgical-ui';
 })();
 </script>
-<!-- AIRJOTTER_V221048_MULTIPAGE_ENGINE_END -->
+<!-- AIRJOTTER_V221049_SURGICAL_UI_END -->
 
 </body>
 </html>
