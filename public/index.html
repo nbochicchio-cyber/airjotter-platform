@@ -6291,5 +6291,111 @@ header .aj-plan-column-v22107 button:active{
 })();
 </script>
 <!-- AIRJOTTER_V22136_END -->
+<!-- AIRJOTTER_V22137_BEGIN -->
+<style id="AIRJOTTER_V22137_MY_JOTTERS_BUTTONS_STYLE">
+/* Applicato ESCLUSIVAMENTE ai due pulsanti della finestra "I miei Jotter". */
+.aj-my-jotters-modal-v22137 .aj-my-jotters-action-v22137{
+ width:276px!important;
+ min-width:276px!important;
+ max-width:276px!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ padding:0 16px!important;
+ margin:0!important;
+ border-radius:15px!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+ font-size:.98rem!important;
+ font-weight:800!important;
+ line-height:1!important;
+ letter-spacing:0!important;
+ text-align:center!important;
+ white-space:nowrap!important;
+ transform:translateY(-2px)!important;
+ transition:transform .12s ease,box-shadow .12s ease,filter .12s ease!important;
+}
+.aj-my-jotters-modal-v22137 .aj-my-jotters-create-v22137{
+ color:#17365f!important;
+ background:#aac5ee!important;
+ background-image:linear-gradient(180deg,#c1d5f3 0%,#aac5ee 72%,#97b4e1 100%)!important;
+ border:1px solid #8eaedf!important;
+ box-shadow:0 3px 0 #7395c8,0 6px 10px rgba(62,97,150,.17),inset 0 1px 0 rgba(255,255,255,.68)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.62)!important;
+}
+.aj-my-jotters-modal-v22137 .aj-my-jotters-enter-v22137{
+ color:#173f32!important;
+ background:#b8dac7!important;
+ background-image:linear-gradient(180deg,#cfe8da 0%,#b8dac7 72%,#a5ccb6 100%)!important;
+ border:1px solid #96c1a8!important;
+ box-shadow:0 3px 0 #79a98e,0 6px 10px rgba(58,111,79,.15),inset 0 1px 0 rgba(255,255,255,.68)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.62)!important;
+}
+.aj-my-jotters-modal-v22137 .aj-my-jotters-action-v22137:hover{filter:brightness(1.035)!important}
+.aj-my-jotters-modal-v22137 .aj-my-jotters-action-v22137:active{
+ transform:translateY(1px)!important;
+ box-shadow:0 1px 0 rgba(47,78,110,.50),0 2px 4px rgba(47,78,110,.11)!important;
+}
+/* Allinea con precisione i due pulsanti nella stessa colonna. */
+.aj-my-jotters-actions-v22137{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:18px!important;
+ width:276px!important;
+ min-width:276px!important;
+ max-width:276px!important;
+}
+@media(max-width:520px){
+ .aj-my-jotters-actions-v22137,
+ .aj-my-jotters-modal-v22137 .aj-my-jotters-action-v22137{
+  width:min(276px,calc(100vw - 72px))!important;
+  min-width:0!important;
+  max-width:276px!important;
+ }
+}
+</style>
+<script id="AIRJOTTER_V22137_MY_JOTTERS_BUTTONS_SCRIPT">
+(()=>{
+ 'use strict';
+ const normalized=value=>(value||'').replace(/\s+/g,' ').trim();
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const apply=()=>{
+   /* Rimuove lo stile v22.10.36 da qualunque pulsante, inclusa la maschera iniziale. */
+   document.querySelectorAll('.aj-jotter-action-v22136,.aj-jotter-create-v22136,.aj-jotter-enter-v22136').forEach(element=>{
+    element.classList.remove('aj-jotter-action-v22136','aj-jotter-create-v22136','aj-jotter-enter-v22136');
+   });
+
+   const heading=[...document.querySelectorAll('h1,h2,h3')].find(element=>normalized(element.textContent)==='I miei Jotter');
+   if(!heading)return;
+   const modal=heading.closest('[role="dialog"],.modal,.modal-content,.overlay')||heading.parentElement?.parentElement||heading.parentElement;
+   if(!modal)return;
+   modal.classList.add('aj-my-jotters-modal-v22137');
+
+   const candidates=[...modal.querySelectorAll('button,a')];
+   const create=candidates.find(element=>['+ Crea nuovo Jotter','Crea nuovo Jotter'].includes(normalized(element.textContent)));
+   const enter=candidates.find(element=>normalized(element.textContent)==='Entra in un Jotter');
+   if(!create||!enter)return;
+
+   create.classList.add('aj-my-jotters-action-v22137','aj-my-jotters-create-v22137');
+   enter.classList.add('aj-my-jotters-action-v22137','aj-my-jotters-enter-v22137');
+
+   /* Usa il contenitore comune più piccolo per ottenere allineamento e dimensioni identiche. */
+   let container=create.parentElement;
+   while(container&&container!==modal&&!container.contains(enter))container=container.parentElement;
+   if(container&&container!==modal)container.classList.add('aj-my-jotters-actions-v22137');
+  };
+  apply();
+  new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.37-my-jotters-buttons-fix';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V22137_END -->
 </body>
 </html>
