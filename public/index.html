@@ -6828,5 +6828,43 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 window.addEventListener('message',function(e){if(e.origin===location.origin&&e.data&&e.data.type==='airjotter-google-auth-ok')location.reload()});
 window.AIRJOTTER_FRONTEND_VERSION='22.10.61.2-iframe-login-only';
 </script>
+
+<!-- AIRJOTTER_V2210616_MOUSE_LIVE_UNDO_BEGIN -->
+<style id="AIRJOTTER_V2210616_MOUSE_LIVE_UNDO_STYLE">
+#ajMouseWetV2210616{position:absolute!important;inset:0!important;z-index:5!important;pointer-events:none!important;width:100%!important;height:100%!important}
+#undoBtn,#redoBtn{pointer-events:auto!important}
+</style>
+<script id="AIRJOTTER_V2210616_MOUSE_LIVE_UNDO_SCRIPT">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const input=document.getElementById('draftBoard'),wrapper=document.getElementById('canvas-wrapper');
+  if(!input||!wrapper)return;
+  let wet=document.getElementById('ajMouseWetV2210616');
+  if(!wet){wet=document.createElement('canvas');wet.id='ajMouseWetV2210616';wet.setAttribute('aria-hidden','true');wrapper.appendChild(wet)}
+  let ctx=wet.getContext('2d',{alpha:true,desynchronized:true})||wet.getContext('2d');
+  let active=false,pid=-1,last=null,raf=0,pending=null,clearTimer=0;
+  function size(){const w=input.width||1,h=input.height||1;if(wet.width!==w||wet.height!==h){wet.width=w;wet.height=h}ctx=wet.getContext('2d',{alpha:true,desynchronized:true})||wet.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round'}
+  function point(e){const r=input.getBoundingClientRect();return{x:(e.clientX-r.left)*(wet.width/r.width),y:(e.clientY-r.top)*(wet.height/r.height)}}
+  function color(){return document.getElementById('colorPicker')?.value||'#1D1D1F'}
+  function width(){const raw=Number(document.getElementById('thicknessPicker')?.value||2.5),r=input.getBoundingClientRect();return Math.max(.6,raw*(wet.width/r.width))}
+  function paint(){raf=0;if(!active||!last||!pending)return;const p=pending;pending=null;ctx.save();ctx.globalCompositeOperation='source-over';ctx.strokeStyle=color();ctx.lineWidth=width();ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.restore();last=p}
+  function down(e){if(e.pointerType!=='mouse'||e.button!==0)return;const pen=document.getElementById('toolPenBtn'),high=document.getElementById('toolHighlighterBtn');if(!(pen?.classList.contains('active-tool')||high?.classList.contains('active-tool')))return;clearTimeout(clearTimer);size();ctx.clearRect(0,0,wet.width,wet.height);active=true;pid=e.pointerId;last=point(e);pending=null;try{input.setPointerCapture(e.pointerId)}catch{}}
+  function move(e){if(!active||e.pointerId!==pid||!(e.buttons&1))return;pending=point(e);if(!raf)raf=requestAnimationFrame(paint)}
+  function end(e){if(!active||e.pointerId!==pid)return;if(raf){cancelAnimationFrame(raf);paint()}active=false;pid=-1;last=pending=null;clearTimer=setTimeout(()=>ctx.clearRect(0,0,wet.width,wet.height),140)}
+  input.addEventListener('pointerdown',down,{capture:true,passive:true});
+  input.addEventListener('pointermove',move,{capture:true,passive:true});
+  input.addEventListener('pointerup',end,{capture:true,passive:true});input.addEventListener('pointercancel',end,{capture:true,passive:true});
+  new ResizeObserver(size).observe(input);size();
+  const undo=document.getElementById('undoBtn'),redo=document.getElementById('redoBtn');
+  function unlock(){[undo,redo].forEach(b=>{if(!b)return;b.disabled=false;b.removeAttribute('disabled');b.setAttribute('aria-disabled','false')})}
+  unlock();new MutationObserver(unlock).observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled','class']});
+  document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;if(e.key.toLowerCase()!=='z')return;e.preventDefault();(e.shiftKey?redo:undo)?.click()},{capture:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.6-mouse-live-undo';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V2210616_MOUSE_LIVE_UNDO_END -->
+
 </body>
 </html>
