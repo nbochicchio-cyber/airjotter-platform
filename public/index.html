@@ -6745,7 +6745,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   const open=document.getElementById('ajOpenOwnedBtnV221060'),create=document.getElementById('newBtn');if(!open||!create||typeof window.ajApi!=='function')return;
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
- document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{const button=document.getElementById('ajOpenOwnedBtnV221060');button.disabled=true;const label=button.textContent;button.textContent='Apertura...';try{const all=await ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),latest=latestOf(owned);if(!latest?.roomCode)throw new Error('Nessun Jotter disponibile');await ajJoin(latest.roomCode);await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));await ajLoadArchive()}catch(error){alert('Impossibile aprire i tuoi Jotter: '+error.message)}finally{button.disabled=false;button.textContent=label}});
+ document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{const button=document.getElementById('ajOpenOwnedBtnV221060');button.disabled=true;const label=button.textContent;button.textContent='Apertura...';try{const all=await ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),latest=[...owned].sort((a,b)=>new Date(b.contentUpdatedAt||b.updatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.updatedAt||a.createdAt))[0];if(!latest?.roomCode)throw new Error('Nessun Jotter disponibile');await ajJoin(latest.roomCode);await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));await window.ajLoadArchive()}catch(error){alert('Impossibile aprire i tuoi Jotter: '+error.message)}finally{button.disabled=false;button.textContent=label}});
  const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
@@ -6795,6 +6795,11 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_BEGIN -->
 <script id="AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.7-open-existing-then-archive';</script>
 <!-- AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_END -->
+
+
+<!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_BEGIN -->
+<script id="AIRJOTTER_V2210608_LATEST_SCOPE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.8-latest-scope-fix';</script>
+<!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_END -->
 
 </body>
 </html>
