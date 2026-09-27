@@ -2161,7 +2161,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         // Tratti, testo, firme, foto e PDF condividono lo stesso canvas: la gomma cancella ogni elemento.
         let ajInkPagesKeyV215='';
         const ajInkPageContextsV218=new Map();
-        function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1,isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1),pageArea=Math.max(1,LOGICAL_W*BASE_A4_H),maxBackingArea=isIPad?6500000:12000000,safe=Math.sqrt(maxBackingArea/pageArea),upper=isIPad?2:3;return Math.max(1,Math.min(upper,screenDpr,safe));}
+        function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1,isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(isIPad)return 1;const pageArea=Math.max(1,LOGICAL_W*BASE_A4_H),safe=Math.sqrt(12000000/pageArea);return Math.max(1,Math.min(3,screenDpr,safe));}
         function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
         const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
         function ajCommandTouchesPageV218(cmd,pageIndex){
@@ -6693,15 +6693,17 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221056_IPAD_PAPER_CANVAS_FIX_END -->
 
 
-<!-- AIRJOTTER_V221057_A3_IPAD_PERSISTENT_INK_BEGIN -->
-<script id="AIRJOTTER_V221057_A3_IPAD_PERSISTENT_INK_SCRIPT">
+
+
+<!-- AIRJOTTER_V221058_A3_IPAD_SAFE_BACKING_BEGIN -->
+<script id="AIRJOTTER_V221058_A3_IPAD_SAFE_BACKING_SCRIPT">
 (()=>{'use strict';
  const rebuild=()=>requestAnimationFrame(()=>{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true)});
  addEventListener('orientationchange',rebuild,{passive:true});window.visualViewport?.addEventListener('resize',rebuild,{passive:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.57-a3-ipad-persistent-ink';
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.58-a3-ipad-safe-backing';
 })();
 </script>
-<!-- AIRJOTTER_V221057_A3_IPAD_PERSISTENT_INK_END -->
+<!-- AIRJOTTER_V221058_A3_IPAD_SAFE_BACKING_END -->
 
 </body>
 </html>
