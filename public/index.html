@@ -6745,7 +6745,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   const open=document.getElementById('ajOpenOwnedBtnV221060'),create=document.getElementById('newBtn');if(!open||!create||typeof window.ajApi!=='function')return;
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
- document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{document.getElementById('ajLobby')?.classList.add('aj-hidden');if(typeof window.loadJotterArchive==='function')await window.loadJotterArchive();const m=document.getElementById('jotterArchiveModal');if(m)m.style.display='flex'});
+ document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{const m=document.getElementById('jotterArchiveModal');if(m)m.style.display='flex';if(typeof window.ajLoadArchive==='function')await window.ajLoadArchive();});
  const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
@@ -6758,6 +6758,18 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_BEGIN -->
 <script id="AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.1-login-freeze-fix';</script>
 <!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_END -->
+
+
+<!-- AIRJOTTER_V2210602_ARCHIVE_FROM_LOBBY_FIX_BEGIN -->
+<script id="AIRJOTTER_V2210602_ARCHIVE_FROM_LOBBY_FIX_SCRIPT">
+(()=>{'use strict';
+ const request=document.getElementById('ajRequestEdit'),user=document.getElementById('ajUser'),lobby=document.getElementById('ajLobby');
+ const guard=()=>{if(lobby&&!lobby.classList.contains('aj-hidden')){request?.classList.add('aj-hidden');if(user&&window.ajMe?.name)user.textContent=window.ajMe.name}};
+ new MutationObserver(guard).observe(lobby,{attributes:true,attributeFilter:['class']});guard();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.60.2-archive-from-lobby-fix';
+})();
+</script>
+<!-- AIRJOTTER_V2210602_ARCHIVE_FROM_LOBBY_FIX_END -->
 
 </body>
 </html>
