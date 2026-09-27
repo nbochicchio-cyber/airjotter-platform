@@ -6881,5 +6881,27 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  window.addEventListener('pageshow',sync);sync();
 })();
 </script>
-<script id="AIRJOTTER_V22106132_LOGIN_TOOLBAR_GUARD">(()=>{'use strict';const login=document.getElementById('ajLogin'),bar=document.getElementById('mobileTopbar'),header=document.querySelector('header');if(!login)return;const sync=()=>{const on=!login.classList.contains('aj-hidden');for(const el of [bar,header])if(el){if(on){el.dataset.ajLoginOldDisplay=el.style.display||'';el.style.setProperty('display','none','important')}else{el.style.removeProperty('display');if(el.dataset.ajLoginOldDisplay)el.style.display=el.dataset.ajLoginOldDisplay}}};new MutationObserver(sync).observe(login,{attributes:true,attributeFilter:['class']});addEventListener('pageshow',sync);sync()})();</script></body>
+<script id="AIRJOTTER_V22106132_LOGIN_TOOLBAR_GUARD">(()=>{'use strict';const login=document.getElementById('ajLogin'),bar=document.getElementById('mobileTopbar'),header=document.querySelector('header');if(!login)return;const sync=()=>{const on=!login.classList.contains('aj-hidden');for(const el of [bar,header])if(el){if(on){el.dataset.ajLoginOldDisplay=el.style.display||'';el.style.setProperty('display','none','important')}else{el.style.removeProperty('display');if(el.dataset.ajLoginOldDisplay)el.style.display=el.dataset.ajLoginOldDisplay}}};new MutationObserver(sync).observe(login,{attributes:true,attributeFilter:['class']});addEventListener('pageshow',sync);sync()})();</script><style id="AIRJOTTER_V221061332_REGISTRATION_RECOVERY_STYLE">
+#ajLogin .aj-register-access-v22106131 #googleBtn{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;max-width:100%!important;min-height:44px!important;overflow:visible!important}
+#ajLogin .aj-register-access-v22106131 #googleBtn>div,#ajLogin .aj-register-access-v22106131 #googleBtn iframe{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0 auto!important;box-sizing:border-box!important}
+</style>
+<script id="AIRJOTTER_V221061332_REGISTRATION_RECOVERY">
+(()=>{'use strict';
+ const q=(s,r=document)=>r.querySelector(s);
+ const login=q('#ajLogin'),lobby=q('#ajLobby'),target=q('#googleBtn'),status=q('#googleStatus');
+ const setCopy=()=>{
+  const badge=q('.aj-register-brand-v22106131 .welcome-badge');if(badge)badge.textContent='Tre strumenti. Una sola web app.';
+  const rows=[...document.querySelectorAll('.aj-register-features-v22106131>div')];
+  const data=[['Lavagna digitale condivisa via web','Disegnate insieme sullo stesso foglio, anche da citt\u00e0 diverse.'],['Editor PDF con funzioni avanzate','Firmi un contratto senza stamparlo n\u00e9 scansionarlo.'],['File Transfer criptato fino a 5 GB','Il file arriva dritto al dispositivo di chi deve riceverlo.']];
+  rows.slice(0,3).forEach((row,i)=>{const span=row.querySelector('span');if(!span)return;span.innerHTML='';const strong=document.createElement('strong');strong.textContent=data[i][0];const small=document.createElement('small');small.textContent=data[i][1];span.append(strong,small)});
+  const lead=q('.aj-register-copy-v22106131 .welcome-lead');if(lead)lead.textContent='Oggi per ragionare con un collega apri un file online, per firmare un documento un editor PDF, per spedire un file pesante un servizio di invio... Tre account, tre password, spesso tre abbonamenti. AirJotter mette tutto nello stesso foglio, dentro il browser, su computer, tablet e telefono, anche con la pencil.';
+  if(status)status.textContent="Ti basta l'account Google che hai gi\u00e0.";
+ };
+ const enterRegistered=async()=>{try{const r=await fetch('/api/me',{credentials:'same-origin',cache:'no-store'});if(!r.ok)return false;await r.json();login?.classList.add('aj-hidden');lobby?.classList.remove('aj-hidden');return true}catch{return false}};
+ const renderGoogle=async()=>{if(!target||await enterRegistered())return;let cfg;try{cfg=await fetch('/api/config',{cache:'no-store'}).then(r=>r.json())}catch{}if(!cfg?.googleClientId){if(status)status.textContent='Accesso Google temporaneamente non disponibile.';return}
+  let n=0;const wait=()=>{if(window.google?.accounts?.id){target.innerHTML='';google.accounts.id.initialize({client_id:cfg.googleClientId,callback:async x=>{const r=await fetch('/api/auth/google',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:x.credential})});if(r.ok)location.reload();else if(status)status.textContent='Accesso Google non riuscito.'}});const width=Math.max(220,Math.min(360,Math.floor(target.getBoundingClientRect().width||300)));google.accounts.id.renderButton(target,{theme:'outline',size:'large',type:'standard',shape:'rectangular',text:'signup_with',logo_alignment:'left',width});}else if(n++<80)setTimeout(wait,100)};wait()};
+ setCopy();renderGoogle();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.2-registration-recovery';
+})();
+</script></body>
 </html>
