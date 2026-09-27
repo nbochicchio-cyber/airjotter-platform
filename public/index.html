@@ -938,11 +938,11 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
   <div class="aj-card aj-access-card">
     <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo">
     <h2 class="aj-access-title">Come vuoi usare airjotter?</h2>
-    <p class="aj-access-subtitle">Scegli una delle due modalità. Sono operazioni diverse.</p>
+    <p class="aj-access-subtitle">Paperboard digitale | PDF Editor | File transfer</p>
     <div class="aj-choice-grid">
       <section class="aj-choice aj-choice-new">
-        <h3>1. Accedi ai tuoi Jotter o creane uno nuovo</h3>
-        <p>Avvia una nuova board di cui sarai proprietario. La piattaforma genererà un nuovo codice casuale e il relativo QR code da condividere.</p>
+        <h3>1. Crea o apri il tuo Jotter</h3>
+        <p>Avvia una board di cui sarai proprietario. La piattaforma genererà un codice univoco e il QR code da condividere.</p>
         <div id="ajLobbyOwnedActionsV221060"><button id="ajOpenOwnedBtnV221060" class="btn aj-full-button" type="button" hidden>Apri i tuoi Jotter</button><button id="newBtn" class="btn primary aj-full-button">Crea un nuovo Jotter</button></div>
       </section>
       <section class="aj-choice">
@@ -6741,7 +6741,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  function burnPdfWatermark(canvas){if(!isFree()||!canvas)return;const c=canvas.getContext('2d');if(!c)return;const size=Math.max(18,Math.round(canvas.width*.027));c.save();c.globalCompositeOperation='source-over';c.globalAlpha=.82;c.textAlign='right';c.textBaseline='bottom';c.font=`800 ${size}px Arial,sans-serif`;c.lineWidth=Math.max(3,size*.16);c.strokeStyle='rgba(255,255,255,.97)';c.strokeText('AirJotter.com',canvas.width-size,canvas.height-size);c.fillStyle='#1769e8';c.fillText('AirJotter.com',canvas.width-size,canvas.height-size);c.restore()}
  window.ajBurnFreeWatermarkV221060=burnPdfWatermark;
  async function refreshLobby(){
-  const title=document.querySelector('#ajLobby .aj-choice-new h3');if(title)title.textContent='1. Accedi ai tuoi Jotter o creane uno nuovo';
+  const title=document.querySelector('#ajLobby .aj-choice-new h3');if(title)title.textContent='1. Crea o apri il tuo Jotter';
   const open=document.getElementById('ajOpenOwnedBtnV221060'),create=document.getElementById('newBtn');if(!open||!create||typeof window.ajApi!=='function')return;
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
@@ -6800,6 +6800,11 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_BEGIN -->
 <script id="AIRJOTTER_V2210608_LATEST_SCOPE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.8-latest-scope-fix';</script>
 <!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_END -->
+
+
+<!-- AIRJOTTER_V2210609_LOBBY_COPY_BEGIN -->
+<script id="AIRJOTTER_V2210609_LOBBY_COPY_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.9-lobby-copy';</script>
+<!-- AIRJOTTER_V2210609_LOBBY_COPY_END -->
 
 </body>
 </html>
