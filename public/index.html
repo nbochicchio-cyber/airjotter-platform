@@ -6830,35 +6830,29 @@ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.2-iframe-login-only';
 </script>
 
 
-<!-- AIRJOTTER_V2210617_MOUSE_HISTORY_FIX_BEGIN -->
-<style id="AIRJOTTER_V2210617_MOUSE_HISTORY_FIX_STYLE">
-#ajMouseSvgV2210617{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:visible;background:transparent!important}
-</style>
-<script id="AIRJOTTER_V2210617_MOUSE_HISTORY_FIX_SCRIPT">
-(()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  document.getElementById('ajMouseWetV2210616')?.remove();
-  const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper'),undo=document.getElementById('undoBtn'),redo=document.getElementById('redoBtn');if(!input||!wrap)return;
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='ajMouseSvgV2210617';svg.setAttribute('width','100%');svg.setAttribute('height','100%');svg.setAttribute('preserveAspectRatio','none');
-  const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-linejoin','round');svg.appendChild(path);wrap.appendChild(svg);
-  let active=false,pid=-1,pts=[];const pos=e=>{const r=input.getBoundingClientRect(),w=wrap.clientWidth||r.width,h=wrap.clientHeight||r.height;return[(e.clientX-r.left)*w/r.width,(e.clientY-r.top)*h/r.height]};
-  function update(){if(!pts.length)return;path.setAttribute('d','M'+pts.map((p,i)=>(i?'L':'')+p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' '));path.setAttribute('stroke',document.getElementById('colorPicker')?.value||'#1D1D1F');path.setAttribute('stroke-width',String(Math.max(.7,Number(document.getElementById('thicknessPicker')?.value||2.5))))}
-  function clear(){path.removeAttribute('d');pts=[]}
-  input.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;active=true;pid=e.pointerId;pts=[pos(e)];update()},{capture:true,passive:true});
-  input.addEventListener('pointermove',e=>{if(!active||e.pointerId!==pid||!(e.buttons&1))return;pts.push(pos(e));update()},{capture:true,passive:true});
-  const finish=e=>{if(!active||e.pointerId!==pid)return;active=false;pid=-1;setTimeout(clear,90);setTimeout(()=>{if(typeof ajCanWrite==='function'&&ajCanWrite())undo.disabled=false},0)};
-  input.addEventListener('pointerup',finish,{capture:true,passive:true});input.addEventListener('pointercancel',finish,{capture:true,passive:true});
-  async function history(kind,event){
-   if(event){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation()}
-   try{if(typeof ajCanWrite==='function'&&!ajCanWrite())return;if(typeof ajBoard!=='undefined'&&ajBoard&&typeof ajSocket!=='undefined'){const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});if(result?.error)throw new Error(result.error);if(typeof ajReload==='function')await ajReload();else ajSocket.emit('board:join',{boardId:ajBoard.id});undo.disabled=false;redo.disabled=false;return}if(kind==='undo'&&commands.length){redoCommands.push(commands.pop())}else if(kind==='redo'&&redoCommands.length){commands.push(redoCommands.pop())}redrawMainCanvas();undo.disabled=commands.length===0;redo.disabled=redoCommands.length===0}catch(error){console.error('AirJotter '+kind,error);alert('Impossibile eseguire '+(kind==='undo'?'Annulla':'Ripeti')+': '+error.message)}}
-  [undo,redo].forEach((button,index)=>{if(!button)return;button.disabled=false;button.addEventListener('pointerdown',e=>history(index?'redo':'undo',e),{capture:true});button.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},{capture:true})});
-  document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey||e.key.toLowerCase()!=='z')return;e.preventDefault();history(e.shiftKey?'redo':'undo',e)},{capture:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.7-mouse-history-fix';
- });
-})();
+
+<!-- AIRJOTTER_V2210618_SMOOTH_MOUSE_INSTANT_HISTORY_BEGIN -->
+<style id="AIRJOTTER_V2210618_STYLE">#ajMouseSvgV2210618{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:visible;background:none!important}#undoBtn,#redoBtn{pointer-events:auto!important}</style>
+<script id="AIRJOTTER_V2210618_SCRIPT">
+(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{
+ document.querySelectorAll('#ajMouseWetV2210616,#ajMouseSvgV2210617').forEach(x=>x.remove());
+ const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper'),undo=document.getElementById('undoBtn'),redo=document.getElementById('redoBtn');if(!input||!wrap||!undo||!redo)return;
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),path=document.createElementNS('http://www.w3.org/2000/svg','path');svg.id='ajMouseSvgV2210618';svg.setAttribute('width','100%');svg.setAttribute('height','100%');svg.setAttribute('preserveAspectRatio','none');path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-linejoin','round');svg.appendChild(path);wrap.appendChild(svg);
+ let active=false,pid=-1,pts=[];const pos=e=>{const r=input.getBoundingClientRect(),w=wrap.clientWidth||r.width,h=wrap.clientHeight||r.height;return{x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
+ function smooth(){if(!pts.length)return'';if(pts.length===1)return`M${pts[0].x} ${pts[0].y}`;let d=`M${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;for(let i=1;i<pts.length-1;i++){const p=pts[i],n=pts[i+1],mx=(p.x+n.x)/2,my=(p.y+n.y)/2;d+=` Q${p.x.toFixed(2)} ${p.y.toFixed(2)} ${mx.toFixed(2)} ${my.toFixed(2)}`}const last=pts.at(-1);return d+` L${last.x.toFixed(2)} ${last.y.toFixed(2)}`}
+ function paint(){path.setAttribute('d',smooth());path.setAttribute('stroke',document.getElementById('colorPicker')?.value||'#1D1D1F');path.setAttribute('stroke-width',String(Math.max(.7,Number(document.getElementById('thicknessPicker')?.value||2.5))))}
+ input.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;active=true;pid=e.pointerId;pts=[pos(e)];paint()},{capture:true,passive:true});
+ input.addEventListener('pointermove',e=>{if(!active||e.pointerId!==pid||!(e.buttons&1))return;const p=pos(e),q=pts.at(-1);if(!q||Math.hypot(p.x-q.x,p.y-q.y)>=.7){pts.push(p);paint()}},{capture:true,passive:true});
+ const finish=e=>{if(!active||e.pointerId!==pid)return;active=false;pid=-1;setTimeout(()=>{path.removeAttribute('d');pts=[]},70);setTimeout(syncButtons,0)};input.addEventListener('pointerup',finish,{capture:true,passive:true});input.addEventListener('pointercancel',finish,{capture:true,passive:true});
+ function repaint(){try{redrawMainCanvas()}catch{}try{ajInkPagesKeyV215='';ajRenderInkPagesV215(true)}catch{}}
+ function syncButtons(){try{undo.disabled=!(commands&&commands.length);redo.disabled=!(redoCommands&&redoCommands.length)}catch{undo.disabled=false;redo.disabled=false}}
+ async function server(kind){try{if(typeof ajBoard!=='undefined'&&ajBoard&&typeof ajSocket!=='undefined'){const result=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});if(result?.error)throw new Error(result.error)}}catch(error){console.error('AirJotter history '+kind,error);if(typeof ajReload==='function')ajReload()}}
+ function instant(kind,e){e?.preventDefault();e?.stopPropagation();e?.stopImmediatePropagation();try{if(typeof ajCanWrite==='function'&&!ajCanWrite())return;if(kind==='undo'){if(!commands?.length)return;redoCommands.push(commands.pop())}else{if(!redoCommands?.length)return;commands.push(redoCommands.pop())}repaint();syncButtons();server(kind)}catch(error){console.error(error)}}
+ function keepState(){syncButtons()}setInterval(keepState,120);new MutationObserver(keepState).observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled']});
+ document.addEventListener('pointerdown',e=>{const b=e.target.closest?.('#undoBtn,#redoBtn');if(b)instant(b.id==='undoBtn'?'undo':'redo',e)},{capture:true});document.addEventListener('click',e=>{if(e.target.closest?.('#undoBtn,#redoBtn')){e.preventDefault();e.stopImmediatePropagation()}},{capture:true});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){instant(e.shiftKey?'redo':'undo',e)}},{capture:true});syncButtons();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.8-smooth-mouse-instant-history';
+})})();
 </script>
-<!-- AIRJOTTER_V2210617_MOUSE_HISTORY_FIX_END -->
+<!-- AIRJOTTER_V2210618_SMOOTH_MOUSE_INSTANT_HISTORY_END -->
 
 </body>
 </html>
