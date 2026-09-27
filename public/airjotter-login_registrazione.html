@@ -213,6 +213,31 @@ footer a{color:inherit; text-underline-offset:3px}
   .receipt li::after{transform:scaleX(1) rotate(-1.5deg)}
 }
 </style>
+<style id="AIRJOTTER_V2210613_LOGIN_POLISH">
+/* Richieste estetiche: solo questa pagina HTML isolata. */
+html,body{background:#fff!important;background-image:none!important}
+.wrap{background:#fff!important}
+.logo{height:78px!important;width:auto!important;max-width:min(620px,72vw)!important}
+.hero{padding-top:0!important;align-items:start!important}
+.copy{margin-top:-14px!important}
+.triad{margin-top:-10px!important}
+.stage{margin-top:-6px!important;align-self:start!important}
+.switch{margin-top:0!important}
+.aj-normal-pay-v2210613{font-weight:400!important}
+.g-btn{background:#fff!important;color:#161A3D!important;border:1px solid #D9DDE8!important;box-shadow:0 8px 22px -12px rgba(22,26,61,.42)!important;padding:9px 14px!important;min-height:58px!important}
+.g-btn:hover{background:#fff!important;color:#161A3D!important;transform:translateY(-1px)!important;box-shadow:0 12px 28px -14px rgba(22,26,61,.46)!important}
+#googleBtn{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:42px!important}
+#googleBtn>div,#googleBtn iframe{width:100%!important;max-width:520px!important;margin:0 auto!important;border-radius:999px!important}
+.copy .sub,.copy .more{display:block!important;width:100%!important;text-align:center!important;margin-left:auto!important;margin-right:auto!important}
+.copy .sub{margin-top:18px!important;line-height:1.45!important}
+.copy .more{margin-top:14px!important}
+@media(min-width:980px){
+ .hero{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)!important;gap:54px!important}
+ .copy,.stage{align-self:start!important}
+ .stage{padding-top:0!important}
+}
+@media(max-width:979px){.logo{height:60px!important}.copy{margin-top:0!important}.triad{margin-top:0!important}.stage{margin-top:0!important}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -230,7 +255,7 @@ footer a{color:inherit; text-underline-offset:3px}
         <button type="button" data-go="1" style="--d:.9s"><span class="n">2</span><span class="t">Editor PDF con funzioni avanzate<svg class="swash" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M4 9c80-6 170-8 292-1"/></svg></span></button>
         <button type="button" data-go="2" style="--d:1.6s"><span class="n">3</span><span class="t">File Transfer criptato fino a 5&nbsp;GB<svg class="swash" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M4 10c70-8 160-8 292-2"/></svg></span></button>
       </h1>
-      <p class="lead">Tre strumenti che oggi usi separati, e <strong>paghi separati</strong>, finalmente in un'unica web app. Si apre dal browser, su computer, tablet e telefono. <span class="hint">Tocca una voce e guardala all'opera.</span></p>
+      <p class="lead">Tre strumenti che oggi usi separati, e <span class="aj-normal-pay-v2210613">paghi separati</span>, finalmente in un'unica web app. Si apre dal browser, su computer, tablet e telefono. <span class="hint">Tocca una voce e guardala all'opera.</span></p>
 
       <div class="g-btn" id="googleBtn">
         <span class="g" aria-hidden="true">
@@ -240,7 +265,7 @@ footer a{color:inherit; text-underline-offset:3px}
       </div>
       <p class="fine">Il tuo account Google basta per registrarti o accedere. Niente app da installare, niente carta di credito.</p>
 
-      <a class="more" href="#perche">Scopri perché AirJotter può esserti utile</a>
+      <a class="more" href="#perche" id="ajOpenDiscoverV2210613">Scopri perché AirJotter può esserti utile</a>
     </section>
 
     <section class="stage" id="stage" aria-label="Anteprima di AirJotter">
@@ -471,8 +496,10 @@ footer a{color:inherit; text-underline-offset:3px}
   schedule();
 })();
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script><script>
-(async()=>{const wait=ms=>new Promise(r=>setTimeout(r,ms));try{const cfg=await fetch('/api/config').then(r=>r.json());if(!cfg.googleClientId)throw new Error('Accesso Google non configurato');for(let i=0;i<80&&!window.google;i++)await wait(100);if(!window.google)throw new Error('Google non disponibile');google.accounts.id.initialize({client_id:cfg.googleClientId,callback:async response=>{const r=await fetch('/api/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:response.credential})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Accesso non riuscito');parent.postMessage({type:'airjotter-google-auth-ok'},location.origin)}});const target=document.getElementById('googleBtn');target.replaceChildren();google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:360})}catch(e){const target=document.getElementById('googleBtn');if(target)target.textContent=e.message}})();
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script id="AIRJOTTER_V2210613_LOGIN_INTEGRATION">
+(async()=>{const wait=ms=>new Promise(r=>setTimeout(r,ms));try{const cfg=await fetch('/api/config').then(r=>r.json());if(!cfg.googleClientId)throw new Error('Accesso Google non configurato');for(let i=0;i<80&&!window.google;i++)await wait(100);if(!window.google)throw new Error('Google non disponibile');google.accounts.id.initialize({client_id:cfg.googleClientId,callback:async response=>{const r=await fetch('/api/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:response.credential})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Accesso non riuscito');parent.postMessage({type:'airjotter-google-auth-ok'},location.origin)}});const target=document.getElementById('googleBtn');target.replaceChildren();google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signin_with',shape:'pill',logo_alignment:'left',width:360})}catch(e){const target=document.getElementById('googleBtn');if(target)target.textContent=e.message}
+const discover=document.getElementById('ajOpenDiscoverV2210613');if(discover)discover.addEventListener('click',e=>{e.preventDefault();try{const modal=parent.document.getElementById('welcomeDiscoverModal');if(!modal)throw new Error();modal.style.display='flex';modal.setAttribute('aria-hidden','false');parent.document.body.classList.add('aj-discover-open-v166')}catch{parent.postMessage({type:'airjotter-open-discover'},location.origin)}});
 </script>
 </body>
 </html>
