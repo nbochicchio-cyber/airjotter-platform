@@ -950,12 +950,13 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
 .aj-register-access-v22106131 #googleBtn{display:flex!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;align-items:center!important;justify-content:center!important;padding:0!important}
 .aj-register-access-v22106131 #googleBtn>div,.aj-register-access-v22106131 #googleBtn iframe{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0 auto!important;border-radius:12px!important;box-sizing:border-box!important;filter:drop-shadow(0 4px 3px rgba(18,51,104,.18))}
 @media(max-width:760px){.aj-register-access-v22106131{overflow:hidden!important}.aj-register-features-v22106131>div small{font-size:.78rem!important}}
-</style><style id="AIRJOTTER_V221061337_LOGIN_REFINEMENT_STYLE">
+</style><style id="AIRJOTTER_V221061338_GOOGLE_PILL_NATIVE_STYLE">
 .aj-register-access-v22106131{display:flex!important;flex-direction:column!important;align-items:center!important}
 .aj-register-access-v22106131:before{content:"Il tuo primo Jotter è ad un clic"!important;order:1!important;width:100%!important;font-size:clamp(1rem,1.42vw,1.25rem)!important;line-height:1.15!important;white-space:nowrap!important;letter-spacing:-.02em!important;text-align:center!important}
 .aj-register-access-v22106131 .welcome-google{order:2!important;display:flex!important;flex-direction:column!important;align-items:center!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:18px auto 0!important;overflow:visible!important}
-.aj-register-access-v22106131 #googleBtn{display:flex!important;align-items:center!important;justify-content:center!important;width:min(340px,100%)!important;max-width:340px!important;min-width:0!important;min-height:44px!important;margin:0 auto!important;padding:0!important;overflow:hidden!important;border-radius:999px!important}
-.aj-register-access-v22106131 #googleBtn>div,.aj-register-access-v22106131 #googleBtn iframe{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0 auto!important;border-radius:999px!important;clip-path:inset(0 round 999px)!important;box-sizing:border-box!important;filter:drop-shadow(0 4px 5px rgba(18,51,104,.14))}
+.aj-register-access-v22106131 #googleBtn{display:block!important;width:340px!important;max-width:100%!important;min-height:44px!important;margin:0 auto!important;padding:0!important;overflow:visible!important;border:0!important;border-radius:999px!important;background:transparent!important;box-shadow:none!important}
+.aj-register-access-v22106131 #googleBtn>div{display:block!important;margin:0 auto!important;padding:0!important;max-width:100%!important}
+.aj-register-access-v22106131 #googleBtn iframe{display:block!important;margin:0 auto!important;padding:0!important;max-width:100%!important;border:0!important;border-radius:999px!important;box-shadow:0 6px 14px rgba(18,51,104,.16)!important}
 .aj-register-access-v22106131 .welcome-google small{width:100%!important;text-align:center!important}
 .aj-register-access-v22106131:after{order:3!important;width:100%!important;white-space:pre-line!important;text-align:center!important}
 .aj-register-access-v22106131 .welcome-discover{order:4!important;margin:18px auto 0!important;width:100%!important;text-align:center!important}
@@ -2985,7 +2986,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
     }
    }
   });
-  const buttonWidth=Math.max(220,Math.min(340,Math.floor(target.parentElement?.getBoundingClientRect().width||300)));target.style.width=buttonWidth+'px';google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signup_with',shape:'pill',logo_alignment:'center',width:buttonWidth});
+  const buttonWidth=Math.max(220,Math.min(340,Math.floor(target.parentElement?.getBoundingClientRect().width||300)));target.style.width=buttonWidth+'px';target.innerHTML='';google.accounts.id.renderButton(target,{type:'standard',theme:'outline',size:'large',text:'signup_with',shape:'pill',logo_alignment:'left',width:buttonWidth});
   if(status)status.textContent="Ti basta l'account Google che hai già.";
  }catch(error){
   console.error('Inizializzazione Google:',error);
