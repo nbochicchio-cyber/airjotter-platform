@@ -6728,14 +6728,14 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221060_FREE_WATERMARK_LOBBY_BEGIN -->
 <script id="AIRJOTTER_V221060_FREE_WATERMARK_LOBBY_SCRIPT">
 (()=>{'use strict';
- const isFree=()=>String(window.ajMe?.plan||window.ajMe?.planName||'').toLowerCase()==='free'&&!window.ajMe?.isAdmin;
- function pageLayouts(){return window.ajVariablePageLayoutsV221048||Array.from({length:Math.max(1,Number(window.TOTAL_PAGES||document.getElementById('pageCountNumber')?.textContent||1))},()=>({w:window.LOGICAL_W||900,h:window.BASE_A4_H||1273}))}
+ const currentMe=()=>typeof ajMe!=='undefined'&&ajMe?ajMe:window.ajMe;const isFree=()=>{const me=currentMe();return String(me?.plan||me?.planName||'').toLowerCase()==='free'&&!me?.isAdmin};
+ function pageLayouts(){const w=typeof LOGICAL_W!=='undefined'?LOGICAL_W:900,h=typeof BASE_A4_H!=='undefined'?BASE_A4_H:1273,n=typeof TOTAL_PAGES!=='undefined'?TOTAL_PAGES:Number(document.getElementById('pageCountNumber')?.textContent||1);return window.ajVariablePageLayoutsV221048||Array.from({length:Math.max(1,n)},()=>({w,h}))}
  function refreshWatermarks(){
   let layer=document.getElementById('ajFreeWatermarksV221060');
   if(!isFree()){layer?.remove();return}
   const wrap=document.getElementById('canvas-wrapper');if(!wrap)return;
   if(!layer){layer=document.createElement('div');layer.id='ajFreeWatermarksV221060';wrap.appendChild(layer)}
-  const layouts=pageLayouts(),offsets=window.ajVariablePageOffsetsV221048||layouts.map((_,i)=>layouts.slice(0,i).reduce((a,x)=>a+x.h,0));
+  const layouts=pageLayouts(),offsets=window.ajVariablePageOffsetsV221048||layouts.map((_,i)=>layouts.slice(0,i).reduce((a,x)=>a+Number(x.h||0),0));
   layer.replaceChildren(...layouts.map((p,i)=>{const d=document.createElement('div');d.className='aj-free-watermark-v221060';d.style.cssText=`left:0;top:${offsets[i]||0}px;width:${p.w}px;height:${p.h}px`;d.innerHTML='<span>AirJotter<b>.com</b></span>';return d}))
  }
  function burnPdfWatermark(canvas){if(!isFree()||!canvas)return;const c=canvas.getContext('2d');if(!c)return;const size=Math.max(18,Math.round(canvas.width*.027));c.save();c.globalCompositeOperation='source-over';c.globalAlpha=.82;c.textAlign='right';c.textBaseline='bottom';c.font=`800 ${size}px Arial,sans-serif`;c.lineWidth=Math.max(3,size*.16);c.strokeStyle='rgba(255,255,255,.97)';c.strokeText('AirJotter.com',canvas.width-size,canvas.height-size);c.fillStyle='#1769e8';c.fillText('AirJotter.com',canvas.width-size,canvas.height-size);c.restore()}
@@ -6805,6 +6805,11 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210609_LOBBY_COPY_BEGIN -->
 <script id="AIRJOTTER_V2210609_LOBBY_COPY_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.9-lobby-copy';</script>
 <!-- AIRJOTTER_V2210609_LOBBY_COPY_END -->
+
+
+<!-- AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_BEGIN -->
+<script id="AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.0-free-watermark-plan-scope-fix';</script>
+<!-- AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_END -->
 
 </body>
 </html>
