@@ -2209,7 +2209,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             let sx=0,sy=0,sw=0;for(const p of(c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return ['p',c.operationId||'',c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');
         }
         const ajIOSVirtualV2265=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
-        function ajIOSPageDprV2265(){const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);return ipad?3:1;}
+        function ajIOSPageDprV2265(){return 1;}
         function ajVisiblePagesV2265(){
             if(!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -2845,7 +2845,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             // la memoria grafica e produrre temporanee superfici nere.
             if(innerWidth<=760&&!ajIOSVirtualV2265)return;
             if(!p||p.boardId!==ajBoard?.id||!p.strokeId||!Array.isArray(p.points)||!p.points.length)return;
-            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?2:Math.min(2,window.devicePixelRatio||1);
+            const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():Math.min(2,window.devicePixelRatio||1);
             let e=ajLivePreviewCanvasesV224.get(p.strokeId);
             if(!e||e.page!==page){
                 ajClearPreviewV224(p.strokeId);
@@ -6704,6 +6704,17 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V221058_A3_IPAD_SAFE_BACKING_END -->
+
+
+<!-- AIRJOTTER_V221059_REAL_IOS_A3_RENDERER_FIX_BEGIN -->
+<script id="AIRJOTTER_V221059_REAL_IOS_A3_RENDERER_FIX_SCRIPT">
+(()=>{'use strict';
+ const rebuild=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true)}));
+ document.getElementById('ajPaperApplyV221042')?.addEventListener('click',rebuild,{capture:false});
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.59-real-ios-a3-renderer-fix';
+})();
+</script>
+<!-- AIRJOTTER_V221059_REAL_IOS_A3_RENDERER_FIX_END -->
 
 </body>
 </html>
