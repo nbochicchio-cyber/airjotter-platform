@@ -6833,13 +6833,37 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  #canvas-wrapper{overflow:visible!important;contain:none!important;background:transparent!important;box-shadow:none!important}
  html.aj-a3-phone-v22106111 #canvas-wrapper{overflow:visible!important;contain:none!important;background:transparent!important}
  html.aj-a3-phone-v22106111 #drawingBoard,html.aj-a3-phone-v22106111 #draftBoard,html.aj-a3-phone-v22106111 #pencilPredictionBoard{position:absolute!important;left:0!important;top:0!important;max-width:none!important;max-height:none!important}
- #drawingBoard{background:#fff!important}
- .aj-page-grid116 span,.aj-paper-page-v221042,.aj-paper-page,.paper-page,.real-page-sheet{background:#fff!important}
+ #drawingBoard{background:transparent!important}
+ #canvas-wrapper{background:#fff!important}
+ .aj-page-grid116{display:block!important;visibility:visible!important;opacity:1!important}
+ .aj-page-grid116 span{background:transparent!important;display:block!important;visibility:visible!important}
+ .aj-paper-page-v221042,.aj-paper-page,.paper-page,.real-page-sheet{background:#fff!important}
  .real-page-break{background:#f2ebe5!important}
 }
 </style>
 <script id="AIRJOTTER_V22106116_STAGE_HEIGHT_SCRIPT">
-(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.28-paper-ink-adaptive'})();
+(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.29-smartphone-toolbar-grid'})();
+</script>
+
+<style id="AIRJOTTER_V22106129_SMARTPHONE_FIX_STYLE">
+@media(max-width:760px){
+ body.aj-no-board-v22106129 #mobileTopbar{display:none!important;visibility:hidden!important;pointer-events:none!important}
+ body.aj-no-board-v22106129 #mobileViewport{display:none!important}
+ body:not(.aj-no-board-v22106129) #mobileTopbar{visibility:visible!important}
+ .aj-page-grid116{background-image:linear-gradient(to right,rgba(65,85,125,.14) 1px,transparent 1px),linear-gradient(to bottom,rgba(65,85,125,.14) 1px,transparent 1px)!important;background-size:20% 20%!important}
+ .aj-page-grid116 .gx,.aj-page-grid116 .gy{color:rgba(55,67,95,.52)!important;background:transparent!important}
+}
+</style>
+<script id="AIRJOTTER_V22106129_SMARTPHONE_FIX_SCRIPT">
+(()=>{'use strict';
+ const sync=()=>document.body.classList.toggle('aj-no-board-v22106129',!(window.ajBoard&&window.ajBoard.id));
+ const lobby=document.getElementById('ajLobby');
+ if(lobby)new MutationObserver(sync).observe(lobby,{attributes:true,attributeFilter:['class']});
+ document.addEventListener('DOMContentLoaded',sync,{once:true});sync();
+ const oldOpen=window.ajOpenBoard;if(typeof oldOpen==='function')window.ajOpenBoard=async function(){const r=await oldOpen.apply(this,arguments);sync();return r};
+ window.addEventListener('pageshow',sync);
+ setInterval(sync,500);
+})();
 </script>
 </body>
 </html>
