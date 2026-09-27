@@ -2216,7 +2216,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             let sx=0,sy=0,sw=0;for(const p of(c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return ['p',c.operationId||'',c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');
         }
         const ajIOSVirtualV2265=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
-        function ajIOSPageDprV2265(){return 1;}
+        function ajIOSPageDprV2265(){return Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
             if(!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -6013,42 +6013,12 @@ header .aj-plan-column-v22107 button:active{
    };
   });
 
-  /* Campionamento adattivo: più punti nelle curve lente, meno lavoro nei gesti veloci. */
-  let replaying=false;
-  let last=null;
-  const reset=event=>{if(event.pointerType==='pen')last=null};
-  board.addEventListener('pointerdown',reset,true);
-  board.addEventListener('pointerup',reset,true);
-  board.addEventListener('pointercancel',reset,true);
-  board.addEventListener('pointermove',event=>{
-   if(replaying||event.pointerType!=='pen'||!event.isPrimary||typeof event.getCoalescedEvents!=='function')return;
-   const raw=event.getCoalescedEvents();
-   if(!raw||raw.length<2)return;
-   const stride=Math.max(1,Math.ceil(raw.length/6));
-   const selected=[];
-   for(let index=0;index<raw.length-1;index+=stride)selected.push(raw[index]);
-   replaying=true;
-   try{
-    for(const sample of selected){
-     const current={x:sample.clientX,y:sample.clientY};
-     if(last){
-      const distance=Math.hypot(current.x-last.x,current.y-last.y);
-      if(distance<0.22)continue;
-      const alpha=Math.min(.88,Math.max(.48,.48+distance*.075));
-      current.x=last.x+(current.x-last.x)*alpha;
-      current.y=last.y+(current.y-last.y)*alpha;
-     }
-     last=current;
-     board.dispatchEvent(new PointerEvent('pointermove',{
-      bubbles:true,cancelable:true,composed:true,
-      pointerId:event.pointerId,pointerType:'pen',isPrimary:true,
-      clientX:current.x,clientY:current.y,
-      pressure:sample.pressure,tiltX:sample.tiltX,tiltY:sample.tiltY,twist:sample.twist,
-      width:sample.width,height:sample.height,buttons:event.buttons,button:event.button
-     }));
-    }
-   }finally{replaying=false}
-  },true);
+  /* v22.10.61.27: il motore principale consuma direttamente tutti i campioni nativi
+     getCoalescedEvents(). Non si reiniettano PointerEvent sintetici: evitati punti duplicati,
+     ritardo, spigoli e perdita di precisione nelle curve strette Apple Pencil. */
+  const pencilNativeSamplesV22106127=true;
+  board.style.touchAction='none';
+  if(wet)wet.style.touchAction='none';
 
   window.AIRJOTTER_FRONTEND_VERSION='22.10.30-ipad-pencil-ultra-v2';
  });
@@ -6869,7 +6839,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 }
 </style>
 <script id="AIRJOTTER_V22106116_STAGE_HEIGHT_SCRIPT">
-(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.26-delete-cleared-on-close'})();
+(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.27-pencil-retina-native'})();
 </script>
 </body>
 </html>
