@@ -6817,41 +6817,31 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210611_WATERMARK_BOTTOM_RIGHT_END -->
 
 
-<!-- AIRJOTTER_V22106110_PRIORITY_INK_HISTORY_BEGIN -->
-<style id="AIRJOTTER_V22106110_STYLE">
-#ajUniversalWetV22106110{position:absolute;inset:0;width:100%;height:100%;z-index:11990;pointer-events:none;overflow:visible;background:transparent!important}
+
+<!-- AIRJOTTER_V22106111_SYNC_STABILITY_BEGIN -->
+<style id="AIRJOTTER_V22106111_STYLE">
+#ajUniversalWetV22106111{position:absolute;inset:0;width:100%;height:100%;z-index:11990;pointer-events:none;overflow:hidden;background:transparent!important}
+@media(max-width:760px){html.aj-a3-phone-v22106111 #canvas-wrapper,html.aj-a3-phone-v22106111 #drawingBoard,html.aj-a3-phone-v22106111 #draftBoard{will-change:auto!important;transform-style:flat!important;-webkit-transform-style:flat!important;backface-visibility:visible!important;-webkit-backface-visibility:visible!important}html.aj-a3-phone-v22106111 #mobileViewport{overscroll-behavior:contain!important;scroll-behavior:auto!important}html.aj-a3-phone-v22106111 #canvas-wrapper{isolation:isolate!important}}
 </style>
-<script id="AIRJOTTER_V22106110_SCRIPT">
-(()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper'),vp=document.getElementById('mobileViewport');
-  const undo=document.getElementById('undoBtn'),redo=document.getElementById('redoBtn'); if(!input||!wrap||!undo||!redo)return;
-  const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg'),path=document.createElementNS(NS,'path');
-  svg.id='ajUniversalWetV22106110';svg.setAttribute('preserveAspectRatio','none');path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-linejoin','round');svg.appendChild(path);wrap.appendChild(svg);
-  let active=false,pid=-1,points=[],raf=0,rect=null;
-  function geometry(){const h=typeof LOGICAL_H==='number'?LOGICAL_H:(wrap.offsetHeight||2262);svg.setAttribute('viewBox',`0 0 800 ${h}`)}
-  function logical(e){const r=rect||input.getBoundingClientRect(),h=typeof LOGICAL_H==='number'?LOGICAL_H:(wrap.offsetHeight||2262);return{x:(e.clientX-r.left)*800/r.width,y:(e.clientY-r.top)*h/r.height}}
-  function samples(e){try{const x=e.getCoalescedEvents?.();return x&&x.length?x:[e]}catch{return[e]}}
-  function render(){raf=0;if(points.length<1)return;let d=`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;for(let i=1;i<points.length-1;i++){const a=points[i],b=points[i+1];d+=` Q${a.x.toFixed(2)} ${a.y.toFixed(2)} ${((a.x+b.x)/2).toFixed(2)} ${((a.y+b.y)/2).toFixed(2)}`}if(points.length>1){const z=points.at(-1);d+=` L${z.x.toFixed(2)} ${z.y.toFixed(2)}`}path.setAttribute('d',d);path.setAttribute('stroke',currentMode==='eraser'?'#9aa6b6':(currentColor||'#1D1D1F'));path.setAttribute('stroke-opacity',currentMode==='highlighter'?'.28':'1');path.setAttribute('stroke-width',String(Math.max(.7,currentMode==='highlighter'?baseWidth*3.2:baseWidth)))}
-  function add(e){for(const ev of samples(e)){const p=logical(ev),q=points.at(-1);if(!q||Math.hypot(p.x-q.x,p.y-q.y)>.12)points.push(p)}if(!raf)raf=requestAnimationFrame(render)}
-  input.addEventListener('pointerdown',e=>{if(!['pen','highlighter','eraser'].includes(currentMode)||stampActive||textOverlayActive)return;active=true;pid=e.pointerId;rect=input.getBoundingClientRect();points=[];geometry();add(e)},{capture:true,passive:true});
-  input.addEventListener('pointermove',e=>{if(active&&e.pointerId===pid)add(e)},{capture:true,passive:true});
-  function finish(e){if(!active||e.pointerId!==pid)return;add(e);active=false;pid=-1;rect=null;setTimeout(()=>{path.removeAttribute('d');points=[]},80)}
-  input.addEventListener('pointerup',finish,{capture:true,passive:true});input.addEventListener('pointercancel',finish,{capture:true,passive:true});geometry();
-  const view=()=>({left:vp?.scrollLeft||0,top:vp?.scrollTop||0,root:(document.scrollingElement||document.documentElement).scrollTop,transform:wrap.style.transform,origin:wrap.style.transformOrigin,stage:document.getElementById('mobileStageV109')?.getAttribute('style')||''});
-  const restore=s=>requestAnimationFrame(()=>requestAnimationFrame(()=>{wrap.style.transform=s.transform;wrap.style.transformOrigin=s.origin;if(vp){vp.scrollLeft=s.left;vp.scrollTop=s.top}(document.scrollingElement||document.documentElement).scrollTop=s.root}));
-  function buttons(){undo.disabled=!commands.length;redo.disabled=!redoCommands.length}
-  function local(kind){if(kind==='undo'){if(!commands.length)return false;redoCommands.push(commands.pop())}else{if(!redoCommands.length)return false;commands.push(redoCommands.pop())}try{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true);redrawMainCanvas()}catch{}buttons();return true}
-  async function act(kind,e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(typeof ajCanWrite==='function'&&!ajCanWrite())return;const s=view();if(!local(kind))return;restore(s);try{const r=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});if(!r?.ok)throw new Error(r?.error||'history')}catch(err){console.error(err);await reloadPreserve(s)}}
-  async function reloadPreserve(s=view()){if(!ajBoard)return;const ops=await ajApi(`/api/boards/${ajBoard.id}/operations`);commands=[];redoCommands=[];TOTAL_PAGES=2;ajBatchApply=true;try{ops.filter(x=>x.is_active!==false).forEach(ajApplyOperation)}finally{ajBatchApply=false}try{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true);redrawMainCanvas()}catch{}buttons();restore(s)}
-  undo.addEventListener('pointerdown',e=>act('undo',e),true);redo.addEventListener('pointerdown',e=>act('redo',e),true);undo.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);redo.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);
-  ajSocket?.on('board:history',()=>reloadPreserve());document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z')act(e.shiftKey?'redo':'undo',e)},true);buttons();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.10-priority-ink-history';
- });
-})();
+<script id="AIRJOTTER_V22106111_SCRIPT">
+(()=>{'use strict';const ready=f=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',f,{once:true}):f();ready(()=>{
+ const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper'),vp=document.getElementById('mobileViewport'),undo=document.getElementById('undoBtn'),redo=document.getElementById('redoBtn');if(!input||!wrap||!undo||!redo)return;
+ const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg'),line=document.createElementNS(NS,'path');svg.id='ajUniversalWetV22106111';svg.setAttribute('preserveAspectRatio','none');line.setAttribute('fill','none');line.setAttribute('stroke-linecap','round');line.setAttribute('stroke-linejoin','round');svg.appendChild(line);wrap.appendChild(svg);
+ let active=false,pid=-1,ptype='',points=[],frame=0,rect=null;
+ const height=()=>typeof LOGICAL_H==='number'?LOGICAL_H:(wrap.offsetHeight||2262);const geometry=()=>svg.setAttribute('viewBox',`0 0 800 ${height()}`);const pos=e=>{const r=rect||input.getBoundingClientRect();return{x:(e.clientX-r.left)*800/r.width,y:(e.clientY-r.top)*height()/r.height}};const samples=e=>{try{const a=e.getCoalescedEvents?.();return a?.length?a:[e]}catch{return[e]}};
+ function paint(){frame=0;if(!points.length)return;let d=`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;for(let i=1;i<points.length-1;i++){const a=points[i],b=points[i+1];d+=` Q${a.x.toFixed(2)} ${a.y.toFixed(2)} ${((a.x+b.x)/2).toFixed(2)} ${((a.y+b.y)/2).toFixed(2)}`}if(points.length>1){const z=points.at(-1);d+=` L${z.x.toFixed(2)} ${z.y.toFixed(2)}`}const tool=currentMode==='highlighter'?baseWidth*3.2:baseWidth;const mouse=ptype==='mouse';line.setAttribute('d',d);line.setAttribute('stroke',currentMode==='eraser'?'#9aa6b6':(currentColor||'#1D1D1F'));line.setAttribute('stroke-opacity',String(currentMode==='highlighter'?.20:(mouse?.42:.72)));line.setAttribute('stroke-width',String(Math.max(.55,tool*(mouse?.72:.92))))}
+ function add(e){for(const x of samples(e)){const p=pos(x),q=points.at(-1);if(!q||Math.hypot(p.x-q.x,p.y-q.y)>.10)points.push(p)}if(!frame)frame=requestAnimationFrame(paint)}
+ input.addEventListener('pointerdown',e=>{if(!['pen','highlighter','eraser'].includes(currentMode)||stampActive||textOverlayActive)return;active=true;pid=e.pointerId;ptype=e.pointerType;rect=input.getBoundingClientRect();points=[];geometry();add(e)},{capture:true,passive:true});input.addEventListener('pointermove',e=>{if(active&&e.pointerId===pid)add(e)},{capture:true,passive:true});function end(e){if(!active||e.pointerId!==pid)return;add(e);active=false;pid=-1;rect=null;setTimeout(()=>{line.removeAttribute('d');points=[]},48)}input.addEventListener('pointerup',end,{capture:true,passive:true});input.addEventListener('pointercancel',end,{capture:true,passive:true});geometry();
+ const view=()=>({l:vp?.scrollLeft||0,t:vp?.scrollTop||0,r:(document.scrollingElement||document.documentElement).scrollTop,tr:wrap.style.transform,to:wrap.style.transformOrigin});const restore=s=>requestAnimationFrame(()=>{wrap.style.transform=s.tr;wrap.style.transformOrigin=s.to;if(vp){vp.scrollLeft=s.l;vp.scrollTop=s.t}(document.scrollingElement||document.documentElement).scrollTop=s.r});
+ let syncWanted=0,syncDone=0,syncing=false,syncTimer=0;function buttons(){undo.disabled=!commands.length;redo.disabled=!redoCommands.length}function repaint(){if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true);redrawMainCanvas()}
+ async function reconcile(rev=0){syncWanted=Math.max(syncWanted,Number(rev)||0);clearTimeout(syncTimer);syncTimer=setTimeout(run,35)}async function run(){if(syncing||active)return void(syncTimer=setTimeout(run,45));syncing=true;const seq=syncWanted,s=view();try{const ops=await ajApi(`/api/boards/${ajBoard.id}/operations`);if(seq<syncWanted)return;commands=[];redoCommands=[];ajBatchApply=true;try{ops.filter(x=>x.is_active!==false).forEach(ajApplyOperation)}finally{ajBatchApply=false}repaint();buttons();syncDone=seq;restore(s)}catch(e){console.error('Riconciliazione cronologia',e)}finally{syncing=false;if(syncWanted>syncDone)syncTimer=setTimeout(run,45)}}
+ function local(kind){if(kind==='undo'){if(!commands.length)return false;redoCommands.push(commands.pop())}else{if(!redoCommands.length)return false;commands.push(redoCommands.pop())}repaint();buttons();return true}
+ async function action(kind,e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(!ajCanWrite()||!local(kind))return;const s=view();restore(s);try{const r=await ajSocket.emitWithAck('history:'+kind,{boardId:ajBoard.id});if(!r?.ok)throw Error(r?.error||'history');reconcile(r.revision)}catch(x){console.error(x);reconcile(Number.MAX_SAFE_INTEGER)}}
+ undo.addEventListener('pointerdown',e=>action('undo',e),true);redo.addEventListener('pointerdown',e=>action('redo',e),true);undo.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);redo.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z')action(e.shiftKey?'redo':'undo',e)},true);ajSocket?.on('board:history',e=>reconcile(e?.revision));
+ function a3(){const phone=matchMedia('(max-width:760px)').matches,label=document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim();document.documentElement.classList.toggle('aj-a3-phone-v22106111',phone&&label==='A3')}document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(a3,100));addEventListener('orientationchange',()=>setTimeout(a3,250),{passive:true});a3();buttons();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.11-sync-stability';
+})})();
 </script>
-<!-- AIRJOTTER_V22106110_PRIORITY_INK_HISTORY_END -->
+<!-- AIRJOTTER_V22106111_SYNC_STABILITY_END -->
 
 </body>
 </html>
