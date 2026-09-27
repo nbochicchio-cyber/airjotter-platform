@@ -6746,13 +6746,18 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
  document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{document.getElementById('ajLobby')?.classList.add('aj-hidden');if(typeof window.loadJotterArchive==='function')await window.loadJotterArchive();const m=document.getElementById('jotterArchiveModal');if(m)m.style.display='flex'});
- const mo=new MutationObserver(()=>{refreshWatermarks();if(!document.getElementById('ajLobby')?.classList.contains('aj-hidden'))refreshLobby()});mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+ const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
  window.AIRJOTTER_FRONTEND_VERSION='22.10.60-free-watermark-lobby';
 })();
 </script>
 <!-- AIRJOTTER_V221060_FREE_WATERMARK_LOBBY_END -->
+
+
+<!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_BEGIN -->
+<script id="AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.1-login-freeze-fix';</script>
+<!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_END -->
 
 </body>
 </html>
