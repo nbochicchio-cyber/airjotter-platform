@@ -1660,7 +1660,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 // Densita' identica a quella con cui il canvas principale appare a schermo:
                 // l'"asciugatura" nel documento e' pixel-per-pixel invisibile.
                 const screenDensity = vs * (window.devicePixelRatio || 1);
-                let K = Math.max(2, Math.min(3, Math.max(screenDensity, window.devicePixelRatio || 1))); // v21.6: indipendente dal DPR del canvas multipagina
+                let K = Math.max(2, Math.min(3.5, Math.max(screenDensity, window.devicePixelRatio || 1))); // v21.6: indipendente dal DPR del canvas multipagina
                 const m = 16;                                            // margine in px schermo
                 let x0 = Math.max(0, Math.floor((L - m - r.left) * sx)), y0 = Math.max(0, Math.floor((T - m - r.top) * sy));
                 let x1 = Math.min(LOGICAL_W, Math.ceil((R + m - r.left) * sx)), y1 = Math.min(LOGICAL_H, Math.ceil((B + m - r.top) * sy));
@@ -1706,7 +1706,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             // ---------------------------------------------------------------- filtro 1-Euro 2D
             function makeFilter(pointerType) {
                 // Pencil: filtro leggerissimo (l'hardware e' gia' preciso); dito: filtro piu' deciso sul tremolio.
-                const minCut = pointerType === 'pen' ? 26 : 9, beta = pointerType === 'pen' ? 0.02 : 0.03, dCut = 8;
+                const minCut = pointerType === 'pen' ? 30 : 9, beta = pointerType === 'pen' ? 0.085 : 0.03, dCut = pointerType === 'pen' ? 18 : 8;
                 let has = false, fx = 0, fy = 0, dx = 0, dy = 0;
                 const alpha = (cut, dtS) => 1 / (1 + 1 / (TAU * cut * dtS));
                 return (x, y, dtMs) => {
@@ -1776,9 +1776,9 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
                     done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
                     filter: (mode === 'pen' && pt !== 'mouse') ? makeFilter(pt) : null,
-                    minDist: legacy ? 0 : clamp(0.55 / Math.max(vs, 1e-3), 0.2, 1.2),
+                    minDist: legacy ? 0 : (pt==='pen'?clamp(0.32/Math.max(vs,1e-3),0.12,0.55):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
                     nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
-                    tauW: pt === 'pen' ? 15 : 23,
+                    tauW: pt === 'pen' ? 9 : 23,
                     predict: mode === 'pen' && (pt === 'pen' || pt === 'touch')
                 };
                 if (mode === 'eraser') {
@@ -1839,7 +1839,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 S.raw = pos;
                 const f = S.filter ? S.filter(pos.x, pos.y, dt) : pos;
                 if (Math.hypot(f.x - lastPt.x, f.y - lastPt.y) >= S.minDist) {
-                    pts.push({ x: r2(f.x), y: r2(f.y), w: r2(S.sw) });
+                    pts.push(ev.pointerType==='pen'?{x:Math.round(f.x*1000)/1000,y:Math.round(f.y*1000)/1000,w:Math.round(S.sw*1000)/1000}:{x:r2(f.x),y:r2(f.y),w:r2(S.sw)});
                     return true;
                 }
                 return false;
@@ -1907,7 +1907,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             function drawStablePieces() {
                 const pts = S.path.points, n = pts.length;
                 if (n < 2 || S.done > n - 2) return;
-                const p = new Path2D(), tol = 0.3 / S.g.K;
+                const p = new Path2D(), tol = (S.type==='pen'?0.16:0.3) / S.g.K;
                 for (let j = S.done; j <= n - 2; j++) {
                     const chain = [];
                     walk(pts, j, j, tol, (x, y, r) => chain.push([x, y, r]));
@@ -6839,7 +6839,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 }
 </style>
 <script id="AIRJOTTER_V22106116_STAGE_HEIGHT_SCRIPT">
-(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.27-pencil-retina-native'})();
+(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.28-paper-ink-adaptive'})();
 </script>
 </body>
 </html>
