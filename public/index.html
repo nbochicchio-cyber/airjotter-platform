@@ -7036,14 +7036,32 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_BEGIN --><script id="AIRJOTTER_V2210613319_ARCHIVE_ONLY_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.1';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.1';</script><!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_END -->
 <!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133192_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.2';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.2';</script><!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_END -->
 <!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_BEGIN --><script id="AIRJOTTER_V22106133193_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.3';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.3';</script><!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_END -->
-<!-- AIRJOTTER_V22106133195_PC_BOARD_SWITCH_FIX_BEGIN -->
-<script id="AIRJOTTER_V22106133195_PC_BOARD_SWITCH_FIX_SCRIPT">
+<!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_BEGIN -->
+<script id="AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_SCRIPT">
 (()=>{'use strict';
- const bind=()=>{const b=document.getElementById('ajOpenOwnedBtnV221060');if(!b)return;b.onclick=async e=>{e.preventDefault();e.stopPropagation();if(typeof window.ajLoadArchive!=='function')return;await window.ajLoadArchive();};};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.5';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.5';
+ let openedFromLobby=false;
+ document.addEventListener('click',async event=>{
+  const open=event.target.closest?.('#ajOpenOwnedBtnV221060');
+  if(!open)return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  const lobby=document.getElementById('ajLobby');
+  openedFromLobby=Boolean(lobby&&!lobby.classList.contains('aj-hidden'));
+  if(openedFromLobby)lobby.classList.add('aj-hidden');
+  try{await window.ajLoadArchive();}
+  catch(error){if(openedFromLobby)lobby.classList.remove('aj-hidden');openedFromLobby=false;alert('Impossibile aprire i tuoi Jotter: '+error.message);}
+ },true);
+ document.addEventListener('click',event=>{
+  if(!openedFromLobby)return;
+  const modal=document.getElementById('jotterArchiveModal');
+  const closes=event.target.closest?.('#jotterArchiveClose,#ajArchiveClose115');
+  const backdrop=event.target===modal;
+  if(!closes&&!backdrop)return;
+  document.getElementById('ajLobby')?.classList.remove('aj-hidden');
+  openedFromLobby=false;
+ },true);
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.6';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.6';
 })();
 </script>
-<!-- AIRJOTTER_V22106133195_PC_BOARD_SWITCH_FIX_END -->
+<!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_END -->
 </body>
 </html>
