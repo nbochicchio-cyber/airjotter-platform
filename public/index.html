@@ -6980,60 +6980,14 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613319_END -->
-<!-- AIRJOTTER_V2210613320_BEGIN -->
-<style id="AIRJOTTER_V2210613320_SPEED_PENCIL_STYLE">
-#jotterArchiveModal.aj-fast-open-v2210613320 #jotterArchiveStatus{display:block!important}
-</style>
-<script id="AIRJOTTER_V2210613320_SPEED_PENCIL_SCRIPT">
+<!-- AIRJOTTER_V2210613321_BEGIN -->
+<script id="AIRJOTTER_V2210613321_IDENTICAL_WET_DRY_SCRIPT">
 (()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  // Archivio: apre direttamente la lista. Non apre piu l'ultimo Jotter prima dell'elenco.
-  const openBtn=document.getElementById('ajOpenOwnedBtnV221060');
-  if(openBtn){
-   openBtn.addEventListener('click',event=>{
-    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
-    const modal=document.getElementById('jotterArchiveModal'),status=document.getElementById('jotterArchiveStatus');
-    if(modal){modal.classList.add('aj-fast-open-v2210613320');modal.style.display='flex'}
-    if(status)status.textContent='Caricamento elenco Jotter...';
-    requestAnimationFrame(()=>window.ajLoadArchive?.());
-   },true);
-  }
-  // Apple Pencil: stabilizzazione moderata dei campioni reali prima del salvataggio.
-  const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
-  function stabilize(command){
-   if(!isIPad||command?.type!=='path'||command.isEraser||!Array.isArray(command.points)||command.points.length<5)return command;
-   const source=command.points, out=source.map(p=>({...p}));
-   for(let pass=0;pass<2;pass++){
-    const base=out.map(p=>({...p}));
-    for(let i=1;i<base.length-1;i++){
-     const a=base[i-1],b=base[i],c=base[i+1];
-     out[i].x=a.x*.16+b.x*.68+c.x*.16;
-     out[i].y=a.y*.16+b.y*.68+c.y*.16;
-     const targetW=a.w*.12+b.w*.76+c.w*.12;
-     out[i].w=Math.max(.55,targetW);
-    }
-   }
-   command.points=out;return command;
-  }
-  function install(){
-   const original=window.ajSendCommand||(typeof ajSendCommand==='function'?ajSendCommand:null);
-   if(typeof original!=='function'||original.__ajV2210613320)return false;
-   const wrapped=function(command){
-    stabilize(command);
-    const result=original.apply(this,arguments);
-    if(isIPad&&command?.type==='path')requestAnimationFrame(()=>{try{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';window.ajRenderInkPagesV215?.(true)}catch{}});
-    return result;
-   };
-   wrapped.__ajV2210613320=true;window.ajSendCommand=wrapped;
-   try{ajSendCommand=wrapped}catch{}
-   return true;
-  }
-  if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>50)clearInterval(timer)},100)}
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.20-fast-archive-pencil-stability';
- });
+ // Il tratto definitivo usa gli stessi punti e le stesse larghezze del tratto live.
+ // Nessuna stabilizzazione, trasformazione o ridisegno successivo al pointerup.
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.21-identical-wet-dry-stroke';
 })();
 </script>
-<!-- AIRJOTTER_V2210613320_END -->
+<!-- AIRJOTTER_V2210613321_END -->
 </body>
 </html>
