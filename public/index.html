@@ -2250,7 +2250,19 @@ function ajDrawImportedV219(ctx,cmd){
                 if(!pageCommands.length)continue;
                 const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
                 const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;continue}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
-                for(const cmd of pageCommands){if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);else ajDrawImportedV219(ctx,cmd)}
+                // v22.10.61.33.33: i contenuti importati in modalita Sotto vengono rasterizzati per primi.
+                // Durante questo passaggio sono forzati in source-over: l'ordine fisico dei comandi
+                // sostituisce destination-over ed evita che PDF multipagina opachi coprano testo,
+                // firme, foto, forme e inchiostro sui browser WebKit.
+                const underCommands=pageCommands.filter(cmd=>cmd.type==='stamp'&&cmd.mode==='under');
+                const foregroundCommands=pageCommands.filter(cmd=>!(cmd.type==='stamp'&&cmd.mode==='under'));
+                for(const cmd of [...underCommands,...foregroundCommands]){
+                    if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);
+                    else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);
+                    else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);
+                    else if(cmd.mode==='under')ajDrawImportedV219(ctx,{...cmd,mode:'over'});
+                    else ajDrawImportedV219(ctx,cmd);
+                }
                 dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio,key:pageKey});layer.appendChild(canvas)
             }
         }
@@ -2351,7 +2363,25 @@ function ajDrawImportedV219(ctx,cmd){
             const logicalY=Math.max(0,Math.min(LOGICAL_H-1,(screenY-wr.top)/scaleY));
             return Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(logicalY/BASE_A4_H)));
         }
-        function ajCaptureImportPageV231(){ajImportTargetPageV231=ajCurrentVisiblePageV231();}
+        // v22.10.61.33.33: pagina stabile aggiornata prima dell'apertura del file picker.
+        // Il target viene congelato al primo evento e non viene sovrascritto dal click successivo,
+        // che su Safari/WebKit puo avvenire dopo uno scroll automatico verso l'header fisso.
+        let ajStablePageV231=ajCurrentVisiblePageV231(),ajStablePageRafV231=0;
+        function ajUpdateStablePageV231(){
+            if(ajImportTargetPageV231!==null)return;
+            ajStablePageV231=ajCurrentVisiblePageV231();
+        }
+        function ajScheduleStablePageV231(){
+            if(ajStablePageRafV231)return;
+            ajStablePageRafV231=requestAnimationFrame(()=>{ajStablePageRafV231=0;ajUpdateStablePageV231()});
+        }
+        addEventListener('scroll',ajScheduleStablePageV231,{passive:true});
+        document.getElementById('mobileViewport')?.addEventListener('scroll',ajScheduleStablePageV231,{passive:true});
+        addEventListener('resize',ajScheduleStablePageV231,{passive:true});
+        setInterval(ajUpdateStablePageV231,300);
+        function ajCaptureImportPageV231(){
+            if(ajImportTargetPageV231===null)ajImportTargetPageV231=ajStablePageV231;
+        }
         ['fileInputPdf','fileInputSign','fileInputRealImg'].forEach(id=>{
             const input=document.getElementById(id);if(!input)return;
             input.addEventListener('pointerdown',ajCaptureImportPageV231,true);
@@ -6977,97 +7007,13 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </script>
 <!-- AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_END -->
 
-<script id="airjotterBugFixes">
-(function() {
-    // FIX 1: Tracking continuo della pagina visibile
-    // Evita falsi positivi dovuti allo scroll istantaneo dell'input file al momento del focus
-    let ajStablePageV231 = 0;
-    function updateStablePage() {
-        if (typeof ajCurrentVisiblePageV231 === 'function') {
-            ajStablePageV231 = ajCurrentVisiblePageV231();
-        }
-    }
-    
-    // Aggiornamento passivo su scroll e polling di sicurezza
-    window.addEventListener('scroll', updateStablePage, { passive: true });
-    const mobileVp = document.getElementById('mobileViewport');
-    if (mobileVp) mobileVp.addEventListener('scroll', updateStablePage, { passive: true });
-    setInterval(updateStablePage, 300);
 
-    // Sovrascriviamo la funzione di cattura per leggere il valore stabile anziché l'istante viziato
-    window.ajCaptureImportPageV231 = function() {
-        ajImportTargetPageV231 = ajStablePageV231;
-    };
-
-    // FIX 2: Risoluzione del bug di WebKit sul destination-over con immagini opache
-    // Sovrascriviamo la funzione principale di rendering per implementare il partizionamento
-    if (typeof ajRenderInkPagesV215 === 'function') {
-        window.ajRenderInkPagesV215 = function(force = false) {
-            const inkCommands = commands.filter(c => c.type === 'path' || c.type === 'text' || c.type === 'stamp' || c.type === 'shape' || c.type === 'connector');
-            const layer = ajEnsureInkPagesLayerV215();
-            const pages = ajVisiblePagesV2265();
-            const ratio = ajIOSVirtualV2265 ? ajIOSPageDprV2265() : ajInkPageDprV215();
-
-            if (!ajIOSVirtualV2265) {
-                const key = [TOTAL_PAGES, inkCommands.length, inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');
-                if (!force && key === ajInkPagesKeyV215) return;
-                ajInkPagesKeyV215 = key;
-                layer.replaceChildren();
-                ajInkPageContextsV218.clear();
-            } else {
-                for (const pageIndex of [...ajInkPageContextsV218.keys()]) {
-                    if (!pages.has(pageIndex)) ajReleasePageEntryV2265(pageIndex);
-                }
-            }
-
-            for (const pageIndex of pages) {
-                const pageCommands = inkCommands.filter(cmd => ajCommandTouchesPageV218(cmd, pageIndex));
-                const pageKey = ajPageCommandKeyV2265(pageIndex, pageCommands);
-                const existing = ajInkPageContextsV218.get(pageIndex);
-
-                if (existing && !force && existing.key === pageKey) continue;
-                if (existing) ajReleasePageEntryV2265(pageIndex);
-                if (!pageCommands.length) continue;
-
-                const canvas = document.createElement('canvas');
-                canvas.width = Math.round(LOGICAL_W * ratio);
-                canvas.height = Math.round(BASE_A4_H * ratio);
-                canvas.style.cssText = `position:absolute;left:0;top:${pageIndex * BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-                const ctx = canvas.getContext('2d', { alpha: true });
-                
-                if (!ctx) {
-                    canvas.width = 1;
-                    canvas.height = 1;
-                    continue;
-                }
-                
-                ctx.setTransform(ratio, 0, 0, ratio, 0, -pageIndex * BASE_A4_H * ratio);
-                const previousDpr = dpr;
-                dpr = ratio;
-
-                // LOGICA RISOLUTIVA: Partizionamento gerarchico dei comandi
-                // Separiamo i background (PDF, immagini inviate "sotto") da testi, forme e tratti.
-                // Disegnandoli rigorosamente in sequenza, l'ordine di stratificazione risulta 
-                // nativo e impeccabile, neutralizzando le anomalie di compositing del browser.
-                const underCmds = pageCommands.filter(c => c.type === 'stamp' && c.mode === 'under');
-                const overCmds = pageCommands.filter(c => !(c.type === 'stamp' && c.mode === 'under'));
-                const orderedCmds = [...underCmds, ...overCmds];
-
-                for (const cmd of orderedCmds) {
-                    if (cmd.type === 'path') renderPathToCtx(ctx, cmd, false);
-                    else if (cmd.type === 'text') ajDrawTextV218(ctx, cmd);
-                    else if (cmd.type === 'shape' || cmd.type === 'connector') ajDrawShapeV227(ctx, cmd);
-                    else ajDrawImportedV219(ctx, cmd);
-                }
-
-                dpr = previousDpr;
-                ajInkPageContextsV218.set(pageIndex, { canvas, ctx, ratio, key: pageKey });
-                layer.appendChild(canvas);
-            }
-        };
-    }
-})();
+<!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_BEGIN -->
+<script id="AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_VERSION">
+window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.33';
+document.documentElement.dataset.airjotterVersion='22.10.61.33.33';
 </script>
+<!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_END -->
 
 </body>
 </html>
