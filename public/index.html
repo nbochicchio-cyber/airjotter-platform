@@ -6989,5 +6989,33 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613321_END -->
+<!-- AIRJOTTER_V2210613322_BEGIN -->
+<script id="AIRJOTTER_V2210613322_DIRECT_ARCHIVE_SCRIPT">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const button=document.getElementById('ajOpenOwnedBtnV221060');
+  if(!button)return;
+  const direct=event=>{
+   event.preventDefault();
+   event.stopPropagation();
+   event.stopImmediatePropagation();
+   const modal=document.getElementById('jotterArchiveModal');
+   const status=document.getElementById('jotterArchiveStatus');
+   const list=document.getElementById('jotterArchiveList');
+   if(modal)modal.style.display='flex';
+   if(status)status.textContent='Caricamento elenco Jotter...';
+   if(list)list.innerHTML='';
+   requestAnimationFrame(()=>window.ajLoadArchive?.());
+   return false;
+  };
+  button.onclick=null;
+  button.addEventListener('pointerdown',direct,{capture:true,passive:false});
+  button.addEventListener('click',direct,{capture:true,passive:false});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.22-direct-jotter-list';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V2210613322_END -->
 </body>
 </html>
