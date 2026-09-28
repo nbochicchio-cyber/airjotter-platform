@@ -2843,7 +2843,7 @@ function ajDrawImportedV219(ctx,cmd){
         const ajSocket = io({autoConnect:false,retries:3,ackTimeout:10000});
         let ajMe = null, ajBoard = null, ajRole = 'viewer', ajRemote = false;
         const ajApi = async (url, options = {}) => {
-            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+            const response = await fetch(url, { cache:'no-store', headers: { 'Content-Type': 'application/json', 'Cache-Control':'no-cache' }, ...options });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(data.error || response.statusText);
             return data;
@@ -7056,5 +7056,32 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 (()=>{'use strict';const VERSION='22.10.61.33.31';document.addEventListener('click',async e=>{const b=e.target.closest?.('#ajOpenOwnedBtnV221060');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(b.dataset.busy3331==='1')return;b.dataset.busy3331='1';const text=b.textContent;b.disabled=true;b.textContent='Apertura elenco...';try{if(typeof window.ajLoadArchive!=='function')throw Error('Archivio non inizializzato');await window.ajLoadArchive()}catch(x){alert('Impossibile aprire i tuoi Jotter: '+x.message)}finally{b.disabled=false;b.textContent=text;delete b.dataset.busy3331}},true);window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION})();
 </script>
 <!-- AIRJOTTER_V2210613331_END -->
+<!-- AIRJOTTER_V2210613332_BEGIN -->
+<script id="AIRJOTTER_V2210613332_SURGICAL">
+(()=>{'use strict';
+ const VERSION='22.10.61.33.32';
+ function installArchiveButton(){
+  const old=document.getElementById('ajOpenOwnedBtnV221060');
+  if(!old||old.dataset.ajSurgical3332==='1')return;
+  const button=old.cloneNode(true);
+  button.dataset.ajSurgical3332='1';button.hidden=false;button.disabled=false;
+  old.replaceWith(button);
+  button.onclick=async event=>{
+   event?.preventDefault();event?.stopPropagation();event?.stopImmediatePropagation();
+   if(button.dataset.busy==='1')return;
+   button.dataset.busy='1';const label=button.textContent;button.disabled=true;button.textContent='Apertura elenco...';
+   try{if(typeof window.ajLoadArchive!=='function')throw Error('Archivio non inizializzato');await window.ajLoadArchive();}
+   catch(error){alert('Impossibile aprire i tuoi Jotter: '+error.message);}
+   finally{button.disabled=false;button.textContent=label;delete button.dataset.busy;}
+  };
+ }
+ const lobby=document.getElementById('ajLobby');
+ if(lobby)new MutationObserver(installArchiveButton).observe(lobby,{childList:true,subtree:true,attributes:true});
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',installArchiveButton,{once:true}):installArchiveButton();
+ addEventListener('pageshow',installArchiveButton);
+ window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION;
+})();
+</script>
+<!-- AIRJOTTER_V2210613332_END -->
 </body>
 </html>
