@@ -964,6 +964,13 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
  body.aj-text-editing-v2266g > header{z-index:11000!important}
 }
 </style>
+
+<style id="AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_STYLE">
+@media (min-width:761px){
+ #ajPcFitV204{display:none!important;visibility:hidden!important;pointer-events:none!important}
+ #brandBtn{cursor:pointer!important;pointer-events:auto!important}
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card aj-register-v22106131"><div class="aj-register-brand-v22106131"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Tre strumenti. Una sola web app.</div></div><div class="aj-register-copy-v22106131"><div class="aj-register-features-v22106131" aria-label="Funzioni principali"><div><b>1</b><span><strong>Lavagna digitale condivisa via web</strong><small>Disegnate insieme sullo stesso foglio, anche da città diverse.</small></span></div><div><b>2</b><span><strong>Editor PDF con funzioni avanzate</strong><small>Firmi un contratto senza stamparlo né scansionarlo.</small></span></div><div><b>3</b><span><strong>File Transfer criptato fino a 5 GB</strong><small>Il file arriva dritto al dispositivo di chi deve riceverlo.</small></span></div></div><p class="welcome-lead"><strong>Scrivi. Condividi. Invia file. Ovunque tu sia.</strong><br><span>Presenta le tue idee su una lavagna digitale che arriva ovunque, modifica e firma i PDF con un gesto, invia e ricevi file pesanti senza pensieri. AirJotter mette tutto nel tuo browser: su PC, tablet e smartphone. Anche con la tua Pencil.</span></p></div><div class="aj-register-access-v22106131"><div class="welcome-google"><div id="ajGoogleNativeV3314" aria-label="Registrati con Google"></div><small id="googleStatus">Ti basta l'account Google che hai già.</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div><div class="aj-register-footer-v22106132">© 2026 AirJotter.com · info@airjotter.com · by DoMyTool.it</div></div></div>
@@ -7074,5 +7081,30 @@ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.37';
 document.documentElement.dataset.airjotterVersion='22.10.61.33.37';
 </script>
 <!-- AIRJOTTER_V2210613337_COLOR_RECURSION_TOOLBAR_FIX_END -->
+
+<!-- AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_BEGIN -->
+<script id="AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_SCRIPT">
+(()=>{'use strict';
+ function adaptAndTop(event){
+  if(innerWidth<=760)return;
+  event?.preventDefault?.();event?.stopImmediatePropagation?.();
+  try{if(typeof handleResize==='function')handleResize();}catch(error){console.error('AirJotter logo fit',error)}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'smooth'})));
+ }
+ function init(){
+  const fit=document.getElementById('ajPcFitV204');
+  if(fit){fit.hidden=true;fit.setAttribute('aria-hidden','true');fit.tabIndex=-1;}
+  const brand=document.getElementById('brandBtn');
+  if(!brand)return;
+  brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';
+  brand.addEventListener('click',adaptAndTop,true);
+  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')adaptAndTop(event)},true);
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.38';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.38';
+})();
+</script>
+<!-- AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_END -->
 </body>
 </html>
