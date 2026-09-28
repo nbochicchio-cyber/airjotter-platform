@@ -6896,5 +6896,63 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  window.addEventListener('pageshow',sync);sync();
 })();
 </script>
-<script id="AIRJOTTER_V22106132_LOGIN_TOOLBAR_GUARD">(()=>{'use strict';const login=document.getElementById('ajLogin'),bar=document.getElementById('mobileTopbar'),header=document.querySelector('header');if(!login)return;const sync=()=>{const on=!login.classList.contains('aj-hidden');for(const el of [bar,header])if(el){if(on){el.dataset.ajLoginOldDisplay=el.style.display||'';el.style.setProperty('display','none','important')}else{el.style.removeProperty('display');if(el.dataset.ajLoginOldDisplay)el.style.display=el.dataset.ajLoginOldDisplay}}};new MutationObserver(sync).observe(login,{attributes:true,attributeFilter:['class']});addEventListener('pageshow',sync);sync()})();</script></body>
+<script id="AIRJOTTER_V22106132_LOGIN_TOOLBAR_GUARD">(()=>{'use strict';const login=document.getElementById('ajLogin'),bar=document.getElementById('mobileTopbar'),header=document.querySelector('header');if(!login)return;const sync=()=>{const on=!login.classList.contains('aj-hidden');for(const el of [bar,header])if(el){if(on){el.dataset.ajLoginOldDisplay=el.style.display||'';el.style.setProperty('display','none','important')}else{el.style.removeProperty('display');if(el.dataset.ajLoginOldDisplay)el.style.display=el.dataset.ajLoginOldDisplay}}};new MutationObserver(sync).observe(login,{attributes:true,attributeFilter:['class']});addEventListener('pageshow',sync);sync()})();</script><!-- AIRJOTTER_V2210613317_BEGIN -->
+<style id="AIRJOTTER_V2210613317_SMARTPHONE_CANVAS_FT_STYLE">
+@media(max-width:760px){
+ #canvas-wrapper,html.aj-a3-phone-v22106111 #canvas-wrapper{background-color:#fff!important;background:#fff!important}
+ #drawingBoard,#draftBoard,#pencilPredictionBoard{background-color:transparent!important}
+ #ajUniversalWetV22106111{display:none!important;visibility:hidden!important}
+ .aj-ft-overlay-v2291{box-sizing:border-box!important;align-items:flex-start!important;justify-content:center!important;padding:calc(env(safe-area-inset-top,0px) + 86px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)!important;overflow:hidden!important}
+ .aj-ft-card-v2291{width:100%!important;max-width:760px!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 96px)!important;margin:0 auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+}
+</style>
+<script id="AIRJOTTER_V2210613317_PAPER_RESTORE_SCRIPT">
+(()=>{'use strict';
+ const KEY='aj-paper-format-v2210613317:';
+ const currentBoardId=()=>window.ajBoard?.id||((typeof ajBoard!=='undefined'&&ajBoard)?ajBoard.id:null);
+ function remember(){
+  const id=currentBoardId();if(!id)return;
+  const size=document.getElementById('ajPaperSizeV221042')?.value;
+  const orientation=document.getElementById('ajPaperOrientationV221042')?.value;
+  if(!size)return;
+  try{localStorage.setItem(KEY+id,JSON.stringify({global:{size,orientation:orientation==='landscape'?'landscape':'portrait'},pages:{}}))}catch{}
+ }
+ async function restore(boardId){
+  if(!boardId||!window.ajPaperV221042?.remote)return;
+  let state=null;
+  try{
+   const api=window.ajApi||(typeof ajApi==='function'?ajApi:null);
+   if(api){
+    const ops=await api('/api/boards/'+encodeURIComponent(boardId)+'/operations');
+    const paper=(Array.isArray(ops)?ops:[]).filter(op=>(op.operation_type||op.type)==='paper:set'&&op.is_active!==false).at(-1);
+    if(paper?.payload?.global)state=paper.payload;
+   }
+  }catch(error){console.debug('Ripristino formato Jotter:',error?.message||error)}
+  if(!state){try{state=JSON.parse(localStorage.getItem(KEY+boardId)||'null')}catch{}}
+  if(state?.global){
+   window.ajPaperV221042.remote(state);
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.getElementById('canvas-wrapper')?.style.setProperty('background-color','#fff','important');
+    window.handleResize?.();
+   }));
+  }
+ }
+ document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(remember,0),true);
+ function install(){
+  const original=window.ajOpenBoard;
+  if(typeof original!=='function'||original.__ajPaperRestoreV2210613317)return false;
+  const wrapped=async function(board){const result=await original.apply(this,arguments);await restore(board?.id||currentBoardId());return result};
+  wrapped.__ajPaperRestoreV2210613317=true;window.ajOpenBoard=wrapped;return true;
+ }
+ if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>40)clearInterval(timer)},100)}
+ const oldReload=window.ajReload;
+ if(typeof oldReload==='function'&&!oldReload.__ajPaperRestoreV2210613317){
+  window.ajReload=async function(){const result=await oldReload.apply(this,arguments);await restore(currentBoardId());return result};
+  window.ajReload.__ajPaperRestoreV2210613317=true;
+ }
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.17-smartphone-canvas-ft-paper';
+})();
+</script>
+<!-- AIRJOTTER_V2210613317_END -->
+</body>
 </html>
