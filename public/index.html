@@ -2931,6 +2931,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         }
         async function ajReload() {
             if (!ajBoard) return;
+            window.ajVariablePageLayoutsV221048 = [];
             commands=[]; redoCommands=[]; TOTAL_PAGES=2;
             const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
             ajBatchApply = true;
@@ -7040,5 +7041,27 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_BEGIN --><script id="AIRJOTTER_V2210613319_ARCHIVE_ONLY_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.1';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.1';</script><!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_END -->
 <!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133192_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.2';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.2';</script><!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_END -->
 <!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_BEGIN --><script id="AIRJOTTER_V22106133193_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.3';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.3';</script><!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_END -->
+<!-- AIRJOTTER_V22106133194_ARCHIVE_LAYOUT_FIX_BEGIN -->
+<script id="AIRJOTTER_V22106133194_ARCHIVE_LAYOUT_FIX_SCRIPT">
+(()=>{'use strict';
+ function bindArchiveButton(){
+  const oldButton=document.getElementById('ajOpenOwnedBtnV221060');
+  if(!oldButton||oldButton.dataset.ajArchiveOnlyV33194==='1')return;
+  const button=oldButton.cloneNode(true);
+  button.dataset.ajArchiveOnlyV33194='1';
+  oldButton.replaceWith(button);
+  button.addEventListener('click',async event=>{
+   event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+   if(typeof window.ajLoadArchive!=='function')throw new Error('Archivio non inizializzato');
+   await window.ajLoadArchive();
+  },true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindArchiveButton,{once:true});else bindArchiveButton();
+ new MutationObserver(bindArchiveButton).observe(document.body,{childList:true,subtree:true});
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.4b';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.19.4b';
+})();
+</script>
+<!-- AIRJOTTER_V22106133194_ARCHIVE_LAYOUT_FIX_END -->
 </body>
 </html>
