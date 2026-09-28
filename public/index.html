@@ -971,6 +971,13 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
  #brandBtn{cursor:pointer!important;pointer-events:auto!important}
 }
 </style>
+
+<style id="AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_STYLE">
+body.aj-entry-screen-v2210613339 > header,
+body.aj-entry-screen-v2210613339 #mobileTopbar{
+ display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card aj-register-v22106131"><div class="aj-register-brand-v22106131"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Tre strumenti. Una sola web app.</div></div><div class="aj-register-copy-v22106131"><div class="aj-register-features-v22106131" aria-label="Funzioni principali"><div><b>1</b><span><strong>Lavagna digitale condivisa via web</strong><small>Disegnate insieme sullo stesso foglio, anche da città diverse.</small></span></div><div><b>2</b><span><strong>Editor PDF con funzioni avanzate</strong><small>Firmi un contratto senza stamparlo né scansionarlo.</small></span></div><div><b>3</b><span><strong>File Transfer criptato fino a 5 GB</strong><small>Il file arriva dritto al dispositivo di chi deve riceverlo.</small></span></div></div><p class="welcome-lead"><strong>Scrivi. Condividi. Invia file. Ovunque tu sia.</strong><br><span>Presenta le tue idee su una lavagna digitale che arriva ovunque, modifica e firma i PDF con un gesto, invia e ricevi file pesanti senza pensieri. AirJotter mette tutto nel tuo browser: su PC, tablet e smartphone. Anche con la tua Pencil.</span></p></div><div class="aj-register-access-v22106131"><div class="welcome-google"><div id="ajGoogleNativeV3314" aria-label="Registrati con Google"></div><small id="googleStatus">Ti basta l'account Google che hai già.</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div><div class="aj-register-footer-v22106132">© 2026 AirJotter.com · info@airjotter.com · by DoMyTool.it</div></div></div>
@@ -7106,5 +7113,23 @@ document.documentElement.dataset.airjotterVersion='22.10.61.33.37';
 })();
 </script>
 <!-- AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_END -->
+
+<!-- AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_BEGIN -->
+<script id="AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_SCRIPT">
+(()=>{'use strict';
+ const login=document.getElementById('ajLogin');
+ const lobby=document.getElementById('ajLobby');
+ function sync(){
+  const loginOpen=!!login&&!login.classList.contains('aj-hidden');
+  const lobbyOpen=!!lobby&&!lobby.classList.contains('aj-hidden');
+  document.body.classList.toggle('aj-entry-screen-v2210613339',loginOpen||lobbyOpen);
+ }
+ for(const element of [login,lobby])if(element)new MutationObserver(sync).observe(element,{attributes:true,attributeFilter:['class']});
+ addEventListener('pageshow',sync);sync();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.39';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.39';
+})();
+</script>
+<!-- AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_END -->
 </body>
 </html>
