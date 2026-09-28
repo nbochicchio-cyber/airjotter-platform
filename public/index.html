@@ -2238,32 +2238,63 @@ function ajDrawImportedV219(ctx,cmd){
             const first=Math.max(0,Math.floor(viewTop/BASE_A4_H)-1),last=Math.min(TOTAL_PAGES-1,Math.floor(Math.max(viewTop,viewBottom-1)/BASE_A4_H)+1),set=new Set();for(let i=first;i<=last;i++)set.add(i);return set;
         }
         function ajPageCommandKeyV2265(pageIndex,cmds){return pageIndex+'#'+cmds.map(ajInkCommandKeyV218).join('|')}
-        function ajReleasePageEntryV2265(pageIndex){const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;try{e.canvas.remove();e.canvas.width=1;e.canvas.height=1}catch{}ajInkPageContextsV218.delete(pageIndex)}
+        function ajReleasePageEntryV2265(pageIndex){
+            const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;
+            try{
+                e.host?.remove();
+                for(const c of [e.backgroundCanvas,e.canvas])if(c){c.width=1;c.height=1;}
+            }catch{}
+            ajInkPageContextsV218.delete(pageIndex);
+        }
         function ajRenderInkPagesV215(force=false){
-            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector'),layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215();
-            if(!ajIOSVirtualV2265){const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');if(!force&&key===ajInkPagesKeyV215)return;ajInkPagesKeyV215=key;layer.replaceChildren();ajInkPageContextsV218.clear()}
-            else{for(const pageIndex of [...ajInkPageContextsV218.keys()])if(!pages.has(pageIndex))ajReleasePageEntryV2265(pageIndex)}
+            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector');
+            const layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265();
+            const foregroundRatio=ajIOSVirtualV2265?ajIOSPageDprV2265():Math.max(1,Math.min(2,window.devicePixelRatio||1));
+            const backgroundRatio=ajIOSVirtualV2265?1:Math.max(1,Math.min(1.5,window.devicePixelRatio||1));
+            if(!ajIOSVirtualV2265){
+                const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');
+                if(!force&&key===ajInkPagesKeyV215)return;
+                ajInkPagesKeyV215=key;layer.replaceChildren();
+                for(const pageIndex of [...ajInkPageContextsV218.keys()])ajReleasePageEntryV2265(pageIndex);
+            }else{
+                for(const pageIndex of [...ajInkPageContextsV218.keys()])if(!pages.has(pageIndex))ajReleasePageEntryV2265(pageIndex);
+            }
             for(const pageIndex of pages){
-                const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex)),pageKey=ajPageCommandKeyV2265(pageIndex,pageCommands),existing=ajInkPageContextsV218.get(pageIndex);
+                const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex));
+                const pageKey=ajPageCommandKeyV2265(pageIndex,pageCommands);
+                const existing=ajInkPageContextsV218.get(pageIndex);
                 if(existing&&!force&&existing.key===pageKey)continue;
                 if(existing)ajReleasePageEntryV2265(pageIndex);
                 if(!pageCommands.length)continue;
-                const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-                const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;continue}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
-                // v22.10.61.33.33: i contenuti importati in modalita Sotto vengono rasterizzati per primi.
-                // Durante questo passaggio sono forzati in source-over: l'ordine fisico dei comandi
-                // sostituisce destination-over ed evita che PDF multipagina opachi coprano testo,
-                // firme, foto, forme e inchiostro sui browser WebKit.
+
+                const host=document.createElement('div');
+                host.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block;pointer-events:none`;
+                const backgroundCanvas=document.createElement('canvas');
+                backgroundCanvas.width=Math.round(LOGICAL_W*backgroundRatio);backgroundCanvas.height=Math.round(BASE_A4_H*backgroundRatio);
+                backgroundCanvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none';
+                const canvas=document.createElement('canvas');
+                canvas.width=Math.round(LOGICAL_W*foregroundRatio);canvas.height=Math.round(BASE_A4_H*foregroundRatio);
+                canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none';
+                const backgroundCtx=backgroundCanvas.getContext('2d',{alpha:false});
+                const ctx=canvas.getContext('2d',{alpha:true});
+                if(!backgroundCtx||!ctx){backgroundCanvas.width=1;backgroundCanvas.height=1;canvas.width=1;canvas.height=1;continue;}
+                backgroundCtx.setTransform(1,0,0,1,0,0);backgroundCtx.fillStyle='#fff';backgroundCtx.fillRect(0,0,backgroundCanvas.width,backgroundCanvas.height);
+                backgroundCtx.setTransform(backgroundRatio,0,0,backgroundRatio,0,-pageIndex*BASE_A4_H*backgroundRatio);
+                ctx.setTransform(foregroundRatio,0,0,foregroundRatio,0,-pageIndex*BASE_A4_H*foregroundRatio);
                 const underCommands=pageCommands.filter(cmd=>cmd.type==='stamp'&&cmd.mode==='under');
                 const foregroundCommands=pageCommands.filter(cmd=>!(cmd.type==='stamp'&&cmd.mode==='under'));
-                for(const cmd of [...underCommands,...foregroundCommands]){
+                let previousDpr=dpr;dpr=backgroundRatio;
+                for(const cmd of underCommands)ajDrawImportedV219(backgroundCtx,{...cmd,mode:'over'});
+                dpr=foregroundRatio;
+                for(const cmd of foregroundCommands){
                     if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);
                     else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);
                     else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);
-                    else if(cmd.mode==='under')ajDrawImportedV219(ctx,{...cmd,mode:'over'});
                     else ajDrawImportedV219(ctx,cmd);
                 }
-                dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio,key:pageKey});layer.appendChild(canvas)
+                dpr=previousDpr;
+                host.append(backgroundCanvas,canvas);layer.appendChild(host);
+                ajInkPageContextsV218.set(pageIndex,{host,backgroundCanvas,backgroundCtx,canvas,ctx,ratio:foregroundRatio,backgroundRatio,key:pageKey});
             }
         }
         let ajVirtualRafV2265=0;function ajScheduleVirtualV2265(){if(!ajIOSVirtualV2265||ajVirtualRafV2265)return;ajVirtualRafV2265=requestAnimationFrame(()=>{ajVirtualRafV2265=0;ajRenderInkPagesV215(false)})}
@@ -7014,6 +7045,14 @@ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.33';
 document.documentElement.dataset.airjotterVersion='22.10.61.33.33';
 </script>
 <!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_END -->
+
+
+<!-- AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_BEGIN -->
+<script id="AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_VERSION">
+window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.36';
+document.documentElement.dataset.airjotterVersion='22.10.61.33.36';
+</script>
+<!-- AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_END -->
 
 </body>
 </html>
