@@ -6933,40 +6933,48 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <script id="AIRJOTTER_V2210613326_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.26';document.documentElement.dataset.airjotterVersion='22.10.61.33.26';</script>
 <!-- AIRJOTTER_V2210613326_END -->
 
-<!-- AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_BEGIN -->
-<script id="AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_SCRIPT">
+<!-- AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_BEGIN -->
+<style id="AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_STYLE">
+@media(min-width:761px){
+ #ajLobbyOwnedActionsV221060{position:relative!important;z-index:2147482000!important;pointer-events:auto!important}
+ #ajOpenOwnedBtnV221060{position:relative!important;z-index:2147482001!important;pointer-events:auto!important;cursor:pointer!important}
+}
+</style>
+<script id="AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_SCRIPT">
 (()=>{'use strict';
- const VERSION='22.10.61.33.27';
- let busy=false;
- async function openOwned(event){
-  if(!matchMedia('(min-width:761px)').matches)return;
-  const button=event.target.closest?.('#ajOpenOwnedBtnV221060');
-  if(!button)return;
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
-  if(busy)return;
-  busy=true;
-  const label=button.textContent;
-  button.disabled=true;
-  button.textContent='Apertura elenco...';
-  try{
+ const VERSION='22.10.61.33.28';
+ function openArchive(event){
+  if(innerWidth<=760)return;
+  event?.preventDefault();event?.stopPropagation();event?.stopImmediatePropagation();
+  const modal=document.getElementById('jotterArchiveModal');
+  if(modal){modal.style.setProperty('display','flex','important');modal.setAttribute('aria-hidden','false')}
+  const list=document.getElementById('jotterArchiveList');
+  const status=document.getElementById('jotterArchiveStatus');
+  if(list)list.replaceChildren();if(status)status.textContent='Caricamento...';
+  Promise.resolve().then(()=>{
    if(typeof window.ajLoadArchive!=='function')throw new Error('Archivio non inizializzato');
-   await window.ajLoadArchive();
-  }catch(error){
-   alert('Impossibile aprire i tuoi Jotter: '+error.message);
-  }finally{
-   button.disabled=false;
-   button.textContent=label;
-   busy=false;
-  }
+   return window.ajLoadArchive();
+  }).catch(error=>{if(status)status.textContent='Impossibile caricare i Jotter: '+error.message;else alert(error.message)});
+  return false;
  }
- document.addEventListener('click',openOwned,true);
- window.AIRJOTTER_FRONTEND_VERSION=VERSION;
- document.documentElement.dataset.airjotterVersion=VERSION;
+ function bind(){
+  if(innerWidth<=760)return;
+  const old=document.getElementById('ajOpenOwnedBtnV221060');if(!old||old.dataset.ajHardBindV28==='1')return;
+  const button=old.cloneNode(true);button.dataset.ajHardBindV28='1';button.hidden=false;button.disabled=false;
+  old.replaceWith(button);
+  button.onpointerdown=openArchive;
+  button.onmousedown=openArchive;
+  button.onclick=openArchive;
+  button.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')openArchive(event)},true);
+ }
+ const lobby=document.getElementById('ajLobby');
+ if(lobby)new MutationObserver(bind).observe(lobby,{childList:true,subtree:true,attributes:true});
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
+ addEventListener('pageshow',bind);setTimeout(bind,0);setTimeout(bind,500);
+ window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION;
 })();
 </script>
-<!-- AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_END -->
+<!-- AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_END -->
 
 </body>
 </html>
