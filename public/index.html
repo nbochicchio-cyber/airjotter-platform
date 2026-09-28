@@ -6906,53 +6906,6 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  .aj-ft-card-v2291{width:100%!important;max-width:760px!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 96px)!important;margin:0 auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
 }
 </style>
-<script id="AIRJOTTER_V2210613317_PAPER_RESTORE_SCRIPT">
-(()=>{'use strict';
- const KEY='aj-paper-format-v2210613317:';
- const currentBoardId=()=>window.ajBoard?.id||((typeof ajBoard!=='undefined'&&ajBoard)?ajBoard.id:null);
- function remember(){
-  const id=currentBoardId();if(!id)return;
-  const size=document.getElementById('ajPaperSizeV221042')?.value;
-  const orientation=document.getElementById('ajPaperOrientationV221042')?.value;
-  if(!size)return;
-  try{localStorage.setItem(KEY+id,JSON.stringify({global:{size,orientation:orientation==='landscape'?'landscape':'portrait'},pages:{}}))}catch{}
- }
- async function restore(boardId){
-  if(!boardId||!window.ajPaperV221042?.remote)return;
-  let state=null;
-  try{
-   const api=window.ajApi||(typeof ajApi==='function'?ajApi:null);
-   if(api){
-    const ops=await api('/api/boards/'+encodeURIComponent(boardId)+'/operations');
-    const paper=(Array.isArray(ops)?ops:[]).filter(op=>(op.operation_type||op.type)==='paper:set'&&op.is_active!==false).at(-1);
-    if(paper?.payload?.global)state=paper.payload;
-   }
-  }catch(error){console.debug('Ripristino formato Jotter:',error?.message||error)}
-  if(!state){try{state=JSON.parse(localStorage.getItem(KEY+boardId)||'null')}catch{}}
-  if(state?.global){
-   window.ajPaperV221042.remote(state);
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    document.getElementById('canvas-wrapper')?.style.setProperty('background-color','#fff','important');
-    window.handleResize?.();
-   }));
-  }
- }
- document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(remember,0),true);
- function install(){
-  const original=window.ajOpenBoard;
-  if(typeof original!=='function'||original.__ajPaperRestoreV2210613317)return false;
-  const wrapped=async function(board){const result=await original.apply(this,arguments);await restore(board?.id||currentBoardId());return result};
-  wrapped.__ajPaperRestoreV2210613317=true;window.ajOpenBoard=wrapped;return true;
- }
- if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>40)clearInterval(timer)},100)}
- const oldReload=window.ajReload;
- if(typeof oldReload==='function'&&!oldReload.__ajPaperRestoreV2210613317){
-  window.ajReload=async function(){const result=await oldReload.apply(this,arguments);await restore(currentBoardId());return result};
-  window.ajReload.__ajPaperRestoreV2210613317=true;
- }
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.17-smartphone-canvas-ft-paper';
-})();
-</script>
 <!-- AIRJOTTER_V2210613317_END -->
 <!-- AIRJOTTER_V2210613318_BEGIN -->
 <style id="AIRJOTTER_V2210613318_A3_WET_INK_FIX_STYLE">
@@ -7027,5 +6980,60 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613319_END -->
+<!-- AIRJOTTER_V2210613320_BEGIN -->
+<style id="AIRJOTTER_V2210613320_SPEED_PENCIL_STYLE">
+#jotterArchiveModal.aj-fast-open-v2210613320 #jotterArchiveStatus{display:block!important}
+</style>
+<script id="AIRJOTTER_V2210613320_SPEED_PENCIL_SCRIPT">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  // Archivio: apre direttamente la lista. Non apre piu l'ultimo Jotter prima dell'elenco.
+  const openBtn=document.getElementById('ajOpenOwnedBtnV221060');
+  if(openBtn){
+   openBtn.addEventListener('click',event=>{
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    const modal=document.getElementById('jotterArchiveModal'),status=document.getElementById('jotterArchiveStatus');
+    if(modal){modal.classList.add('aj-fast-open-v2210613320');modal.style.display='flex'}
+    if(status)status.textContent='Caricamento elenco Jotter...';
+    requestAnimationFrame(()=>window.ajLoadArchive?.());
+   },true);
+  }
+  // Apple Pencil: stabilizzazione moderata dei campioni reali prima del salvataggio.
+  const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
+  function stabilize(command){
+   if(!isIPad||command?.type!=='path'||command.isEraser||!Array.isArray(command.points)||command.points.length<5)return command;
+   const source=command.points, out=source.map(p=>({...p}));
+   for(let pass=0;pass<2;pass++){
+    const base=out.map(p=>({...p}));
+    for(let i=1;i<base.length-1;i++){
+     const a=base[i-1],b=base[i],c=base[i+1];
+     out[i].x=a.x*.16+b.x*.68+c.x*.16;
+     out[i].y=a.y*.16+b.y*.68+c.y*.16;
+     const targetW=a.w*.12+b.w*.76+c.w*.12;
+     out[i].w=Math.max(.55,targetW);
+    }
+   }
+   command.points=out;return command;
+  }
+  function install(){
+   const original=window.ajSendCommand||(typeof ajSendCommand==='function'?ajSendCommand:null);
+   if(typeof original!=='function'||original.__ajV2210613320)return false;
+   const wrapped=function(command){
+    stabilize(command);
+    const result=original.apply(this,arguments);
+    if(isIPad&&command?.type==='path')requestAnimationFrame(()=>{try{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';window.ajRenderInkPagesV215?.(true)}catch{}});
+    return result;
+   };
+   wrapped.__ajV2210613320=true;window.ajSendCommand=wrapped;
+   try{ajSendCommand=wrapped}catch{}
+   return true;
+  }
+  if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>50)clearInterval(timer)},100)}
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.20-fast-archive-pencil-stability';
+ });
+})();
+</script>
+<!-- AIRJOTTER_V2210613320_END -->
 </body>
 </html>
