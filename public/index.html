@@ -2202,7 +2202,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         let ajInkPagesKeyV215='';
         const ajInkPageContextsV218=new Map();
         function ajInkPageDprV215(){return 1;}
-        function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
+function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
         const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
         function ajCommandTouchesPageV218(cmd,pageIndex){
             const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
@@ -2219,18 +2219,8 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             const originX=cmd.x+(gl-gr)/2,firstBaseline=cmd.y+(ga-gd)/2;
             lines.forEach((line,i)=>{const baseline=firstBaseline+i*lineHeight;ctx.fillText(line,originX,baseline);if(cmd.isUnderline){const m=ctx.measureText(line),uy=baseline+Math.max(1,cmd.fontSize*.09);ctx.beginPath();ctx.moveTo(originX,uy);ctx.lineTo(originX+m.width,uy);ctx.strokeStyle=cmd.color;ctx.lineWidth=Math.max(1,cmd.fontSize/15);ctx.stroke();}});ctx.restore();
         }
-        function ajGetImportedImageV219(cmd){
- if(!cmd?.imageData)return null;
- let entry=ajImportedImageCacheV219.get(cmd.imageData);
- if(entry)return entry;
- const img=new Image();
- entry={img,ready:false,failed:false,last:performance.now()};
- ajImportedImageCacheV219.set(cmd.imageData,entry);
- ajImageQueueV2265.push({entry,src:cmd.imageData});
- ajPumpImageV2265();
- return entry;
-}
-        function ajDrawImportedV219(ctx,cmd){
+        function ajGetImportedImageV219(cmd){if(!cmd?.imageData)return null;let entry=ajImportedImageCacheV219.get(cmd.imageData);if(entry)return entry;const image=new Image();entry={img:image,ready:false,failed:false,last:performance.now()};ajImportedImageCacheV219.set(cmd.imageData,entry);image.decoding='async';image.onload=()=>{entry.ready=true;entry.last=performance.now();ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true))};image.onerror=()=>{entry.failed=true};image.src=cmd.imageData;return entry;}
+function ajDrawImportedV219(ctx,cmd){
             const entry=ajGetImportedImageV219(cmd);if(!entry?.ready)return;
             ctx.save();ctx.globalAlpha=1;ctx.globalCompositeOperation=cmd.mode==='under'?'destination-over':'source-over';ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
             ctx.drawImage(entry.img,Number(cmd.x)||0,Number(cmd.y)||0,Math.max(.1,Number(cmd.w)||1),Math.max(.1,Number(cmd.h)||1));ctx.restore();
@@ -7061,5 +7051,10 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613329_END -->
+<!-- AIRJOTTER_V2210613331_BEGIN -->
+<script id="AIRJOTTER_V2210613331_RADICAL">
+(()=>{'use strict';const VERSION='22.10.61.33.31';document.addEventListener('click',async e=>{const b=e.target.closest?.('#ajOpenOwnedBtnV221060');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(b.dataset.busy3331==='1')return;b.dataset.busy3331='1';const text=b.textContent;b.disabled=true;b.textContent='Apertura elenco...';try{if(typeof window.ajLoadArchive!=='function')throw Error('Archivio non inizializzato');await window.ajLoadArchive()}catch(x){alert('Impossibile aprire i tuoi Jotter: '+x.message)}finally{b.disabled=false;b.textContent=text;delete b.dataset.busy3331}},true);window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION})();
+</script>
+<!-- AIRJOTTER_V2210613331_END -->
 </body>
 </html>

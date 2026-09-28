@@ -7,7 +7,10 @@ const pool=new pg.Pool({connectionString:process.env.DATABASE_URL}); const googl
 const stripe=process.env.STRIPE_SECRET_KEY?new Stripe(process.env.STRIPE_SECRET_KEY):null;
 const appBaseUrl=process.env.APP_BASE_URL||process.env.APP_URL||'http://localhost:3000';
 app.post('/api/billing/stripe/webhook',express.raw({type:'application/json'}),stripeWebhookHandler);
-app.use(express.json({limit:'25mb'})); app.use(cookieParser()); app.use(express.static('public'));
+app.use(express.json({limit:'25mb'})); app.use(cookieParser()); // AIRJOTTER_V2210613331_NO_CACHE
+app.use((req,res,next)=>{if(req.path==='/'||req.path.endsWith('.html'))res.set('Cache-Control','no-store');next();});
+app.get('/api/frontend-version',(req,res)=>res.json({version:'22.10.61.33.31'}));
+app.use(express.static('public'));
 const codeAlphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function randomCode(){const b=crypto.randomBytes(8); let s=''; for(let i=0;i<8;i++)s+=codeAlphabet[b[i]%codeAlphabet.length]; return s.slice(0,4)+'-'+s.slice(4)}
 function tokenFor(u,identity={}){return jwt.sign({sub:u.id,email:u.email,name:u.display_name,authProvider:identity.authProvider||'dev',googleSub:identity.googleSub||'',emailVerified:Boolean(identity.emailVerified)},secret,{expiresIn:'7d'})}
