@@ -126,7 +126,6 @@
         .resize-handle svg { width: 14px; height: 14px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(60, 50, 80, 0.35); backdrop-filter: blur(6px); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
-        #jotterArchiveModal { z-index: 7000 !important; }
         .modal-content { background: white; padding: 28px; border-radius: 18px; text-align: center; max-width: 320px; width: 100%; box-shadow: var(--shadow-strong); }
         .aj-native-file-picker-v218{position:relative;display:inline-flex;flex:0 0 auto}
         .aj-native-file-picker-v218>input[type="file"]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;cursor:pointer!important;z-index:5!important;font-size:0!important}
@@ -667,6 +666,20 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
+<style id="AIRJOTTER_DESKTOP_STATIC_V206_STYLE">
+@media (min-width:761px){
+ html.aj-desktop-v204,html.aj-desktop-v204 body{min-width:0!important;overflow-x:hidden!important}
+ html.aj-desktop-v204 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important}
+ html.aj-desktop-v204 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important}
+ html.aj-desktop-v204 #mobileViewport::-webkit-scrollbar{display:none!important}
+ html.aj-desktop-v204 #mobileStageV109{position:relative!important;display:block!important;overflow:visible!important}
+ html.aj-desktop-v204 #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important}
+ #ajPcFitV204{min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important}
+ #ajPcFitV204 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
+ #ajPcScrollV195,#tabletFitBtnV15{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+}
+@media (min-width:761px){html.aj-windows-touch-v204 #mobileTopbar,html.aj-windows-touch-v204 .mobile-topbar,html.aj-windows-touch-v204 [id*="mobileFit"]{display:none!important;visibility:hidden!important}html.aj-windows-touch-v204 #mobileViewport{touch-action:none!important}}
+</style>
 <style id="AIRJOTTER_TABLET_TOOLBAR_V208_STYLE">
 /* AirJotter v20.7 - ripristino toolbar tablet, nessuna modifica a PC/notebook */
 @media (min-width:761px) and (pointer:coarse),
@@ -951,51 +964,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
 .aj-register-copy-v22106131 .welcome-lead br{display:block!important;margin:0!important}
 .aj-register-copy-v22106131 .welcome-lead span{display:inline!important;margin:0!important;color:#233f70!important;font:600 clamp(.96rem,1.42vw,1.14rem)/1.35 Inter,"Segoe UI",system-ui,sans-serif!important;letter-spacing:-.006em!important}
 @media(max-width:420px){#ajGoogleNativeV3314{width:232px!important;transform:translateX(-6px)!important}.aj-register-access-v22106131:before{font-size:.88rem!important}}
-</style>
-<style id="AIRJOTTER_V2210613337_DESKTOP_TOOLBAR_STACK_FIX_STYLE">
-@media (min-width:761px){
- body > header{
-  display:flex!important;visibility:visible!important;opacity:1!important;
-  z-index:11000!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  background:rgba(255,253,249,.99)!important;
-  isolation:isolate!important;
- }
- body.aj-text-editing-v2266g > header{z-index:11000!important}
-}
-</style>
-
-<style id="AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_STYLE">
-@media (min-width:761px){
- #ajPcFitV204{display:none!important;visibility:hidden!important;pointer-events:none!important}
- #brandBtn{cursor:pointer!important;pointer-events:auto!important}
-}
-</style>
-
-<style id="AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_STYLE">
-body.aj-entry-screen-v2210613339 > header,
-body.aj-entry-screen-v2210613339 #mobileTopbar{
- display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
-}
-</style>
-
-<style id="AIRJOTTER_V2210613340_LOGO_CENTER_RESET_STYLE">
-@media (min-width:761px){
- #canvas-wrapper{left:auto!important;right:auto!important;transform-origin:top center!important}
-}
-</style>
-
-<style id="AIRJOTTER_V2210613341_LOGO_TRUE_CENTER_STYLE">
-@media (min-width:761px){
- #canvas-wrapper.aj-logo-centered-v2210613341{
-  position:relative!important;
-  left:50%!important;right:auto!important;
-  margin-left:0!important;margin-right:0!important;
-  transform-origin:top center!important;
- }
-}
-</style>
-</head>
+</style></head>
 <body>
     <div id="ajLogin" class="aj-overlay"><div class="aj-card welcome-card aj-register-v22106131"><div class="aj-register-brand-v22106131"><img src="airjotter_logo.png" alt="airjotter.com" class="welcome-logo"><div class="welcome-badge">Tre strumenti. Una sola web app.</div></div><div class="aj-register-copy-v22106131"><div class="aj-register-features-v22106131" aria-label="Funzioni principali"><div><b>1</b><span><strong>Lavagna digitale condivisa via web</strong><small>Disegnate insieme sullo stesso foglio, anche da città diverse.</small></span></div><div><b>2</b><span><strong>Editor PDF con funzioni avanzate</strong><small>Firmi un contratto senza stamparlo né scansionarlo.</small></span></div><div><b>3</b><span><strong>File Transfer criptato fino a 5 GB</strong><small>Il file arriva dritto al dispositivo di chi deve riceverlo.</small></span></div></div><p class="welcome-lead"><strong>Scrivi. Condividi. Invia file. Ovunque tu sia.</strong><br><span>Presenta le tue idee su una lavagna digitale che arriva ovunque, modifica e firma i PDF con un gesto, invia e ricevi file pesanti senza pensieri. AirJotter mette tutto nel tuo browser: su PC, tablet e smartphone. Anche con la tua Pencil.</span></p></div><div class="aj-register-access-v22106131"><div class="welcome-google"><div id="ajGoogleNativeV3314" aria-label="Registrati con Google"></div><small id="googleStatus">Ti basta l'account Google che hai già.</small></div><div class="welcome-divider"><span>oppure</span></div><div id="devLogin" class="aj-hidden welcome-dev"><h2>Accesso test di sviluppo</h2><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div><button id="welcomeDiscoverBtn" class="welcome-discover" type="button" onclick="document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverModal').setAttribute('aria-hidden','false');">Scopri perché AirJotter può esserti utile</button></div><div class="aj-register-footer-v22106132">© 2026 AirJotter.com · info@airjotter.com · by DoMyTool.it</div></div></div>
     <div id="ajLobby" class="aj-overlay aj-hidden">
@@ -2232,8 +2201,8 @@ body.aj-entry-screen-v2210613339 #mobileTopbar{
         // Tratti, testo, firme, foto e PDF condividono lo stesso canvas: la gomma cancella ogni elemento.
         let ajInkPagesKeyV215='';
         const ajInkPageContextsV218=new Map();
-        function ajInkPageDprV215(){return 1;}
-function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
+        function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1,isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(isIPad)return 1;const pageArea=Math.max(1,LOGICAL_W*BASE_A4_H),safe=Math.sqrt(12000000/pageArea);return Math.max(1,Math.min(3,screenDpr,safe));}
+        function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
         const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
         function ajCommandTouchesPageV218(cmd,pageIndex){
             const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
@@ -2250,8 +2219,13 @@ function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPag
             const originX=cmd.x+(gl-gr)/2,firstBaseline=cmd.y+(ga-gd)/2;
             lines.forEach((line,i)=>{const baseline=firstBaseline+i*lineHeight;ctx.fillText(line,originX,baseline);if(cmd.isUnderline){const m=ctx.measureText(line),uy=baseline+Math.max(1,cmd.fontSize*.09);ctx.beginPath();ctx.moveTo(originX,uy);ctx.lineTo(originX+m.width,uy);ctx.strokeStyle=cmd.color;ctx.lineWidth=Math.max(1,cmd.fontSize/15);ctx.stroke();}});ctx.restore();
         }
-        function ajGetImportedImageV219(cmd){if(!cmd?.imageData)return null;let entry=ajImportedImageCacheV219.get(cmd.imageData);if(entry)return entry;const image=new Image();entry={img:image,ready:false,failed:false,last:performance.now()};ajImportedImageCacheV219.set(cmd.imageData,entry);image.decoding='async';image.onload=()=>{entry.ready=true;entry.last=performance.now();ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true))};image.onerror=()=>{entry.failed=true};image.src=cmd.imageData;return entry;}
-function ajDrawImportedV219(ctx,cmd){
+        function ajGetImportedImageV219(cmd){
+            if(!cmd?.imageData)return null;
+            let entry=ajImportedImageCacheV219.get(cmd.imageData);
+            if(entry)return entry;
+            const img=new Image();entry={img,ready:false,failed:false,last:performance.now()};ajImportedImageCacheV219.set(cmd.imageData,entry);if(ajIOSVirtualV2265){ajImageQueueV2265.push({entry,src:cmd.imageData});ajPumpImageV2265()}else{img.onload=()=>{entry.ready=true;entry.last=performance.now();ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true))};img.onerror=()=>{entry.failed=true};img.src=cmd.imageData}return entry;
+        }
+        function ajDrawImportedV219(ctx,cmd){
             const entry=ajGetImportedImageV219(cmd);if(!entry?.ready)return;
             ctx.save();ctx.globalAlpha=1;ctx.globalCompositeOperation=cmd.mode==='under'?'destination-over':'source-over';ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
             ctx.drawImage(entry.img,Number(cmd.x)||0,Number(cmd.y)||0,Math.max(.1,Number(cmd.w)||1),Math.max(.1,Number(cmd.h)||1));ctx.restore();
@@ -2282,63 +2256,20 @@ function ajDrawImportedV219(ctx,cmd){
             const first=Math.max(0,Math.floor(viewTop/BASE_A4_H)-1),last=Math.min(TOTAL_PAGES-1,Math.floor(Math.max(viewTop,viewBottom-1)/BASE_A4_H)+1),set=new Set();for(let i=first;i<=last;i++)set.add(i);return set;
         }
         function ajPageCommandKeyV2265(pageIndex,cmds){return pageIndex+'#'+cmds.map(ajInkCommandKeyV218).join('|')}
-        function ajReleasePageEntryV2265(pageIndex){
-            const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;
-            try{
-                e.host?.remove();
-                for(const c of [e.backgroundCanvas,e.canvas])if(c){c.width=1;c.height=1;}
-            }catch{}
-            ajInkPageContextsV218.delete(pageIndex);
-        }
+        function ajReleasePageEntryV2265(pageIndex){const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;try{e.canvas.remove();e.canvas.width=1;e.canvas.height=1}catch{}ajInkPageContextsV218.delete(pageIndex)}
         function ajRenderInkPagesV215(force=false){
-            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector');
-            const layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265();
-            const foregroundRatio=ajIOSVirtualV2265?ajIOSPageDprV2265():Math.max(1,Math.min(2,window.devicePixelRatio||1));
-            const backgroundRatio=ajIOSVirtualV2265?1:Math.max(1,Math.min(1.5,window.devicePixelRatio||1));
-            if(!ajIOSVirtualV2265){
-                const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');
-                if(!force&&key===ajInkPagesKeyV215)return;
-                ajInkPagesKeyV215=key;layer.replaceChildren();
-                for(const pageIndex of [...ajInkPageContextsV218.keys()])ajReleasePageEntryV2265(pageIndex);
-            }else{
-                for(const pageIndex of [...ajInkPageContextsV218.keys()])if(!pages.has(pageIndex))ajReleasePageEntryV2265(pageIndex);
-            }
+            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector'),layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215();
+            if(!ajIOSVirtualV2265){const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');if(!force&&key===ajInkPagesKeyV215)return;ajInkPagesKeyV215=key;layer.replaceChildren();ajInkPageContextsV218.clear()}
+            else{for(const pageIndex of [...ajInkPageContextsV218.keys()])if(!pages.has(pageIndex))ajReleasePageEntryV2265(pageIndex)}
             for(const pageIndex of pages){
-                const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex));
-                const pageKey=ajPageCommandKeyV2265(pageIndex,pageCommands);
-                const existing=ajInkPageContextsV218.get(pageIndex);
+                const pageCommands=inkCommands.filter(cmd=>ajCommandTouchesPageV218(cmd,pageIndex)),pageKey=ajPageCommandKeyV2265(pageIndex,pageCommands),existing=ajInkPageContextsV218.get(pageIndex);
                 if(existing&&!force&&existing.key===pageKey)continue;
                 if(existing)ajReleasePageEntryV2265(pageIndex);
                 if(!pageCommands.length)continue;
-
-                const host=document.createElement('div');
-                host.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block;pointer-events:none`;
-                const backgroundCanvas=document.createElement('canvas');
-                backgroundCanvas.width=Math.round(LOGICAL_W*backgroundRatio);backgroundCanvas.height=Math.round(BASE_A4_H*backgroundRatio);
-                backgroundCanvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none';
-                const canvas=document.createElement('canvas');
-                canvas.width=Math.round(LOGICAL_W*foregroundRatio);canvas.height=Math.round(BASE_A4_H*foregroundRatio);
-                canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none';
-                const backgroundCtx=backgroundCanvas.getContext('2d',{alpha:false});
-                const ctx=canvas.getContext('2d',{alpha:true});
-                if(!backgroundCtx||!ctx){backgroundCanvas.width=1;backgroundCanvas.height=1;canvas.width=1;canvas.height=1;continue;}
-                backgroundCtx.setTransform(1,0,0,1,0,0);backgroundCtx.fillStyle='#fff';backgroundCtx.fillRect(0,0,backgroundCanvas.width,backgroundCanvas.height);
-                backgroundCtx.setTransform(backgroundRatio,0,0,backgroundRatio,0,-pageIndex*BASE_A4_H*backgroundRatio);
-                ctx.setTransform(foregroundRatio,0,0,foregroundRatio,0,-pageIndex*BASE_A4_H*foregroundRatio);
-                const underCommands=pageCommands.filter(cmd=>cmd.type==='stamp'&&cmd.mode==='under');
-                const foregroundCommands=pageCommands.filter(cmd=>!(cmd.type==='stamp'&&cmd.mode==='under'));
-                let previousDpr=dpr;dpr=backgroundRatio;
-                for(const cmd of underCommands)ajDrawImportedV219(backgroundCtx,{...cmd,mode:'over'});
-                dpr=foregroundRatio;
-                for(const cmd of foregroundCommands){
-                    if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);
-                    else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);
-                    else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);
-                    else ajDrawImportedV219(ctx,cmd);
-                }
-                dpr=previousDpr;
-                host.append(backgroundCanvas,canvas);layer.appendChild(host);
-                ajInkPageContextsV218.set(pageIndex,{host,backgroundCanvas,backgroundCtx,canvas,ctx,ratio:foregroundRatio,backgroundRatio,key:pageKey});
+                const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
+                const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;continue}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
+                for(const cmd of pageCommands){if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);else ajDrawImportedV219(ctx,cmd)}
+                dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio,key:pageKey});layer.appendChild(canvas)
             }
         }
         let ajVirtualRafV2265=0;function ajScheduleVirtualV2265(){if(!ajIOSVirtualV2265||ajVirtualRafV2265)return;ajVirtualRafV2265=requestAnimationFrame(()=>{ajVirtualRafV2265=0;ajRenderInkPagesV215(false)})}
@@ -2438,25 +2369,7 @@ function ajDrawImportedV219(ctx,cmd){
             const logicalY=Math.max(0,Math.min(LOGICAL_H-1,(screenY-wr.top)/scaleY));
             return Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(logicalY/BASE_A4_H)));
         }
-        // v22.10.61.33.33: pagina stabile aggiornata prima dell'apertura del file picker.
-        // Il target viene congelato al primo evento e non viene sovrascritto dal click successivo,
-        // che su Safari/WebKit puo avvenire dopo uno scroll automatico verso l'header fisso.
-        let ajStablePageV231=ajCurrentVisiblePageV231(),ajStablePageRafV231=0;
-        function ajUpdateStablePageV231(){
-            if(ajImportTargetPageV231!==null)return;
-            ajStablePageV231=ajCurrentVisiblePageV231();
-        }
-        function ajScheduleStablePageV231(){
-            if(ajStablePageRafV231)return;
-            ajStablePageRafV231=requestAnimationFrame(()=>{ajStablePageRafV231=0;ajUpdateStablePageV231()});
-        }
-        addEventListener('scroll',ajScheduleStablePageV231,{passive:true});
-        document.getElementById('mobileViewport')?.addEventListener('scroll',ajScheduleStablePageV231,{passive:true});
-        addEventListener('resize',ajScheduleStablePageV231,{passive:true});
-        setInterval(ajUpdateStablePageV231,300);
-        function ajCaptureImportPageV231(){
-            if(ajImportTargetPageV231===null)ajImportTargetPageV231=ajStablePageV231;
-        }
+        function ajCaptureImportPageV231(){ajImportTargetPageV231=ajCurrentVisiblePageV231();}
         ['fileInputPdf','fileInputSign','fileInputRealImg'].forEach(id=>{
             const input=document.getElementById(id);if(!input)return;
             input.addEventListener('pointerdown',ajCaptureImportPageV231,true);
@@ -2935,7 +2848,7 @@ function ajDrawImportedV219(ctx,cmd){
         const ajSocket = io({autoConnect:false,retries:3,ackTimeout:10000});
         let ajMe = null, ajBoard = null, ajRole = 'viewer', ajRemote = false;
         const ajApi = async (url, options = {}) => {
-            const response = await fetch(url, { cache:'no-store', headers: { 'Content-Type': 'application/json', 'Cache-Control':'no-cache' }, ...options });
+            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(data.error || response.statusText);
             return data;
@@ -3017,26 +2930,19 @@ function ajDrawImportedV219(ctx,cmd){
             ajRemote = false;
         }
         async function ajReload() {
- if(!ajBoard)return;
- commands=[];redoCommands=[];TOTAL_PAGES=2;
- const operations=await ajApi(`/api/boards/${ajBoard.id}/operations?_=${Date.now()}`,{cache:'no-store'});
- ajBatchApply=true;
- try{operations.filter(x=>x.is_active!==false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)})}
- finally{ajBatchApply=false;}
- let inferred=1;
- for(const c of commands){
-  if(!c)continue;
-  let bottom=0;
-  if(c.type==='path'&&Array.isArray(c.points)&&c.points.length)bottom=Math.max(...c.points.map(p=>Number(p.y)||0));
-  else if(['stamp','text','shape','connector'].includes(c.type))bottom=Math.max(Number(c.y)||0,Number(c.y2)||0)+(Number(c.h)||0);
-  inferred=Math.max(inferred,Math.floor(Math.max(0,bottom-1)/BASE_A4_H)+1);
- }
- TOTAL_PAGES=Math.max(TOTAL_PAGES,inferred);
- document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;
- initCanvas();redrawMainCanvas();
- if(!commands.some(c=>c&&['path','text','stamp','shape','connector'].includes(c.type)))requestAnimationFrame(()=>window.ajPaperV221042?.remote({global:{size:'A4',orientation:'portrait'},pages:{}}));
-}
-function ajShowJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.add('aj-show-v223');o.setAttribute('aria-hidden','false')}}
+            if (!ajBoard) return;
+            commands=[]; redoCommands=[]; TOTAL_PAGES=2;
+            const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
+            ajBatchApply = true;
+            try { operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)}); } finally { ajBatchApply = false; }
+            initCanvas(); redrawMainCanvas();
+            // Ogni Jotter realmente privo di elementi grafici apre in A4 verticale,
+            // indipendentemente dal formato storico salvato. I Jotter con contenuto non cambiano.
+            if(!commands.some(c=>c&&['path','text','stamp','shape','connector'].includes(c.type))){
+                requestAnimationFrame(()=>window.ajPaperV221042?.remote({global:{size:'A4',orientation:'portrait'},pages:{}}));
+            }
+        }
+        function ajShowJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.add('aj-show-v223');o.setAttribute('aria-hidden','false')}}
         function ajHideJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.remove('aj-show-v223');o.setAttribute('aria-hidden','true')}}
         async function ajOpenBoard(board) {
             ajShowJotterLoadingV223();
@@ -3919,6 +3825,81 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  window.AIRJOTTER_IPAD_INK={version:'19.2',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
 })();
 </script>
+<script id="AIRJOTTER_DESKTOP_STATIC_V206">
+(function(){
+ 'use strict';
+ const ipadOS=navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1;const touchFirst=matchMedia('(pointer:coarse)').matches&&!/Windows/i.test(navigator.userAgent);const desktop=innerWidth>760&&!ipadOS&&!touchFirst&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
+ const touchPC=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
+ document.documentElement.classList.add('aj-desktop-v204');if(touchPC)document.documentElement.classList.add('aj-windows-touch-v204');
+ const header=document.querySelector('header'),vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),fit=document.getElementById('ajPcFitV204');if(!header||!vp||!stage||!wrapper||!fit)return;
+ function clean(){document.querySelectorAll('#ajPcScrollV195,#tabletFitBtnV15').forEach(x=>x.remove());if(touchPC){document.querySelectorAll('#mobileTopbar,[id*="mobileFit"]').forEach(x=>x.remove())}}
+ clean();
+ let pageScale=Math.max(.18,wrapper.getBoundingClientRect().width/LOGICAL_W||1),timer=0;
+ function vw(){return Math.max(360,(visualViewport?.width||document.documentElement.clientWidth||innerWidth)-24)}
+ function fitBar(){
+  header.style.setProperty('display','flex','important');header.style.setProperty('visibility','visible','important');header.style.setProperty('opacity','1','important');
+  header.style.setProperty('left','50%','important');header.style.setProperty('right','auto','important');header.style.setProperty('width','max-content','important');header.style.setProperty('max-width','none','important');header.style.setProperty('overflow','visible','important');header.style.setProperty('flex-wrap','nowrap','important');header.style.zoom='1';
+  header.style.setProperty('transform','translateX(-50%) scale(1)','important');void header.offsetWidth;
+  const natural=Math.max(header.scrollWidth,header.offsetWidth,1),k=Math.min(1,vw()/natural);
+  header.style.setProperty('transform','translateX(-50%) scale('+k+')','important');
+  return header.getBoundingClientRect();
+ }
+ function geometry(s){
+  pageScale=Math.max(.18,Math.min(4,Number(s)||1));
+  stage.style.setProperty('width',Math.round(LOGICAL_W*pageScale)+'px','important');stage.style.setProperty('height',Math.round(LOGICAL_H*pageScale)+'px','important');
+  stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important');
+  wrapper.style.setProperty('width',LOGICAL_W+'px','important');wrapper.style.setProperty('height',LOGICAL_H+'px','important');wrapper.style.setProperty('transform','scale('+pageScale+')','important');wrapper.style.setProperty('transform-origin','top left','important');wrapper.style.setProperty('margin','0','important');
+ }
+ function relayout(center){
+  clean();
+  const b=fitBar();
+  vp.style.setProperty('padding-top',Math.ceil(b.bottom+18)+'px','important');
+  const wide=stage.offsetWidth>vp.clientWidth-24;
+  // When zoomed, use a real left origin so scrollLeft can reach the whole right side.
+  // Recenter only when the complete page fits again, or when Adatta pagina explicitly requests it.
+  stage.style.setProperty('margin-left',wide?'12px':'auto','important');
+  stage.style.setProperty('margin-right',wide?'12px':'auto','important');
+  if(center&&!wide)vp.scrollLeft=0;
+ }
+ function adapt(){fitBar();geometry(Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W)));requestAnimationFrame(()=>requestAnimationFrame(()=>{relayout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}))}
+ function zoom(next,x){const before=pageScale,r=vp.getBoundingClientRect(),anchor=Math.max(0,Math.min(vp.clientWidth,(x||r.left+vp.clientWidth/2)-r.left)),docX=(vp.scrollLeft+anchor)/before;geometry(next);relayout(false);vp.scrollLeft=Math.max(0,docX*pageScale-anchor)}
+ fit.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();adapt()},true);
+ document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();e.stopImmediatePropagation();zoom(pageScale*(e.deltaY<0?1.12:1/1.12),e.clientX)},{capture:true,passive:false});
+ document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();zoom(pageScale*1.12)}else if(e.key==='-'){e.preventDefault();zoom(pageScale/1.12)}},true);
+ // Windows 2-in-1 touchpad: explicitly route two-finger wheel deltas.
+ // Vertical deltas scroll the document; horizontal deltas pan the A4 viewport.
+ let padX=0,padY=0,padRaf=0;
+ function flushTouchpad(){
+  padRaf=0;
+  const root=document.scrollingElement||document.documentElement;
+  if(padX)vp.scrollLeft=Math.max(0,Math.min(vp.scrollWidth-vp.clientWidth,vp.scrollLeft+padX));
+  if(padY)root.scrollTop=Math.max(0,Math.min(root.scrollHeight-root.clientHeight,root.scrollTop+padY));
+  padX=0;padY=0;
+ }
+ if(touchPC){
+  window.addEventListener('wheel',e=>{
+   if(e.ctrlKey)return;
+   if(e.target&&e.target.closest&&e.target.closest('dialog,input,textarea,select,[contenteditable=\"true\"],.modal,.aj-overlay'))return;
+   const mul=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
+   padX+=e.deltaX*mul;padY+=e.deltaY*mul;
+   if(e.cancelable)e.preventDefault();
+   e.stopImmediatePropagation();
+   if(!padRaf)padRaf=requestAnimationFrame(flushTouchpad);
+  },{capture:true,passive:false});
+ }
+ let g=null,pending=null,raf=0;
+ const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}),dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
+ function paint(){raf=0;const p=pending;pending=null;if(!g||!p)return;const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,g.scale*p.distance/g.distance));geometry(next);vp.scrollLeft=Math.max(0,g.left-(p.center.x-g.center.x)+(next-g.scale)*(g.center.x/g.scale));root.scrollTop=Math.max(0,g.top-(p.center.y-g.center.y)+(next-g.scale)*(g.center.y/g.scale));relayout(false)}
+ if(touchPC){
+  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;g={center:mid(e.touches),distance:dist(e.touches),scale:pageScale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  window.addEventListener('touchmove',e=>{if(!g||e.touches.length!==2)return;pending={center:mid(e.touches),distance:dist(e.touches)};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  const end=e=>{if(!g||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}g=null;pending=null;relayout(true)};window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
+ }
+ new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});
+ function resize(){clearTimeout(timer);requestAnimationFrame(()=>relayout(true));timer=setTimeout(()=>relayout(true),150)}window.addEventListener('resize',resize,{passive:true});visualViewport?.addEventListener('resize',resize,{passive:true});
+ const old=initCanvas;initCanvas=function(){const z=pageScale,r=old.apply(this,arguments);geometry(z);requestAnimationFrame(()=>relayout(true));return r};adapt();
+})();
+</script>
 <script id="AIRJOTTER_TABLET_TOOLBAR_V208">
 (function(){
  'use strict';
@@ -4169,10 +4150,10 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
  const card=document.getElementById('text-tool-overlay'),lens=document.getElementById('ajTextAnchorV2266f'),grip=document.getElementById('ajTextCardResizeV2266h'),input=document.getElementById('text-tool-input'),picker=document.getElementById('text-color-picker'),menu=document.getElementById('ajTextColorMenuV2266i'),popover=document.getElementById('ajTextColorPopoverV2266i');if(!card||!lens||!grip||!menu||!popover)return;
  // Palette is closed by default and opens only from the black COLORE control.
  popover.classList.remove('open');popover.setAttribute('aria-hidden','true');
- const setColor=(c,notify=true)=>{if(!c)return;const changed=picker.value.toLowerCase()!==String(c).toLowerCase();picker.value=c;menu.style.setProperty('--aj-selected-text-color',c);input.style.color=c;document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajTextColor.toLowerCase()===String(c).toLowerCase()));if(notify&&changed)picker.dispatchEvent(new Event('input',{bubbles:true}))};
+ const setColor=c=>{picker.value=c;menu.style.setProperty('--aj-selected-text-color',c);input.style.color=c;document.querySelectorAll('[data-aj-text-color]').forEach(x=>x.classList.toggle('active',x.dataset.ajTextColor.toLowerCase()===c.toLowerCase()));picker.dispatchEvent(new Event('input',{bubbles:true}))};
  menu.addEventListener('pointerdown',e=>{e.preventDefault();e.stopImmediatePropagation();const open=!popover.classList.contains('open');popover.classList.toggle('open',open);popover.setAttribute('aria-hidden',open?'false':'true')},true);
  document.querySelectorAll('[data-aj-text-color]').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setColor(b.dataset.ajTextColor);popover.classList.remove('open');popover.setAttribute('aria-hidden','true')}));
- document.getElementById('ajTextCustomColorV2266i').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();picker.click()});picker.addEventListener('input',()=>setColor(picker.value,false));document.addEventListener('pointerdown',e=>{if(!e.target.closest('.aj-text-color-control-v2266i')){popover.classList.remove('open');popover.setAttribute('aria-hidden','true')}},true);setColor(picker.value||'#1D1D1F');
+ document.getElementById('ajTextCustomColorV2266i').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();picker.click()});picker.addEventListener('input',()=>setColor(picker.value));document.addEventListener('pointerdown',e=>{if(!e.target.closest('.aj-text-color-control-v2266i')){popover.classList.remove('open');popover.setAttribute('aria-hidden','true')}},true);setColor(picker.value||'#1D1D1F');
  // Exact lens point: OFFSET places the center 12.5px beyond the perimeter.
  const OFFSET=12.5,R=25;let dragging=false,pid=0;
  function place(x,y){const w=card.offsetWidth,h=card.offsetHeight;const cx=Math.max(0,Math.min(w,x)),cy=Math.max(0,Math.min(h,y)),d=[cx,w-cx,cy,h-cy],m=Math.min(...d);let edge,ax=cx,ay=cy;if(m===d[0]){edge='left';ax=-OFFSET}else if(m===d[1]){edge='right';ax=w+OFFSET}else if(m===d[2]){edge='top';ay=-OFFSET}else{edge='bottom';ay=h+OFFSET}lens.dataset.anchorX=ax;lens.dataset.anchorY=ay;lens.dataset.edge=edge;lens.style.left=(ax-R)+'px';lens.style.top=(ay-R)+'px';const label=lens.querySelector('b');label.style.left=label.style.right=label.style.top=label.style.bottom='auto';if(edge==='left'){label.style.left=(R*2+12)+'px';label.style.top='2px'}else if(edge==='right'){label.style.right=(R*2+12)+'px';label.style.top='2px'}else if(edge==='top'){label.style.left=(R*2+12)+'px';label.style.top='2px'}else{label.style.left=(R*2+12)+'px';label.style.bottom='2px'}}
@@ -4396,7 +4377,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
 #colorPicker{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}.aj-main-color-v2287{position:relative;display:inline-flex}.aj-main-color-button-v2287{width:30px;height:30px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--c,#1D1D1F);box-shadow:0 0 0 1px #aebbd0,0 3px 8px rgba(20,42,75,.2);cursor:pointer}.aj-main-palette-v2287{display:none;position:absolute;left:50%;top:40px;transform:translateX(-50%);z-index:50000;width:252px;padding:11px;border:1px solid #c8d5e7;border-radius:14px;background:#fff;box-shadow:0 14px 35px rgba(20,42,75,.25)}.aj-main-palette-v2287.open{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.aj-main-swatch-v2287{width:26px;height:26px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--c);box-shadow:0 0 0 1px #aebbd0;cursor:pointer}.aj-main-swatch-v2287.active{box-shadow:0 0 0 3px #1769e8}.aj-main-custom-v2287{grid-column:1/-1;min-height:39px;border:1px solid #bdcbe0;border-radius:9px;background:#f4f7fb;color:#173f72;font-weight:800;cursor:pointer}
 </style>
 <script id="AIRJOTTER_V2287_SCRIPT">
-(()=>{const input=document.getElementById('colorPicker');if(!input||document.getElementById('ajMainColorV2287'))return;const wrap=document.createElement('span');wrap.id='ajMainColorV2287';wrap.className='aj-main-color-v2287';const main=document.createElement('button');main.type='button';main.className='aj-main-color-button-v2287';main.title='Colori standard e Tavolozza';const palette=document.createElement('span');palette.className='aj-main-palette-v2287';palette.setAttribute('aria-hidden','true');const colors=[['#1D1D1F','Nero'],['#FFFFFF','Bianco'],['#1769E8','Blu'],['#D92D20','Rosso'],['#176B3A','Verde'],['#E87500','Arancione'],['#F4C430','Giallo']];const select=(c,notify=true)=>{if(!c)return;const changed=input.value.toLowerCase()!==String(c).toLowerCase();input.value=c;main.style.setProperty('--c',c);palette.querySelectorAll('[data-color]').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===String(c).toLowerCase()));if(notify&&changed)input.dispatchEvent(new Event('input',{bubbles:true}))};colors.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.color=c;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=e=>{e.stopPropagation();select(c);palette.classList.remove('open')};palette.appendChild(b)});const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.textContent='Tavolozza…';custom.onclick=e=>{e.stopPropagation();input.click()};palette.appendChild(custom);main.onclick=e=>{e.stopPropagation();palette.classList.toggle('open');palette.setAttribute('aria-hidden',String(!palette.classList.contains('open')))};input.parentNode.insertBefore(wrap,input);wrap.append(main,input,palette);input.addEventListener('input',()=>select(input.value,false));document.addEventListener('pointerdown',e=>{if(!e.target.closest('#ajMainColorV2287'))palette.classList.remove('open')},true);select(input.value||'#1D1D1F');window.AIRJOTTER_FRONTEND_VERSION='22.8.7'})();
+(()=>{const input=document.getElementById('colorPicker');if(!input||document.getElementById('ajMainColorV2287'))return;const wrap=document.createElement('span');wrap.id='ajMainColorV2287';wrap.className='aj-main-color-v2287';const main=document.createElement('button');main.type='button';main.className='aj-main-color-button-v2287';main.title='Colori standard e Tavolozza';const palette=document.createElement('span');palette.className='aj-main-palette-v2287';palette.setAttribute('aria-hidden','true');const colors=[['#1D1D1F','Nero'],['#FFFFFF','Bianco'],['#1769E8','Blu'],['#D92D20','Rosso'],['#176B3A','Verde'],['#E87500','Arancione'],['#F4C430','Giallo']];const select=c=>{input.value=c;main.style.setProperty('--c',c);input.dispatchEvent(new Event('input',{bubbles:true}));palette.querySelectorAll('[data-color]').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===c.toLowerCase()))};colors.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.color=c;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=e=>{e.stopPropagation();select(c);palette.classList.remove('open')};palette.appendChild(b)});const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.textContent='Tavolozza…';custom.onclick=e=>{e.stopPropagation();input.click()};palette.appendChild(custom);main.onclick=e=>{e.stopPropagation();palette.classList.toggle('open');palette.setAttribute('aria-hidden',String(!palette.classList.contains('open')))};input.parentNode.insertBefore(wrap,input);wrap.append(main,input,palette);input.addEventListener('input',()=>select(input.value));document.addEventListener('pointerdown',e=>{if(!e.target.closest('#ajMainColorV2287'))palette.classList.remove('open')},true);select(input.value||'#1D1D1F');window.AIRJOTTER_FRONTEND_VERSION='22.8.7'})();
 </script>
 
 <div id="ajFileTransferModalV2291" class="aj-ft-overlay-v2291" role="dialog" aria-modal="true" aria-labelledby="ajFtTitleV2291">
@@ -6773,7 +6754,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   const open=document.getElementById('ajOpenOwnedBtnV221060'),create=document.getElementById('newBtn');if(!open||!create||typeof window.ajApi!=='function')return;
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
- document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{await window.ajLoadArchive()});
+ document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{const button=document.getElementById('ajOpenOwnedBtnV221060');button.disabled=true;const label=button.textContent;button.textContent='Apertura...';try{const all=await ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),latest=[...owned].sort((a,b)=>new Date(b.contentUpdatedAt||b.updatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.updatedAt||a.createdAt))[0];if(!latest?.roomCode)throw new Error('Nessun Jotter disponibile');await ajJoin(latest.roomCode);await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));await window.ajLoadArchive()}catch(error){alert('Impossibile aprire i tuoi Jotter: '+error.message)}finally{button.disabled=false;button.textContent=label}});
  const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
@@ -6925,6 +6906,53 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  .aj-ft-card-v2291{width:100%!important;max-width:760px!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 96px)!important;margin:0 auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
 }
 </style>
+<script id="AIRJOTTER_V2210613317_PAPER_RESTORE_SCRIPT">
+(()=>{'use strict';
+ const KEY='aj-paper-format-v2210613317:';
+ const currentBoardId=()=>window.ajBoard?.id||((typeof ajBoard!=='undefined'&&ajBoard)?ajBoard.id:null);
+ function remember(){
+  const id=currentBoardId();if(!id)return;
+  const size=document.getElementById('ajPaperSizeV221042')?.value;
+  const orientation=document.getElementById('ajPaperOrientationV221042')?.value;
+  if(!size)return;
+  try{localStorage.setItem(KEY+id,JSON.stringify({global:{size,orientation:orientation==='landscape'?'landscape':'portrait'},pages:{}}))}catch{}
+ }
+ async function restore(boardId){
+  if(!boardId||!window.ajPaperV221042?.remote)return;
+  let state=null;
+  try{
+   const api=window.ajApi||(typeof ajApi==='function'?ajApi:null);
+   if(api){
+    const ops=await api('/api/boards/'+encodeURIComponent(boardId)+'/operations');
+    const paper=(Array.isArray(ops)?ops:[]).filter(op=>(op.operation_type||op.type)==='paper:set'&&op.is_active!==false).at(-1);
+    if(paper?.payload?.global)state=paper.payload;
+   }
+  }catch(error){console.debug('Ripristino formato Jotter:',error?.message||error)}
+  if(!state){try{state=JSON.parse(localStorage.getItem(KEY+boardId)||'null')}catch{}}
+  if(state?.global){
+   window.ajPaperV221042.remote(state);
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.getElementById('canvas-wrapper')?.style.setProperty('background-color','#fff','important');
+    window.handleResize?.();
+   }));
+  }
+ }
+ document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(remember,0),true);
+ function install(){
+  const original=window.ajOpenBoard;
+  if(typeof original!=='function'||original.__ajPaperRestoreV2210613317)return false;
+  const wrapped=async function(board){const result=await original.apply(this,arguments);await restore(board?.id||currentBoardId());return result};
+  wrapped.__ajPaperRestoreV2210613317=true;window.ajOpenBoard=wrapped;return true;
+ }
+ if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>40)clearInterval(timer)},100)}
+ const oldReload=window.ajReload;
+ if(typeof oldReload==='function'&&!oldReload.__ajPaperRestoreV2210613317){
+  window.ajReload=async function(){const result=await oldReload.apply(this,arguments);await restore(currentBoardId());return result};
+  window.ajReload.__ajPaperRestoreV2210613317=true;
+ }
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.17-smartphone-canvas-ft-paper';
+})();
+</script>
 <!-- AIRJOTTER_V2210613317_END -->
 <!-- AIRJOTTER_V2210613318_BEGIN -->
 <style id="AIRJOTTER_V2210613318_A3_WET_INK_FIX_STYLE">
@@ -6999,281 +7027,5 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613319_END -->
-<!-- AIRJOTTER_V2210613321_BEGIN -->
-<script id="AIRJOTTER_V2210613321_IDENTICAL_WET_DRY_SCRIPT">
-(()=>{'use strict';
- // Il tratto definitivo usa gli stessi punti e le stesse larghezze del tratto live.
- // Nessuna stabilizzazione, trasformazione o ridisegno successivo al pointerup.
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.21-identical-wet-dry-stroke';
-})();
-</script>
-<!-- AIRJOTTER_V2210613321_END -->
-<!-- AIRJOTTER_V2210613326_BEGIN -->
-<style id="AIRJOTTER_V2210613326_REAL_PLANS_MODAL_OFFSET_STYLE">
-@media(max-width:760px){
- #ajPlansModalV220{
-  position:fixed!important;
-  top:calc(env(safe-area-inset-top,0px) + 132px)!important;
-  right:0!important;
-  bottom:0!important;
-  left:0!important;
-  width:auto!important;
-  height:auto!important;
-  padding:8px!important;
-  align-items:flex-start!important;
-  justify-content:center!important;
-  overflow:hidden!important;
- }
- #ajPlansModalV220>.modal-content,
- #ajPlansModalV220 .modal-content{
-  margin:0 auto!important;
-  width:calc(100vw - 16px)!important;
-  max-width:calc(100vw - 16px)!important;
-  max-height:calc(100dvh - env(safe-area-inset-top,0px) - 148px)!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
-  -webkit-overflow-scrolling:touch!important;
- }
-}
-</style>
-<script id="AIRJOTTER_V2210613326_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.26';document.documentElement.dataset.airjotterVersion='22.10.61.33.26';</script>
-<!-- AIRJOTTER_V2210613326_END -->
-
-<!-- AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_BEGIN -->
-<style id="AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_STYLE">
-@media(min-width:761px){
- #ajLobbyOwnedActionsV221060{position:relative!important;z-index:2147482000!important;pointer-events:auto!important}
- #ajOpenOwnedBtnV221060{position:relative!important;z-index:2147482001!important;pointer-events:auto!important;cursor:pointer!important}
-}
-</style>
-<script id="AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_SCRIPT">
-(()=>{'use strict';
- const VERSION='22.10.61.33.28';
- function openArchive(event){
-  if(innerWidth<=760)return;
-  event?.preventDefault();event?.stopPropagation();event?.stopImmediatePropagation();
-  const modal=document.getElementById('jotterArchiveModal');
-  if(modal){modal.style.setProperty('display','flex','important');modal.setAttribute('aria-hidden','false')}
-  const list=document.getElementById('jotterArchiveList');
-  const status=document.getElementById('jotterArchiveStatus');
-  if(list)list.replaceChildren();if(status)status.textContent='Caricamento...';
-  Promise.resolve().then(()=>{
-   if(typeof window.ajLoadArchive!=='function')throw new Error('Archivio non inizializzato');
-   return window.ajLoadArchive();
-  }).catch(error=>{if(status)status.textContent='Impossibile caricare i Jotter: '+error.message;else alert(error.message)});
-  return false;
- }
- function bind(){
-  if(innerWidth<=760)return;
-  const old=document.getElementById('ajOpenOwnedBtnV221060');if(!old||old.dataset.ajHardBindV28==='1')return;
-  const button=old.cloneNode(true);button.dataset.ajHardBindV28='1';button.hidden=false;button.disabled=false;
-  old.replaceWith(button);
-  button.onpointerdown=openArchive;
-  button.onmousedown=openArchive;
-  button.onclick=openArchive;
-  button.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')openArchive(event)},true);
- }
- const lobby=document.getElementById('ajLobby');
- if(lobby)new MutationObserver(bind).observe(lobby,{childList:true,subtree:true,attributes:true});
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
- addEventListener('pageshow',bind);setTimeout(bind,0);setTimeout(bind,500);
- window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION;
-})();
-</script>
-<!-- AIRJOTTER_V2210613328_PC_ARCHIVE_HARD_BIND_END -->
-
-
-<!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_BEGIN -->
-<script id="AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_VERSION">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.33';
-document.documentElement.dataset.airjotterVersion='22.10.61.33.33';
-</script>
-<!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_END -->
-
-
-<!-- AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_BEGIN -->
-<script id="AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_VERSION">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.36';
-document.documentElement.dataset.airjotterVersion='22.10.61.33.36';
-</script>
-<!-- AIRJOTTER_V2210613336_SEPARATE_PDF_BACKGROUND_END -->
-
-
-<!-- AIRJOTTER_V2210613337_COLOR_RECURSION_TOOLBAR_FIX_BEGIN -->
-<script id="AIRJOTTER_V2210613337_VERSION">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.37';
-document.documentElement.dataset.airjotterVersion='22.10.61.33.37';
-</script>
-<!-- AIRJOTTER_V2210613337_COLOR_RECURSION_TOOLBAR_FIX_END -->
-
-<!-- AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_BEGIN -->
-<script id="AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_SCRIPT">
-(()=>{'use strict';
- function adaptAndTop(event){
-  if(innerWidth<=760)return;
-  event?.preventDefault?.();event?.stopImmediatePropagation?.();
-  try{if(typeof handleResize==='function')handleResize();}catch(error){console.error('AirJotter logo fit',error)}
-  requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'smooth'})));
- }
- function init(){
-  const fit=document.getElementById('ajPcFitV204');
-  if(fit){fit.hidden=true;fit.setAttribute('aria-hidden','true');fit.tabIndex=-1;}
-  const brand=document.getElementById('brandBtn');
-  if(!brand)return;
-  brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';
-  brand.addEventListener('click',adaptAndTop,true);
-  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')adaptAndTop(event)},true);
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.38';
- document.documentElement.dataset.airjotterVersion='22.10.61.33.38';
-})();
-</script>
-<!-- AIRJOTTER_V2210613338_LOGO_FIT_RESTORE_END -->
-
-<!-- AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_BEGIN -->
-<script id="AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_SCRIPT">
-(()=>{'use strict';
- const login=document.getElementById('ajLogin');
- const lobby=document.getElementById('ajLobby');
- function sync(){
-  const loginOpen=!!login&&!login.classList.contains('aj-hidden');
-  const lobbyOpen=!!lobby&&!lobby.classList.contains('aj-hidden');
-  document.body.classList.toggle('aj-entry-screen-v2210613339',loginOpen||lobbyOpen);
- }
- for(const element of [login,lobby])if(element)new MutationObserver(sync).observe(element,{attributes:true,attributeFilter:['class']});
- addEventListener('pageshow',sync);sync();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.39';
- document.documentElement.dataset.airjotterVersion='22.10.61.33.39';
-})();
-</script>
-<!-- AIRJOTTER_V2210613339_LOBBY_TOOLBAR_GUARD_END -->
-
-<!-- AIRJOTTER_V2210613340_LOGO_CENTER_RESET_BEGIN -->
-<script id="AIRJOTTER_V2210613340_LOGO_CENTER_RESET_SCRIPT">
-(()=>{'use strict';
- function resetDesktopView(event){
-  if(innerWidth<=760)return;
-  event?.preventDefault?.();event?.stopImmediatePropagation?.();
-  const wrapper=document.getElementById('canvas-wrapper');
-  const header=document.querySelector('body > header');
-  if(!wrapper)return;
-  const logicalWidth=Math.max(1,Number(window.LOGICAL_W)||parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--a4-w'))||800);
-  const logicalHeight=Math.max(1,Number(window.LOGICAL_H)||wrapper.offsetHeight||1131);
-  const viewportWidth=document.documentElement.clientWidth;
-  const scale=Math.min(1,Math.max(.05,(viewportWidth-20)/logicalWidth));
-  wrapper.style.setProperty('position','relative');
-  wrapper.style.setProperty('left','auto','important');
-  wrapper.style.setProperty('right','auto','important');
-  wrapper.style.setProperty('margin-left','auto','important');
-  wrapper.style.setProperty('margin-right','auto','important');
-  wrapper.style.setProperty('transform-origin','top center','important');
-  wrapper.style.setProperty('transform',`scale(${scale})`,'important');
-  wrapper.style.setProperty('margin-bottom',`${60-Math.max(0,logicalHeight*(1-scale))}px`);
-  if(header){
-   header.style.setProperty('left','50%','important');
-   header.style.setProperty('right','auto','important');
-   header.style.setProperty('transform-origin','top center','important');
-   header.style.setProperty('transform','translateX(-50%) scale(1)','important');
-   const safeWidth=viewportWidth-24;
-   const headerWidth=header.scrollWidth||header.offsetWidth;
-   const headerScale=headerWidth>safeWidth?safeWidth/headerWidth:1;
-   header.style.setProperty('transform',`translateX(-50%) scale(${headerScale})`,'important');
-  }
-  document.documentElement.scrollLeft=0;document.body.scrollLeft=0;
-  window.scrollTo({top:0,left:0,behavior:'auto'});
- }
- function init(){
-  const brand=document.getElementById('brandBtn');if(!brand)return;
-  brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';
-  brand.addEventListener('click',resetDesktopView,true);
-  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')resetDesktopView(event)},true);
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.40';
- document.documentElement.dataset.airjotterVersion='22.10.61.33.40';
-})();
-</script>
-<!-- AIRJOTTER_V2210613340_LOGO_CENTER_RESET_END -->
-
-<!-- AIRJOTTER_V2210613341_LOGO_TRUE_CENTER_BEGIN -->
-<script id="AIRJOTTER_V2210613341_LOGO_TRUE_CENTER_SCRIPT">
-(()=>{'use strict';
- function trueCenter(event){
-  if(innerWidth<=760)return;
-  event?.preventDefault?.();event?.stopImmediatePropagation?.();
-  const wrapper=document.getElementById('canvas-wrapper');
-  const header=document.querySelector('body > header');
-  if(!wrapper)return;
-  const logicalWidth=Math.max(1,wrapper.offsetWidth||800);
-  const logicalHeight=Math.max(1,wrapper.offsetHeight||1131);
-  const viewportWidth=document.documentElement.clientWidth;
-  const scale=Math.min(1,Math.max(.05,(viewportWidth-40)/logicalWidth));
-  wrapper.classList.add('aj-logo-centered-v2210613341');
-  wrapper.style.setProperty('position','relative','important');
-  wrapper.style.setProperty('left','50%','important');
-  wrapper.style.setProperty('right','auto','important');
-  wrapper.style.setProperty('margin-left','0','important');
-  wrapper.style.setProperty('margin-right','0','important');
-  wrapper.style.setProperty('transform-origin','top center','important');
-  wrapper.style.setProperty('transform',`translateX(-50%) scale(${scale})`,'important');
-  wrapper.style.setProperty('margin-bottom',`${60-Math.max(0,logicalHeight*(1-scale))}px`);
-  if(header){
-   header.style.setProperty('left','50%','important');header.style.setProperty('right','auto','important');
-   header.style.setProperty('transform-origin','top center','important');
-   header.style.setProperty('transform','translateX(-50%) scale(1)','important');
-   const safeWidth=viewportWidth-24,headerWidth=header.scrollWidth||header.offsetWidth;
-   const headerScale=headerWidth>safeWidth?safeWidth/headerWidth:1;
-   header.style.setProperty('transform',`translateX(-50%) scale(${headerScale})`,'important');
-  }
-  document.documentElement.scrollLeft=0;document.body.scrollLeft=0;
-  window.scrollTo({top:0,left:0,behavior:'auto'});
- }
- function init(){
-  const brand=document.getElementById('brandBtn');if(!brand)return;
-  brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';
-  brand.addEventListener('click',trueCenter,true);
-  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')trueCenter(event)},true);
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.41';
- document.documentElement.dataset.airjotterVersion='22.10.61.33.41';
-})();
-</script>
-<!-- AIRJOTTER_V2210613341_LOGO_TRUE_CENTER_END -->
-
-<!-- AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_BEGIN -->
-<script id="AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_SCRIPT">
-(()=>{'use strict';
- function centerAfterNativeFit(){
-  const wrapper=document.getElementById('canvas-wrapper');if(!wrapper)return;
-  wrapper.classList.remove('aj-logo-centered-v2210613341');
-  wrapper.style.removeProperty('position');wrapper.style.removeProperty('left');wrapper.style.removeProperty('right');
-  wrapper.style.setProperty('margin-left','auto','important');wrapper.style.setProperty('margin-right','auto','important');
-  const rect=wrapper.getBoundingClientRect();
-  const delta=(rect.left+rect.width/2)-(document.documentElement.clientWidth/2);
-  if(Math.abs(delta)>.5)window.scrollBy({left:delta,top:0,behavior:'auto'});
-  window.scrollTo({top:0,left:window.scrollX,behavior:'auto'});
- }
- function resetExactly(event){
-  if(innerWidth<=760)return;
-  event.preventDefault();event.stopImmediatePropagation();
-  const fit=document.getElementById('ajPcFitV204');
-  if(fit){fit.hidden=false;fit.click();fit.hidden=true;}
-  else if(typeof handleResize==='function')handleResize();
-  requestAnimationFrame(()=>requestAnimationFrame(centerAfterNativeFit));
- }
- function init(){
-  const brand=document.getElementById('brandBtn');if(!brand)return;
-  brand.title='Resetta zoom, adatta e centra il Jotter';
-  brand.addEventListener('click',resetExactly,true);
-  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')resetExactly(event)},true);
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.42';
- document.documentElement.dataset.airjotterVersion='22.10.61.33.42';
-})();
-</script>
-<!-- AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_END -->
 </body>
 </html>
