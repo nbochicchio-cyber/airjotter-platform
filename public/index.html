@@ -2188,18 +2188,9 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         // Tratti, testo, firme, foto e PDF condividono lo stesso canvas: la gomma cancella ogni elemento.
         let ajInkPagesKeyV215='';
         const ajInkPageContextsV218=new Map();
-        function ajInkPageDprV215(){
-            // v22.10.61.33.35: HiDPI adattivo per evitare l'esaurimento della memoria
-            // dopo piu PDF, conservando antialias e nitidezza sul desktop.
-            const mobileTouch=matchMedia('(pointer: coarse)').matches&&Math.min(innerWidth,innerHeight)<=900;
-            if(mobileTouch)return 1;
-            const native=Math.max(1,Math.min(2,window.devicePixelRatio||1));
-            if(TOTAL_PAGES>=5)return Math.min(native,1.25);
-            if(TOTAL_PAGES>=3)return Math.min(native,1.5);
-            return native;
-        }
+        function ajInkPageDprV215(){return 1;}
 function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
-        const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajImportedImageCacheV219.size>6){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>6&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
+        const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
         function ajCommandTouchesPageV218(cmd,pageIndex){
             const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
             if(cmd?.type==='path'&&Array.isArray(cmd.points))return cmd.points.some(p=>{const r=Math.max(1,(Number(p.w)||1)/2);return p.y+r>=top&&p.y-r<bottom;});
@@ -2242,16 +2233,9 @@ function ajDrawImportedV219(ctx,cmd){
         const ajIOSVirtualV2265=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
         function ajIOSPageDprV2265(){return Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
-            // v22.10.61.33.35: da tre pagine in poi virtualizza anche PC/Android.
-            // Mantiene in memoria solo la pagina visibile e le adiacenti.
-            if(!ajIOSVirtualV2265&&TOTAL_PAGES<3)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
-            const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W);
-            const vp=document.getElementById('mobileViewport');
-            const vr=vp&&getComputedStyle(vp).display!=='none'?vp.getBoundingClientRect():{top:0,bottom:innerHeight};
-            const screenTop=Math.max(0,vr.top||0),screenBottom=Math.min(innerHeight,vr.bottom||innerHeight);
-            const viewTop=Math.max(0,(screenTop-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(screenBottom-rect.top)/scale);
-            const first=Math.max(0,Math.floor(viewTop/BASE_A4_H)-1),last=Math.min(TOTAL_PAGES-1,Math.floor(Math.max(viewTop,viewBottom-1)/BASE_A4_H)+1),set=new Set();
-            for(let i=first;i<=last;i++)set.add(i);return set;
+            if(!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
+            const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
+            const first=Math.max(0,Math.floor(viewTop/BASE_A4_H)-1),last=Math.min(TOTAL_PAGES-1,Math.floor(Math.max(viewTop,viewBottom-1)/BASE_A4_H)+1),set=new Set();for(let i=first;i<=last;i++)set.add(i);return set;
         }
         function ajPageCommandKeyV2265(pageIndex,cmds){return pageIndex+'#'+cmds.map(ajInkCommandKeyV218).join('|')}
         function ajReleasePageEntryV2265(pageIndex){const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;try{e.canvas.remove();e.canvas.width=1;e.canvas.height=1}catch{}ajInkPageContextsV218.delete(pageIndex)}
@@ -2282,7 +2266,7 @@ function ajDrawImportedV219(ctx,cmd){
                 dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio,key:pageKey});layer.appendChild(canvas)
             }
         }
-        let ajVirtualRafV2265=0;function ajScheduleVirtualV2265(){if((!ajIOSVirtualV2265&&TOTAL_PAGES<3)||ajVirtualRafV2265)return;ajVirtualRafV2265=requestAnimationFrame(()=>{ajVirtualRafV2265=0;ajRenderInkPagesV215(false)})}
+        let ajVirtualRafV2265=0;function ajScheduleVirtualV2265(){if(!ajIOSVirtualV2265||ajVirtualRafV2265)return;ajVirtualRafV2265=requestAnimationFrame(()=>{ajVirtualRafV2265=0;ajRenderInkPagesV215(false)})}
         addEventListener('scroll',ajScheduleVirtualV2265,{passive:true});addEventListener('resize',ajScheduleVirtualV2265,{passive:true});document.getElementById('mobileViewport')?.addEventListener('scroll',ajScheduleVirtualV2265,{passive:true});
         window.ajEraseInkPagesV218=function(cmd){if(!cmd||!Array.isArray(cmd.points)||cmd.points.length<2)return false;let touched=false;const previousDpr=dpr;for(let pageIndex=0;pageIndex<TOTAL_PAGES;pageIndex++){if(!ajCommandTouchesPageV218(cmd,pageIndex))continue;const entry=ajInkPageContextsV218.get(pageIndex);if(!entry)continue;dpr=entry.ratio;renderPathToCtx(entry.ctx,cmd,false);touched=true;}dpr=previousDpr;return touched;};
 
@@ -2642,11 +2626,9 @@ function ajDrawImportedV219(ctx,cmd){
             // multipagina, lasciando a ogni pagina solo una frazione della risoluzione.
             // Ora il budget cresce per pagina, entro limiti prudenti per canvas e payload.
             const pdfPages = isPdf ? Math.max(1, Math.round((sourceCanvas.height / sourceCanvas.width) / (BASE_A4_H / LOGICAL_W))) : 1;
-            // v22.10.61.33.34: conserva piu dettaglio nella sorgente confermata.
-            // Il renderer di pagina decide poi la densita finale senza degradare il file originale.
-            const maxArea = isSignature ? 4000000 : (isPdf ? Math.min(24000000, 6000000 * pdfPages) : 8000000);
-            const maxWidth = isSignature ? 2800 : (isPdf ? 2600 : 3600);
-            const maxHeight = isSignature ? 2800 : (isPdf ? Math.min(16000, 3600 * pdfPages) : 3600);
+            const maxArea = isSignature ? 2200000 : (isPdf ? Math.min(24000000, 7200000 * pdfPages) : 6000000);
+            const maxWidth = isSignature ? 2200 : (isPdf ? 2800 : 3200);
+            const maxHeight = isSignature ? 2200 : (isPdf ? Math.min(16000, 3600 * pdfPages) : 3200);
             const scale = Math.min(1, maxWidth / sourceCanvas.width, maxHeight / sourceCanvas.height, Math.sqrt(maxArea / (sourceCanvas.width * sourceCanvas.height)));
             const out = document.createElement('canvas');
             out.width = Math.max(1, Math.round(sourceCanvas.width * scale));
@@ -2657,9 +2639,7 @@ function ajDrawImportedV219(ctx,cmd){
             outCtx.imageSmoothingQuality = 'high';
             outCtx.drawImage(sourceCanvas, 0, 0, out.width, out.height);
             const mime = isSignature ? 'image/png' : 'image/jpeg';
-            // Firme restano lossless; PDF e foto usano JPEG ad alta qualita per evitare
-            // artefatti evidenti dopo conferma mantenendo payload ragionevoli.
-            const imageData = isSignature ? out.toDataURL(mime) : out.toDataURL(mime, isPdf ? 0.98 : 0.95);
+            const imageData = isSignature ? out.toDataURL(mime) : out.toDataURL(mime, isPdf ? 0.96 : 0.86);
             return { canvas: out, imageData };
         }
         function finalizeStamp(mode) {
@@ -7034,22 +7014,6 @@ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.33';
 document.documentElement.dataset.airjotterVersion='22.10.61.33.33';
 </script>
 <!-- AIRJOTTER_V2210613333_MULTIPAGE_OVERLAY_FIX_END -->
-
-
-<!-- AIRJOTTER_V2210613334_HIDPI_ASSET_QUALITY_BEGIN -->
-<script id="AIRJOTTER_V2210613334_HIDPI_ASSET_QUALITY_VERSION">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.34';
-document.documentElement.dataset.airjotterVersion='22.10.61.33.34';
-</script>
-<!-- AIRJOTTER_V2210613334_HIDPI_ASSET_QUALITY_END -->
-
-
-<!-- AIRJOTTER_V2210613335_MEMORY_SAFE_MULTIPDF_BEGIN -->
-<script id="AIRJOTTER_V2210613335_MEMORY_SAFE_MULTIPDF_VERSION">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.35';
-document.documentElement.dataset.airjotterVersion='22.10.61.33.35';
-</script>
-<!-- AIRJOTTER_V2210613335_MEMORY_SAFE_MULTIPDF_END -->
 
 </body>
 </html>
