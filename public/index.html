@@ -2936,6 +2936,16 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             ajBatchApply = true;
             try { operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)}); } finally { ajBatchApply = false; }
             initCanvas(); redrawMainCanvas();
+            // v33.19.3: replica chirurgicamente il secondo passaggio che Ctrl+F5 rendeva necessario.
+            // Dopo page:set e il primo layout, forza una nuova misura con TOTAL_PAGES definitivo.
+            await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+            document.documentElement.style.setProperty('--total-pages',String(TOTAL_PAGES));
+            wrapper.style.height=LOGICAL_H+'px';
+            initCanvas();
+            renderVisiblePageBreaks();
+            ajInkPagesKeyV215='';
+            ajRenderInkPagesV215(true);
+            redrawMainCanvas();
             // Ogni Jotter realmente privo di elementi grafici apre in A4 verticale,
             // indipendentemente dal formato storico salvato. I Jotter con contenuto non cambiano.
             if(!commands.some(c=>c&&['path','text','stamp','shape','connector'].includes(c.type))){
@@ -7029,5 +7039,6 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V2210613319_END -->
 <!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_BEGIN --><script id="AIRJOTTER_V2210613319_ARCHIVE_ONLY_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.1';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.1';</script><!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_END -->
 <!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133192_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.2';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.2';</script><!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_END -->
+<!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_BEGIN --><script id="AIRJOTTER_V22106133193_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.3';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.3';</script><!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_END -->
 </body>
 </html>
