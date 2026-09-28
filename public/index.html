@@ -666,20 +666,6 @@ body:not(.dev-auth-enabled) #devLogin{display:none!important}
 #ajIpadSmartWetV19{display:none}
 html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block;position:fixed;inset:0;width:100vw;height:100dvh;z-index:9990;pointer-events:none;touch-action:none;contain:strict}
 </style>
-<style id="AIRJOTTER_DESKTOP_STATIC_V206_STYLE">
-@media (min-width:761px){
- html.aj-desktop-v204,html.aj-desktop-v204 body{min-width:0!important;overflow-x:hidden!important}
- html.aj-desktop-v204 header{display:flex!important;position:fixed!important;top:12px!important;left:50%!important;right:auto!important;width:max-content!important;max-width:none!important;overflow:visible!important;flex-wrap:nowrap!important;opacity:1!important;visibility:visible!important;transform-origin:top center!important;z-index:500!important}
- html.aj-desktop-v204 #mobileViewport{position:relative!important;width:100%!important;height:auto!important;margin:0!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important}
- html.aj-desktop-v204 #mobileViewport::-webkit-scrollbar{display:none!important}
- html.aj-desktop-v204 #mobileStageV109{position:relative!important;display:block!important;overflow:visible!important}
- html.aj-desktop-v204 #mobileStageV109>#canvas-wrapper{position:absolute!important;left:0!important;top:0!important;margin:0!important;transform-origin:top left!important;max-width:none!important}
- #ajPcFitV204{min-width:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.02!important;padding:6px 9px!important;white-space:normal!important}
- #ajPcFitV204 span{display:block!important;font-size:.76rem!important;font-weight:700!important}
- #ajPcScrollV195,#tabletFitBtnV15{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-}
-@media (min-width:761px){html.aj-windows-touch-v204 #mobileTopbar,html.aj-windows-touch-v204 .mobile-topbar,html.aj-windows-touch-v204 [id*="mobileFit"]{display:none!important;visibility:hidden!important}html.aj-windows-touch-v204 #mobileViewport{touch-action:none!important}}
-</style>
 <style id="AIRJOTTER_TABLET_TOOLBAR_V208_STYLE">
 /* AirJotter v20.7 - ripristino toolbar tablet, nessuna modifica a PC/notebook */
 @media (min-width:761px) and (pointer:coarse),
@@ -3825,81 +3811,6 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  let desync=false;try{desync=!!ctx.getContextAttributes?.().desynchronized}catch{}
  window.ajInkBusy=()=>active;
  window.AIRJOTTER_IPAD_INK={version:'19.2',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
-})();
-</script>
-<script id="AIRJOTTER_DESKTOP_STATIC_V206">
-(function(){
- 'use strict';
- const ipadOS=navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1;const touchFirst=matchMedia('(pointer:coarse)').matches&&!/Windows/i.test(navigator.userAgent);const desktop=innerWidth>760&&!ipadOS&&!touchFirst&&!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);if(!desktop)return;
- const touchPC=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
- document.documentElement.classList.add('aj-desktop-v204');if(touchPC)document.documentElement.classList.add('aj-windows-touch-v204');
- const header=document.querySelector('header'),vp=document.getElementById('mobileViewport'),stage=document.getElementById('mobileStageV109'),wrapper=document.getElementById('canvas-wrapper'),fit=document.getElementById('ajPcFitV204');if(!header||!vp||!stage||!wrapper||!fit)return;
- function clean(){document.querySelectorAll('#ajPcScrollV195,#tabletFitBtnV15').forEach(x=>x.remove());if(touchPC){document.querySelectorAll('#mobileTopbar,[id*="mobileFit"]').forEach(x=>x.remove())}}
- clean();
- let pageScale=Math.max(.18,wrapper.getBoundingClientRect().width/LOGICAL_W||1),timer=0;
- function vw(){return Math.max(360,(visualViewport?.width||document.documentElement.clientWidth||innerWidth)-24)}
- function fitBar(){
-  header.style.setProperty('display','flex','important');header.style.setProperty('visibility','visible','important');header.style.setProperty('opacity','1','important');
-  header.style.setProperty('left','50%','important');header.style.setProperty('right','auto','important');header.style.setProperty('width','max-content','important');header.style.setProperty('max-width','none','important');header.style.setProperty('overflow','visible','important');header.style.setProperty('flex-wrap','nowrap','important');header.style.zoom='1';
-  header.style.setProperty('transform','translateX(-50%) scale(1)','important');void header.offsetWidth;
-  const natural=Math.max(header.scrollWidth,header.offsetWidth,1),k=Math.min(1,vw()/natural);
-  header.style.setProperty('transform','translateX(-50%) scale('+k+')','important');
-  return header.getBoundingClientRect();
- }
- function geometry(s){
-  pageScale=Math.max(.18,Math.min(4,Number(s)||1));
-  stage.style.setProperty('width',Math.round(LOGICAL_W*pageScale)+'px','important');stage.style.setProperty('height',Math.round(LOGICAL_H*pageScale)+'px','important');
-  stage.style.setProperty('margin-left','auto','important');stage.style.setProperty('margin-right','auto','important');
-  wrapper.style.setProperty('width',LOGICAL_W+'px','important');wrapper.style.setProperty('height',LOGICAL_H+'px','important');wrapper.style.setProperty('transform','scale('+pageScale+')','important');wrapper.style.setProperty('transform-origin','top left','important');wrapper.style.setProperty('margin','0','important');
- }
- function relayout(center){
-  clean();
-  const b=fitBar();
-  vp.style.setProperty('padding-top',Math.ceil(b.bottom+18)+'px','important');
-  const wide=stage.offsetWidth>vp.clientWidth-24;
-  // When zoomed, use a real left origin so scrollLeft can reach the whole right side.
-  // Recenter only when the complete page fits again, or when Adatta pagina explicitly requests it.
-  stage.style.setProperty('margin-left',wide?'12px':'auto','important');
-  stage.style.setProperty('margin-right',wide?'12px':'auto','important');
-  if(center&&!wide)vp.scrollLeft=0;
- }
- function adapt(){fitBar();geometry(Math.min(1,Math.max(.18,(vp.clientWidth-40)/LOGICAL_W)));requestAnimationFrame(()=>requestAnimationFrame(()=>{relayout(true);vp.scrollLeft=0;vp.scrollTop=0;(document.scrollingElement||document.documentElement).scrollTop=0}))}
- function zoom(next,x){const before=pageScale,r=vp.getBoundingClientRect(),anchor=Math.max(0,Math.min(vp.clientWidth,(x||r.left+vp.clientWidth/2)-r.left)),docX=(vp.scrollLeft+anchor)/before;geometry(next);relayout(false);vp.scrollLeft=Math.max(0,docX*pageScale-anchor)}
- fit.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();adapt()},true);
- document.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();e.stopImmediatePropagation();zoom(pageScale*(e.deltaY<0?1.12:1/1.12),e.clientX)},{capture:true,passive:false});
- document.addEventListener('keydown',e=>{if(!e.ctrlKey)return;if(e.key==='0'){e.preventDefault();adapt()}else if(e.key==='+'||e.key==='='){e.preventDefault();zoom(pageScale*1.12)}else if(e.key==='-'){e.preventDefault();zoom(pageScale/1.12)}},true);
- // Windows 2-in-1 touchpad: explicitly route two-finger wheel deltas.
- // Vertical deltas scroll the document; horizontal deltas pan the A4 viewport.
- let padX=0,padY=0,padRaf=0;
- function flushTouchpad(){
-  padRaf=0;
-  const root=document.scrollingElement||document.documentElement;
-  if(padX)vp.scrollLeft=Math.max(0,Math.min(vp.scrollWidth-vp.clientWidth,vp.scrollLeft+padX));
-  if(padY)root.scrollTop=Math.max(0,Math.min(root.scrollHeight-root.clientHeight,root.scrollTop+padY));
-  padX=0;padY=0;
- }
- if(touchPC){
-  window.addEventListener('wheel',e=>{
-   if(e.ctrlKey)return;
-   if(e.target&&e.target.closest&&e.target.closest('dialog,input,textarea,select,[contenteditable=\"true\"],.modal,.aj-overlay'))return;
-   const mul=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
-   padX+=e.deltaX*mul;padY+=e.deltaY*mul;
-   if(e.cancelable)e.preventDefault();
-   e.stopImmediatePropagation();
-   if(!padRaf)padRaf=requestAnimationFrame(flushTouchpad);
-  },{capture:true,passive:false});
- }
- let g=null,pending=null,raf=0;
- const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}),dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
- function paint(){raf=0;const p=pending;pending=null;if(!g||!p)return;const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,g.scale*p.distance/g.distance));geometry(next);vp.scrollLeft=Math.max(0,g.left-(p.center.x-g.center.x)+(next-g.scale)*(g.center.x/g.scale));root.scrollTop=Math.max(0,g.top-(p.center.y-g.center.y)+(next-g.scale)*(g.center.y/g.scale));relayout(false)}
- if(touchPC){
-  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;g={center:mid(e.touches),distance:dist(e.touches),scale:pageScale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
-  window.addEventListener('touchmove',e=>{if(!g||e.touches.length!==2)return;pending={center:mid(e.touches),distance:dist(e.touches)};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
-  const end=e=>{if(!g||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}g=null;pending=null;relayout(true)};window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
- }
- new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});
- function resize(){clearTimeout(timer);requestAnimationFrame(()=>relayout(true));timer=setTimeout(()=>relayout(true),150)}window.addEventListener('resize',resize,{passive:true});visualViewport?.addEventListener('resize',resize,{passive:true});
- const old=initCanvas;initCanvas=function(){const z=pageScale,r=old.apply(this,arguments);geometry(z);requestAnimationFrame(()=>relayout(true));return r};adapt();
 })();
 </script>
 <script id="AIRJOTTER_TABLET_TOOLBAR_V208">
@@ -7099,5 +7010,36 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613333_END -->
+<!-- AIRJOTTER_V2210613334_BEGIN -->
+<style id="AIRJOTTER_V2210613334_DESKTOP_NORMALIZE">
+@media(min-width:761px){
+ html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important}
+ #canvas-wrapper{overflow:visible!important;max-height:none!important;clip:auto!important;contain:none!important}
+ #drawingBoard,#draftBoard,#pencilPredictionBoard{max-height:none!important}
+ #jotterArchiveModal{pointer-events:auto!important}
+ #ajOpenOwnedBtnV221060{pointer-events:auto!important;position:relative!important;z-index:2!important}
+}
+</style>
+<script id="AIRJOTTER_V2210613334_DESKTOP_NORMALIZE_SCRIPT">
+(()=>{'use strict';
+ const VERSION='22.10.61.33.34';
+ function archive(){
+  const old=document.getElementById('ajOpenOwnedBtnV221060');if(!old||old.dataset.v3334)return;
+  const b=old.cloneNode(true);b.dataset.v3334='1';b.disabled=false;b.hidden=false;old.replaceWith(b);
+  b.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const modal=document.getElementById('jotterArchiveModal');if(modal)modal.style.display='flex';if(typeof window.ajLoadArchive==='function')await window.ajLoadArchive()},true);
+ }
+ function pages(){
+  if(typeof TOTAL_PAGES!=='number'||typeof commands==='undefined')return;
+  let n=TOTAL_PAGES;
+  for(const c of commands||[]){let y=0;if(c?.type==='path'&&c.points?.length)y=Math.max(...c.points.map(p=>+p.y||0));else y=Math.max(+c?.y||0,+c?.y2||0)+(+c?.h||0);n=Math.max(n,Math.floor(Math.max(0,y-1)/BASE_A4_H)+1)}
+  if(n!==TOTAL_PAGES){TOTAL_PAGES=n;const el=document.getElementById('pageCountNumber');if(el)el.textContent=n;initCanvas();redrawMainCanvas()}
+  document.getElementById('canvas-wrapper')?.style.setProperty('height',LOGICAL_H+'px','important');
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>{archive();setTimeout(pages,0)},{once:true}):(archive(),setTimeout(pages,0));
+ addEventListener('pageshow',()=>{archive();setTimeout(pages,50)});setTimeout(archive,500);setTimeout(pages,500);
+ window.AIRJOTTER_FRONTEND_VERSION=VERSION;document.documentElement.dataset.airjotterVersion=VERSION;
+})();
+</script>
+<!-- AIRJOTTER_V2210613334_END -->
 </body>
 </html>
