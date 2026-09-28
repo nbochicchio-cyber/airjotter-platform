@@ -2203,7 +2203,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
         const ajInkPageContextsV218=new Map();
         function ajInkPageDprV215(){const screenDpr=window.devicePixelRatio||1,isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);if(isIPad)return 1;const pageArea=Math.max(1,LOGICAL_W*BASE_A4_H),safe=Math.sqrt(12000000/pageArea);return Math.max(1,Math.min(3,screenDpr,safe));}
         function ajEnsureInkPagesLayerV215(){let layer=document.getElementById('ajInkPagesLayerV215');if(!layer){layer=document.createElement('div');layer.id='ajInkPagesLayerV215';layer.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden';wrapper.insertBefore(layer,predictionCanvas);}return layer;}
-        const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
+        const ajImportedImageCacheV219=new Map();const ajImageQueueV2265=[];let ajImageBusyV2265=false;function ajPumpImageV2265(){if(ajImageBusyV2265||!ajImageQueueV2265.length)return;ajImageBusyV2265=true;const job=ajImageQueueV2265.shift(),entry=job.entry,img=entry.img;img.onload=()=>{entry.ready=true;entry.last=performance.now();ajImageBusyV2265=false;if(ajIOSVirtualV2265&&!ajExportAllPagesV2267&&ajImportedImageCacheV219.size>8){const victims=[...ajImportedImageCacheV219.entries()].filter(([,v])=>v!==entry&&v.ready).sort((a,b)=>(a[1].last||0)-(b[1].last||0));while(ajImportedImageCacheV219.size>8&&victims.length){const [k,v]=victims.shift();try{v.img.onload=null;v.img.src=''}catch{}ajImportedImageCacheV219.delete(k)}}ajInkPagesKeyV215='';requestAnimationFrame(()=>ajRenderInkPagesV215(true));ajPumpImageV2265()};img.onerror=()=>{entry.failed=true;ajImageBusyV2265=false;ajPumpImageV2265()};img.src=job.src}
         function ajCommandTouchesPageV218(cmd,pageIndex){
             const top=pageIndex*BASE_A4_H,bottom=top+BASE_A4_H;
             if(cmd?.type==='path'&&Array.isArray(cmd.points))return cmd.points.some(p=>{const r=Math.max(1,(Number(p.w)||1)/2);return p.y+r>=top&&p.y-r<bottom;});
@@ -2745,10 +2745,18 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 ajExportAllPagesV2267=true;
                 ajInkPagesKeyV215='';
                 ajRenderInkPagesV215(true);
-                const exportAssetsDeadline=performance.now()+12000;
-                while((ajImageBusyV2265||ajImageQueueV2265.length)&&performance.now()<exportAssetsDeadline){
-                    await new Promise(resolve=>setTimeout(resolve,40));
+                const exportImageSources=[...new Set(commands.filter(command=>command?.type==='stamp'&&command.imageData).map(command=>command.imageData))];
+                const exportAssetsDeadline=performance.now()+60000;
+                const exportAssetsReady=()=>exportImageSources.every(source=>{
+                    const entry=ajImportedImageCacheV219.get(source);
+                    return entry&&(entry.ready||entry.failed);
+                });
+                while((ajImageBusyV2265||ajImageQueueV2265.length||!exportAssetsReady())&&performance.now()<exportAssetsDeadline){
+                    ajPumpImageV2265();
+                    await new Promise(resolve=>setTimeout(resolve,50));
                 }
+                const exportMissing=exportImageSources.filter(source=>!ajImportedImageCacheV219.get(source)?.ready);
+                if(exportMissing.length)throw new Error('Alcune pagine PDF non sono ancora disponibili. Riprova tra pochi secondi.');
                 ajInkPagesKeyV215='';
                 ajRenderInkPagesV215(true);
                 await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -7079,5 +7087,6 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </script>
 <!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_END -->
 <!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133197_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.7';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.7';</script><!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_END -->
+<!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_BEGIN --><script id="AIRJOTTER_V22106133198_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.8';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.8';</script><!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_END -->
 </body>
 </html>
