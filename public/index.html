@@ -6932,5 +6932,41 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </style>
 <script id="AIRJOTTER_V2210613326_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.26';document.documentElement.dataset.airjotterVersion='22.10.61.33.26';</script>
 <!-- AIRJOTTER_V2210613326_END -->
+
+<!-- AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_BEGIN -->
+<script id="AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_SCRIPT">
+(()=>{'use strict';
+ const VERSION='22.10.61.33.27';
+ let busy=false;
+ async function openOwned(event){
+  if(!matchMedia('(min-width:761px)').matches)return;
+  const button=event.target.closest?.('#ajOpenOwnedBtnV221060');
+  if(!button)return;
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  if(busy)return;
+  busy=true;
+  const label=button.textContent;
+  button.disabled=true;
+  button.textContent='Apertura elenco...';
+  try{
+   if(typeof window.ajLoadArchive!=='function')throw new Error('Archivio non inizializzato');
+   await window.ajLoadArchive();
+  }catch(error){
+   alert('Impossibile aprire i tuoi Jotter: '+error.message);
+  }finally{
+   button.disabled=false;
+   button.textContent=label;
+   busy=false;
+  }
+ }
+ document.addEventListener('click',openOwned,true);
+ window.AIRJOTTER_FRONTEND_VERSION=VERSION;
+ document.documentElement.dataset.airjotterVersion=VERSION;
+})();
+</script>
+<!-- AIRJOTTER_V2210613327_PC_ARCHIVE_DIRECT_END -->
+
 </body>
 </html>
