@@ -7241,5 +7241,39 @@ document.documentElement.dataset.airjotterVersion='22.10.61.33.37';
 })();
 </script>
 <!-- AIRJOTTER_V2210613341_LOGO_TRUE_CENTER_END -->
+
+<!-- AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_BEGIN -->
+<script id="AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_SCRIPT">
+(()=>{'use strict';
+ function centerAfterNativeFit(){
+  const wrapper=document.getElementById('canvas-wrapper');if(!wrapper)return;
+  wrapper.classList.remove('aj-logo-centered-v2210613341');
+  wrapper.style.removeProperty('position');wrapper.style.removeProperty('left');wrapper.style.removeProperty('right');
+  wrapper.style.setProperty('margin-left','auto','important');wrapper.style.setProperty('margin-right','auto','important');
+  const rect=wrapper.getBoundingClientRect();
+  const delta=(rect.left+rect.width/2)-(document.documentElement.clientWidth/2);
+  if(Math.abs(delta)>.5)window.scrollBy({left:delta,top:0,behavior:'auto'});
+  window.scrollTo({top:0,left:window.scrollX,behavior:'auto'});
+ }
+ function resetExactly(event){
+  if(innerWidth<=760)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const fit=document.getElementById('ajPcFitV204');
+  if(fit){fit.hidden=false;fit.click();fit.hidden=true;}
+  else if(typeof handleResize==='function')handleResize();
+  requestAnimationFrame(()=>requestAnimationFrame(centerAfterNativeFit));
+ }
+ function init(){
+  const brand=document.getElementById('brandBtn');if(!brand)return;
+  brand.title='Resetta zoom, adatta e centra il Jotter';
+  brand.addEventListener('click',resetExactly,true);
+  brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')resetExactly(event)},true);
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.42';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.42';
+})();
+</script>
+<!-- AIRJOTTER_V2210613342_NATIVE_FIT_LOGO_RESET_END -->
 </body>
 </html>
