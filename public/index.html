@@ -6954,5 +6954,41 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613317_END -->
+<!-- AIRJOTTER_V2210613318_BEGIN -->
+<style id="AIRJOTTER_V2210613318_A3_WET_INK_FIX_STYLE">
+@media(max-width:760px){
+ html.aj-a3-phone-v22106111 #pencilPredictionBoard,
+ html.aj-a3-phone-v22106111 #ajUniversalWetV22106111,
+ html.aj-a3-phone-v22106111 #ajIpadSmartWetV19{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+ }
+ html.aj-a3-phone-v22106111 #canvas-wrapper{background:#fff!important;background-color:#fff!important}
+}
+</style>
+<script id="AIRJOTTER_V2210613318_A3_WET_INK_FIX_SCRIPT">
+(()=>{'use strict';
+ const clearPreview=()=>{
+  if(!matchMedia('(max-width:760px)').matches)return;
+  const isA3=document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
+  document.documentElement.classList.toggle('aj-a3-phone-v22106111',isA3);
+  if(!isA3)return;
+  for(const id of ['pencilPredictionBoard','ajIpadSmartWetV19']){
+   const canvas=document.getElementById(id);
+   try{canvas?.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height)}catch{}
+  }
+  const svg=document.getElementById('ajUniversalWetV22106111');
+  svg?.querySelector('path')?.removeAttribute('d');
+ };
+ document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(clearPreview,120),true);
+ addEventListener('orientationchange',()=>setTimeout(clearPreview,260),{passive:true});
+ addEventListener('resize',clearPreview,{passive:true});
+ new MutationObserver(clearPreview).observe(document.getElementById('ajPaperGlobalBtnV221042')||document.body,{childList:true,subtree:true,characterData:true});
+ clearPreview();
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.18-a3-live-stroke-alignment';
+})();
+</script>
+<!-- AIRJOTTER_V2210613318_END -->
 </body>
 </html>
