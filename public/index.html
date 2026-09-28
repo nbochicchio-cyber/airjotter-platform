@@ -2925,19 +2925,26 @@ function ajDrawImportedV219(ctx,cmd){
             ajRemote = false;
         }
         async function ajReload() {
-            if (!ajBoard) return;
-            commands=[]; redoCommands=[]; TOTAL_PAGES=2;
-            const operations = await ajApi(`/api/boards/${ajBoard.id}/operations`);
-            ajBatchApply = true;
-            try { operations.filter(x => x.is_active !== false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)}); } finally { ajBatchApply = false; }
-            initCanvas(); redrawMainCanvas();
-            // Ogni Jotter realmente privo di elementi grafici apre in A4 verticale,
-            // indipendentemente dal formato storico salvato. I Jotter con contenuto non cambiano.
-            if(!commands.some(c=>c&&['path','text','stamp','shape','connector'].includes(c.type))){
-                requestAnimationFrame(()=>window.ajPaperV221042?.remote({global:{size:'A4',orientation:'portrait'},pages:{}}));
-            }
-        }
-        function ajShowJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.add('aj-show-v223');o.setAttribute('aria-hidden','false')}}
+ if(!ajBoard)return;
+ commands=[];redoCommands=[];TOTAL_PAGES=2;
+ const operations=await ajApi(`/api/boards/${ajBoard.id}/operations?_=${Date.now()}`,{cache:'no-store'});
+ ajBatchApply=true;
+ try{operations.filter(x=>x.is_active!==false).forEach(op=>{ajApplyOperation(op);const id=op.operation_id||op.operationId;if(typeof appliedOperationIds!=='undefined'&&id)appliedOperationIds.add(id);if(typeof lastRevision!=='undefined')lastRevision=Math.max(lastRevision,Number(op.revision)||0)})}
+ finally{ajBatchApply=false;}
+ let inferred=1;
+ for(const c of commands){
+  if(!c)continue;
+  let bottom=0;
+  if(c.type==='path'&&Array.isArray(c.points)&&c.points.length)bottom=Math.max(...c.points.map(p=>Number(p.y)||0));
+  else if(['stamp','text','shape','connector'].includes(c.type))bottom=Math.max(Number(c.y)||0,Number(c.y2)||0)+(Number(c.h)||0);
+  inferred=Math.max(inferred,Math.floor(Math.max(0,bottom-1)/BASE_A4_H)+1);
+ }
+ TOTAL_PAGES=Math.max(TOTAL_PAGES,inferred);
+ document.getElementById('pageCountNumber').innerText=TOTAL_PAGES;
+ initCanvas();redrawMainCanvas();
+ if(!commands.some(c=>c&&['path','text','stamp','shape','connector'].includes(c.type)))requestAnimationFrame(()=>window.ajPaperV221042?.remote({global:{size:'A4',orientation:'portrait'},pages:{}}));
+}
+function ajShowJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.add('aj-show-v223');o.setAttribute('aria-hidden','false')}}
         function ajHideJotterLoadingV223(){const o=document.getElementById('ajJotterLoadingV223');if(o){o.classList.remove('aj-show-v223');o.setAttribute('aria-hidden','true')}}
         async function ajOpenBoard(board) {
             ajShowJotterLoadingV223();
@@ -6749,7 +6756,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   const open=document.getElementById('ajOpenOwnedBtnV221060'),create=document.getElementById('newBtn');if(!open||!create||typeof window.ajApi!=='function')return;
   try{const all=await window.ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),available=Math.max(0,limit-owned.length);if(available>0){open.hidden=false;create.hidden=false;create.textContent='Crea un nuovo Jotter'}else{open.hidden=true;create.hidden=false;create.textContent='Apri il tuo ultimo Jotter'}}catch{}
  }
- document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{const button=document.getElementById('ajOpenOwnedBtnV221060');button.disabled=true;const label=button.textContent;button.textContent='Apertura...';try{const all=await ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),latest=[...owned].sort((a,b)=>new Date(b.contentUpdatedAt||b.updatedAt||b.createdAt)-new Date(a.contentUpdatedAt||a.updatedAt||a.createdAt))[0];if(!latest?.roomCode)throw new Error('Nessun Jotter disponibile');await window.ajLoadArchive()}catch(error){alert('Impossibile aprire i tuoi Jotter: '+error.message)}finally{button.disabled=false;button.textContent=label}});
+ document.getElementById('ajOpenOwnedBtnV221060')?.addEventListener('click',async()=>{await window.ajLoadArchive()});
  const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
@@ -7083,5 +7090,14 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V2210613332_END -->
+<!-- AIRJOTTER_V2210613333_BEGIN -->
+<script id="AIRJOTTER_V2210613333_PC_FINAL">
+(()=>{'use strict';
+ function bind(){const old=document.getElementById('ajOpenOwnedBtnV221060');if(!old||old.dataset.pcFinal3333==='1')return;const b=old.cloneNode(true);b.dataset.pcFinal3333='1';b.hidden=false;b.disabled=false;old.replaceWith(b);b.onclick=async e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();await window.ajLoadArchive()};}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();addEventListener('pageshow',bind);setTimeout(bind,500);
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.33';document.documentElement.dataset.airjotterVersion='22.10.61.33.33';
+})();
+</script>
+<!-- AIRJOTTER_V2210613333_END -->
 </body>
 </html>

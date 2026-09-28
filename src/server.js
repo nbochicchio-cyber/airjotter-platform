@@ -13,7 +13,7 @@ app.get('/api/frontend-version',(req,res)=>res.json({version:'22.10.61.33.31'}))
 // AIRJOTTER_V2210613332_NO_CACHE
 app.use((req,res,next)=>{if(req.path==='/'||req.path.endsWith('.html')||req.path.endsWith('/operations')||req.path==='/api/my/boards'){res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.set('Pragma','no-cache');res.set('Expires','0');}next();});
 app.get('/api/frontend-version',(req,res)=>res.json({version:'22.10.61.33.32'}));
-app.use(express.static('public'));
+app.use(express.static('public',{etag:false,lastModified:false,maxAge:0,setHeaders:(res)=>{res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0')}}));
 const codeAlphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function randomCode(){const b=crypto.randomBytes(8); let s=''; for(let i=0;i<8;i++)s+=codeAlphabet[b[i]%codeAlphabet.length]; return s.slice(0,4)+'-'+s.slice(4)}
 function tokenFor(u,identity={}){return jwt.sign({sub:u.id,email:u.email,name:u.display_name,authProvider:identity.authProvider||'dev',googleSub:identity.googleSub||'',emailVerified:Boolean(identity.emailVerified)},secret,{expiresIn:'7d'})}
