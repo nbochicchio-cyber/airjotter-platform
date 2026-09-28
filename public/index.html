@@ -2249,9 +2249,10 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             let sx=0,sy=0,sw=0;for(const p of(c.points||[])){sx+=Number(p.x)||0;sy+=Number(p.y)||0;sw+=Number(p.w)||0;}return ['p',c.operationId||'',c.points?.length||0,c.color,c.isEraser?1:0,c.isHighlighter?1:0,sx.toFixed(2),sy.toFixed(2),sw.toFixed(2)].join(':');
         }
         const ajIOSVirtualV2265=true; /* v33.19.2: stessa virtualizzazione pagine su PC, iPad e smartphone */
+        let ajExportAllPagesV2267=false;
         function ajIOSPageDprV2265(){return Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
-            if(!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
+            if(ajExportAllPagesV2267||!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
             const first=Math.max(0,Math.floor(viewTop/BASE_A4_H)-1),last=Math.min(TOTAL_PAGES-1,Math.floor(Math.max(viewTop,viewBottom-1)/BASE_A4_H)+1),set=new Set();for(let i=first;i<=last;i++)set.add(i);return set;
         }
@@ -2740,8 +2741,17 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 ajExportFreeLimitedV225=ajExportFirstPageOnlyV225||(ajIsFreePlanV225()&&!ajExportFullAuthorizedV225);
                 exportPagesData=[];
                 const container=document.getElementById('pdfPagesContainer');container.innerHTML='';
-                // Il composito HiDPI per pagina contiene PDF, foto, firme, testo, inchiostro e cancellazioni.
+                // Export v22.10.61.33.19.7: monta temporaneamente tutte le pagine virtualizzate.
+                ajExportAllPagesV2267=true;
+                ajInkPagesKeyV215='';
                 ajRenderInkPagesV215(true);
+                const exportAssetsDeadline=performance.now()+12000;
+                while((ajImageBusyV2265||ajImageQueueV2265.length)&&performance.now()<exportAssetsDeadline){
+                    await new Promise(resolve=>setTimeout(resolve,40));
+                }
+                ajInkPagesKeyV215='';
+                ajRenderInkPagesV215(true);
+                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
                 const pageCount=ajExportFreeLimitedV225?Math.min(TOTAL_PAGES,Math.max(0,Number(ajMe?.limits?.freePdfPages??1))):TOTAL_PAGES;
                 for(let i=0;i<pageCount;i++){
                     const entry=ajInkPageContextsV218.get(i);
@@ -2762,7 +2772,12 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 document.getElementById('confirmExportBtn').textContent=ajExportFirstPageOnlyV225?'Scarica solo prima pagina':'Scarica PDF Definitivo';
                 const modal=document.getElementById('pdfExportModal');modal.style.display='flex';modal.style.zIndex='12050';
             }catch(error){console.error('Esportazione PDF:',error);alert('Esportazione PDF non riuscita: '+error.message)}
-            finally{btn.innerHTML=originalText;btn.disabled=false;delete btn.dataset.exportBusyV2251}
+            finally{
+                ajExportAllPagesV2267=false;
+                ajInkPagesKeyV215='';
+                ajRenderInkPagesV215(true);
+                btn.innerHTML=originalText;btn.disabled=false;delete btn.dataset.exportBusyV2251;
+            }
         });
 
         document.getElementById('confirmExportBtn').addEventListener('click', async () => {
@@ -7063,5 +7078,6 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 })();
 </script>
 <!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_END -->
+<!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133197_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.7';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.7';</script><!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_END -->
 </body>
 </html>
