@@ -2771,7 +2771,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                     if(!tCtx)throw new Error('Impossibile preparare il PDF.');
                     tCtx.fillStyle='#fff';tCtx.fillRect(0,0,tempCanvas.width,tempCanvas.height);
                     if(entry?.canvas)tCtx.drawImage(entry.canvas,0,0);
-                    window.ajBurnFreeWatermarkV221060?.(tempCanvas);
+                    if(!(ajIsFreePlanV225()&&ajExportFullAuthorizedV225&&!ajExportFirstPageOnlyV225))window.ajBurnFreeWatermarkV221060?.(tempCanvas);
                     exportPagesData.push({id:`page_${i}`,data:tempCanvas.toDataURL('image/jpeg',.97)});
                     tempCanvas.width=1;tempCanvas.height=1;
                     await new Promise(resolve=>requestAnimationFrame(resolve));
@@ -7186,5 +7186,8 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </style>
 <script id="AIRJOTTER_V221061331918_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.18-TABLET-CANVAS-GAP';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.18-TABLET-CANVAS-GAP';</script>
 <!-- AIRJOTTER_V221061331918_TABLET_CANVAS_GAP_END -->
+<!-- AIRJOTTER_V221061331919_PAID_PDF_NO_WATERMARK_BEGIN -->
+<script id="AIRJOTTER_V221061331919_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.19-PAID-PDF-NO-WATERMARK';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.19-PAID-PDF-NO-WATERMARK';</script>
+<!-- AIRJOTTER_V221061331919_PAID_PDF_NO_WATERMARK_END -->
 </body>
 </html>
