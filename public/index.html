@@ -2907,7 +2907,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             // v22.4.1: sugli smartphone il tratto definitivo incrementale e' gia' rapido.
             // Evitiamo canvas preview a pagina intera, che sui browser mobili possono saturare
             // la memoria grafica e produrre temporanee superfici nere.
-            if(innerWidth<=760&&!ajIOSVirtualV2265)return;
+            if(innerWidth<=760&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3')return;
             if(!p||p.boardId!==ajBoard?.id||!p.strokeId||!Array.isArray(p.points)||!p.points.length)return;
             const page=Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.points[0].y||0)/BASE_A4_H))),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():Math.min(2,window.devicePixelRatio||1);
             let e=ajLivePreviewCanvasesV224.get(p.strokeId);
@@ -3362,7 +3362,7 @@ document.addEventListener('click', function(event) {
  undo.onclick=e=>{e.preventDefault();const target=findDesktop('undo');if(target)target.click()};
  redo.onclick=e=>{e.preventDefault();const target=findDesktop('redo');if(target)target.click()};
  function syncDisabled(){const u=findDesktop('undo'),r=findDesktop('redo');undo.disabled=!!u?.disabled;redo.disabled=!!r?.disabled}
- setInterval(syncDisabled,350);syncDisabled();
+ syncDisabled(); /* smartphone: stato successivo gestito solo da airjotterHistoryV121 */
 
  // Quando arriva il secondo dito, annulla immediatamente il tratto provvisorio del primo dito.
  const draft=document.getElementById('draftBoard');
@@ -7174,5 +7174,8 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_BEGIN -->
 <script id="AIRJOTTER_V221061331916_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.16-PENCIL-WOW';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.16-PENCIL-WOW';</script>
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_END -->
+<!-- AIRJOTTER_V221061331917_SMARTPHONE_ONLY_CAUSAL_FIX_BEGIN -->
+<script id="AIRJOTTER_V221061331917_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.17-SMARTPHONE-ONLY';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.17-SMARTPHONE-ONLY';</script>
+<!-- AIRJOTTER_V221061331917_SMARTPHONE_ONLY_CAUSAL_FIX_END -->
 </body>
 </html>
