@@ -1632,7 +1632,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             function renderLegacy(context, cmd) {
                 const isEraser = cmd.isEraser, pts = cmd.points;
                 context.save();
-                context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.38) : 1;
+                context.globalAlpha = cmd.isHighlighter ? (Number(cmd.opacity) || 0.30) : 1;
                 context.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
                 context.lineCap = 'round';
                 context.lineJoin = 'round';
@@ -2091,7 +2091,7 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
             const median=widths[Math.floor(widths.length/2)]||1;
             context.save();
             context.globalCompositeOperation='source-over';
-            context.globalAlpha=cmd.isHighlighter?(Number(cmd.opacity)||.38):1;
+            context.globalAlpha=cmd.isHighlighter?(Number(cmd.opacity)||.30):1;
             context.strokeStyle=cmd.color||'#1D1D1F';
             context.fillStyle=cmd.color||'#1D1D1F';
             context.lineWidth=median;
@@ -3822,7 +3822,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
   resize();ctx.clearRect(0,0,innerWidth,innerHeight);
   active=true;pid=e.pointerId;lastWidth=0;lockedRect=input.getBoundingClientRect();screenScale=lockedRect.width/LOGICAL_W;
   const q=logical(e),w=widthFor(e);
-  path={type:'path',color:currentMode==='highlighter'?'#FFE600':currentColor,points:[{x:q.x,y:q.y,w}],isEraser:false,isHighlighter:currentMode==='highlighter',opacity:currentMode==='highlighter'?.38:1};
+  path={type:'path',color:currentMode==='highlighter'?'#FFE000':currentColor,points:[{x:q.x,y:q.y,w}],isEraser:false,isHighlighter:currentMode==='highlighter',opacity:currentMode==='highlighter'?.30:1};
   screenPoints=[{x:e.clientX,y:e.clientY,w:w*screenScale}];pendingFrom=0;
   ctx.save();ctx.globalAlpha=path.opacity;ctx.fillStyle=path.color;ctx.beginPath();ctx.arc(e.clientX,e.clientY,Math.max(.25,w*screenScale/2),0,Math.PI*2);ctx.fill();ctx.restore();
   try{input.setPointerCapture(pid)}catch{}
@@ -7042,7 +7042,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   function geometry(){const w=Math.max(1,Number(window.LOGICAL_W)||(wrap.offsetWidth||800)),h=Math.max(1,Number(window.LOGICAL_H)||(wrap.offsetHeight||1131));svg.setAttribute('viewBox',`0 0 ${w} ${h}`);return{w,h}}
   function position(ev){const g=geometry(),r=rect||input.getBoundingClientRect();return{x:(ev.clientX-r.left)*g.w/r.width,y:(ev.clientY-r.top)*g.h/r.height}}
   function samples(e){try{const a=e.getCoalescedEvents?.();return a?.length?a:[e]}catch{return[e]}}
-  function draw(){raf=0;if(!points.length)return;let d=`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;for(let i=1;i<points.length;i++)d+=` L${points[i].x.toFixed(2)} ${points[i].y.toFixed(2)}`;const mode=window.currentMode||(typeof currentMode!=='undefined'?currentMode:'pen');const width=Number(window.baseWidth||(typeof baseWidth!=='undefined'?baseWidth:2.5));const color=window.currentColor||(typeof currentColor!=='undefined'?currentColor:'#1D1D1F');path.setAttribute('d',d);path.setAttribute('stroke',mode==='eraser'?'#ffffff':mode==='highlighter'?'#FFE600':color);path.setAttribute('stroke-opacity',mode==='highlighter'?'.38':'.82');path.setAttribute('stroke-width',String(Math.max(.6,mode==='highlighter'?width*3.2:width)))}
+  function draw(){raf=0;if(!points.length)return;let d=`M${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;for(let i=1;i<points.length;i++)d+=` L${points[i].x.toFixed(2)} ${points[i].y.toFixed(2)}`;const mode=window.currentMode||(typeof currentMode!=='undefined'?currentMode:'pen');const width=Number(window.baseWidth||(typeof baseWidth!=='undefined'?baseWidth:2.5));const color=window.currentColor||(typeof currentColor!=='undefined'?currentColor:'#1D1D1F');path.setAttribute('d',d);path.setAttribute('stroke',mode==='eraser'?'#ffffff':mode==='highlighter'?'#FFE000':color);path.setAttribute('stroke-opacity',mode==='highlighter'?'.30':'.82');path.setAttribute('stroke-width',String(Math.max(.6,mode==='highlighter'?width*3.2:width)))}
   function add(e){for(const ev of samples(e)){const p=position(ev),q=points.at(-1);if(!q||Math.hypot(p.x-q.x,p.y-q.y)>.08)points.push(p)}if(!raf)raf=requestAnimationFrame(draw)}
   function clear(){if(raf)cancelAnimationFrame(raf);raf=0;points=[];path.removeAttribute('d')}
   input.addEventListener('pointerdown',e=>{if(!isActive()||!['pen','highlighter','eraser'].includes(window.currentMode||(typeof currentMode!=='undefined'?currentMode:'pen')))return;active=true;pid=e.pointerId;rect=input.getBoundingClientRect();points=[];add(e)},{capture:true,passive:true});
@@ -7175,5 +7175,8 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </style>
 <script id="AIRJOTTER_V221061331913_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.13';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.13';</script>
 <!-- AIRJOTTER_V221061331913_TYPO_HIGHLIGHTER_LEGAL_END -->
+<!-- AIRJOTTER_V221061331914_LEGAL_CLOSE_HIGHLIGHTER_BEGIN -->
+<script id="AIRJOTTER_V221061331914_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.14';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.14';</script>
+<!-- AIRJOTTER_V221061331914_LEGAL_CLOSE_HIGHLIGHTER_END -->
 </body>
 </html>
