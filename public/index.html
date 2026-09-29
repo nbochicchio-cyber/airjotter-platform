@@ -7174,5 +7174,54 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_BEGIN -->
 <script id="AIRJOTTER_V221061331916_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.16-PENCIL-WOW';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.16-PENCIL-WOW';</script>
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_END -->
+<!-- AIRJOTTER_V221061331917_MOBILE_A3_REDO_SURGERY_BEGIN -->
+<style id="AIRJOTTER_V221061331917_MOBILE_A3_REDO_SURGERY_STYLE">
+@media(max-width:760px){
+ /* Smartphone A3: never expose a transparent/black GPU backing surface during live remote ink. */
+ html.aj-a3-phone-v22106111 #mobileStageV109,
+ html.aj-a3-phone-v22106111 #canvas-wrapper,
+ html.aj-a3-phone-v22106111 #drawingBoard,
+ html.aj-a3-phone-v22106111 #draftBoard{background-color:#fff!important}
+ html.aj-a3-phone-v22106111 #drawingBoard,
+ html.aj-a3-phone-v22106111 #draftBoard{transform:translateZ(0)!important;-webkit-transform:translateZ(0)!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
+ html.aj-a3-phone-v22106111 #ajA3LiveInkV2210613319{background:transparent!important;isolation:isolate!important;contain:paint!important}
+ /* Smartphone REDO: immutable visual layer, no transitions or compositor flashes. */
+ #mobileRedo119,#mobileRedo119:hover,#mobileRedo119:focus,#mobileRedo119:active,#mobileRedo119:disabled{
+  animation:none!important;transition:none!important;transform:none!important;filter:none!important;
+  will-change:auto!important;-webkit-backface-visibility:hidden!important;backface-visibility:hidden!important;
+ }
+}
+</style>
+<script id="AIRJOTTER_V221061331917_MOBILE_A3_REDO_SURGERY_SCRIPT">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  if(!matchMedia('(max-width:760px)').matches)return;
+  const redo=document.getElementById('mobileRedo119');
+  if(redo){
+   let lastDisabled=redo.disabled;
+   new MutationObserver(()=>{
+    const next=redo.disabled;
+    if(next===lastDisabled)return;
+    lastDisabled=next;
+    redo.style.visibility='visible';redo.style.opacity=next?'.42':'1';
+   }).observe(redo,{attributes:true,attributeFilter:['disabled','class','style']});
+   redo.style.visibility='visible';redo.style.opacity=redo.disabled?'.42':'1';
+  }
+  const wrap=document.getElementById('canvas-wrapper'),stage=document.getElementById('mobileStageV109');
+  const enforceWhite=()=>{
+   const a3=document.documentElement.classList.contains('aj-a3-phone-v22106111');
+   if(!a3)return;
+   for(const el of [stage,wrap,document.getElementById('drawingBoard'),document.getElementById('draftBoard')])if(el)el.style.setProperty('background-color','#fff','important');
+  };
+  enforceWhite();
+  new MutationObserver(enforceWhite).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(enforceWhite,140),true);
+ });
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.17-MOBILE-A3-REDO';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.19.17-MOBILE-A3-REDO';
+})();
+</script>
+<!-- AIRJOTTER_V221061331917_MOBILE_A3_REDO_SURGERY_END -->
 </body>
 </html>
