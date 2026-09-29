@@ -3767,91 +3767,81 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
 </script>
 
 <script id="AIRJOTTER_IPAD_SMART_INK_V19">
-(function(){
+(()=>{
+ 'use strict';
  const isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
  if(!isIPad)return;
- const input=document.getElementById('draftBoard');
- if(!input)return;
- document.documentElement.classList.add('aj-ipad-smart-v19');
- const wet=document.createElement('canvas');
- wet.id='ajIpadSmartWetV19';wet.setAttribute('aria-hidden','true');document.body.appendChild(wet);
- let ctx=wet.getContext('2d',{alpha:true,desynchronized:true})||wet.getContext('2d');
- let ratio=1,active=false,pid=null,path=null,screenPoints=[],pendingFrom=0,raf=0,lastWidth=0,lockedRect=null,screenScale=1;
- function resize(){
-  ratio=Math.max(1,Math.min(window.devicePixelRatio||1,2.5));
-  const w=Math.ceil(innerWidth*ratio),h=Math.ceil(innerHeight*ratio);
-  if(wet.width!==w||wet.height!==h){wet.width=w;wet.height=h}
-  ctx.setTransform(ratio,0,0,ratio,0,0);
-  ctx.lineCap='round';ctx.lineJoin='round';
+ const input=document.getElementById('draftBoard');if(!input)return;
+ document.documentElement.classList.add('aj-ipad-smart-v19','aj-pencil-wow-v1916');
+ let wet=document.getElementById('ajIpadSmartWetV19');
+ if(!wet){wet=document.createElement('canvas');wet.id='ajIpadSmartWetV19';wet.setAttribute('aria-hidden','true');document.body.appendChild(wet)}
+ const ctx=wet.getContext('2d',{alpha:true,desynchronized:true,colorSpace:'srgb'})||wet.getContext('2d',{alpha:true});
+ let ratio=1,active=false,pid=-1,path=null,raf=0,lockedRect=null,scale=1,lastTs=-Infinity,lastRaw=null,lastFiltered=null,lastPressure=.5,lastWidth=0,velocity={x:0,y:0},predicted=[],stats={samples:0,duplicates:0,frames:0,maxBatch:0};
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ function resize(){ratio=clamp(window.devicePixelRatio||1,1,2.5);const w=Math.ceil(innerWidth*ratio),h=Math.ceil(innerHeight*ratio);if(wet.width!==w||wet.height!==h){wet.width=w;wet.height=h}ctx.setTransform(ratio,0,0,ratio,0,0);ctx.lineCap='round';ctx.lineJoin='round';ctx.miterLimit=1.5}
+ function samples(e){try{const a=e.getCoalescedEvents?.();return a?.length?a:[e]}catch{return[e]}}
+ function logical(ev){const r=lockedRect;return{x:(ev.clientX-r.left)*(LOGICAL_W/r.width),y:(ev.clientY-r.top)*(LOGICAL_H/r.height)}}
+ function alpha(cutoff,dt){const tau=1/(2*Math.PI*cutoff);return 1/(1+tau/Math.max(.001,dt))}
+ function filterPosition(raw,dt){
+  if(!lastFiltered)return{x:raw.x,y:raw.y};
+  const dx=raw.x-lastRaw.x,dy=raw.y-lastRaw.y,speed=Math.hypot(dx,dy)/Math.max(.001,dt);
+  const cutoff=clamp(5.8+speed*.018,5.8,34),a=alpha(cutoff,dt);
+  return{x:lastFiltered.x+(raw.x-lastFiltered.x)*a,y:lastFiltered.y+(raw.y-lastFiltered.y)*a};
  }
- function logical(ev){const r=lockedRect||input.getBoundingClientRect();return{x:(ev.clientX-r.left)*(LOGICAL_W/r.width),y:(ev.clientY-r.top)*(LOGICAL_H/r.height)}}
- function widthFor(ev){
-  const tool=currentMode==='highlighter'?baseWidth*3.2:baseWidth;
-  const p=ev.pressure>0?ev.pressure:.5;
-  const target=tool*(.72+Math.pow(p,1.25)*.72);
-  lastWidth=lastWidth?lastWidth+(target-lastWidth)*.32:target;
+ function widthFor(ev,dt){
+  const high=currentMode==='highlighter',tool=high?baseWidth*3.2:baseWidth;
+  const rawP=ev.pressure>0?ev.pressure:lastPressure;
+  const pa=1-Math.exp(-Math.max(.001,dt)*26);lastPressure+= (clamp(rawP,.05,1)-lastPressure)*pa;
+  const target=high?tool:tool*(.68+Math.pow(lastPressure,.72)*.74);
+  const wa=1-Math.exp(-Math.max(.001,dt)*22);lastWidth=lastWidth?lastWidth+(target-lastWidth)*wa:target;
   return lastWidth;
  }
- function coalesced(e){try{const a=e.getCoalescedEvents?e.getCoalescedEvents():null;return a&&a.length?a:[e]}catch{return[e]}}
- function stop(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
- function collect(e){
-  for(const ev of coalesced(e)){
-   const q=logical(ev),last=path.points[path.points.length-1];
-   if((q.x-last.x)**2+(q.y-last.y)**2<=.0025)continue;
-   const w=widthFor(ev);
-   path.points.push({x:q.x,y:q.y,w});
-   screenPoints.push({x:ev.clientX,y:ev.clientY,w:w*screenScale});
-  }
+ function append(ev){
+  const ts=Number(ev.timeStamp)||performance.now();if(ts<=lastTs){stats.duplicates++;return}
+  const dt=lastTs===-Infinity?1/120:clamp((ts-lastTs)/1000,1/480,1/20),raw=logical(ev),filtered=filterPosition(raw,dt),w=widthFor(ev,dt);
+  if(lastFiltered){const vx=(filtered.x-lastFiltered.x)/dt,vy=(filtered.y-lastFiltered.y)/dt;velocity.x+= (vx-velocity.x)*.36;velocity.y+=(vy-velocity.y)*.36}
+  const prev=path.points[path.points.length-1];if(!prev||Math.hypot(filtered.x-prev.x,filtered.y-prev.y)>.018)path.points.push({x:filtered.x,y:filtered.y,w});
+  lastRaw=raw;lastFiltered=filtered;lastTs=ts;stats.samples++;
  }
- function paintFrame(){
-  raf=0;if(!active||!path||!lockedRect)return;
-  // Draw the live Pencil mark with the exact same renderer, logical coordinates and widths
-  // used for the final committed mark. Lifting the Pencil therefore causes no size/shape jump.
+ function buildPrediction(){
+  predicted=[];if(!lastFiltered||path.points.length<3)return;
+  const speed=Math.hypot(velocity.x,velocity.y),horizon=clamp(.009+speed/180000,.009,.022);
+  const curvature=(()=>{const a=path.points.at(-3),b=path.points.at(-2),c=path.points.at(-1);const v1={x:b.x-a.x,y:b.y-a.y},v2={x:c.x-b.x,y:c.y-b.y};const cross=v1.x*v2.y-v1.y*v2.x,den=Math.max(1e-5,Math.hypot(v1.x,v1.y)*Math.hypot(v2.x,v2.y));return clamp(cross/den,-1,1)})();
+  for(const f of [.5,1]){const t=horizon*f,turn=curvature*t*5.5,cos=Math.cos(turn),sin=Math.sin(turn),vx=velocity.x*cos-velocity.y*sin,vy=velocity.x*sin+velocity.y*cos;predicted.push({x:lastFiltered.x+vx*t,y:lastFiltered.y+vy*t,w:lastWidth})}
+ }
+ function paint(){
+  raf=0;if(!active||!path||!lockedRect)return;stats.frames++;buildPrediction();
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,wet.width,wet.height);ctx.restore();
-  ctx.save();
-  const k=lockedRect.width/LOGICAL_W;
-  ctx.setTransform(ratio*k,0,0,ratio*k,ratio*lockedRect.left,ratio*lockedRect.top);
-  renderPathToCtx(ctx,path,false);
-  ctx.restore();
-  pendingFrom=screenPoints.length-1;
+  ctx.save();const k=lockedRect.width/LOGICAL_W;ctx.setTransform(ratio*k,0,0,ratio*k,ratio*lockedRect.left,ratio*lockedRect.top);
+  renderPathToCtx(ctx,predicted.length?{...path,points:path.points.concat(predicted)}:path,false);ctx.restore();
  }
- function queuePaint(){if(!raf)raf=requestAnimationFrame(paintFrame)}
+ function queue(){if(!raf)raf=requestAnimationFrame(paint)}
+ function stop(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
  function down(e){
-  if(e.pointerType!=='pen'||!['pen','highlighter'].includes(currentMode))return;
-  stop(e);if(stampActive||textOverlayActive)return;
-  resize();ctx.clearRect(0,0,innerWidth,innerHeight);
-  active=true;pid=e.pointerId;lastWidth=0;lockedRect=input.getBoundingClientRect();screenScale=lockedRect.width/LOGICAL_W;
-  const q=logical(e),w=widthFor(e);
-  path={type:'path',color:currentMode==='highlighter'?'#FFE000':currentColor,points:[{x:q.x,y:q.y,w}],isEraser:false,isHighlighter:currentMode==='highlighter',opacity:currentMode==='highlighter'?.30:1};
-  screenPoints=[{x:e.clientX,y:e.clientY,w:w*screenScale}];pendingFrom=0;
-  ctx.save();ctx.globalAlpha=path.opacity;ctx.fillStyle=path.color;ctx.beginPath();ctx.arc(e.clientX,e.clientY,Math.max(.25,w*screenScale/2),0,Math.PI*2);ctx.fill();ctx.restore();
-  try{input.setPointerCapture(pid)}catch{}
+  if(e.pointerType!=='pen'||!['pen','highlighter'].includes(currentMode)||stampActive||textOverlayActive)return;
+  stop(e);resize();ctx.clearRect(0,0,wet.width,wet.height);active=true;pid=e.pointerId;lockedRect=input.getBoundingClientRect();scale=lockedRect.width/LOGICAL_W;
+  lastTs=-Infinity;lastRaw=lastFiltered=null;lastPressure=e.pressure>0?e.pressure:.5;lastWidth=0;velocity={x:0,y:0};predicted=[];stats={samples:0,duplicates:0,frames:0,maxBatch:0};
+  path={type:'path',color:currentMode==='highlighter'?'#FFE000':currentColor,points:[],isEraser:false,isHighlighter:currentMode==='highlighter',opacity:currentMode==='highlighter'?.30:1};
+  append(e);queue();try{input.setPointerCapture(pid)}catch{}
  }
  function move(e){
-  if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
-  stop(e);collect(e);queuePaint();ajSendStrokePreviewV224(path);
+  if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;stop(e);const list=samples(e);stats.maxBatch=Math.max(stats.maxBatch,list.length);for(const ev of list)append(ev);queue();ajSendStrokePreviewV224(path);
  }
  function finish(e){
-  if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;
-  stop(e);collect(e);
-  if(raf){cancelAnimationFrame(raf);raf=0}paintFrame();
-  const done=path;
-  commands.push(done);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;
-  // v22.6.6b: commit locale nel canvas persistente della pagina virtualizzata.
-  // mainCtx su iOS e' volutamente 1x1 e non deve ricevere il tratto Pencil.
-  ajDrawPathOnPagesV224(done);
-  ajSendStrokePreviewV224(done,true);
-  active=false;pid=null;path=null;screenPoints=[];pendingFrom=0;lastWidth=0;lockedRect=null;
-  try{input.releasePointerCapture(e.pointerId)}catch{}
-  requestAnimationFrame(()=>{ctx.clearRect(0,0,innerWidth,innerHeight);ajSendCommand(done)});
+  if(!active||e.pointerId!==pid||e.pointerType!=='pen')return;stop(e);for(const ev of samples(e))append(ev);
+  if(raf){cancelAnimationFrame(raf);raf=0}predicted=[];paint();const done=path;
+  if(done.points.length===1){const q=done.points[0];done.points.push({x:q.x+.01,y:q.y+.01,w:q.w})}
+  commands.push(done);redoCommands=[];document.getElementById('undoBtn').disabled=commands.length===0;ajDrawPathOnPagesV224(done);ajSendStrokePreviewV224(done,true);
+  active=false;pid=-1;path=null;lockedRect=null;lastRaw=lastFiltered=null;predicted=[];try{input.releasePointerCapture(e.pointerId)}catch{}
+  requestAnimationFrame(()=>{ctx.clearRect(0,0,wet.width,wet.height);ajSendCommand(done)});
+  window.AIRJOTTER_IPAD_INK.lastStroke={...stats,points:done.points.length};
  }
  function palm(e){if(active&&e.pointerType==='touch')stop(e)}
- input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',finish,true);
- input.addEventListener('pointerdown',palm,true);input.addEventListener('pointermove',palm,true);
+ input.addEventListener('pointerdown',down,true);input.addEventListener('pointermove',move,true);input.addEventListener('pointerup',finish,true);input.addEventListener('pointercancel',finish,true);input.addEventListener('pointerdown',palm,true);input.addEventListener('pointermove',palm,true);
  addEventListener('resize',()=>{if(!active)resize()},{passive:true});resize();
  let desync=false;try{desync=!!ctx.getContextAttributes?.().desynchronized}catch{}
  window.ajInkBusy=()=>active;
- window.AIRJOTTER_IPAD_INK={version:'19.2',strategy:'single-viewport-canvas + raw-coalesced-buffer + one-paint-per-frame + no-position-filter + no-prediction + AIRINK-final-commit',resolution:'device-pixel-ratio-preserved',desynchronized:desync};
+ window.AIRJOTTER_IPAD_INK={version:'19.16-wow',strategy:'monotonic-coalesced + adaptive-one-euro-position + pressure-lpf + curvature-aware-short-prediction + reversible-wet-layer + exact-final-commit',desynchronized:desync,diagnostics:()=>({...stats,active})};
 })();
 </script>
 <script id="AIRJOTTER_DESKTOP_STATIC_V206">
@@ -7181,5 +7171,8 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221061331915_LEGAL_X_BEGIN -->
 <script id="AIRJOTTER_V221061331915_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.15';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.15';</script>
 <!-- AIRJOTTER_V221061331915_LEGAL_X_END -->
+<!-- AIRJOTTER_V221061331916_PENCIL_WOW_BEGIN -->
+<script id="AIRJOTTER_V221061331916_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.16-PENCIL-WOW';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.16-PENCIL-WOW';</script>
+<!-- AIRJOTTER_V221061331916_PENCIL_WOW_END -->
 </body>
 </html>
