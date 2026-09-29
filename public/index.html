@@ -7108,5 +7108,26 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 </style>
 <script id="AIRJOTTER_V22106133199_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.9';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.9';</script>
 <!-- AIRJOTTER_V22106133199_TEXT_TOOLBAR_COMPACT_END -->
+<!-- AIRJOTTER_V221061331910_ARCHIVE_CLOSE_CONTEXT_BEGIN -->
+<script id="AIRJOTTER_V221061331910_ARCHIVE_CLOSE_CONTEXT_SCRIPT">
+(()=>{'use strict';
+ const closeArchiveInContext=event=>{
+  const modal=document.getElementById('jotterArchiveModal');
+  if(!modal||modal.style.display==='none')return;
+  const closeButton=event.target.closest?.('#jotterArchiveClose,#ajArchiveClose115');
+  const backdrop=event.target===modal;
+  if(!closeButton&&!backdrop)return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  modal.style.display='none';
+  const lobby=document.getElementById('ajLobby');
+  const boardOpen=typeof ajBoard!=='undefined'&&ajBoard&&ajBoard.id;
+  if(lobby)lobby.classList.toggle('aj-hidden',Boolean(boardOpen));
+ };
+ document.addEventListener('click',closeArchiveInContext,true);
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.10';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.19.10';
+})();
+</script>
+<!-- AIRJOTTER_V221061331910_ARCHIVE_CLOSE_CONTEXT_END -->
 </body>
 </html>
