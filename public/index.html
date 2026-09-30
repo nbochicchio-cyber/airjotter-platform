@@ -6554,7 +6554,7 @@ function save(){const nv=norm({size:$('ajPaperSizeV221042').value,orientation:$(
 function remote(p){if(p?.global)state.global=norm(p.global);if(p?.pages&&typeof p.pages==='object')state.pages=p.pages;applyGeometry()}
 function logo(e){if(innerWidth<=760)return;e.preventDefault();e.stopImmediatePropagation();const fit=$('ajPcFitV204');if(fit)fit.click();else if(typeof handleResize==='function')handleResize();setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'smooth'}),80)}
 function init(){$('ajPaperGlobalBtnV221042').onclick=()=>open(null);$('ajPaperCancelV221042').onclick=close;$('ajPaperApplyV221042').onclick=save;$('ajPaperModalV221042').onclick=e=>{if(e.target===$('ajPaperModalV221042'))close()};const oldApply=window.ajApplyOperation;if(typeof oldApply==='function')window.ajApplyOperation=function(op){const t=op?.operation_type||op?.type;if(t==='paper:set'){remote(op.payload||{});return}const r=oldApply.apply(this,arguments);setTimeout(controls,0);return r};const oldRender=window.renderVisiblePageBreaks;if(typeof oldRender==='function')window.renderVisiblePageBreaks=function(){const r=oldRender.apply(this,arguments);setTimeout(controls,0);return r};const brand=$('brandBtn');if(brand){brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';brand.removeAttribute('data-aj-tip');brand.setAttribute('tabindex','0');brand.addEventListener('click',logo,true);brand.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')logo(e)},true)}controls();window.AIRJOTTER_FRONTEND_VERSION='22.10.42-ui-single-page-fix'}
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.ajPaperV221042={remote,open};})();
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.ajPaperV221042={remote,open,refresh:applyGeometry};})();
 </script>
 <!-- AIRJOTTER_V221042_PAPER_FORMAT_END -->
 
@@ -7289,5 +7289,30 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
 </script>
 
 <script id="AIRJOTTER_V221061331928_DELETE_FIREBASE_ACCOUNT">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.28-DELETE-FIREBASE-ACCOUNT";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+
+<script id="AIRJOTTER_V221061331929_PAGE_REFRESH">
+(()=>{'use strict';
+ let frame=0;
+ function refresh(){
+  cancelAnimationFrame(frame);
+  frame=requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   frame=0;
+   try{window.ajPaperV221042?.refresh?.()}catch(error){console.warn('Aggiornamento geometria pagine:',error.message)}
+  }));
+ }
+ document.addEventListener('click',event=>{
+  if(event.target?.closest?.('#addPageBtn,#removePageBtn,.page-delete-btn'))refresh();
+ });
+ if(typeof ajSocket!=='undefined'){
+  ajSocket.on('board:operation',operation=>{
+   const type=operation?.operation_type||operation?.type;
+   if(type==='page:set'||type==='page:delete'||type==='board:clear')refresh();
+  });
+  ajSocket.on('board:reload',refresh);
+ }
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.29-PAGE-REFRESH';
+ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+})();
+</script>
 </body>
 </html>
