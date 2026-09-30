@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -7404,7 +7404,7 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 })();
 </script>
 
-<script id="AIRJOTTER_V221061331939_VIEWPORT_STABLE_TOUCH">
+<script id="AIRJOTTER_V221061331940_TOUCH_CENTERED_VIEW">
 (()=>{'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
@@ -7413,24 +7413,42 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   const touch=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
   function capture(){
    const stage=document.getElementById('mobileStageV109');
-   return {left:vp.scrollLeft,top:vp.scrollTop,docX:scrollX,docY:scrollY,
-    transform:wrap.style.transform,origin:wrap.style.transformOrigin,
-    margin:wrap.style.margin,marginBottom:wrap.style.marginBottom,
-    width:wrap.style.width,height:wrap.style.height,
-    stageW:stage?.style.width||'',stageH:stage?.style.height||''};
+   const sw=Math.max(1,stage?.offsetWidth||vp.scrollWidth||1);
+   return {
+    top:vp.scrollTop,
+    centerRatio:(vp.scrollLeft+vp.clientWidth/2)/sw,
+    docX:scrollX,docY:scrollY,
+    transform:wrap.style.transform,
+    origin:wrap.style.transformOrigin
+   };
   }
-  function restore(v){
-   if(!v)return;
+  function restore(view){
+   if(!view)return;
    const stage=document.getElementById('mobileStageV109');
-   wrap.style.transform=v.transform;wrap.style.transformOrigin=v.origin;
-   wrap.style.margin=v.margin;wrap.style.marginBottom=v.marginBottom;
-   wrap.style.width=v.width;wrap.style.height=v.height;
-   if(stage){stage.style.width=v.stageW;stage.style.height=v.stageH}
-   vp.scrollLeft=v.left;vp.scrollTop=v.top;scrollTo(v.docX,v.docY);
+   wrap.style.transform=view.transform;
+   wrap.style.transformOrigin=view.origin;
+   wrap.style.margin='0';
+   wrap.style.marginBottom='0';
+   if(stage){
+    stage.style.marginLeft='auto';
+    stage.style.marginRight='auto';
+    const stageWidth=stage.offsetWidth;
+    if(stageWidth<=vp.clientWidth){
+     vp.scrollLeft=0;
+    }else{
+     const maxLeft=Math.max(0,vp.scrollWidth-vp.clientWidth);
+     const wanted=view.centerRatio*stageWidth-vp.clientWidth/2;
+     vp.scrollLeft=Math.max(0,Math.min(maxLeft,wanted));
+    }
+   }
+   const maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);
+   vp.scrollTop=Math.max(0,Math.min(maxTop,view.top));
+   scrollTo(view.docX,view.docY);
   }
   function run(job){
    if(!touch())return job();
-   const view=capture();window.ajPreserveTouchViewportV1939=true;
+   const view=capture();
+   window.ajPreserveTouchViewportV1939=true;
    try{return job()}finally{
     window.ajPreserveTouchViewportV1939=false;
     [0,16,48,96,180,320].forEach(ms=>setTimeout(()=>restore(view),ms));
@@ -7438,10 +7456,11 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   }
   window.ajRunPreservingViewV1939=run;
   window.ajRefreshPaperPreservingViewV1939=()=>run(()=>window.ajPaperV221042?.refresh?.());
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.39-VIEWPORT-STABLE-TOUCH';
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.40-TOUCH-CENTERED-VIEW';
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
 </script>
+
 </body>
 </html>
