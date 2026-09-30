@@ -3958,7 +3958,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}),dist=t=>Math.max(20,Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY));
  function paint(){raf=0;const p=pending;pending=null;if(!g||!p)return;const root=document.scrollingElement||document.documentElement,next=Math.max(.18,Math.min(4,g.scale*p.distance/g.distance));geometry(next);vp.scrollLeft=Math.max(0,g.left-(p.center.x-g.center.x)+(next-g.scale)*(g.center.x/g.scale));root.scrollTop=Math.max(0,g.top-(p.center.y-g.center.y)+(next-g.scale)*(g.center.y/g.scale));relayout(false)}
  if(touchPC){
-  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const root=document.scrollingElement||document.documentElement;g={center:mid(e.touches),distance:dist(e.touches),scale:pageScale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
+  window.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;if((/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1))&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3')return;const root=document.scrollingElement||document.documentElement;g={center:mid(e.touches),distance:dist(e.touches),scale:pageScale,left:vp.scrollLeft,top:root.scrollTop};e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
   window.addEventListener('touchmove',e=>{if(!g||e.touches.length!==2)return;pending={center:mid(e.touches),distance:dist(e.touches)};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
   const end=e=>{if(!g||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}g=null;pending=null;relayout(true)};window.addEventListener('touchend',end,{capture:true,passive:false});window.addEventListener('touchcancel',end,{capture:true,passive:false});
  }
@@ -7352,7 +7352,43 @@ html.aj-ios-a3-v221061331935 #canvas-wrapper{will-change:auto!important;transfor
 html.aj-ios-a3-v221061331935 #pencilPredictionBoard,html.aj-ios-a3-v221061331935 #ajUniversalWetV22106111,html.aj-ios-a3-v221061331935 #ajIpadSmartWetV19{display:none!important}
 </style>
 <script id="AIRJOTTER_V221061331935_IOS_A3_STABLE_SCRIPT">
-(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{const f=document.getElementById('ajPaperGlobalBtnV221042'),v=document.getElementById('mobileViewport');if(!f||!v)return;const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const sync=()=>document.documentElement.classList.toggle('aj-ios-a3-v221061331935',ios&&f.textContent.trim().toUpperCase()==='A3');new MutationObserver(sync).observe(f,{childList:true,subtree:true,characterData:true});sync();let t=0;v.addEventListener('scroll',()=>{if(!document.documentElement.classList.contains('aj-ios-a3-v221061331935'))return;clearTimeout(t);t=setTimeout(()=>{window.ajRenderVariablePagesV221048?.();window.ajPaperV221042?.refresh?.()},140)},{passive:true});window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.35-IOS-A3-STABLE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;});})();
+(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{const f=document.getElementById('ajPaperGlobalBtnV221042'),v=document.getElementById('mobileViewport');if(!f||!v)return;const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const sync=()=>document.documentElement.classList.toggle('aj-ios-a3-v221061331935',ios&&f.textContent.trim().toUpperCase()==='A3');new MutationObserver(sync).observe(f,{childList:true,subtree:true,characterData:true});sync();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.35-IOS-A3-STABLE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;});})();
+</script>
+
+<style id="AIRJOTTER_V221061331936_PHONE_FIRST_STROKE_STYLE">
+html.aj-a3-first-stroke-apply-v221061331936 #ajPaperModalV221042{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+</style>
+<script id="AIRJOTTER_V221061331936_PHONE_FIRST_STROKE_SCRIPT">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const count=document.getElementById('pageCountNumber'),draft=document.getElementById('draftBoard'),format=document.getElementById('ajPaperGlobalBtnV221042'),apply=document.getElementById('ajPaperApplyV221042'),modal=document.getElementById('ajPaperModalV221042');
+  if(!count||!draft||!format||!apply||!modal)return;
+  let previous=Number(count.textContent||0),firstNewPage=Infinity,armed=false,running=false;
+  const phoneA3=()=>matchMedia('(max-width:760px)').matches&&format.textContent.trim().toUpperCase()==='A3';
+  new MutationObserver(()=>{
+   const current=Number(count.textContent||0);
+   if(phoneA3()&&current>previous){firstNewPage=previous;armed=true}
+   previous=current;
+  }).observe(count,{childList:true,subtree:true,characterData:true});
+  draft.addEventListener('pointerdown',event=>{
+   if(!armed||running||!phoneA3()||event.pointerType==='mouse')return;
+   const rect=draft.getBoundingClientRect(),logicalY=(event.clientY-rect.top)*LOGICAL_H/rect.height,offsets=window.ajVariablePageOffsetsV221048||[];
+   let pageIndex=offsets.length-1;
+   for(let i=0;i<offsets.length;i++){const next=i+1<offsets.length?offsets[i+1]:LOGICAL_H;if(logicalY>=offsets[i]&&logicalY<next){pageIndex=i;break}}
+   if(pageIndex<firstNewPage)return;
+   running=true;armed=false;
+   document.documentElement.classList.add('aj-a3-first-stroke-apply-v221061331936');
+   format.click();
+   apply.click();
+   modal.classList.remove('open');
+   document.documentElement.classList.remove('aj-a3-first-stroke-apply-v221061331936');
+   requestAnimationFrame(()=>{running=false});
+  },{capture:true,passive:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.36-IPAD-SCROLL-PHONE-FIRST-STROKE';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
 </script>
 </body>
 </html>
