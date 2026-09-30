@@ -7338,5 +7338,35 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 })();
 </script>
+
+<script id="AIRJOTTER_V221061331931_A3_AUTO_APPLY">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const count=document.getElementById('pageCountNumber');
+  if(!count)return;
+  let last=Number(count.textContent||0),timer=0,running=false;
+  function isA3Phone(){return innerWidth<=760&&String(document.getElementById('ajPaperGlobalBtnV221042')?.textContent||'').trim().toUpperCase()==='A3'}
+  function applyLikeButton(){
+   if(!isA3Phone()||running)return;
+   clearTimeout(timer);
+   timer=setTimeout(()=>{
+    running=true;
+    try{window.ajPaperV221042?.refresh?.()}
+    catch(error){console.warn('Applicazione automatica geometria A3:',error.message)}
+    finally{requestAnimationFrame(()=>{running=false})}
+   },40);
+  }
+  new MutationObserver(()=>{
+   const next=Number(count.textContent||0);
+   if(next===last)return;
+   last=next;
+   applyLikeButton();
+  }).observe(count,{childList:true,subtree:true,characterData:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.31-A3-AUTO-APPLY';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
 </body>
 </html>
