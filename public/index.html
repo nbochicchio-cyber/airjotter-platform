@@ -2323,7 +2323,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         }
         const ajIOSVirtualV2265=true; /* v33.19.2: stessa virtualizzazione pagine su PC, iPad e smartphone */
         let ajExportAllPagesV2267=false;
-        function ajIOSPageDprV2265(){const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),a3=LOGICAL_W>=1200;return ios&&a3?1:Math.max(1,Math.min(2,window.devicePixelRatio||2));}
+        function ajIOSPageDprV2265(){const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),iphone=/iPhone|iPod/.test(navigator.userAgent),a3=LOGICAL_W>=1200;if(a3&&iphone)return .5;if(a3&&ipad)return 1;return Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
             if(ajExportAllPagesV2267||!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -7404,13 +7404,18 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 })();
 </script>
 
-<style id="AIRJOTTER_V221061331941_IPAD_LIVE_INK_STYLE">
+<style id="AIRJOTTER_V221061331942_TOUCH_INK_SAFE_STYLE">
 @media (min-width:761px) and (pointer:coarse),
        (min-width:761px) and (hover:none) and (any-pointer:coarse){
- #ajIpadSmartWetV19{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+ html.aj-ipad-smart-v19 #ajIpadSmartWetV19{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+ html.aj-ipad-smart-v19 #ajUniversalWetV22106111{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+}
+@media(max-width:760px){
+ html.aj-a3-phone-v22106111 #ajInkPagesLayerV215 canvas{background-color:transparent!important;will-change:auto!important;transform:none!important;backface-visibility:visible!important}
+ html.aj-a3-phone-v22106111 #ajInkPagesLayerV215{isolation:auto!important;transform:none!important;will-change:auto!important}
 }
 </style>
-<script id="AIRJOTTER_V221061331941_IPAD_STABLE_LIVE_INK">
+<script id="AIRJOTTER_V221061331942_IPAD_FINGER_PHONE_A3_SAFE">
 (()=>{'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
@@ -7418,37 +7423,17 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   if(!vp||!wrap)return;
   const isPhone=()=>matchMedia('(max-width:760px)').matches;
   const isTablet=()=>!isPhone()&&(matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none) and (any-pointer:coarse)').matches||navigator.maxTouchPoints>1);
-  function phoneCapture(){
-   const stage=document.getElementById('mobileStageV109'),sw=Math.max(1,stage?.offsetWidth||vp.scrollWidth||1);
-   return {top:vp.scrollTop,centerRatio:(vp.scrollLeft+vp.clientWidth/2)/sw,docX:scrollX,docY:scrollY,transform:wrap.style.transform,origin:wrap.style.transformOrigin};
-  }
-  function phoneRestore(view){
-   if(!view)return;const stage=document.getElementById('mobileStageV109');
-   wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;wrap.style.margin='0';wrap.style.marginBottom='0';
-   if(stage){stage.style.marginLeft='auto';stage.style.marginRight='auto';const w=stage.offsetWidth;if(w<=vp.clientWidth)vp.scrollLeft=0;else{const max=Math.max(0,vp.scrollWidth-vp.clientWidth),wanted=view.centerRatio*w-vp.clientWidth/2;vp.scrollLeft=Math.max(0,Math.min(max,wanted))}}
-   vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));scrollTo(view.docX,view.docY);
-  }
+  function phoneCapture(){const stage=document.getElementById('mobileStageV109'),sw=Math.max(1,stage?.offsetWidth||vp.scrollWidth||1);return{top:vp.scrollTop,centerRatio:(vp.scrollLeft+vp.clientWidth/2)/sw,docX:scrollX,docY:scrollY,transform:wrap.style.transform,origin:wrap.style.transformOrigin}}
+  function phoneRestore(view){if(!view)return;const stage=document.getElementById('mobileStageV109');wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;wrap.style.margin='0';wrap.style.marginBottom='0';if(stage){stage.style.marginLeft='auto';stage.style.marginRight='auto';const w=stage.offsetWidth;if(w<=vp.clientWidth)vp.scrollLeft=0;else{const max=Math.max(0,vp.scrollWidth-vp.clientWidth),wanted=view.centerRatio*w-vp.clientWidth/2;vp.scrollLeft=Math.max(0,Math.min(max,wanted))}}vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));scrollTo(view.docX,view.docY)}
   function tabletCapture(){return{left:vp.scrollLeft,top:vp.scrollTop,docX:scrollX,docY:scrollY}}
-  function tabletRestore(view){
-   if(!view)return;
-   vp.scrollLeft=Math.max(0,Math.min(Math.max(0,vp.scrollWidth-vp.clientWidth),view.left));
-   vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));
-   scrollTo(view.docX,view.docY);
-  }
-  function run(job){
-   if(!isPhone()&&!isTablet())return job();
-   const phone=isPhone(),view=phone?phoneCapture():tabletCapture();
-   window.ajPreserveTouchViewportV1939=true;
-   try{return job()}finally{
-    window.ajPreserveTouchViewportV1939=false;
-    const restore=phone?phoneRestore:tabletRestore;
-    const delays=phone?[0,16,48,96,180,320]:[0,32,96];
-    delays.forEach(ms=>setTimeout(()=>restore(view),ms));
-   }
-  }
+  function tabletRestore(view){if(!view)return;vp.scrollLeft=Math.max(0,Math.min(Math.max(0,vp.scrollWidth-vp.clientWidth),view.left));vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));scrollTo(view.docX,view.docY)}
+  function run(job){if(!isPhone()&&!isTablet())return job();const phone=isPhone(),view=phone?phoneCapture():tabletCapture();window.ajPreserveTouchViewportV1939=true;try{return job()}finally{window.ajPreserveTouchViewportV1939=false;const restore=phone?phoneRestore:tabletRestore;(phone?[0,16,48,96,180,320]:[0,32,96]).forEach(ms=>setTimeout(()=>restore(view),ms))}}
   window.ajRunPreservingViewV1939=run;
   window.ajRefreshPaperPreservingViewV1939=()=>run(()=>window.ajPaperV221042?.refresh?.());
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.41-IPAD-STABLE-LIVE-INK';
+  function sanitizePhoneA3(){if(!isPhone()||document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()!=='A3')return;const layer=document.getElementById('ajInkPagesLayerV215');if(!layer)return;layer.querySelectorAll('canvas').forEach(canvas=>{canvas.style.backgroundColor='transparent';canvas.style.transform='none';canvas.style.willChange='auto';const ctx=canvas.getContext('2d',{alpha:true});if(ctx)ctx.globalCompositeOperation='source-over'})}
+  const count=document.getElementById('pageCountNumber');if(count)new MutationObserver(()=>requestAnimationFrame(sanitizePhoneA3)).observe(count,{childList:true,subtree:true,characterData:true});
+  document.getElementById('draftBoard')?.addEventListener('pointerup',()=>setTimeout(sanitizePhoneA3,70),{passive:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.42-IPAD-FINGER-PHONE-A3-SAFE';
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
