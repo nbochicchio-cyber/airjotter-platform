@@ -2331,8 +2331,26 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         }
         function ajPageCommandKeyV2265(pageIndex,cmds){return pageIndex+'#'+cmds.map(ajInkCommandKeyV218).join('|')}
         function ajReleasePageEntryV2265(pageIndex){const e=ajInkPageContextsV218.get(pageIndex);if(!e)return;try{e.canvas.remove();e.canvas.width=1;e.canvas.height=1}catch{}ajInkPageContextsV218.delete(pageIndex)}
+        function ajPhoneA3VectorModeV1943(){return innerWidth<=760&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3'}
+        function ajRenderPhoneA3VectorV1943(){
+            let svg=document.getElementById('ajPhoneA3VectorInkV1943');
+            if(!ajPhoneA3VectorModeV1943()){svg?.remove();return}
+            const NS='http://www.w3.org/2000/svg';
+            if(!svg){svg=document.createElementNS(NS,'svg');svg.id='ajPhoneA3VectorInkV1943';svg.setAttribute('preserveAspectRatio','none');svg.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible;background:transparent';ajEnsureInkPagesLayerV215().insertAdjacentElement('afterend',svg)}
+            svg.setAttribute('viewBox',`0 0 ${Math.max(1,LOGICAL_W)} ${Math.max(1,LOGICAL_H)}`);svg.replaceChildren();
+            const paths=commands.filter(c=>c?.type==='path'&&Array.isArray(c.points)&&c.points.length);
+            for(const cmd of paths){
+                const pts=cmd.points;if(!pts.length)continue;const p=document.createElementNS(NS,'path');
+                let d=`M${Number(pts[0].x||0).toFixed(2)} ${Number(pts[0].y||0).toFixed(2)}`;
+                for(let i=1;i<pts.length;i++)d+=` L${Number(pts[i].x||0).toFixed(2)} ${Number(pts[i].y||0).toFixed(2)}`;
+                const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length?widths.reduce((a,b)=>a+b,0)/widths.length:Number(cmd.width||2.5);
+                p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
+                p.setAttribute('stroke',cmd.isEraser?'#ffffff':cmd.isHighlighter?'#FFE000':(cmd.color||'#1D1D1F'));
+                p.setAttribute('stroke-opacity',cmd.isHighlighter?String(cmd.opacity??.30):'1');p.setAttribute('stroke-width',String(Math.max(.55,width||2.5)));svg.appendChild(p)
+            }
+        }
         function ajRenderInkPagesV215(force=false){
-            const inkCommands=commands.filter(c=>c.type==='path'||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector'),layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215();
+            const phoneVector=ajPhoneA3VectorModeV1943(),inkCommands=commands.filter(c=>(!phoneVector&&c.type==='path')||c.type==='text'||c.type==='stamp'||c.type==='shape'||c.type==='connector'),layer=ajEnsureInkPagesLayerV215(),pages=ajVisiblePagesV2265(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215();ajRenderPhoneA3VectorV1943();
             if(!ajIOSVirtualV2265){const key=[TOTAL_PAGES,inkCommands.length,inkCommands.map(ajInkCommandKeyV218).join('|')].join('#');if(!force&&key===ajInkPagesKeyV215)return;ajInkPagesKeyV215=key;layer.replaceChildren();ajInkPageContextsV218.clear()}
             else{for(const pageIndex of [...ajInkPageContextsV218.keys()])if(!pages.has(pageIndex))ajReleasePageEntryV2265(pageIndex)}
             for(const pageIndex of pages){
@@ -2990,7 +3008,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             entry={canvas,ctx,ratio};ajInkPageContextsV218.set(pageIndex,entry);layer.appendChild(canvas);return entry;
         }
         function ajDrawPathOnPagesV224(cmd){
-            if(!cmd||!Array.isArray(cmd.points)||!cmd.points.length)return;
+            if(!cmd||!Array.isArray(cmd.points)||!cmd.points.length)return;if(ajPhoneA3VectorModeV1943()){ajRenderPhoneA3VectorV1943();return;}
             const pages=new Set(cmd.points.map(p=>Math.max(0,Math.min(TOTAL_PAGES-1,Math.floor(Number(p.y||0)/BASE_A4_H))))),old=dpr;
             for(const pageIndex of pages){const e=ajEnsurePageCanvasV224(pageIndex);if(!e)continue;dpr=e.ratio;renderPathToCtx(e.ctx,cmd,false);const pageCommands=commands.filter(c=>(c.type==='path'||c.type==='text'||c.type==='stamp')&&ajCommandTouchesPageV218(c,pageIndex));e.key=ajPageCommandKeyV2265(pageIndex,pageCommands)}dpr=old;
         }
@@ -7413,6 +7431,7 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 @media(max-width:760px){
  html.aj-a3-phone-v22106111 #ajInkPagesLayerV215 canvas{background-color:transparent!important;will-change:auto!important;transform:none!important;backface-visibility:visible!important}
  html.aj-a3-phone-v22106111 #ajInkPagesLayerV215{isolation:auto!important;transform:none!important;will-change:auto!important}
+ html.aj-a3-phone-v22106111 #ajPhoneA3VectorInkV1943{display:block!important;visibility:visible!important;opacity:1!important;background:transparent!important}
 }
 </style>
 <script id="AIRJOTTER_V221061331942_IPAD_FINGER_PHONE_A3_SAFE">
@@ -7433,7 +7452,7 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   function sanitizePhoneA3(){if(!isPhone()||document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()!=='A3')return;const layer=document.getElementById('ajInkPagesLayerV215');if(!layer)return;layer.querySelectorAll('canvas').forEach(canvas=>{canvas.style.backgroundColor='transparent';canvas.style.transform='none';canvas.style.willChange='auto';const ctx=canvas.getContext('2d',{alpha:true});if(ctx)ctx.globalCompositeOperation='source-over'})}
   const count=document.getElementById('pageCountNumber');if(count)new MutationObserver(()=>requestAnimationFrame(sanitizePhoneA3)).observe(count,{childList:true,subtree:true,characterData:true});
   document.getElementById('draftBoard')?.addEventListener('pointerup',()=>setTimeout(sanitizePhoneA3,70),{passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.42-IPAD-FINGER-PHONE-A3-SAFE';
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.43-PHONE-A3-VECTOR-INK';
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
