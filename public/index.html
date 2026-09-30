@@ -7373,5 +7373,38 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
 window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.32-A3-LOCAL-REMOTE-REBUILD';
 document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
+
+<script id="AIRJOTTER_V221061331933_A3_SILENT_APPLY">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const count=document.getElementById('pageCountNumber');
+  const apply=document.getElementById('ajPaperApplyV221042');
+  const modal=document.getElementById('ajPaperModalV221042');
+  const size=document.getElementById('ajPaperSizeV221042');
+  if(!count||!apply||!modal||!size)return;
+  let previous=Number(count.textContent||0),timer=0,busy=false;
+  function isSmartphoneA3(){return innerWidth<=760&&String(document.getElementById('ajPaperGlobalBtnV221042')?.textContent||'').trim().toUpperCase()==='A3'}
+  function silentApply(){
+   if(!isSmartphoneA3()||busy)return;
+   clearTimeout(timer);
+   timer=setTimeout(()=>{
+    if(!isSmartphoneA3()||modal.classList.contains('open'))return;
+    busy=true;
+    size.value='A3';
+    apply.click();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{busy=false}));
+   },90);
+  }
+  new MutationObserver(()=>{
+   const current=Number(count.textContent||0);
+   if(current>previous)silentApply();
+   previous=current;
+  }).observe(count,{childList:true,subtree:true,characterData:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.33-A3-SILENT-APPLY';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
 </body>
 </html>
