@@ -2561,7 +2561,18 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                 const pageLimit=Number(ajMe?.limits?.pages||5);
                 if(placement.totalPages>pageLimit) throw new Error(`Il PDF richiede ${placement.totalPages} pagine, ma il piano corrente ne consente massimo ${pageLimit}.`);
 
-                if(placement.totalPages!==TOTAL_PAGES){ TOTAL_PAGES=placement.totalPages; initCanvas(); await ajSend('page:set',{count:TOTAL_PAGES}); }
+                if(placement.totalPages!==TOTAL_PAGES){
+                    TOTAL_PAGES=placement.totalPages;
+                    if(Array.isArray(window.ajVariablePageLayoutsV221048)){
+                        const layouts=window.ajVariablePageLayoutsV221048.slice(0,TOTAL_PAGES),fallback=layouts.at(-1)||{w:LOGICAL_W,h:BASE_A4_H};
+                        while(layouts.length<TOTAL_PAGES)layouts.push({w:Number(fallback.w)||LOGICAL_W,h:Number(fallback.h)||BASE_A4_H});
+                        window.ajVariablePageLayoutsV221048=layouts;
+                        window.ajVariablePageOffsetsV221048=layouts.map((_,i)=>layouts.slice(0,i).reduce((sum,page)=>sum+Number(page.h||BASE_A4_H),0));
+                    }
+                    initCanvas();
+                    if(typeof window.ajRenderVariablePagesV221048==='function')window.ajRenderVariablePagesV221048();
+                    await ajSend('page:set',{count:TOTAL_PAGES});
+                }
 
                 for(let pageNum=1;pageNum<=pdf.numPages;pageNum++){
                     loading.update(`Pagina ${pageNum} di ${pdf.numPages}`,((pageNum-1)/pdf.numPages)*100);
@@ -2589,7 +2600,15 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
                     pageCanvas.width=1; pageCanvas.height=1; encoded.canvas.width=1; encoded.canvas.height=1;
                     loading.update(`Pagina ${pageNum} di ${pdf.numPages}`,(pageNum/pdf.numPages)*100);
                 }
-                redoCommands=[]; document.getElementById('undoBtn').disabled=commands.length===0; redrawMainCanvas();
+                redoCommands=[]; document.getElementById('undoBtn').disabled=commands.length===0;
+                ajInkPagesKeyV215='';
+                redrawMainCanvas();
+                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+                if(typeof window.ajRenderVariablePagesV221048==='function')window.ajRenderVariablePagesV221048();
+                ajRenderInkPagesV215(true);
+                renderVisiblePageBreaks();
+                handleResize();
+                window.dispatchEvent(new Event('resize'));
                 loading.update('PDF importato correttamente',100);
                 await new Promise(r=>setTimeout(r,350));
             } catch(err) {
@@ -7216,5 +7235,8 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 <!-- AIRJOTTER_V221061331923_GOOGLE_CENTER_BEGIN -->
 <script id="AIRJOTTER_V221061331923_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.23-GOOGLE-CENTER';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.23-GOOGLE-CENTER';</script>
 <!-- AIRJOTTER_V221061331923_GOOGLE_CENTER_END -->
+<!-- AIRJOTTER_V221061331924_PDF_LIVE_PAGES_BEGIN -->
+<script id="AIRJOTTER_V221061331924_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.24-PDF-LIVE-PAGES';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.24-PDF-LIVE-PAGES';</script>
+<!-- AIRJOTTER_V221061331924_PDF_LIVE_PAGES_END -->
 </body>
 </html>
