@@ -3024,7 +3024,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             const copy={...cmd}; delete copy.renderIndex; delete copy.canvas; return JSON.parse(JSON.stringify(copy));
         }
         function ajSendCommand(cmd) { const clean = ajSerializableCommand(cmd); if (!clean) return Promise.resolve(); return ajSend('command:add', { command: clean, liveStrokeId:cmd?._liveStrokeId||null }, cmd).catch(error=>{console.error('Sincronizzazione comando:',error);if(!ajSocket.connected)ajSocket.connect();throw error;}); }
-        function ajSendPageCount() { ajSend('page:set', { count: TOTAL_PAGES }); }
+        async function ajSendPageCount() { const count=TOTAL_PAGES; await ajSend('page:set',{count}); if(innerWidth<=760&&String(document.getElementById('ajPaperGlobalBtnV221042')?.textContent||'').trim().toUpperCase()==='A3'){ ajApplyOperation({type:'page:set',payload:{count}}); window.ajPaperV221042?.refresh?.(); } }
         function ajSendClear() { ajSend('board:clear', {}); }
         let ajBatchApply = false; // v18.0: durante una ricostruzione completa si ridisegna una volta sola, alla fine
         function ajApplyOperation(op) {
@@ -7367,6 +7367,11 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
+</script>
+
+<script id="AIRJOTTER_V221061331932_A3_LOCAL_REMOTE_REBUILD">
+window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.32-A3-LOCAL-REMOTE-REBUILD';
+document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
 </body>
 </html>
