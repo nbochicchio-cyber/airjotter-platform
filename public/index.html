@@ -2323,7 +2323,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         }
         const ajIOSVirtualV2265=true; /* v33.19.2: stessa virtualizzazione pagine su PC, iPad e smartphone */
         let ajExportAllPagesV2267=false;
-        function ajIOSPageDprV2265(){return Math.max(1,Math.min(2,window.devicePixelRatio||2));}
+        function ajIOSPageDprV2265(){const a3Phone=innerWidth<=760&&LOGICAL_W>=1200;return a3Phone?1:Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
             if(ajExportAllPagesV2267||!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -7311,6 +7311,30 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
   ajSocket.on('board:reload',refresh);
  }
  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.29-PAGE-REFRESH';
+ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+})();
+</script>
+
+<script id="AIRJOTTER_V221061331930_A3_PHONE_CANVAS">
+(()=>{'use strict';
+ function stabilizeA3PhonePages(){
+  if(innerWidth>760||typeof LOGICAL_W!=='number'||LOGICAL_W<1200)return;
+  const layer=document.getElementById('ajInkPagesLayerV215');
+  if(layer){
+   layer.style.background='transparent';
+   layer.querySelectorAll('canvas').forEach(canvas=>{
+    canvas.style.background='transparent';
+    canvas.style.willChange='auto';
+    canvas.style.transform='none';
+   });
+  }
+ }
+ document.addEventListener('click',event=>{
+  if(event.target?.closest?.('#addPageBtn,#removePageBtn,.page-delete-btn'))requestAnimationFrame(()=>requestAnimationFrame(stabilizeA3PhonePages));
+ },true);
+ document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(stabilizeA3PhonePages,160),true);
+ addEventListener('resize',stabilizeA3PhonePages,{passive:true});
+ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.30-A3-PHONE-CANVAS';
  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 })();
 </script>
