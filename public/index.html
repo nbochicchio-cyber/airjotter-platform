@@ -2323,7 +2323,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         }
         const ajIOSVirtualV2265=true; /* v33.19.2: stessa virtualizzazione pagine su PC, iPad e smartphone */
         let ajExportAllPagesV2267=false;
-        function ajIOSPageDprV2265(){const a3Phone=innerWidth<=760&&LOGICAL_W>=1200;return a3Phone?1:Math.max(1,Math.min(2,window.devicePixelRatio||2));}
+        function ajIOSPageDprV2265(){const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),a3=LOGICAL_W>=1200;return ios&&a3?1:Math.max(1,Math.min(2,window.devicePixelRatio||2));}
         function ajVisiblePagesV2265(){
             if(ajExportAllPagesV2267||!ajIOSVirtualV2265)return new Set(Array.from({length:TOTAL_PAGES},(_,i)=>i));
             const rect=wrapper.getBoundingClientRect(),scale=Math.max(.05,rect.width/LOGICAL_W),viewTop=Math.max(0,(0-rect.top)/scale),viewBottom=Math.min(LOGICAL_H,(innerHeight-rect.top)/scale);
@@ -2340,8 +2340,8 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 if(existing&&!force&&existing.key===pageKey)continue;
                 if(existing)ajReleasePageEntryV2265(pageIndex);
                 if(!pageCommands.length)continue;
-                const canvas=document.createElement('canvas');canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-                const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;continue}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);const previousDpr=dpr;dpr=ratio;
+                const layout=window.ajVariablePageLayoutsV221048?.[pageIndex]||{w:LOGICAL_W,h:BASE_A4_H},pageTop=window.ajVariablePageOffsetsV221048?.[pageIndex]??pageIndex*BASE_A4_H;const canvas=document.createElement('canvas');canvas.width=Math.round(layout.w*ratio);canvas.height=Math.round(layout.h*ratio);canvas.style.cssText=`position:absolute;left:0;top:${pageTop}px;width:${layout.w}px;height:${layout.h}px;display:block;background:transparent`;
+                const ctx=canvas.getContext('2d',{alpha:true});if(!ctx){canvas.width=1;canvas.height=1;continue}ctx.setTransform(ratio,0,0,ratio,0,-pageTop*ratio);const previousDpr=dpr;dpr=ratio;
                 for(const cmd of pageCommands){if(cmd.type==='path')renderPathToCtx(ctx,cmd,false);else if(cmd.type==='text')ajDrawTextV218(ctx,cmd);else if(cmd.type==='shape'||cmd.type==='connector')ajDrawShapeV227(ctx,cmd);else ajDrawImportedV219(ctx,cmd)}
                 dpr=previousDpr;ajInkPageContextsV218.set(pageIndex,{canvas,ctx,ratio,key:pageKey});layer.appendChild(canvas)
             }
@@ -2983,10 +2983,10 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         const ajLivePreviewCanvasesV224=new Map();
         function ajEnsurePageCanvasV224(pageIndex){
             let entry=ajInkPageContextsV218.get(pageIndex);if(entry)return entry;if(ajIOSVirtualV2265&&!ajVisiblePagesV2265().has(pageIndex))return null;
-            const layer=ajEnsureInkPagesLayerV215(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215(),canvas=document.createElement('canvas');
-            canvas.width=Math.round(LOGICAL_W*ratio);canvas.height=Math.round(BASE_A4_H*ratio);
-            canvas.style.cssText=`position:absolute;left:0;top:${pageIndex*BASE_A4_H}px;width:${LOGICAL_W}px;height:${BASE_A4_H}px;display:block`;
-            const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});if(!ctx){canvas.width=1;canvas.height=1;return null}ctx.setTransform(ratio,0,0,ratio,0,-pageIndex*BASE_A4_H*ratio);
+            const layer=ajEnsureInkPagesLayerV215(),ratio=ajIOSVirtualV2265?ajIOSPageDprV2265():ajInkPageDprV215(),layout=window.ajVariablePageLayoutsV221048?.[pageIndex]||{w:LOGICAL_W,h:BASE_A4_H},pageTop=window.ajVariablePageOffsetsV221048?.[pageIndex]??pageIndex*BASE_A4_H,canvas=document.createElement('canvas');
+            canvas.width=Math.round(layout.w*ratio);canvas.height=Math.round(layout.h*ratio);
+            canvas.style.cssText=`position:absolute;left:0;top:${pageTop}px;width:${layout.w}px;height:${layout.h}px;display:block;background:transparent`;
+            const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});if(!ctx){canvas.width=1;canvas.height=1;return null}ctx.setTransform(ratio,0,0,ratio,0,-pageTop*ratio);
             entry={canvas,ctx,ratio};ajInkPageContextsV218.set(pageIndex,entry);layer.appendChild(canvas);return entry;
         }
         function ajDrawPathOnPagesV224(cmd){
@@ -7345,47 +7345,14 @@ window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.32-A3-LOCAL-REMOTE-REBUILD';
 document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
 
-<style id="AIRJOTTER_V221061331934_A3_OPEN_APPLY_SILENT_STYLE">
-html.aj-a3-silent-open-v221061331934 #ajPaperModalV221042{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+
+<style id="AIRJOTTER_V221061331935_IOS_A3_STABLE_STYLE">
+html.aj-ios-a3-v221061331935 #mobileViewport{touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important}
+html.aj-ios-a3-v221061331935 #canvas-wrapper{will-change:auto!important;transform-style:flat!important;contain:layout style!important}
+html.aj-ios-a3-v221061331935 #pencilPredictionBoard,html.aj-ios-a3-v221061331935 #ajUniversalWetV22106111,html.aj-ios-a3-v221061331935 #ajIpadSmartWetV19{display:none!important}
 </style>
-<script id="AIRJOTTER_V221061331934_A3_OPEN_APPLY_SILENT">
-(()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  const count=document.getElementById('pageCountNumber');
-  const formatButton=document.getElementById('ajPaperGlobalBtnV221042');
-  const applyButton=document.getElementById('ajPaperApplyV221042');
-  const modal=document.getElementById('ajPaperModalV221042');
-  if(!count||!formatButton||!applyButton||!modal)return;
-  let previous=Number(count.textContent||0),timer=0,running=false;
-  function smartphoneA3(){return matchMedia('(max-width:760px)').matches&&formatButton.textContent.trim().toUpperCase()==='A3'}
-  function openThenApplySilently(){
-   if(!smartphoneA3()||running)return;
-   clearTimeout(timer);
-   timer=setTimeout(()=>{
-    if(!smartphoneA3()||running)return;
-    running=true;
-    document.documentElement.classList.add('aj-a3-silent-open-v221061331934');
-    formatButton.click();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-     applyButton.click();
-     requestAnimationFrame(()=>{
-      modal.classList.remove('open');
-      document.documentElement.classList.remove('aj-a3-silent-open-v221061331934');
-      running=false;
-     });
-    }));
-   },120);
-  }
-  new MutationObserver(()=>{
-   const current=Number(count.textContent||0);
-   if(current>previous)openThenApplySilently();
-   previous=current;
-  }).observe(count,{childList:true,subtree:true,characterData:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.34-A3-OPEN-APPLY-SILENT';
-  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
- });
-})();
+<script id="AIRJOTTER_V221061331935_IOS_A3_STABLE_SCRIPT">
+(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{const f=document.getElementById('ajPaperGlobalBtnV221042'),v=document.getElementById('mobileViewport');if(!f||!v)return;const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const sync=()=>document.documentElement.classList.toggle('aj-ios-a3-v221061331935',ios&&f.textContent.trim().toUpperCase()==='A3');new MutationObserver(sync).observe(f,{childList:true,subtree:true,characterData:true});sync();let t=0;v.addEventListener('scroll',()=>{if(!document.documentElement.classList.contains('aj-ios-a3-v221061331935'))return;clearTimeout(t);t=setTimeout(()=>{window.ajRenderVariablePagesV221048?.();window.ajPaperV221042?.refresh?.()},140)},{passive:true});window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.35-IOS-A3-STABLE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;});})();
 </script>
 </body>
 </html>
