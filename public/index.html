@@ -7404,63 +7404,56 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 })();
 </script>
 
-<script id="AIRJOTTER_V221061331940_TOUCH_CENTERED_VIEW">
+<style id="AIRJOTTER_V221061331941_IPAD_LIVE_INK_STYLE">
+@media (min-width:761px) and (pointer:coarse),
+       (min-width:761px) and (hover:none) and (any-pointer:coarse){
+ #ajIpadSmartWetV19{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+}
+</style>
+<script id="AIRJOTTER_V221061331941_IPAD_STABLE_LIVE_INK">
 (()=>{'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
   const vp=document.getElementById('mobileViewport'),wrap=document.getElementById('canvas-wrapper');
   if(!vp||!wrap)return;
-  const touch=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
-  function capture(){
-   const stage=document.getElementById('mobileStageV109');
-   const sw=Math.max(1,stage?.offsetWidth||vp.scrollWidth||1);
-   return {
-    top:vp.scrollTop,
-    centerRatio:(vp.scrollLeft+vp.clientWidth/2)/sw,
-    docX:scrollX,docY:scrollY,
-    transform:wrap.style.transform,
-    origin:wrap.style.transformOrigin
-   };
+  const isPhone=()=>matchMedia('(max-width:760px)').matches;
+  const isTablet=()=>!isPhone()&&(matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none) and (any-pointer:coarse)').matches||navigator.maxTouchPoints>1);
+  function phoneCapture(){
+   const stage=document.getElementById('mobileStageV109'),sw=Math.max(1,stage?.offsetWidth||vp.scrollWidth||1);
+   return {top:vp.scrollTop,centerRatio:(vp.scrollLeft+vp.clientWidth/2)/sw,docX:scrollX,docY:scrollY,transform:wrap.style.transform,origin:wrap.style.transformOrigin};
   }
-  function restore(view){
+  function phoneRestore(view){
+   if(!view)return;const stage=document.getElementById('mobileStageV109');
+   wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;wrap.style.margin='0';wrap.style.marginBottom='0';
+   if(stage){stage.style.marginLeft='auto';stage.style.marginRight='auto';const w=stage.offsetWidth;if(w<=vp.clientWidth)vp.scrollLeft=0;else{const max=Math.max(0,vp.scrollWidth-vp.clientWidth),wanted=view.centerRatio*w-vp.clientWidth/2;vp.scrollLeft=Math.max(0,Math.min(max,wanted))}}
+   vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));scrollTo(view.docX,view.docY);
+  }
+  function tabletCapture(){return{left:vp.scrollLeft,top:vp.scrollTop,docX:scrollX,docY:scrollY}}
+  function tabletRestore(view){
    if(!view)return;
-   const stage=document.getElementById('mobileStageV109');
-   wrap.style.transform=view.transform;
-   wrap.style.transformOrigin=view.origin;
-   wrap.style.margin='0';
-   wrap.style.marginBottom='0';
-   if(stage){
-    stage.style.marginLeft='auto';
-    stage.style.marginRight='auto';
-    const stageWidth=stage.offsetWidth;
-    if(stageWidth<=vp.clientWidth){
-     vp.scrollLeft=0;
-    }else{
-     const maxLeft=Math.max(0,vp.scrollWidth-vp.clientWidth);
-     const wanted=view.centerRatio*stageWidth-vp.clientWidth/2;
-     vp.scrollLeft=Math.max(0,Math.min(maxLeft,wanted));
-    }
-   }
-   const maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);
-   vp.scrollTop=Math.max(0,Math.min(maxTop,view.top));
+   vp.scrollLeft=Math.max(0,Math.min(Math.max(0,vp.scrollWidth-vp.clientWidth),view.left));
+   vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),view.top));
    scrollTo(view.docX,view.docY);
   }
   function run(job){
-   if(!touch())return job();
-   const view=capture();
+   if(!isPhone()&&!isTablet())return job();
+   const phone=isPhone(),view=phone?phoneCapture():tabletCapture();
    window.ajPreserveTouchViewportV1939=true;
    try{return job()}finally{
     window.ajPreserveTouchViewportV1939=false;
-    [0,16,48,96,180,320].forEach(ms=>setTimeout(()=>restore(view),ms));
+    const restore=phone?phoneRestore:tabletRestore;
+    const delays=phone?[0,16,48,96,180,320]:[0,32,96];
+    delays.forEach(ms=>setTimeout(()=>restore(view),ms));
    }
   }
   window.ajRunPreservingViewV1939=run;
   window.ajRefreshPaperPreservingViewV1939=()=>run(()=>window.ajPaperV221042?.refresh?.());
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.40-TOUCH-CENTERED-VIEW';
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.41-IPAD-STABLE-LIVE-INK';
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
 </script>
+
 
 </body>
 </html>
