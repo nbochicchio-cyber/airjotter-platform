@@ -1000,14 +1000,18 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('#ajLogin *').forEach(function(e){if(e.children.length===0&&(e.textContent||'').trim()==='Registrati o accedi con email e password.'){e.style.color='#e2edff';e.style.opacity='1'}})},{once:true});
 </script>
 
-<style id="AIRJOTTER_PAYMENT_UI_1964">
+<style id="AIRJOTTER_PAYMENT_UI_1964A">
 #ajPublicPlansV220 .aj-credit-plan-buy{display:none!important}
-#ajPublicPlansV220 .aj-plan-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important}
-.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222{min-height:54px!important;border-radius:12px!important;font-weight:850!important}
-.aj-stripe-buy:disabled,#ajTopStripeV2283:disabled,#ajTopStripeV222:disabled{background:#d7e0ed!important;color:#708098!important;border-color:#bdc9d8!important;cursor:not-allowed!important;opacity:1!important}
-.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222{min-height:54px!important;border-radius:12px!important;background:#ffc439!important;color:#111820!important;border:1px solid #e4a900!important;font-weight:850!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important}
-.aj-pp-mark-1964{width:30px;min-width:30px;height:24px;overflow:hidden;display:inline-block}.aj-pp-mark-1964>div{transform:scale(.72);transform-origin:left center;width:42px!important}
-@media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}}
+#ajPublicPlansV220 .aj-plan-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;align-items:stretch!important}
+.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222,.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222{height:52px!important;min-height:52px!important;border-radius:11px!important;box-shadow:none!important;font-size:15px!important;font-weight:800!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;padding:0 18px!important;white-space:nowrap!important;overflow:hidden!important}
+.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222{background:#fff!important;color:#173b72!important;border:1.5px solid #9eb6dc!important}
+.aj-stripe-buy:disabled,#ajTopStripeV2283:disabled,#ajTopStripeV222:disabled{background:#f3f6fa!important;color:#8492a8!important;border-color:#ccd5e2!important;cursor:not-allowed!important;opacity:1!important}
+.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222{background:#ffc439!important;color:#111820!important;border:1px solid #e2aa16!important;cursor:pointer!important}
+.aj-paypal-buy:hover,#ajTopPaypalV2283:hover,#ajTopPaypalV222:hover{background:#ffb91f!important}
+.aj-payment-icon-1964a{width:28px!important;height:28px!important;object-fit:contain!important;display:block!important;pointer-events:none!important;flex:0 0 28px!important}
+.aj-payment-label-1964a{pointer-events:none!important;display:inline-block!important}
+.aj-card-icon-1964a{width:28px;height:20px;border:2px solid currentColor;border-radius:4px;position:relative;box-sizing:border-box;pointer-events:none;opacity:.9}.aj-card-icon-1964a:before{content:'';position:absolute;left:0;right:0;top:4px;height:3px;background:currentColor}.aj-card-icon-1964a:after{content:'';position:absolute;left:4px;bottom:3px;width:8px;height:2px;background:currentColor;border-radius:2px}
+@media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222,.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222{width:100%!important}}
 </style>
 </head>
 <body>
@@ -7629,12 +7633,14 @@ Object.defineProperty(window,'AIRJOTTER_FRONTEND_VERSION',{configurable:false,en
 document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
 
-<script id="AIRJOTTER_PAYMENT_MARKS_1964">
+<script id="AIRJOTTER_PAYMENT_BUTTONS_1964A">
 (()=>{
- let loading=null;const done=new WeakSet();
- async function sdk(){if(window.paypal?.Marks)return window.paypal;if(loading)return loading;loading=(async()=>{const c=await fetch('/api/billing/config').then(r=>r.json());if(!c.paypalClientId)return null;await new Promise((ok,no)=>{const old=document.querySelector('script[data-aj-paypal-marks="1964"]');if(old){old.addEventListener('load',ok,{once:true});old.addEventListener('error',no,{once:true});return}const x=document.createElement('script');x.dataset.ajPaypalMarks='1964';x.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(c.paypalClientId)+'&components=marks&currency=EUR';x.onload=ok;x.onerror=no;document.head.appendChild(x)});return window.paypal})();return loading}
- async function decorate(){const pp=await sdk().catch(()=>null);document.querySelectorAll('.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222').forEach(b=>{if(done.has(b))return;done.add(b);const label=b.textContent.trim()||'PayPal';b.textContent='';const mark=document.createElement('span');mark.className='aj-pp-mark-1964';const text=document.createElement('span');text.textContent=label;b.append(mark,text);if(pp?.Marks)pp.Marks({fundingSource:pp.FUNDING.PAYPAL}).render(mark).catch(()=>{mark.remove()})});document.querySelectorAll('.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222').forEach(b=>{if(!b.textContent.includes('Carta'))b.textContent='Carta di credito'})}
- document.addEventListener('click',()=>setTimeout(decorate,0),true);new MutationObserver(()=>queueMicrotask(decorate)).observe(document.body,{childList:true,subtree:true});decorate();
+ const paypalLogo='https://www.paypalobjects.com/webstatic/icon/pp258.png';
+ function decoratePayPal(b){if(!b||b.dataset.ajPayment1964a==='paypal')return;b.dataset.ajPayment1964a='paypal';b.replaceChildren();const img=document.createElement('img');img.className='aj-payment-icon-1964a';img.src=paypalLogo;img.alt='';img.setAttribute('aria-hidden','true');const label=document.createElement('span');label.className='aj-payment-label-1964a';label.textContent='PayPal';b.append(img,label)}
+ function decorateCard(b){if(!b||b.dataset.ajPayment1964a==='card')return;b.dataset.ajPayment1964a='card';b.replaceChildren();const icon=document.createElement('span');icon.className='aj-card-icon-1964a';icon.setAttribute('aria-hidden','true');const label=document.createElement('span');label.className='aj-payment-label-1964a';label.textContent='Carta di credito';b.append(icon,label)}
+ function decorate(){document.querySelectorAll('.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222').forEach(decoratePayPal);document.querySelectorAll('.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222').forEach(decorateCard)}
+ function schedule(){[0,50,150,350,700].forEach(ms=>setTimeout(decorate,ms))}
+ document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',schedule,{once:true});schedule();
 })();
 </script>
 </body>
