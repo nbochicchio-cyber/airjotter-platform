@@ -1029,6 +1029,13 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 #ajPayUseV222 #ajTopPaypalV2283,#ajPayUseV222 #ajTopPaypalV222{grid-area:paypal!important;width:280px!important;height:60px!important;min-height:60px!important;max-height:60px!important}
 #ajPayUseV222 .aj-paypal-sandbox-v1959{max-width:560px!important;margin:2px auto 0!important;text-align:center!important;padding:10px 14px!important;border-radius:10px!important}
 @media(max-width:680px){#ajPayUseV222 .aj-wallet-recharge-v2283{grid-template-columns:1fr!important;grid-template-areas:'minimum' 'amount' 'packs' 'card' 'paypal'!important}#ajPayUseV222 #ajTopStripeV2283,#ajPayUseV222 #ajTopStripeV222,#ajPayUseV222 #ajTopPaypalV2283,#ajPayUseV222 #ajTopPaypalV222{width:100%!important}.aj-confirm-actions-1965b{grid-template-columns:1fr!important}}
+</style><style id="AIRJOTTER_SPOT_EXACT_SIZE_1965D">
+#ajPayUseV222 .aj-wallet-topup-v2283{max-width:680px!important;padding:22px!important;gap:14px!important}
+#ajPayUseV222 .aj-wallet-recharge-v2283{grid-template-columns:var(--aj-plan-pay-width,260px) var(--aj-plan-pay-width,260px)!important;grid-template-areas:'minimum minimum' 'amount packs' 'card paypal' 'sandbox sandbox'!important;gap:12px 14px!important}
+#ajPayUseV222 #ajTopStripeV2283,#ajPayUseV222 #ajTopStripeV222,#ajPayUseV222 #ajTopPaypalV2283,#ajPayUseV222 #ajTopPaypalV222{width:var(--aj-plan-pay-width,260px)!important;min-width:var(--aj-plan-pay-width,260px)!important;max-width:var(--aj-plan-pay-width,260px)!important;height:var(--aj-plan-pay-height,60px)!important;min-height:var(--aj-plan-pay-height,60px)!important;max-height:var(--aj-plan-pay-height,60px)!important;padding:0 16px!important}
+#ajPayUseV222 .aj-paypal-sandbox-v1959{grid-area:sandbox!important;margin:0 auto!important;width:min(100%,calc(var(--aj-plan-pay-width,260px)*2 + 14px))!important;box-sizing:border-box!important}
+#ajPayUseV222 .aj-credit-packs-1965b{height:46px!important;align-items:stretch!important}
+@media(max-width:680px){#ajPayUseV222 .aj-wallet-recharge-v2283{grid-template-columns:1fr!important;grid-template-areas:'minimum' 'amount' 'packs' 'card' 'paypal' 'sandbox'!important}#ajPayUseV222 #ajTopStripeV2283,#ajPayUseV222 #ajTopStripeV222,#ajPayUseV222 #ajTopPaypalV2283,#ajPayUseV222 #ajTopPaypalV222{width:100%!important;min-width:0!important;max-width:none!important}}
 </style></head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
@@ -7660,5 +7667,18 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  function watch(id){const el=document.getElementById(id);if(!el||el.dataset.ajWatch1965b)return;el.dataset.ajWatch1965b='1';new MutationObserver(()=>queueMicrotask(repaint)).observe(el,{childList:true,subtree:true})}
  function install(){watch('ajPublicPlansV220');watch('ajPayUseV222');schedule()}document.addEventListener('DOMContentLoaded',install,{once:true});install();
 })();
-</script><script id="AIRJOTTER_POLLING_GUARD_1964E">window.AIRJOTTER_POLLING_GUARD='19.64E';</script></body>
+</script><script id="AIRJOTTER_POLLING_GUARD_1964E">window.AIRJOTTER_POLLING_GUARD='19.64E';</script><script id="AIRJOTTER_SPOT_EXACT_SIZE_HANDLER_1965D">
+(()=>{
+ function cleanAndMeasure(){
+  const spot=document.getElementById('ajPayUseV222');if(!spot)return;
+  const notices=[...spot.querySelectorAll('.aj-paypal-sandbox-v1959')];notices.slice(1).forEach(n=>n.remove());
+  const top=document.querySelector('#ajPublicPlansV220 .aj-paypal-buy')||document.querySelector('#ajPublicPlansV220 .aj-stripe-buy');
+  if(top){const r=top.getBoundingClientRect();if(r.width>0){spot.style.setProperty('--aj-plan-pay-width',r.width+'px');spot.style.setProperty('--aj-plan-pay-height',r.height+'px')}}
+ }
+ function schedule(){[0,80,220,500].forEach(ms=>setTimeout(cleanAndMeasure,ms))}
+ function watch(id){const el=document.getElementById(id);if(!el||el.dataset.ajExact1965d)return;el.dataset.ajExact1965d='1';new MutationObserver(()=>queueMicrotask(cleanAndMeasure)).observe(el,{childList:true,subtree:true})}
+ function install(){watch('ajPublicPlansV220');watch('ajPayUseV222');schedule()}
+ document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',install,{once:true});window.addEventListener('resize',schedule);install();
+})();
+</script></body>
 </html>
