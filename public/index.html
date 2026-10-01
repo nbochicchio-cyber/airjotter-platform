@@ -1013,7 +1013,14 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 .aj-card-icon-1964a{width:28px;height:20px;border:2px solid currentColor;border-radius:4px;position:relative;box-sizing:border-box;pointer-events:none;opacity:.9}.aj-card-icon-1964a:before{content:'';position:absolute;left:0;right:0;top:4px;height:3px;background:currentColor}.aj-card-icon-1964a:after{content:'';position:absolute;left:4px;bottom:3px;width:8px;height:2px;background:currentColor;border-radius:2px}
 @media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222,.aj-paypal-buy,#ajTopPaypalV2283,#ajTopPaypalV222{width:100%!important}}
 </style>
-</head>
+<style id="AIRJOTTER_PAYMENT_UI_1964B">
+#ajPublicPlansV220 .aj-plan-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:12px!important;align-items:stretch!important}
+#ajPublicPlansV220 .aj-plan-actions>.aj-stripe-buy,#ajPublicPlansV220 .aj-plan-actions>.aj-paypal-buy{width:100%!important;height:58px!important;min-height:58px!important;max-height:58px!important;margin:0!important;padding:0 14px!important;box-sizing:border-box!important;border-radius:12px!important}
+#ajTopStripeV2283,#ajTopPaypalV2283,#ajTopStripeV222,#ajTopPaypalV222{width:210px!important;height:58px!important;min-height:58px!important;max-height:58px!important;margin:0!important;padding:0 14px!important;box-sizing:border-box!important;border-radius:12px!important}
+.aj-card-label-1964b{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;line-height:1.05!important;pointer-events:none!important}
+.aj-card-icon-1964a{flex:0 0 28px!important}.aj-payment-icon-1964a{flex:0 0 28px!important}
+@media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}#ajTopStripeV2283,#ajTopPaypalV2283,#ajTopStripeV222,#ajTopPaypalV222{width:100%!important}}
+</style></head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
       <div class="aj-wow-page-v1922">
@@ -7643,5 +7650,7 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',schedule,{once:true});schedule();
 })();
 </script>
-</body>
+<script id="AIRJOTTER_PAYMENT_CARD_LABEL_1964B">
+(()=>{function fix(){document.querySelectorAll('.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222').forEach(b=>{const label=b.querySelector('.aj-payment-label-1964a');if(!label||label.classList.contains('aj-card-label-1964b'))return;label.classList.add('aj-card-label-1964b');label.replaceChildren(Object.assign(document.createElement('span'),{textContent:'Carta di'}),Object.assign(document.createElement('span'),{textContent:'credito'}))})}function run(){[0,60,180,400,800].forEach(x=>setTimeout(fix,x))}document.addEventListener('click',run,true);document.addEventListener('DOMContentLoaded',run,{once:true});run()})();
+</script></body>
 </html>
