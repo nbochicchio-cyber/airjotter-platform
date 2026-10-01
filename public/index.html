@@ -7533,5 +7533,56 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 </script>
 <!-- AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR_END -->
 
+<!-- AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_BEGIN -->
+<style id="AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_STYLE">
+@media(max-width:760px){
+ html.aj-phone-a3-pinching-v1945 #ajA3LiveInkV2210613319,
+ html.aj-phone-a3-pinching-v1945 #ajUniversalWetV22106111,
+ html.aj-phone-a3-pinching-v1945 #pencilPredictionBoard,
+ html.aj-phone-a3-pinching-v1945 #ajIpadSmartWetV19{
+  display:none!important;visibility:hidden!important;opacity:0!important
+ }
+}
+</style>
+<script id="AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const input=document.getElementById('draftBoard'),vp=document.getElementById('mobileViewport');
+  if(!input||!vp)return;
+  const phoneA3=()=>matchMedia('(max-width:760px)').matches&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
+  let touches=0,pinching=false,releaseTimer=0;
+  function clearTransient(){
+   const live=document.getElementById('ajA3LiveInkV2210613319');
+   live?.querySelector('path')?.removeAttribute('d');
+   const universal=document.getElementById('ajUniversalWetV22106111');
+   universal?.querySelector('path')?.removeAttribute('d');
+   for(const id of ['pencilPredictionBoard','ajIpadSmartWetV19']){
+    const canvas=document.getElementById(id);try{canvas?.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height)}catch{}
+   }
+  }
+  function beginPinch(){
+   if(pinching||!phoneA3())return;pinching=true;
+   clearTimeout(releaseTimer);document.documentElement.classList.add('aj-phone-a3-pinching-v1945');clearTransient();
+  }
+  function endPinch(){
+   touches=0;clearTransient();
+   releaseTimer=setTimeout(()=>{pinching=false;document.documentElement.classList.remove('aj-phone-a3-pinching-v1945');clearTransient()},70);
+  }
+  vp.addEventListener('touchstart',event=>{touches=event.touches.length;if(phoneA3()&&touches>=2)beginPinch()},{capture:true,passive:true});
+  vp.addEventListener('touchmove',event=>{touches=event.touches.length;if(phoneA3()&&touches>=2){beginPinch();clearTransient()}},{capture:true,passive:true});
+  vp.addEventListener('touchend',event=>{touches=event.touches.length;if(pinching&&touches<2)endPinch()},{capture:true,passive:true});
+  vp.addEventListener('touchcancel',endPinch,{capture:true,passive:true});
+  input.addEventListener('pointermove',event=>{if(pinching&&event.pointerType==='touch'){clearTransient();event.stopImmediatePropagation()}},true);
+  input.addEventListener('pointerup',event=>{if(pinching&&event.pointerType==='touch'){clearTransient();event.stopImmediatePropagation()}},true);
+  document.addEventListener('gesturestart',()=>{if(phoneA3())beginPinch()},{capture:true,passive:true});
+  document.addEventListener('gestureend',()=>{if(pinching)endPinch()},{capture:true,passive:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.45-PHONE-A3-PINCH-GUARD';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
+<!-- AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_END -->
+
 </body>
 </html>
