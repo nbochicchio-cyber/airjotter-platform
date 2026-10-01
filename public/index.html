@@ -1891,7 +1891,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     inkCtx.beginPath(); inkCtx.arc(pos.x, pos.y, w / 2, 0, Math.PI * 2); inkCtx.fill(); inkCtx.restore();
                     ext(S.bb, pos.x, pos.y, w / 2);
                     S.legacyDot = true;
-                } else {
+                } else if(currentPath.points.length) {
                     S.pieces = [];
                     pushPiece([[currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w)]]);
                     drawDot([inkCtx], currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w), currentColor, null);
@@ -2085,7 +2085,9 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 if(S.nativeFingerA3&&!S.fingerAccepted){
                     const nowPos=S.g?mapPt(S.g,e):getPointerPos(e),travel=Math.hypot(nowPos.x-S.fingerOrigin.x,nowPos.y-S.fingerOrigin.y);
                     if(travel<Math.max(2.2,S.minDist*3.4))return;
-                    S.fingerAccepted=true;S.raw=nowPos;S.lastT=e.timeStamp;S.vx=0;S.vy=0;S.moved=false;evs=[e];
+                    S.fingerAccepted=true;S.raw=nowPos;S.lastT=e.timeStamp;S.vx=0;S.vy=0;S.moved=false;
+                    const first={x:r2(nowPos.x),y:r2(nowPos.y),w:r2(S.sw)};S.path.points.push(first);S.pieces=[];pushPiece([[first.x,first.y,rad(first.w)]]);drawDot([inkCtx],first.x,first.y,rad(first.w),S.path.color,null);unionDirty(devBox(S.g,S.bb,3));
+                    lastEventData={clientX:e.clientX,clientY:e.clientY,timeStamp:e.timeStamp};return;
                 }
                 let added = false;
                 for (const ev of evs) if (sample(ev)) added = true;
@@ -7548,6 +7550,7 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 <!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_END -->
 
 <script id="AIRJOTTER_V221061331947A_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.47A-A3-VECTOR-SMOOTH-FIXED";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
-<script id="AIRJOTTER_V221061331949_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.49-IPAD-A3-NATIVE-FINGER";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+
+<script id="AIRJOTTER_V221061331950_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.50-IPAD-A3-FINGER-COMMIT";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
 </body>
 </html>
