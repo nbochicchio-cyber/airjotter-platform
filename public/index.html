@@ -7459,5 +7459,79 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 </script>
 
 
+<!-- AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR_BEGIN -->
+<script id="AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const vp=document.getElementById('mobileViewport'),wrap=document.getElementById('canvas-wrapper'),count=document.getElementById('pageCountNumber');
+  if(!vp||!wrap||!count)return;
+  const touchDevice=()=>matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none) and (any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
+  if(!touchDevice())return;
+  let stable=null,restoring=false,armedPage=false,inkSettled=true,previousCount=Number(count.textContent||0),timer=0;
+  function stage(){return document.getElementById('mobileStageV109')}
+  function capture(){
+   if(restoring)return stable;
+   const st=stage(),rect=wrap.getBoundingClientRect(),vpRect=vp.getBoundingClientRect(),scale=Math.max(.0001,rect.width/Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1));
+   stable={
+    transform:wrap.style.transform,origin:wrap.style.transformOrigin,
+    scrollLeft:vp.scrollLeft,scrollTop:vp.scrollTop,docX:scrollX,docY:scrollY,
+    centerLogicalX:(vp.scrollLeft+vp.clientWidth/2-(st?.offsetLeft||0))/scale,
+    centerLogicalY:(vp.scrollTop+vp.clientHeight/2-(st?.offsetTop||0))/scale,
+    scale
+   };
+   return stable;
+  }
+  function restore(view=stable){
+   if(!view)return;
+   restoring=true;
+   const st=stage();
+   wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;
+   if(st){st.style.marginLeft='auto';st.style.marginRight='auto'}
+   const rect=wrap.getBoundingClientRect(),scale=Math.max(.0001,rect.width/Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1));
+   const maxLeft=Math.max(0,vp.scrollWidth-vp.clientWidth),maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);
+   const desiredLeft=(st?.offsetLeft||0)+view.centerLogicalX*scale-vp.clientWidth/2;
+   const desiredTop=(st?.offsetTop||0)+view.centerLogicalY*scale-vp.clientHeight/2;
+   vp.scrollLeft=Math.max(0,Math.min(maxLeft,desiredLeft));
+   vp.scrollTop=Math.max(0,Math.min(maxTop,desiredTop));
+   scrollTo(view.docX,view.docY);
+   requestAnimationFrame(()=>{restoring=false});
+  }
+  function settle(view=stable,long=false){
+   clearTimeout(timer);restoring=true;
+   const delays=long?[0,16,40,90,160,280,450,700]:[0,16,48,100,180,320];
+   delays.forEach(ms=>setTimeout(()=>restore(view),ms));
+   timer=setTimeout(()=>{restoring=false;capture()},delays.at(-1)+80);
+  }
+  function run(job){const view=capture();window.ajPreserveTouchViewportV1939=true;try{return job()}finally{window.ajPreserveTouchViewportV1939=false;settle(view,false)}}
+  window.ajRunPreservingViewV1939=run;
+  window.ajRefreshPaperPreservingViewV1939=()=>run(()=>window.ajPaperV221042?.refresh?.());
+  capture();
+  vp.addEventListener('scroll',()=>{if(!restoring&&!armedPage){clearTimeout(timer);timer=setTimeout(capture,45)}},{passive:true});
+  document.addEventListener('touchend',()=>{if(!restoring&&!armedPage){clearTimeout(timer);timer=setTimeout(capture,100)}},{passive:true});
+  document.addEventListener('pointerdown',event=>{if(event.target.closest?.('#addPageBtn,#removePageBtn,.page-delete-btn,#clearBtn'))capture()},true);
+  new MutationObserver(()=>{
+   const current=Number(count.textContent||0);
+   if(current!==previousCount){
+    const view=stable||capture();armedPage=current>previousCount;inkSettled=!armedPage;previousCount=current;settle(view,true);
+   }
+  }).observe(count,{childList:true,subtree:true,characterData:true});
+  const inkObserver=new MutationObserver(mutations=>{
+   if(!armedPage||inkSettled)return;
+   const permanentInk=mutations.some(m=>m.type==='childList'&&[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('canvas,path')||n.querySelector?.('canvas,path'))));
+   if(!permanentInk)return;
+   inkSettled=true;armedPage=false;settle(stable,true);
+  });
+  function watchInk(){
+   for(const id of ['ajInkPagesLayerV215','ajPhoneA3VectorInkV1943']){const el=document.getElementById(id);if(el&&!el.dataset.ajAnchorWatch1944){el.dataset.ajAnchorWatch1944='1';inkObserver.observe(el,{childList:true,subtree:true})}}
+  }
+  new MutationObserver(watchInk).observe(wrap,{childList:true,subtree:true});watchInk();
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.44-NEW-PAGE-ANCHOR';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
+<!-- AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR_END -->
+
 </body>
 </html>
