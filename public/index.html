@@ -1799,7 +1799,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             // ---------------------------------------------------------------- filtro 1-Euro 2D
             function makeFilter(pointerType) {
                 // Pencil: filtro leggerissimo (l'hardware e' gia' preciso); dito: filtro piu' deciso sul tremolio.
-                const minCut = pointerType === 'pen' ? 30 : 9, beta = pointerType === 'pen' ? 0.085 : 0.03, dCut = pointerType === 'pen' ? 18 : 8;
+                const minCut = pointerType === 'pen' ? 52 : 9, beta = pointerType === 'pen' ? 0.14 : 0.03, dCut = pointerType === 'pen' ? 26 : 8;
                 let has = false, fx = 0, fy = 0, dx = 0, dy = 0;
                 const alpha = (cut, dtS) => 1 / (1 + 1 / (TAU * cut * dtS));
                 return (x, y, dtMs) => {
@@ -1869,7 +1869,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
                     done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
                     filter: (mode === 'pen' && pt !== 'mouse') ? makeFilter(pt) : null,
-                    minDist: legacy ? 0 : (pt==='pen'?clamp(0.32/Math.max(vs,1e-3),0.12,0.55):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
+                    minDist: legacy ? 0 : (pt==='pen'?clamp(0.20/Math.max(vs,1e-3),0.07,0.34):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
                     nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
                     tauW: pt === 'pen' ? 9 : 23,
                     predict: mode === 'pen' && (pt === 'pen' || pt === 'touch')
@@ -1918,7 +1918,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
                 const pts = S.path.points, lastPt = pts[pts.length - 1];
                 if (S.legacy) {
-                    const widthSmoothing = ev.pointerType === 'pen' ? 0.24 : 0.30;
+                    const widthSmoothing = ev.pointerType === 'pen' ? 0.38 : 0.30;
                     const sw = lastPt.w + (targetW - lastPt.w) * widthSmoothing;
                     const distSq = (pos.x - lastPt.x) ** 2 + (pos.y - lastPt.y) ** 2;
                     S.raw = pos;
@@ -1945,11 +1945,11 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 let native = null;
                 try { native = e.getPredictedEvents ? e.getPredictedEvents() : null; } catch (err) { native = null; }
                 if (native && native.length) {
-                    for (let i = 0; i < native.length && i < 2; i++) out.push(mapPt(g, native[i]));
+                    for (let i = 0; i < native.length && i < 3; i++) out.push(mapPt(g, native[i]));
                 } else if (S.moved) {
                     const speed = Math.hypot(S.vx, S.vy);           // unita' logiche / ms
                     if (speed > 0.02) {
-                        const H = S.type === 'pen' ? 14 : 18;
+                        const H = S.type === 'pen' ? 18 : 18;
                         out.push({ x: S.raw.x + S.vx * H, y: S.raw.y + S.vy * H });
                     }
                 }
@@ -7571,5 +7571,6 @@ html.aj-ipad-a3-finger-v1952 #ajIpadA3FingerWetV1952{display:block}
  });
 })();
 </script>
+<script id="AIRJOTTER_V221061331953_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.53-PENCIL-ULTRA-LOW-LATENCY";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
 </body>
 </html>
