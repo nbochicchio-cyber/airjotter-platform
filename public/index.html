@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    
+
     <!-- External Libraries -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -43,7 +43,7 @@
             --shadow-medium: 0 6px 24px rgba(80, 60, 100, 0.10);
             --shadow-strong: 0 12px 40px rgba(80, 60, 100, 0.16);
             --border-radius: 14px;
-        
+
             --a4-w: 800px;
             --a4-h: 1131px;
             --total-pages: 2;
@@ -82,7 +82,7 @@
         .btn:hover { background: #FFFFFF; border-color: var(--border-color); }
         .btn:active { transform: scale(0.96); }
         .btn svg { width: 14px; height: 14px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-        
+
         .btn.primary { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
         .btn.danger { color: var(--danger-color); background: var(--danger-bg); }
@@ -137,7 +137,7 @@
         .text-toolbar { display: flex; gap: 5px; background: var(--ui-bg); padding: 5px; border-radius: 6px; border: 1px solid var(--border-color); cursor: move; touch-action: none; align-items: center;}
         .text-toolbar select, .text-toolbar button.fmt-btn { border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; background: white; cursor: pointer; font-size: 14px;}
         .text-toolbar button.fmt-btn.active { background: var(--accent-bg); color: var(--accent-hover); border-color: var(--accent-color); font-weight: bold;}
-        
+
         .pdf-page-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; background: #fafafa; position: relative; transition: transform 0.2s; }
         .pdf-page-wrapper img { height: 320px; width: auto; border: 1px solid #ddd; box-shadow: var(--shadow-soft); background: white; }
         .page-controls { display: flex; gap: 5px; width: 100%; justify-content: center; }
@@ -149,7 +149,7 @@
         .page-number-badge { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
 
         @media (max-width: 768px) { #stamp-panel { top: auto; bottom: 20px; right: 50%; transform: translateX(50%); width: 90%; max-width: 350px; } }
-    
+
         .aj-overlay { position:fixed; inset:0; z-index:1000; background:rgba(239,233,225,.96); display:flex; align-items:center; justify-content:center; padding:20px; }
         .aj-card { background:white; width:min(520px,100%); padding:28px; border-radius:18px; box-shadow:var(--shadow-strong); text-align:center; }
         .aj-card input { padding:10px 12px; border:1px solid var(--border-color); border-radius:9px; margin:4px; }
@@ -1054,7 +1054,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             <div class="brand" title="Torna in cima" id="brandBtn"><img class="brand-logo" src="airjotter_logo.png" alt="airjotter.com"></div>
             <button id="helpBtn" style="background:var(--accent-bg); color:var(--accent-color); border:1px solid var(--accent-color); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; cursor:pointer;" title="Guida all'uso">?</button>
         </div>
-        
+
         <div class="tools-group">
             <button id="ajPcFitV204" class="btn" type="button" title="Adatta pagina e toolbar"><span>Adatta</span><span>pagina</span></button>
             <button id="toolPenBtn" class="icon-btn active-tool" title="Penna"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         <canvas id="drawingBoard"></canvas>
         <canvas id="pencilPredictionBoard" aria-hidden="true"></canvas>
         <canvas id="draftBoard"></canvas>
-        
+
         <div id="stamp-container">
             <canvas id="stamp-canvas"></canvas>
             <div id="crop-overlay"></div>
@@ -1123,7 +1123,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
             </div>
         </div>
-        
+
         <div id="text-tool-overlay" role="dialog" aria-label="Inserisci testo">
             <button type="button" class="aj-text-lens-v2266i" id="ajTextAnchorV2266f" aria-label="Sposta il cursore e fissa il punto di inserimento del testo"><span>+</span><b>Sposta il cursore e fissa il punto di inserimento del testo</b></button>
             <div class="aj-text-card-head-v2266f" id="text-drag-handle"><span class="aj-text-grip-v2266f">⠿</span><div><strong>Testo</strong><small>trascina la linea</small></div></div>
@@ -1168,7 +1168,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 </div>
             </div>
         </div>
-        
+
         <button class="stamp-btn" id="stampCropBtn" style="border: 1px solid var(--border-color);">✂️ Ritaglia</button>
         <button class="stamp-btn fit" id="stampFitA4">📄 Adatta a pagina</button>
         <button class="stamp-btn apply-over" id="stampOver">👆 Applica Sopra</button>
@@ -1228,8 +1228,8 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
     <div id="ajJotterLoadingV223" role="status" aria-live="polite" aria-hidden="true"><div class="aj-loading-card-v223"><div class="aj-loading-spinner-v223"></div><strong>Caricamento in corso...</strong><span>Il Jotter viene preparato. Attendi qualche secondo.</span></div></div>
     <script>
         let ACTUAL_ROOM_CODE = "";
-        let TOTAL_PAGES = 2; 
-        
+        let TOTAL_PAGES = 2;
+
         let commands = [];
         let redoCommands = [];
         let isDrawing = false;
@@ -1239,24 +1239,24 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         let currentPath = null;
         let dpr = 1;
         let draftDpr = 1; // v17.0: anteprima Pencil Retina con punta live
-        
+
         let LOGICAL_W = 900;
-        let BASE_A4_H = 1273; 
+        let BASE_A4_H = 1273;
         let LOGICAL_H = BASE_A4_H * TOTAL_PAGES;
 
         let activePointers = new Map();
         let initialScrollX = 0, initialScrollY = 0, panStartCenter = null;
 
-        let lastEventData = null; 
-        let pointerVelocity = 0; 
+        let lastEventData = null;
+        let pointerVelocity = 0;
 
-        let currentMode = 'pen'; 
+        let currentMode = 'pen';
         let textOverlayActive = false;
 
         let stampActive = false, currentStampType = null, rawImageObj = null;
         let isDragging = false, isResizing = false, isCroppingMode = false, isDrawingCrop = false;
         let startX, startY, startLeft, startTop, startWidth, startHeight, cropStartX, cropStartY;
-        
+
         let exportPagesData = [];
         let ajExportFreeLimitedV225 = false;
         let ajExportFullAuthorizedV225 = false;
@@ -1310,15 +1310,15 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 
         const wrapper = document.getElementById('canvas-wrapper');
         const mainCanvas = document.getElementById('drawingBoard');
-        const mainCtx = mainCanvas.getContext('2d', { alpha: true }); 
+        const mainCtx = mainCanvas.getContext('2d', { alpha: true });
         const draftCanvas = document.getElementById('draftBoard');
         const draftCtx = draftCanvas.getContext('2d');
         const predictionCanvas = document.getElementById('pencilPredictionBoard');
         const predictionCtx = predictionCanvas.getContext('2d');
-        
+
         const colorPicker = document.getElementById('colorPicker');
         const thicknessPicker = document.getElementById('thicknessPicker');
-        
+
         const stampContainer = document.getElementById('stamp-container');
         const stampCanvas = document.getElementById('stamp-canvas');
         const stampCtx = stampCanvas.getContext('2d', { willReadFrequently: true });
@@ -1337,7 +1337,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 preferredDpr = Math.sqrt(MAX_CANVAS_AREA / (LOGICAL_W * LOGICAL_H));
             }
             if (LOGICAL_H * preferredDpr > MAX_CANVAS_DIM) preferredDpr = MAX_CANVAS_DIM / LOGICAL_H;
-            
+
             dpr = preferredDpr > 0.2 ? preferredDpr : 0.2;
 
             document.documentElement.style.setProperty('--a4-w', LOGICAL_W + 'px');
@@ -1345,7 +1345,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             document.documentElement.style.setProperty('--total-pages', TOTAL_PAGES);
 
             if(ajIOSVirtualV2265){mainCanvas.width=1;mainCanvas.height=1;mainCtx.setTransform(1,0,0,1,0,0)}else{mainCanvas.width=Math.round(LOGICAL_W*dpr);mainCanvas.height=Math.round(LOGICAL_H*dpr);mainCtx.setTransform(dpr,0,0,dpr,0,0)}
-            
+
             const ajIPadPencilDevice=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
             draftDpr = dpr;
             // v18.0 AirInk: #draftBoard resta il bersaglio trasparente degli eventi (nessun pixel da
@@ -1356,9 +1356,9 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 
             updateBrush();
             redrawMainCanvas();
-            renderVisiblePageBreaks(); 
-            handleResize(); 
-            
+            renderVisiblePageBreaks();
+            handleResize();
+
             document.getElementById('pageCountNumber').innerText = TOTAL_PAGES;
         }
 
@@ -1396,7 +1396,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             if (remote || confirm(`Vuoi davvero eliminare la Pagina ${pageIndex + 1}? Il contenuto verrà cancellato e le pagine successive saliranno.`)) {
                 const startY = pageIndex * BASE_A4_H;
                 const endY = startY + BASE_A4_H;
-                
+
                 const newCommands = [];
                 commands.forEach(cmd => {
                     if (cmd.type === 'path') {
@@ -1405,7 +1405,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                             if (p.y < minY) minY = p.y;
                             if (p.y > maxY) maxY = p.y;
                         });
-                        
+
                         let centerY = (minY + maxY) / 2;
                         if (centerY >= endY) {
                             // Element is below the deleted page, shift it up
@@ -1419,7 +1419,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     } else if (cmd.type === 'stamp' || cmd.type === 'text') {
                         let h = cmd.h || (cmd.fontSize * 1.5 * cmd.text.split('\n').length);
                         let centerY = cmd.y + h / 2;
-                        
+
                         if (centerY >= endY) {
                             newCommands.push({...cmd, y: cmd.y - BASE_A4_H});
                         } else if (centerY < startY) {
@@ -1427,12 +1427,12 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                         }
                     }
                 });
-                
+
                 commands = newCommands;
                 TOTAL_PAGES--;
                 document.getElementById('pageCountNumber').innerText = TOTAL_PAGES;
                 initCanvas();
-                if (!remote) ajSend('page:delete', { pageIndex }); 
+                if (!remote) ajSend('page:delete', { pageIndex });
             }
         }
 
@@ -1446,7 +1446,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     brk.setAttribute('data-page-label', `Pagina ${i + 1}`);
                     wrapper.appendChild(brk);
                 }
-                
+
                 // Add a trash button to easily delete this specific page
                 let delBtn = document.createElement('button');
                 delBtn.className = 'page-delete-btn';
@@ -1460,17 +1460,17 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 
         function expandCanvasIfNeeded(yPos) {
             const requiredPages = Math.ceil((yPos + (BASE_A4_H * 0.2)) / BASE_A4_H);
-            if(requiredPages>TOTAL_PAGES&&requiredPages<=(ajMe?.limits?.pages||5)) { 
+            if(requiredPages>TOTAL_PAGES&&requiredPages<=(ajMe?.limits?.pages||5)) {
                 TOTAL_PAGES = requiredPages;
                 initCanvas();
-                ajSendPageCount(); 
+                ajSendPageCount();
             }
         }
 
         const textToolOverlay = document.getElementById('text-tool-overlay');
         const textToolInput = document.getElementById('text-tool-input');
         const textDragHandle = document.getElementById('text-drag-handle');
-        
+
         let isDraggingText = false;
         let textStartX = 0, textStartY = 0, textInitialLeft = 0, textInitialTop = 0;
         let isTextBold = false, isTextItalic = false, isTextUnderline = false;
@@ -1487,13 +1487,13 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             const sizeInput=document.getElementById('text-font-size');const size=Math.max(8,Math.min(96,Number(sizeInput.value)||19));sizeInput.value=String(size);textToolInput.style.fontSize=size+'px';
             const cv=document.getElementById('ajTextColorValueV2266f');if(cv)cv.textContent=document.getElementById('text-color-picker').value.toUpperCase();
         }
-        
+
         updateTextInputStyle();
 
         btnBold.addEventListener('click', () => { isTextBold = !isTextBold; btnBold.classList.toggle('active', isTextBold); updateTextInputStyle(); });
         btnItalic.addEventListener('click', () => { isTextItalic = !isTextItalic; btnItalic.classList.toggle('active', isTextItalic); updateTextInputStyle(); });
         btnUnderline.addEventListener('click', () => { isTextUnderline = !isTextUnderline; btnUnderline.classList.toggle('active', isTextUnderline); updateTextInputStyle(); });
-        
+
         document.getElementById('text-font-family').addEventListener('change', updateTextInputStyle);
         document.getElementById('text-font-size').addEventListener('change',updateTextInputStyle);document.getElementById('text-color-picker').addEventListener('input',e=>{toolColors.text=e.target.value;colorPicker.value=e.target.value;currentColor=e.target.value;textToolInput.style.color=e.target.value});
 
@@ -1529,7 +1529,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 const fontSize=parseInt(document.getElementById('text-font-size').value);
                 const finalLogX=(anchorClientX-canvasRect.left)*(LOGICAL_W/canvasRect.width);
                 const finalLogY=(anchorClientY-canvasRect.top)*(LOGICAL_H/canvasRect.height);
-                
+
 
                 commands.push({
                     type: 'text',
@@ -1543,7 +1543,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     isUnderline: isTextUnderline,
                     color: document.getElementById('text-color-picker').value
                 });
-                
+
                 ajSendCommand(commands[commands.length - 1]);
                 redoCommands = [];
                 document.getElementById('undoBtn').disabled = false;
@@ -2350,7 +2350,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     }
                     const z=pts.at(-1);d+=` L${Number(z.x||0).toFixed(2)} ${Number(z.y||0).toFixed(2)}`
                 }
-                
+
 const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length?widths.reduce((a,b)=>a+b,0)/widths.length:Number(cmd.width||2.5);
                 p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
                 p.setAttribute('stroke',cmd.isEraser?'#ffffff':cmd.isHighlighter?'#FFE000':(cmd.color||'#1D1D1F'));
@@ -2396,7 +2396,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             if (isDragging) {
                 let newX = startLeft + (e.clientX - startX) / scale;
                 let newY = startTop + (e.clientY - startY) / scale;
-                if (newY < 0) newY = 0; 
+                if (newY < 0) newY = 0;
                 stampContainer.style.left = newX + 'px'; stampContainer.style.top = newY + 'px';
             } else if (isResizing) {
                 const aspectRatio = stampCanvas.width / stampCanvas.height;
@@ -2413,38 +2413,38 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
                 const sRect = stampContainer.getBoundingClientRect();
                 const scaleX = stampContainer.offsetWidth / sRect.width;
                 const scaleY = stampContainer.offsetHeight / sRect.height;
-                
+
                 let curX = Math.max(0, Math.min((e.clientX - sRect.left) * scaleX, stampContainer.offsetWidth));
                 let curY = Math.max(0, Math.min((e.clientY - sRect.top) * scaleY, stampContainer.offsetHeight));
-                
+
                 cropOverlay.style.left = Math.min(cropStartX, curX) + 'px';
                 cropOverlay.style.top = Math.min(cropStartY, curY) + 'px';
                 cropOverlay.style.width = Math.abs(curX - cropStartX) + 'px';
                 cropOverlay.style.height = Math.abs(curY - cropStartY) + 'px';
             }
         });
-        
-        window.addEventListener('pointerup', () => { 
+
+        window.addEventListener('pointerup', () => {
             isDragging = false; isResizing = false; isDrawingCrop = false; isDraggingText = false;
         });
 
         function hexToRgb(hex) { const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return res ? { r: parseInt(res[1], 16), g: parseInt(res[2], 16), b: parseInt(res[3], 16) } : { r: 0, g: 0, b: 0 }; }
-        
+
         function applyChromaKeyToStamp() {
             if (!rawImageObj || currentStampType !== 'signature') return;
             stampCanvas.width = rawImageObj.width; stampCanvas.height = rawImageObj.height;
             stampCtx.drawImage(rawImageObj, 0, 0);
-            
+
             const imageData = stampCtx.getImageData(0, 0, rawImageObj.width, rawImageObj.height);
             const data = imageData.data;
             const color = hexToRgb(document.getElementById('stampColor').value);
             const tLevel = document.getElementById('stampTransparency').value / 100;
-            
+
             for (let i = 0; i < data.length; i += 4) {
                 let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
                 if (a === 0) continue;
                 let nLum = (r * 0.299 + g * 0.587 + b * 0.114) / 255, eAlpha = 0;
-                if (nLum <= 0.6) eAlpha = Math.pow(1 - (nLum / 0.6), 0.5) * 255; 
+                if (nLum <= 0.6) eAlpha = Math.pow(1 - (nLum / 0.6), 0.5) * 255;
                 let fAlpha = a * (1 - tLevel) + eAlpha * tLevel;
                 data[i+3] = Math.max(0, Math.min(255, fAlpha));
                 if (fAlpha > 0 && tLevel > 0) { data[i] = color.r; data[i+1] = color.g; data[i+2] = color.b; }
@@ -2480,11 +2480,11 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
         function activateStamp(type, displayW, displayH) {
             stampActive = true; currentStampType = type;
             stampContainer.style.display = 'block'; stampPanel.style.display = 'flex';
-            
+
             const maxW = LOGICAL_W * 0.85;
             const maxH = window.innerHeight * 0.65;
             const aspect = displayW / displayH;
-            
+
             if (displayW > maxW) { displayW = maxW; displayH = displayW / aspect; }
             if (displayH > maxH) { displayH = maxH; displayW = displayH * aspect; }
 
@@ -2499,10 +2499,10 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             const safeTop=pageTop+Math.min(120,Math.max(34,(BASE_A4_H-displayH)/2));
             stampContainer.style.left = Math.max(0,Math.min(LOGICAL_W-displayW,visibleLogicalX-displayW/2)) + 'px';
             stampContainer.style.top = Math.max(pageTop,Math.min(pageTop+BASE_A4_H-displayH,safeTop)) + 'px';
-            ajImportTargetPageV231=null; 
-            
-            if (type === 'pdf') { document.getElementById('stampFitA4').style.display = 'block'; document.getElementById('image-controls').style.display = 'none'; } 
-            else if (type === 'signature') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'block'; document.getElementById('stampTransparency').value = 100; } 
+            ajImportTargetPageV231=null;
+
+            if (type === 'pdf') { document.getElementById('stampFitA4').style.display = 'block'; document.getElementById('image-controls').style.display = 'none'; }
+            else if (type === 'signature') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'block'; document.getElementById('stampTransparency').value = 100; }
             else if (type === 'photo') { document.getElementById('stampFitA4').style.display = 'none'; document.getElementById('image-controls').style.display = 'none'; }
         }
 
@@ -2665,10 +2665,10 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
                 const rect = stampContainer.getBoundingClientRect();
                 const scaleX = stampContainer.offsetWidth / rect.width;
                 const scaleY = stampContainer.offsetHeight / rect.height;
-                
-                cropStartX = (e.clientX - rect.left) * scaleX; 
+
+                cropStartX = (e.clientX - rect.left) * scaleX;
                 cropStartY = (e.clientY - rect.top) * scaleY;
-                cropOverlay.style.left = cropStartX + 'px'; 
+                cropOverlay.style.left = cropStartX + 'px';
                 cropOverlay.style.top = cropStartY + 'px';
                 cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
                 e.stopPropagation(); return;
@@ -2696,10 +2696,10 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             } else {
                 btn.style.background = ''; btn.style.color = ''; btn.innerText = '✂️ Ritaglia';
                 stampContainer.style.cursor = 'move'; resizeHandle.style.display = 'flex';
-                
+
                 let cw = parseFloat(cropOverlay.style.width) || 0, ch = parseFloat(cropOverlay.style.height) || 0;
                 let cx = parseFloat(cropOverlay.style.left) || 0, cy = parseFloat(cropOverlay.style.top) || 0;
-                
+
                 if (cw > 10 && ch > 10) {
                     let ratioX = stampCanvas.width / stampContainer.offsetWidth;
                     let ratioY = stampCanvas.height / stampContainer.offsetHeight;
@@ -2708,10 +2708,10 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
 
                     let tempC = document.createElement('canvas'); tempC.width = sw; tempC.height = sh;
                     tempC.getContext('2d').drawImage(stampCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
-                    
+
                     stampCanvas.width = sw; stampCanvas.height = sh;
                     stampCtx.clearRect(0,0,sw,sh); stampCtx.drawImage(tempC, 0, 0);
-                    
+
                     stampContainer.style.width = cw + 'px'; stampContainer.style.height = ch + 'px';
                     stampContainer.style.left = (parseFloat(stampContainer.style.left || 0) + cx) + 'px';
                     stampContainer.style.top = (parseFloat(stampContainer.style.top || 0) + cy) + 'px';
@@ -2756,7 +2756,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             const logY = (rect.top - wRect.top) * (LOGICAL_H / wRect.height);
             const logW = rect.width * (LOGICAL_W / wRect.width);
             const logH = rect.height * (LOGICAL_H / wRect.height);
-            
+
             expandCanvasIfNeeded(logY + logH);
 
             let stampCopy = document.createElement('canvas');
@@ -2769,7 +2769,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             ajSendCommand(stampCommand);
             redoCommands = []; redrawMainCanvas();
             document.getElementById('undoBtn').disabled = false;
-            
+
             resetStampUI();
         }
 
@@ -2787,7 +2787,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
 
         document.getElementById('stampFitA4').addEventListener('click', () => {
             if (!stampActive) return;
-            
+
             let maxY = 0;
             commands.forEach(cmd => {
                 if (cmd.type === 'path') {
@@ -2796,10 +2796,10 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
                     if ((cmd.y + (cmd.h || 50)) > maxY) maxY = cmd.y + (cmd.h || 50);
                 }
             });
-            
+
             const firstEmptyPage = maxY === 0 ? 0 : Math.floor(maxY / BASE_A4_H) + 1;
             const targetTop = firstEmptyPage * BASE_A4_H;
-            
+
             const aspect = stampCanvas.width / stampCanvas.height;
             const newW = LOGICAL_W;
             const newH = LOGICAL_W / aspect;
@@ -2827,12 +2827,12 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
         function renderPdfThumbnails() {
             const container = document.getElementById('pdfPagesContainer');
             container.innerHTML = '';
-            
+
             if(exportPagesData.length === 0) {
                 container.innerHTML = '<p style="margin:auto; color:var(--text-soft);">Nessun contenuto da esportare.</p>';
                 document.getElementById('confirmExportBtn').disabled = true; return;
             }
-            
+
             document.getElementById('confirmExportBtn').disabled = false;
             exportPagesData.forEach((page, index) => {
                 const wrapper = document.createElement('div'); wrapper.className = 'pdf-page-wrapper';
@@ -2924,7 +2924,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
         });
 
         initCanvas();
-        
+
         const toolPenBtn = document.getElementById('toolPenBtn');
         const toolEraserBtn = document.getElementById('toolEraserBtn');
         const toolHighlighterBtn = document.getElementById('toolHighlighterBtn');
@@ -2945,7 +2945,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
 
         document.getElementById('addPageBtn').addEventListener('click',()=>{const max=ajMe?.limits?.pages||5;if(TOTAL_PAGES>=max){alert('Il piano '+String(ajMe?.plan||'free').toUpperCase()+' consente massimo '+max+' pagine per Jotter.');return;}TOTAL_PAGES++; initCanvas(); document.getElementById('pageCountNumber').innerText = TOTAL_PAGES; ajSendPageCount(); });
         document.getElementById('removePageBtn').addEventListener('click',()=>{if(TOTAL_PAGES>1)deletePageFromCanvas(TOTAL_PAGES-1);});
-        
+
         // Brand logic
         document.getElementById('brandBtn').addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2958,7 +2958,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
 
         let isCodeVisible = false;
         document.getElementById('toggleCodeBtn').addEventListener('click', () => { isCodeVisible = !isCodeVisible; document.getElementById('roomCode').innerText = isCodeVisible ? ACTUAL_ROOM_CODE : "***-***"; });
-        
+
         document.getElementById('showQrBtn').addEventListener('click', () => {
             const qrC=document.getElementById('qrcode');qrC.replaceChildren();const qrSize=Math.min(260,Math.max(180,window.innerWidth-96));new QRCode(qrC,{text:window.location.href.split('?')[0]+'?room='+ACTUAL_ROOM_CODE,width:qrSize,height:qrSize,colorDark:'#3D3A50',colorLight:'#ffffff'});
             document.getElementById('modalRoomCode').innerText = ACTUAL_ROOM_CODE;
@@ -2969,7 +2969,7 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
             if (confirm("Sei sicuro di voler pulire interamente il foglio?")) {
                 commands = []; redoCommands = [];
                 document.getElementById('undoBtn').disabled = true; document.getElementById('redoBtn').disabled = true;
-                TOTAL_PAGES = 2; initCanvas(); ajSendClear(); 
+                TOTAL_PAGES = 2; initCanvas(); ajSendClear();
             }
         });
 
@@ -3146,8 +3146,8 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
         window.ajLoadArchive=async function ajLoadArchive(){const modal=document.getElementById('jotterArchiveModal'),list=document.getElementById('jotterArchiveList'),status=document.getElementById('jotterArchiveStatus');modal.style.display='flex';status.textContent='Caricamento...';list.innerHTML='';try{const boards=await ajApi('/api/my/boards' + (typeof ajBoard !== 'undefined' && ajBoard && ajBoard.id ? '?currentBoardId=' + encodeURIComponent(ajBoard.id) : ''));status.textContent=boards.length?'':'Non hai ancora creato Jotter.';for(const b of boards){const item=document.createElement('div');item.className='archive-item';const contentUpdated=new Date(b.contentUpdatedAt).toLocaleString('it-IT');const created=new Date(b.createdAt).toLocaleString('it-IT');item.innerHTML='<div><div class="archive-title"></div><div class="archive-meta"><span class="save-dot"></span>Ultima modifica contenuti: '+contentUpdated+'<br>Creato: '+created+' | Codice: '+b.roomCode+'</div></div><div class="archive-actions"><button class="btn open-board">Apri</button><button class="btn rename-board">Rinomina</button><button class="btn share-board">Condividi</button><button class="btn archive-pdf export-board"><span class="archive-pdf-icon">⬇️</span> PDF</button><button class="btn danger delete-board">Elimina</button></div>';item.querySelector('.archive-title').textContent=b.title||'Jotter senza titolo';item.querySelector('.open-board').onclick=async()=>{modal.style.display='none';await ajJoin(b.roomCode)};item.querySelector('.rename-board').onclick=async()=>{const title=prompt('Nuovo nome del Jotter:',b.title||'');if(!title?.trim())return;await ajApi('/api/boards/'+b.id+'/title',{method:'PATCH',body:JSON.stringify({title:title.trim()})});if(typeof ajBoard!=='undefined'&&ajBoard&&ajBoard.id===b.id){ajBoard.title=title.trim();const currentTitle=document.getElementById('ajCurrentJotterV2266');if(currentTitle)currentTitle.textContent=title.trim()}await ajLoadArchive()};item.querySelector('.share-board').onclick=async()=>{const text='Jotter: '+(b.title||'Jotter senza titolo')+'\nOwner: '+b.ownerName+'\nUltima modifica contenuti: '+contentUpdated+'\nCodice di accesso: '+b.roomCode;try{await navigator.clipboard.writeText(text);alert('Informazioni del Jotter copiate.')}catch{prompt('Copia le informazioni:',text)}};item.querySelector('.export-board').onclick=async()=>{const button=item.querySelector('.export-board');const oldText=button.innerHTML;button.disabled=true;button.innerHTML='Preparazione...';try{document.getElementById('jotterArchiveModal').style.display='none';await ajJoin(b.roomCode);await new Promise(resolve=>setTimeout(resolve,900));document.getElementById('exportPdfBtn').click();}catch(error){alert('Impossibile preparare il PDF: '+error.message);document.getElementById('jotterArchiveModal').style.display='flex';}finally{button.disabled=false;button.innerHTML=oldText;}};item.querySelector('.delete-board').onclick=async()=>{if(!confirm('Eliminare definitivamente il Jotter "'+(b.title||'Jotter senza titolo')+'"? Questa operazione non puo essere annullata.'))return;await ajApi('/api/boards/'+b.id,{method:'DELETE'});await ajLoadArchive()};list.appendChild(item)}}catch(e){status.textContent='Impossibile caricare i Jotter: '+e.message}}
 document.getElementById('ajUser').onclick=ajLoadArchive;document.getElementById('jotterArchiveClose').onclick=()=>document.getElementById('jotterArchiveModal').style.display='none';document.getElementById('welcomeDiscoverBtn').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='flex';document.getElementById('welcomeDiscoverClose').onclick=document.getElementById('welcomeDiscoverDone').onclick=()=>document.getElementById('welcomeDiscoverModal').style.display='none';
         document.getElementById('devBtn').onclick=async()=>{await ajApi('/api/auth/dev',{method:'POST',body:JSON.stringify({name:document.getElementById('devName').value,email:document.getElementById('devEmail').value})});ajReady()};
-        
-        
+
+
         document.getElementById('ajRequestEdit').onclick=()=>window.ajSendEditRequest?.();
         ajSocket.on('board:reload', ajReload);
         let ajRejoining=false;
@@ -7310,7 +7310,7 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
   });
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
- 
+
 })();
 </script>
 
@@ -7460,8 +7460,7 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   function sanitizePhoneA3(){if(!isPhone()||document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()!=='A3')return;const layer=document.getElementById('ajInkPagesLayerV215');if(!layer)return;layer.querySelectorAll('canvas').forEach(canvas=>{canvas.style.backgroundColor='transparent';canvas.style.transform='none';canvas.style.willChange='auto';const ctx=canvas.getContext('2d',{alpha:true});if(ctx)ctx.globalCompositeOperation='source-over'})}
   const count=document.getElementById('pageCountNumber');if(count)new MutationObserver(()=>requestAnimationFrame(sanitizePhoneA3)).observe(count,{childList:true,subtree:true,characterData:true});
   document.getElementById('draftBoard')?.addEventListener('pointerup',()=>setTimeout(sanitizePhoneA3,70),{passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.43-PHONE-A3-VECTOR-INK';
-  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+
  });
 })();
 </script>
