@@ -999,6 +999,22 @@ header .aj-import-tools-v2291{position:relative!important;padding-bottom:31px!im
 <script id="AIRJOTTER_V221061331927_COPY_POLISH_RUNTIME">
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('#ajLogin *').forEach(function(e){if(e.children.length===0&&(e.textContent||'').trim()==='Registrati o accedi con email e password.'){e.style.color='#e2edff';e.style.opacity='1'}})},{once:true});
 </script>
+
+<style id="AIRJOTTER_PAYMENT_BUTTONS_1963">
+/* Il credito Spot resta esclusivo per Jotter, pagine ed export. Nessun observer o modifica al rendering. */
+#ajPublicPlansV220 .aj-credit-plan-buy{display:none!important}
+#ajPublicPlansV220 .aj-plan-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important}
+#ajPublicPlansV220 .aj-plan-actions .aj-stripe-buy,
+#ajPublicPlansV220 .aj-plan-actions .aj-paypal-buy{min-height:58px!important;border-radius:13px!important;font-weight:850!important;font-size:16px!important;letter-spacing:0!important;box-shadow:0 4px 0 rgba(10,30,70,.24),0 7px 15px rgba(10,30,70,.15)!important}
+#ajPublicPlansV220 .aj-plan-actions .aj-stripe-buy{background:#1267b1!important;color:#fff!important;border:1px solid #09538f!important}
+#ajPublicPlansV220 .aj-plan-actions .aj-stripe-buy::before{content:'💳';margin-right:9px;font-size:20px;vertical-align:-1px}
+#ajPublicPlansV220 .aj-plan-actions .aj-stripe-buy:disabled{background:#d7e0ed!important;color:#708098!important;border-color:#bdc9d8!important;box-shadow:0 3px 0 #aebacd!important;cursor:not-allowed!important;opacity:1!important}
+#ajPublicPlansV220 .aj-plan-actions .aj-paypal-buy{background:#ffc439!important;color:#111820!important;border:1px solid #e4a900!important;font-family:Arial,Helvetica,sans-serif!important;font-style:italic!important}
+#ajPublicPlansV220 .aj-plan-actions .aj-paypal-buy::before{content:'P';display:inline-grid;place-items:center;width:25px;height:25px;margin-right:8px;border-radius:6px;background:#0070ba;color:#fff;font-style:italic;font-weight:900}
+#ajPublicPlansV220 .aj-plan-actions .aj-stripe-buy:active:not(:disabled),
+#ajPublicPlansV220 .aj-plan-actions .aj-paypal-buy:active{transform:translateY(2px)!important;box-shadow:0 2px 0 rgba(10,30,70,.24)!important}
+@media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}}
+</style>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
