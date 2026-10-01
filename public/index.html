@@ -7459,130 +7459,77 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 </script>
 
 
-<!-- AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR_BEGIN -->
-<script id="AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR">
+<!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_BEGIN -->
+<style id="AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_STYLE">
+@media(max-width:760px){
+ html.aj-phone-a3-pinch-v1946 #ajA3LiveInkV2210613319,
+ html.aj-phone-a3-pinch-v1946 #ajUniversalWetV22106111,
+ html.aj-phone-a3-pinch-v1946 #pencilPredictionBoard,
+ html.aj-phone-a3-pinch-v1946 #ajIpadSmartWetV19{
+  visibility:hidden!important;opacity:0!important
+ }
+}
+</style>
+<script id="AIRJOTTER_V221061331946_TOUCH_INPUT_RESET">
 (()=>{'use strict';
  const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
  ready(()=>{
   const vp=document.getElementById('mobileViewport'),wrap=document.getElementById('canvas-wrapper'),count=document.getElementById('pageCountNumber');
   if(!vp||!wrap||!count)return;
-  const touchDevice=()=>matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none) and (any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
-  if(!touchDevice())return;
-  let stable=null,restoring=false,armedPage=false,inkSettled=true,previousCount=Number(count.textContent||0),timer=0;
+  const isPhone=()=>matchMedia('(max-width:760px)').matches;
+  const isTouch=()=>matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none) and (any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
+  const phoneA3=()=>isPhone()&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
+  if(!isTouch())return;
+  let view=null,restoreTimer=0,previousCount=Number(count.textContent||0),waitingFirstInk=false,pinching=false;
   function stage(){return document.getElementById('mobileStageV109')}
   function capture(){
-   if(restoring)return stable;
-   const st=stage(),rect=wrap.getBoundingClientRect(),vpRect=vp.getBoundingClientRect(),scale=Math.max(.0001,rect.width/Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1));
-   stable={
-    transform:wrap.style.transform,origin:wrap.style.transformOrigin,
-    scrollLeft:vp.scrollLeft,scrollTop:vp.scrollTop,docX:scrollX,docY:scrollY,
-    centerLogicalX:(vp.scrollLeft+vp.clientWidth/2-(st?.offsetLeft||0))/scale,
-    centerLogicalY:(vp.scrollTop+vp.clientHeight/2-(st?.offsetTop||0))/scale,
-    scale
-   };
-   return stable;
+   const st=stage(),rect=wrap.getBoundingClientRect(),logicalW=Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1),scale=Math.max(.0001,rect.width/logicalW);
+   view={scale,transform:wrap.style.transform,origin:wrap.style.transformOrigin,
+    logicalX:(vp.scrollLeft+vp.clientWidth/2-(st?.offsetLeft||0))/scale,
+    logicalY:(vp.scrollTop+vp.clientHeight/2-(st?.offsetTop||0))/scale,
+    docX:scrollX,docY:scrollY};
   }
-  function restore(view=stable){
+  function restore(){
    if(!view)return;
-   restoring=true;
-   const st=stage();
-   wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;
+   const st=stage();wrap.style.transform=view.transform;wrap.style.transformOrigin=view.origin;
    if(st){st.style.marginLeft='auto';st.style.marginRight='auto'}
-   const rect=wrap.getBoundingClientRect(),scale=Math.max(.0001,rect.width/Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1));
-   const maxLeft=Math.max(0,vp.scrollWidth-vp.clientWidth),maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);
-   const desiredLeft=(st?.offsetLeft||0)+view.centerLogicalX*scale-vp.clientWidth/2;
-   const desiredTop=(st?.offsetTop||0)+view.centerLogicalY*scale-vp.clientHeight/2;
-   vp.scrollLeft=Math.max(0,Math.min(maxLeft,desiredLeft));
-   vp.scrollTop=Math.max(0,Math.min(maxTop,desiredTop));
+   const rect=wrap.getBoundingClientRect(),logicalW=Math.max(1,Number(window.LOGICAL_W)||wrap.offsetWidth||1),scale=Math.max(.0001,rect.width/logicalW);
+   const left=(st?.offsetLeft||0)+view.logicalX*scale-vp.clientWidth/2;
+   const top=(st?.offsetTop||0)+view.logicalY*scale-vp.clientHeight/2;
+   vp.scrollLeft=Math.max(0,Math.min(Math.max(0,vp.scrollWidth-vp.clientWidth),left));
+   vp.scrollTop=Math.max(0,Math.min(Math.max(0,vp.scrollHeight-vp.clientHeight),top));
    scrollTo(view.docX,view.docY);
-   requestAnimationFrame(()=>{restoring=false});
   }
-  function settle(view=stable,long=false){
-   clearTimeout(timer);restoring=true;
-   const delays=long?[0,16,40,90,160,280,450,700]:[0,16,48,100,180,320];
-   delays.forEach(ms=>setTimeout(()=>restore(view),ms));
-   timer=setTimeout(()=>{restoring=false;capture()},delays.at(-1)+80);
-  }
-  function run(job){const view=capture();window.ajPreserveTouchViewportV1939=true;try{return job()}finally{window.ajPreserveTouchViewportV1939=false;settle(view,false)}}
-  window.ajRunPreservingViewV1939=run;
-  window.ajRefreshPaperPreservingViewV1939=()=>run(()=>window.ajPaperV221042?.refresh?.());
+  function scheduleRestore(delay=160){clearTimeout(restoreTimer);restoreTimer=setTimeout(()=>requestAnimationFrame(restore),delay)}
   capture();
-  vp.addEventListener('scroll',()=>{if(!restoring&&!armedPage){clearTimeout(timer);timer=setTimeout(capture,45)}},{passive:true});
-  document.addEventListener('touchend',()=>{if(!restoring&&!armedPage){clearTimeout(timer);timer=setTimeout(capture,100)}},{passive:true});
+  vp.addEventListener('scroll',()=>{clearTimeout(restoreTimer);restoreTimer=setTimeout(capture,80)},{passive:true});
+  document.addEventListener('touchend',()=>setTimeout(capture,100),{passive:true});
   document.addEventListener('pointerdown',event=>{if(event.target.closest?.('#addPageBtn,#removePageBtn,.page-delete-btn,#clearBtn'))capture()},true);
   new MutationObserver(()=>{
    const current=Number(count.textContent||0);
-   if(current!==previousCount){
-    const view=stable||capture();armedPage=current>previousCount;inkSettled=!armedPage;previousCount=current;settle(view,true);
-   }
+   if(current!==previousCount){waitingFirstInk=current>previousCount;previousCount=current;scheduleRestore(180)}
   }).observe(count,{childList:true,subtree:true,characterData:true});
-  const inkObserver=new MutationObserver(mutations=>{
-   if(!armedPage||inkSettled)return;
-   const permanentInk=mutations.some(m=>m.type==='childList'&&[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('canvas,path')||n.querySelector?.('canvas,path'))));
-   if(!permanentInk)return;
-   inkSettled=true;armedPage=false;settle(stable,true);
-  });
-  function watchInk(){
-   for(const id of ['ajInkPagesLayerV215','ajPhoneA3VectorInkV1943']){const el=document.getElementById(id);if(el&&!el.dataset.ajAnchorWatch1944){el.dataset.ajAnchorWatch1944='1';inkObserver.observe(el,{childList:true,subtree:true})}}
-  }
-  new MutationObserver(watchInk).observe(wrap,{childList:true,subtree:true});watchInk();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.44-NEW-PAGE-ANCHOR';
-  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
- });
-})();
-</script>
-<!-- AIRJOTTER_V221061331944_NEW_PAGE_ANCHOR_END -->
-
-<!-- AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_BEGIN -->
-<style id="AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_STYLE">
-@media(max-width:760px){
- html.aj-phone-a3-pinching-v1945 #ajA3LiveInkV2210613319,
- html.aj-phone-a3-pinching-v1945 #ajUniversalWetV22106111,
- html.aj-phone-a3-pinching-v1945 #pencilPredictionBoard,
- html.aj-phone-a3-pinching-v1945 #ajIpadSmartWetV19{
-  display:none!important;visibility:hidden!important;opacity:0!important
- }
-}
-</style>
-<script id="AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD">
-(()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  const input=document.getElementById('draftBoard'),vp=document.getElementById('mobileViewport');
-  if(!input||!vp)return;
-  const phoneA3=()=>matchMedia('(max-width:760px)').matches&&document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
-  let touches=0,pinching=false,releaseTimer=0;
-  function clearTransient(){
-   const live=document.getElementById('ajA3LiveInkV2210613319');
-   live?.querySelector('path')?.removeAttribute('d');
-   const universal=document.getElementById('ajUniversalWetV22106111');
-   universal?.querySelector('path')?.removeAttribute('d');
-   for(const id of ['pencilPredictionBoard','ajIpadSmartWetV19']){
-    const canvas=document.getElementById(id);try{canvas?.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height)}catch{}
+  function observeInk(){
+   for(const id of ['ajInkPagesLayerV215','ajPhoneA3VectorInkV1943']){
+    const el=document.getElementById(id);if(!el||el.dataset.ajTouchReset1946)return;
+    el.dataset.ajTouchReset1946='1';new MutationObserver(m=>{if(waitingFirstInk&&m.some(x=>x.addedNodes.length)){waitingFirstInk=false;scheduleRestore(120)}}).observe(el,{childList:true,subtree:true});
    }
   }
-  function beginPinch(){
-   if(pinching||!phoneA3())return;pinching=true;
-   clearTimeout(releaseTimer);document.documentElement.classList.add('aj-phone-a3-pinching-v1945');clearTransient();
+  new MutationObserver(observeInk).observe(wrap,{childList:true,subtree:true});observeInk();
+  function clearTransient(){
+   document.getElementById('ajA3LiveInkV2210613319')?.querySelector('path')?.removeAttribute('d');
+   document.getElementById('ajUniversalWetV22106111')?.querySelector('path')?.removeAttribute('d');
   }
-  function endPinch(){
-   touches=0;clearTransient();
-   releaseTimer=setTimeout(()=>{pinching=false;document.documentElement.classList.remove('aj-phone-a3-pinching-v1945');clearTransient()},70);
-  }
-  vp.addEventListener('touchstart',event=>{touches=event.touches.length;if(phoneA3()&&touches>=2)beginPinch()},{capture:true,passive:true});
-  vp.addEventListener('touchmove',event=>{touches=event.touches.length;if(phoneA3()&&touches>=2){beginPinch();clearTransient()}},{capture:true,passive:true});
-  vp.addEventListener('touchend',event=>{touches=event.touches.length;if(pinching&&touches<2)endPinch()},{capture:true,passive:true});
-  vp.addEventListener('touchcancel',endPinch,{capture:true,passive:true});
-  input.addEventListener('pointermove',event=>{if(pinching&&event.pointerType==='touch'){clearTransient();event.stopImmediatePropagation()}},true);
-  input.addEventListener('pointerup',event=>{if(pinching&&event.pointerType==='touch'){clearTransient();event.stopImmediatePropagation()}},true);
-  document.addEventListener('gesturestart',()=>{if(phoneA3())beginPinch()},{capture:true,passive:true});
-  document.addEventListener('gestureend',()=>{if(pinching)endPinch()},{capture:true,passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.45-PHONE-A3-PINCH-GUARD';
+  vp.addEventListener('touchstart',event=>{if(phoneA3()&&event.touches.length>=2){pinching=true;document.documentElement.classList.add('aj-phone-a3-pinch-v1946');clearTransient()}},{capture:true,passive:true});
+  vp.addEventListener('touchmove',event=>{if(pinching&&event.touches.length>=2)clearTransient()},{capture:true,passive:true});
+  function finishPinch(event){if(!pinching||event.touches?.length>=2)return;clearTransient();setTimeout(()=>{pinching=false;document.documentElement.classList.remove('aj-phone-a3-pinch-v1946')},90)}
+  vp.addEventListener('touchend',finishPinch,{capture:true,passive:true});vp.addEventListener('touchcancel',finishPinch,{capture:true,passive:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.46-TOUCH-INPUT-RESET';
   document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
  });
 })();
 </script>
-<!-- AIRJOTTER_V221061331945_PHONE_A3_PINCH_GUARD_END -->
+<!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_END -->
 
 </body>
 </html>
