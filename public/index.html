@@ -7618,5 +7618,19 @@ html.aj-tablet-pencil-v1956.aj-jotter-visible-v1956 #ajTabletPencilPaletteV1956{
 Object.defineProperty(window,'AIRJOTTER_FRONTEND_VERSION',{configurable:false,enumerable:true,writable:false,value:'22.10.61.33.19.60A-PAYPAL-VERSION-COLOR-HOTFIX'});
 document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
+
+<!-- AIRJOTTER_REMOVE_PLAN_CREDIT_1962_BEGIN -->
+<style id="AIRJOTTER_REMOVE_PLAN_CREDIT_1962_STYLE">
+/* Il credito AirJotter Spot resta disponibile solo per Jotter, pagine ed export. */
+.aj-credit-plan-buy{display:none!important}
+</style>
+<script id="AIRJOTTER_REMOVE_PLAN_CREDIT_1962">
+(()=>{
+ const remove=()=>document.querySelectorAll('.aj-credit-plan-buy').forEach(b=>b.remove());
+ remove();
+ new MutationObserver(remove).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<!-- AIRJOTTER_REMOVE_PLAN_CREDIT_1962_END -->
 </body>
 </html>
