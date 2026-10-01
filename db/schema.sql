@@ -240,3 +240,11 @@ CREATE INDEX IF NOT EXISTS pay_use_tx_user_created_v2283_idx ON pay_use_transact
 UPDATE users u SET plan_id=p.id FROM billing_plans p WHERE u.plan_id IS NULL AND p.code=u.plan_code;
 
 -- AIRJOTTER_FILE_TRANSFER_V2290: nessun file persistito; segnalazione effimera via Socket.IO.
+
+
+-- AIRJOTTER_PAYPAL_V1959: configurazione prezzi Sandbox e indici di sicurezza.
+UPDATE billing_plans SET amount_cents=499,currency='EUR',interval_unit='month',interval_count=1,status='active',updated_at=now() WHERE code='plus';
+UPDATE billing_plans SET amount_cents=999,currency='EUR',interval_unit='month',interval_count=1,status='active',updated_at=now() WHERE code='ultra';
+UPDATE pay_use_settings SET minimum_topup_cents=300,currency='EUR',updated_at=now() WHERE id=1;
+CREATE INDEX IF NOT EXISTS billing_orders_provider_status_v1959_idx ON billing_orders(provider,status,created_at DESC);
+CREATE INDEX IF NOT EXISTS users_subscription_external_v1959_idx ON users(subscription_external_id) WHERE subscription_external_id IS NOT NULL;
