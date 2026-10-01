@@ -4434,7 +4434,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  const hist=document.getElementById('ajBillingOrdersV220');if(hist){const labels={topup:'Credito acquistato',spend:'Utilizzo credito',admin_adjustment:'Credito omaggio',refund:'Rimborso'};hist.innerHTML=pay.transactions.length?`<div class="aj-history-v2283">${pay.transactions.map(t=>`<div class="aj-history-row-v2283"><span>${date(t.created_at)}</span><b>${labels[t.transaction_type]||t.transaction_type}${t.provider?' · '+(t.provider==='stripe'?'Carta':t.provider==='paypal'?'PayPal':t.provider==='wallet-plan'?'Credito residuo':t.provider):''}</b><span>${t.description||'Operazione AirJotter'}</span><b>${money(t.amount_cents)}</b></div>`).join('')}</div>`:'Nessuna transazione' }
  }
  document.addEventListener('click',e=>{const b=e.target.closest('.aj-credit-plan-buy');if(b)creditPreview(b.dataset.id)},true);
- const obs=new MutationObserver(()=>{document.querySelectorAll('#ajPublicPlansV220 .aj-plan-card').forEach(card=>{const stripe=card.querySelector('.aj-stripe-buy');if(!stripe||card.querySelector('.aj-credit-plan-buy'))return;stripe.textContent='Carta di credito';const c=document.createElement('button');c.className='btn aj-credit-plan-buy';c.dataset.id=stripe.dataset.id;c.textContent='Credito residuo';stripe.parentNode.insertBefore(c,stripe);const pp=card.querySelector('.aj-paypal-buy');if(pp)pp.textContent='PayPal'})});obs.observe(document.getElementById('ajPublicPlansV220'),{childList:true,subtree:true});
+ const obs=new MutationObserver(()=>{document.querySelectorAll('#ajPublicPlansV220 .aj-plan-card').forEach(card=>{const stripe=card.querySelector('.aj-stripe-buy');if(!stripe||card.querySelector('.aj-credit-plan-buy'))return;stripe.textContent='Carta di credito';/* AIRJOTTER_DISABLE_PLAN_CREDIT_1962A: credito Spot non utilizzabile per i piani */const pp=card.querySelector('.aj-paypal-buy');if(pp)pp.textContent='PayPal'})});obs.observe(document.getElementById('ajPublicPlansV220'),{childList:true,subtree:true});
  document.getElementById('ajCreditPlanCancelV2283').onclick=()=>creditModal.style.display='none';rechargeBtn.onclick=()=>{creditModal.style.display='none';openRecharge()};confirmBtn.onclick=async()=>{if(!selected)return;confirmBtn.disabled=true;try{const r=await api('/api/billing/credit/activate',{method:'POST',body:JSON.stringify({planId:selected.plan.id,requestId:crypto.randomUUID()})});alert('Piano '+r.plan.name+' attivato. Credito residuo: '+money(r.balanceCents,r.plan.currency));creditModal.style.display='none';await refreshCommerce()}catch(e){if(e.status===402){rechargeBtn.hidden=false;confirmBtn.hidden=true;body.insertAdjacentHTML('beforeend','<p class="aj-plan-benefit-v2283">Credito insufficiente. Ricarica con Carta o PayPal per continuare.</p>')}else alert(e.message)}finally{confirmBtn.disabled=false}};
  new MutationObserver(()=>{if(modal.style.display==='flex')setTimeout(refreshCommerce,150)}).observe(modal,{attributes:true,attributeFilter:['style']});
  
@@ -7618,19 +7618,5 @@ html.aj-tablet-pencil-v1956.aj-jotter-visible-v1956 #ajTabletPencilPaletteV1956{
 Object.defineProperty(window,'AIRJOTTER_FRONTEND_VERSION',{configurable:false,enumerable:true,writable:false,value:'22.10.61.33.19.60A-PAYPAL-VERSION-COLOR-HOTFIX'});
 document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
 </script>
-
-<!-- AIRJOTTER_REMOVE_PLAN_CREDIT_1962_BEGIN -->
-<style id="AIRJOTTER_REMOVE_PLAN_CREDIT_1962_STYLE">
-/* Il credito AirJotter Spot resta disponibile solo per Jotter, pagine ed export. */
-.aj-credit-plan-buy{display:none!important}
-</style>
-<script id="AIRJOTTER_REMOVE_PLAN_CREDIT_1962">
-(()=>{
- const remove=()=>document.querySelectorAll('.aj-credit-plan-buy').forEach(b=>b.remove());
- remove();
- new MutationObserver(remove).observe(document.documentElement,{childList:true,subtree:true});
-})();
-</script>
-<!-- AIRJOTTER_REMOVE_PLAN_CREDIT_1962_END -->
 </body>
 </html>
