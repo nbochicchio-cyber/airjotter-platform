@@ -1852,11 +1852,10 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 const w = toolWidth * (0.72 + Math.pow(initP, 1.25) * 0.72);
                 const legacy = mode === 'highlighter';
                 const pt = e.pointerType;
-                const nativeFingerA3 = pt === 'touch' && (/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)) && document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
                 currentPath = {
                     type: 'path',
                     color: currentColor,
-                    points: nativeFingerA3 ? [] : [legacy ? { x: pos.x, y: pos.y, w: w } : { x: r2(pos.x), y: r2(pos.y), w: r2(w) }],
+                    points: [legacy ? { x: pos.x, y: pos.y, w: w } : { x: r2(pos.x), y: r2(pos.y), w: r2(w) }],
                     isEraser: mode === 'eraser',
                     isHighlighter: mode === 'highlighter',
                     opacity: mode === 'highlighter' ? 0.18 : 1,
@@ -1868,7 +1867,6 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 S = {
                     id: e.pointerId, type: pt, mode, legacy, g, path: currentPath, toolWidth,
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
-                    nativeFingerA3, fingerOrigin: pos, fingerAccepted: !nativeFingerA3,
                     done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
                     filter: (mode === 'pen' && pt !== 'mouse') ? makeFilter(pt) : null,
                     minDist: legacy ? 0 : (pt==='pen'?clamp(0.32/Math.max(vs,1e-3),0.12,0.55):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
@@ -1891,7 +1889,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     inkCtx.beginPath(); inkCtx.arc(pos.x, pos.y, w / 2, 0, Math.PI * 2); inkCtx.fill(); inkCtx.restore();
                     ext(S.bb, pos.x, pos.y, w / 2);
                     S.legacyDot = true;
-                } else if(currentPath.points.length) {
+                } else {
                     S.pieces = [];
                     pushPiece([[currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w)]]);
                     drawDot([inkCtx], currentPath.points[0].x, currentPath.points[0].y, rad(currentPath.points[0].w), currentColor, null);
@@ -2082,13 +2080,6 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 let list = null;
                 try { list = e.getCoalescedEvents ? e.getCoalescedEvents() : null; } catch (err) { list = null; }
                 let evs = list && list.length ? list : [e];
-                if(S.nativeFingerA3&&!S.fingerAccepted){
-                    const nowPos=S.g?mapPt(S.g,e):getPointerPos(e),travel=Math.hypot(nowPos.x-S.fingerOrigin.x,nowPos.y-S.fingerOrigin.y);
-                    if(travel<Math.max(2.2,S.minDist*3.4))return;
-                    S.fingerAccepted=true;S.raw=nowPos;S.lastT=e.timeStamp;S.vx=0;S.vy=0;S.moved=false;S.filter=makeFilter('touch');S.done=0;S.tailBox=null;S.bb=newBox();
-                    const first={x:r2(nowPos.x),y:r2(nowPos.y),w:r2(S.sw)};S.path.points.push(first);S.pieces=[];pushPiece([[first.x,first.y,rad(first.w)]]);drawDot([inkCtx],first.x,first.y,rad(first.w),S.path.color,null);unionDirty(devBox(S.g,S.bb,3));
-                    lastEventData={clientX:e.clientX,clientY:e.clientY,timeStamp:e.timeStamp};return;
-                }
                 let added = false;
                 for (const ev of evs) if (sample(ev)) added = true;
                 if (S.mode === 'eraser') { if (added) eraseIncrement(false); return; }
@@ -2106,7 +2097,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                 const pts = path.points;
                 let list = null;
                 try { list = e.getCoalescedEvents ? e.getCoalescedEvents() : null; } catch (err) { list = null; }
-                const evs = S&&S.nativeFingerA3 ? [] : (list && list.length ? list : [e]);
+                const evs = list && list.length ? list : [e];
                 const g = S && S.g;
                 for (const ev of evs) {
                     const pos = g ? mapPt(g, ev) : getPointerPos(ev);
@@ -2250,7 +2241,6 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             if(e.pointerType === 'pen') document.documentElement.classList.remove('aj-pencil-active-v168');
             if (isDrawing && currentPath && (activePointers.size === 0 || e.pointerType === 'pen')) {
                 AJInk.finish(e);
-                if(!currentPath.points.length){isDrawing=false;currentPath=null;lastEventData=null;try{draftCanvas.releasePointerCapture(e.pointerId)}catch(err){}return}
                 ajSendStrokePreviewV224(currentPath,true);
 
                 commands.push(currentPath);
@@ -7552,6 +7542,34 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 <script id="AIRJOTTER_V221061331947A_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.47A-A3-VECTOR-SMOOTH-FIXED";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
 
 
-<script id="AIRJOTTER_V221061331951_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.51-IPAD-A3-FINGER-FILTER-RESET";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+
+<style id="AIRJOTTER_V221061331952_STYLE">
+#ajIpadA3FingerWetV1952{display:none;position:absolute;inset:0;width:100%;height:100%;z-index:12020;pointer-events:none;overflow:visible;background:transparent}
+html.aj-ipad-a3-finger-v1952 #ajIpadA3FingerWetV1952{display:block}
+</style>
+<script id="AIRJOTTER_V221061331952_ENGINE">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper');if(!input||!wrap)return;
+  const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(!ipad)return;
+  const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg'),line=document.createElementNS(NS,'path');
+  svg.id='ajIpadA3FingerWetV1952';line.setAttribute('fill','none');line.setAttribute('stroke-linecap','round');line.setAttribute('stroke-linejoin','round');svg.appendChild(line);wrap.appendChild(svg);
+  let active=false,pid=-1,origin=null,last=null,points=[],rect=null,cancelled=false;
+  const a3=()=>document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
+  const writable=()=>['pen','highlighter','eraser'].includes(typeof currentMode!=='undefined'?currentMode:'pen')&&!stampActive&&!textOverlayActive;
+  function pos(e){const r=rect||input.getBoundingClientRect();return{x:(e.clientX-r.left)*LOGICAL_W/r.width,y:(e.clientY-r.top)*LOGICAL_H/r.height}}
+  function clear(){line.removeAttribute('d');document.documentElement.classList.remove('aj-ipad-a3-finger-v1952')}
+  function paint(){if(!points.length)return;let d=`M${points[0].x} ${points[0].y}`;for(let i=1;i<points.length-1;i++){const q=points[i],n=points[i+1];d+=` Q${q.x} ${q.y} ${(q.x+n.x)/2} ${(q.y+n.y)/2}`}if(points.length>1){const z=points.at(-1);d+=` L${z.x} ${z.y}`}const mode=currentMode,width=Number(baseWidth||2.5);line.setAttribute('d',d);line.setAttribute('stroke',mode==='eraser'?'#fff':mode==='highlighter'?'#FFE000':currentColor);line.setAttribute('stroke-opacity',mode==='highlighter'?'.30':'1');line.setAttribute('stroke-width',String(mode==='highlighter'?width*3.2:width))}
+  function down(e){if(!a3()||e.pointerType!=='touch'||!writable()||active)return;active=true;pid=e.pointerId;origin=last=pos(e);points=[];rect=input.getBoundingClientRect();cancelled=false;document.documentElement.classList.add('aj-ipad-a3-finger-v1952');e.preventDefault();e.stopImmediatePropagation()}
+  function move(e){if(!active||e.pointerId!==pid)return;e.preventDefault();e.stopImmediatePropagation();const p=pos(e);if(!points.length){if(Math.hypot(p.x-origin.x,p.y-origin.y)<2.4)return;points.push({x:p.x,y:p.y,w:Number(baseWidth||2.5)});last=p;paint();return}const dx=p.x-last.x,dy=p.y-last.y;if(Math.hypot(dx,dy)<.7)return;const smooth={x:last.x+dx*.58,y:last.y+dy*.58,w:Number(baseWidth||2.5)};points.push(smooth);last=smooth;paint()}
+  function finish(e){if(!active||e.pointerId!==pid)return;e.preventDefault();e.stopImmediatePropagation();active=false;pid=-1;if(cancelled||points.length<2){points=[];clear();return}const mode=currentMode,cmd={type:'path',color:currentColor,points:points.map(p=>({x:Math.round(p.x*100)/100,y:Math.round(p.y*100)/100,w:Math.round(p.w*100)/100})),isEraser:mode==='eraser',isHighlighter:mode==='highlighter',opacity:mode==='highlighter'?.18:1,renderIndex:1};commands.push(cmd);redoCommands=[];document.getElementById('undoBtn').disabled=false;ajDrawPathOnPagesV224(cmd);ajSendStrokePreviewV224(cmd,true);ajSendCommand(cmd);ajInkPagesKeyV215='';redrawMainCanvas();points=[];clear()}
+  document.addEventListener('pointerdown',down,true);document.addEventListener('pointermove',move,true);document.addEventListener('pointerup',finish,true);document.addEventListener('pointercancel',e=>{if(active&&e.pointerId===pid){cancelled=true;finish(e)}},true);
+  document.addEventListener('touchstart',e=>{if(active&&e.touches.length>1){cancelled=true;points=[];clear()}},{capture:true,passive:true});
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.52-IPAD-A3-DEDICATED-FINGER-ENGINE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
 </body>
 </html>
