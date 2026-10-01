@@ -7540,5 +7540,49 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 <!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_END -->
 
 <script id="AIRJOTTER_V221061331947A_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.47A-A3-VECTOR-SMOOTH-FIXED";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+<!-- AIRJOTTER_V221061331948_IPAD_FINGER_ENDPOINT_FILTER_BEGIN -->
+<script id="AIRJOTTER_V221061331948_IPAD_FINGER_ENDPOINT_FILTER">
+(()=>{'use strict';
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+  const input=document.getElementById('draftBoard');if(!input)return;
+  const ipad=()=>/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const a3=()=>document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
+  let lastTouchEnd=-Infinity,activeTouch=false;
+  input.addEventListener('pointerdown',e=>{if(ipad()&&a3()&&e.pointerType==='touch')activeTouch=true},{capture:true,passive:true});
+  input.addEventListener('pointerup',e=>{if(activeTouch&&e.pointerType==='touch'){lastTouchEnd=performance.now();activeTouch=false}},{capture:true,passive:true});
+  input.addEventListener('pointercancel',e=>{if(e.pointerType==='touch'){lastTouchEnd=performance.now();activeTouch=false}},{capture:true,passive:true});
+  const distance=(a,b)=>Math.hypot(Number(a.x||0)-Number(b.x||0),Number(a.y||0)-Number(b.y||0));
+  function median(values){const a=values.filter(Number.isFinite).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:0}
+  function endpointBad(a,b,c,base){
+   const ab=distance(a,b),bc=distance(b,c);if(ab>Math.max(5,base*3.2))return true;
+   const ux=Number(b.x||0)-Number(a.x||0),uy=Number(b.y||0)-Number(a.y||0),vx=Number(c.x||0)-Number(b.x||0),vy=Number(c.y||0)-Number(b.y||0),den=Math.max(.0001,Math.hypot(ux,uy)*Math.hypot(vx,vy));
+   return ab>Math.max(2.5,base*1.65)&&((ux*vx+uy*vy)/den)<-.15;
+  }
+  function sanitize(cmd){
+   if(!cmd||cmd.type!=='path'||!Array.isArray(cmd.points)||cmd.points.length<7)return false;
+   let p=cmd.points.slice(),changed=false;
+   const lengths=[];for(let i=1;i<p.length;i++)lengths.push(distance(p[i-1],p[i]));const base=Math.max(.25,median(lengths.slice(1,-1))||median(lengths));
+   for(let n=0;n<3&&p.length>6&&endpointBad(p[0],p[1],p[2],base);n++){p.shift();changed=true}
+   for(let n=0;n<3&&p.length>6&&endpointBad(p.at(-1),p.at(-2),p.at(-3),base);n++){p.pop();changed=true}
+   if(changed)cmd.points=p;return changed;
+  }
+  function install(){
+   const original=window.ajSendCommand;if(typeof original!=='function'||original.__ajFingerFilter1948)return false;
+   const wrapped=function(cmd){
+    const finger=ipad()&&a3()&&(activeTouch||performance.now()-lastTouchEnd<500);
+    if(finger&&sanitize(cmd)){try{window.redrawMainCanvas?.()}catch{}}
+    return original.apply(this,arguments);
+   };
+   wrapped.__ajFingerFilter1948=true;window.ajSendCommand=wrapped;return true;
+  }
+  if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>80)clearInterval(timer)},50)}
+  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.48-IPAD-FINGER-ENDPOINT-FILTER';
+  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ });
+})();
+</script>
+<!-- AIRJOTTER_V221061331948_IPAD_FINGER_ENDPOINT_FILTER_END -->
+
 </body>
 </html>
