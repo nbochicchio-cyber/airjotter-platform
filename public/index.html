@@ -3168,7 +3168,7 @@ async function ajResolveRequest(approved){if(!ajPendingRequest)return;await ajAp
 document.getElementById('accessApproveBtn').onclick=()=>ajResolveRequest(true);
 document.getElementById('accessDenyBtn').onclick=()=>ajResolveRequest(false);
 ajSocket.on('access:requested',ajShowRequest);
-setInterval(async()=>{if(isDrawing||(window.ajInkBusy&&window.ajInkBusy())||document.documentElement.classList.contains('aj-pencil-active-v168')||ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},3000);
+setInterval(async()=>{if(document.hidden||isDrawing||(window.ajInkBusy&&window.ajInkBusy())||document.documentElement.classList.contains('aj-pencil-active-v168')||ajRole!=='owner'||!ajBoard||ajPendingRequest)return;try{const list=await ajApi('/api/boards/'+ajBoard.id+'/access-requests');if(list[0])ajShowRequest(list[0]);}catch(e){}},7000);
 ajSocket.on('access:resolved', result=>{if(result.boardId===ajBoard?.id){ajSetRole(result.role);alert(result.approved?'Accesso in modifica autorizzato.':'Richiesta rifiutata.')}});
     </script>
 <script id="welcomeDiscoverRuntime">
@@ -3467,7 +3467,7 @@ document.addEventListener('click', function(event) {
   }catch(e){console.debug('Controllo sincronizzazione:',e.message)}finally{polling=false}
  }
  const baseOpen=ajOpenBoard;ajOpenBoard=async function(board){lastRevision=-1;appliedOperationIds.clear();const result=await baseOpen(board);await syncCheck();apply(false);return result};
- ajSocket.on('board:operation',op=>{const id=op.operation_id||op.operationId;if(id&&!appliedOperationIds.has(id)){appliedOperationIds.add(id);ajApplyOperation(op)}lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(syncCheck,8000);
+ ajSocket.on('board:operation',op=>{const id=op.operation_id||op.operationId;if(id&&!appliedOperationIds.has(id)){appliedOperationIds.add(id);ajApplyOperation(op)}lastRevision=Math.max(lastRevision,Number(op.revision)||0)});ajSocket.on('board:reload',()=>{lastRevision=-1});setInterval(()=>{if(!document.hidden&&ajBoard)syncCheck()},15000);
 
  // Archivio mobile gia abbassato dalla v11.6.
  const modal=document.getElementById('jotterArchiveModal'),close=document.getElementById('jotterArchiveClose');if(close)close.onclick=()=>modal.style.display='none';if(modal)modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});const previousArchive=ajLoadArchive;ajLoadArchive=async function(){modal.style.display='flex';await previousArchive();modal.style.display='flex';modal.scrollTop=0;document.getElementById('jotterArchiveList').scrollTop=0};document.getElementById('ajUser').onclick=ajLoadArchive;
@@ -3529,7 +3529,7 @@ document.addEventListener('click', function(event) {
  ajSocket.on('board:reload',()=>setTimeout(refreshHistory,180));
  ajSocket.on('board:operation',()=>setTimeout(refreshHistory,80));
  const previousOpen=ajOpenBoard;ajOpenBoard=async function(board){const value=await previousOpen(board);await refreshHistory();return value};
- setInterval(refreshHistory,1200);
+ setInterval(()=>{if(!document.hidden&&ajBoard&&!isDrawing)refreshHistory()},5000);
 })();
 </script>
 <script id="airjotterPcTouchDisabledV145">
@@ -4760,7 +4760,7 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
    if(e.target.closest('#ajRequestEdit'))return;
    if(e.target.closest('header,#canvas-wrapper,.mobile-tools,#mobileViewport'))warnViewer();
   },true);
-  syncRole();setInterval(syncRole,500);
+  syncRole();setInterval(()=>{if(!document.hidden&&ajBoard)syncRole()},3000);
   
  });
 })();
@@ -7637,5 +7637,5 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  document.addEventListener('click',e=>{const plan=e.target.closest('#ajPublicPlansV220 .aj-paypal-buy');if(plan){e.preventDefault();e.stopImmediatePropagation();start(plan);return}if(e.target.closest('#ajPlansBtn,#ajUser,#ajPlansModalV220'))schedule()},true);
  document.addEventListener('DOMContentLoaded',schedule,{once:true});schedule();
 })();
-</script></body>
+</script><script id="AIRJOTTER_POLLING_GUARD_1964E">window.AIRJOTTER_POLLING_GUARD='19.64E';</script></body>
 </html>

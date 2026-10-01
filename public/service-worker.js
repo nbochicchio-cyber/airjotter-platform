@@ -1,7 +1,9 @@
-const VERSION = 'airjotter-pwa-v1';
+const VERSION = 'airjotter-pwa-v2';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin === self.location.origin && (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/'))) return;
   event.respondWith(fetch(event.request));
 });
