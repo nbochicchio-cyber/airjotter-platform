@@ -4102,7 +4102,7 @@ window.AIRJOTTER_EXPORT_ADMIN_VERSION='22.5';
  // Garantisce la sovrapposizione anche se altri script riscrivono gli stili inline.
  const access=document.getElementById('boardAccessModal');
  if(access)new MutationObserver(()=>{if(access.style.display==='flex')access.style.setProperty('z-index','13050','important')}).observe(access,{attributes:true,attributeFilter:['style','class']});
- window.AIRJOTTER_FRONTEND_VERSION='22.5.1';
+ 
 })();
 </script>
 
@@ -4143,7 +4143,7 @@ window.AIRJOTTER_EXPORT_ADMIN_VERSION='22.5';
  installJoin();setTimeout(installJoin,300);setTimeout(installJoin,1200);
  document.addEventListener('DOMContentLoaded',installJoin,{once:true});
  if(typeof ajRole!=='undefined')updateViewerPulse(ajRole);
- window.AIRJOTTER_FRONTEND_VERSION='22.5.2';
+ 
 })();
 </script>
 
@@ -4202,7 +4202,7 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
  document.querySelectorAll('input[placeholder="ABCD-EFGH"],input[data-jotter-code]').forEach(bindRoomCodeV2261);
  new MutationObserver(()=>document.querySelectorAll('input[placeholder="ABCD-EFGH"],input[data-jotter-code]').forEach(bindRoomCodeV2261)).observe(document.body,{subtree:true,childList:true});
  if(typeof ajRole!=='undefined')enforceRole(ajRole);
- window.AIRJOTTER_FRONTEND_VERSION='22.5.3';
+ 
 })();
 </script>
 
@@ -4218,25 +4218,25 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
  function markPage(i){if(document.querySelector('.aj-watermark-v226[data-page="'+i+'"]'))return;const d=document.createElement('div');d.className='aj-watermark-v226';d.dataset.page=i;d.style.top=(i*BASE_A4_H)+'px';d.innerHTML='<span>AirJotter.com</span>';document.getElementById('canvas-wrapper').appendChild(d)}
  async function extras(show=true){try{const d=await ajApi('/api/extras/me');window.ajExtrasV226=d;clearMarks();if(ajBoard){const boardExtras=d.extras.filter(x=>x.board_id===ajBoard.id),expiredJ=boardExtras.some(x=>x.kind==='jotter'&&x.expired),expiredPages=boardExtras.filter(x=>x.kind==='page'&&x.expired).reduce((a,x)=>a+Number(x.units),0);if(expiredJ){for(let i=0;i<TOTAL_PAGES;i++)markPage(i);ajSetRole('viewer')}else for(let i=Math.max(0,TOTAL_PAGES-expiredPages);i<TOTAL_PAGES;i++)markPage(i)}const relevant=d.extras.filter(x=>x.expired||new Date(x.expires_at)-Date.now()<7*864e5);if(show&&relevant.length){let m=document.getElementById('ajExpiryModalV226');if(!m){m=document.createElement('div');m.id='ajExpiryModalV226';m.className='modal aj-expiry-modal-v226';m.innerHTML='<div class="modal-content" style="max-width:650px"><h2>Extra AirJotter e scadenze</h2><p>Jotter e pagine extra durano 30 giorni. Puoi rinnovarli anticipatamente: i 30 giorni si aggiungono alla scadenza esistente.</p><div class="aj-expiry-list-v226"></div><button class="btn primary" onclick="this.closest(\'.modal\').style.display=\'none\'">Continua</button></div>';document.body.appendChild(m)}m.querySelector('.aj-expiry-list-v226').innerHTML=relevant.map(x=>'<div class="aj-expiry-row-v226 '+(x.expired?'expired':'')+'"><b>'+(x.kind==='jotter'?'Jotter extra':'Pagine extra: '+x.units)+'</b><br>'+(x.title||'Da assegnare')+'<br>Scadenza: '+new Date(x.expires_at).toLocaleDateString('it-IT')+'<br><button class="btn renew-extra-v226" data-id="'+x.id+'">Rinnova 30 giorni</button></div>').join('');m.style.display='flex'}}catch(e){console.warn(e)}}
  document.addEventListener('click',async e=>{const b=e.target.closest('.renew-extra-v226');if(!b)return;try{await ajApi('/api/extras/'+b.dataset.id+'/renew',{method:'POST',body:'{}'});await extras(true)}catch(x){alert(x.message)}},true);
- window.ajApplyExtrasV226=extras;window.addEventListener('pageshow',event=>{if(event.persisted&&ajBoard){setTimeout(()=>{try{redrawMainCanvas()}catch(e){}},120)}});window.AIRJOTTER_FRONTEND_VERSION='22.6.2';
+ window.ajApplyExtrasV226=extras;window.addEventListener('pageshow',event=>{if(event.persisted&&ajBoard){setTimeout(()=>{try{redrawMainCanvas()}catch(e){}},120)}});
 })();
 </script>
 
 <style id="AIRJOTTER_V2265_STYLE">.aj-plans-wrap-v2265{display:flex;flex-direction:column;align-items:center;justify-content:center}.aj-plans-wrap-v2265 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aj-access-hint-v2265{margin-left:10px;color:#1769d2;font-size:.76rem;font-weight:700;text-transform:none;letter-spacing:0}@media(max-width:700px){.aj-access-hint-v2265{display:block;margin:4px 0 0}}</style>
-<script id="AIRJOTTER_V2265_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.5';</script>
+<script id="AIRJOTTER_V2265_VERSION"></script>
 
 <style id="AIRJOTTER_V2266_STYLE">.aj-room-current-v2266{display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:180px}.aj-room-current-v2266 small{margin-top:2px;color:#0d315f;font-size:.72rem;line-height:1;font-weight:800;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}</style>
-<script id="AIRJOTTER_V2266_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6';</script>
-<script id="AIRJOTTER_V2266B_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6b';</script>
-<script id="AIRJOTTER_V2266C_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6c';</script>
+<script id="AIRJOTTER_V2266_VERSION"></script>
+<script id="AIRJOTTER_V2266B_VERSION"></script>
+<script id="AIRJOTTER_V2266C_VERSION"></script>
 
 <style id="AIRJOTTER_V2266D_STYLE">.aj-user-archive-v2266d{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.aj-user-archive-v2266d small{color:#53657d;font-size:.68rem;font-weight:700;line-height:1;white-space:nowrap;margin-bottom:5px}.aj-user-archive-v2266d .aj-user{position:relative;top:2px}</style>
-<script id="AIRJOTTER_V2266D_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6d';</script>
-<script id="AIRJOTTER_V2266E_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6e';</script>
-<script id="AIRJOTTER_V2266F_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6f';</script>
-<script id="AIRJOTTER_V2266G_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6g';</script>
-<script id="AIRJOTTER_V2266H_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6h';</script>
-<script id="AIRJOTTER_V2266I_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6i';</script>
+<script id="AIRJOTTER_V2266D_VERSION"></script>
+<script id="AIRJOTTER_V2266E_VERSION"></script>
+<script id="AIRJOTTER_V2266F_VERSION"></script>
+<script id="AIRJOTTER_V2266G_VERSION"></script>
+<script id="AIRJOTTER_V2266H_VERSION"></script>
+<script id="AIRJOTTER_V2266I_VERSION"></script>
 
 <script id="AIRJOTTER_TEXT_CARD_V2266J">
 (()=>{
@@ -4261,10 +4261,10 @@ body.aj-strict-viewer-v2253 #stamp-panel,body.aj-strict-viewer-v2253 #text-tool-
  place(0,Math.min(70,card.offsetHeight*.3));
 })();
 </script>
-<script id="AIRJOTTER_V2266J_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.6.6j';</script>
+<script id="AIRJOTTER_V2266J_VERSION"></script>
 
-<script id="AIRJOTTER_V227_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.0';</script>
-<script id="AIRJOTTER_V2271_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.1';</script><script id="AIRJOTTER_SHAPES_V2272">(()=>{
+<script id="AIRJOTTER_V227_VERSION"></script>
+<script id="AIRJOTTER_V2271_VERSION"></script><script id="AIRJOTTER_SHAPES_V2272">(()=>{
 const $=id=>document.getElementById(id),btn=$('toolShapesBtn'),panel=$('ajShapesPanelV227'),editor=$('ajShapeEditorV227'),preview=$('ajShapePreviewV227'),svg=$('ajShapeSvgV227'),text=$('ajShapeTextV227'),stroke=$('ajShapeStrokeV227'),fill=$('ajShapeFillV227'),width=$('ajShapeWidthV227'),font=$('ajShapeFontV227'),family=$('ajShapeFontFamilyV227'),textColor=$('ajShapeTextColorV227');let choice=null,drag=null,bold=false,italic=false,underline=false,endpoints=null;stroke.value='#1D1D1F';fill.value='#ffffff';width.value='1';
 if(preview.parentElement!==wrapper)wrapper.appendChild(preview);
 const coords=e=>{const r=wrapper.getBoundingClientRect(),k=r.width/LOGICAL_W;return{x:(e.clientX-r.left)/k,y:(e.clientY-r.top)/k}};
@@ -4281,7 +4281,7 @@ draftCanvas.addEventListener('pointerdown',e=>{if(!choice||!editor.classList.con
 preview.addEventListener('pointerdown',e=>{if(e.target.closest('.aj-shape-handle-v227'))return;drag={mode:'move',x:e.clientX,y:e.clientY,l:parseFloat(preview.style.left)||0,t:parseFloat(preview.style.top)||0};e.preventDefault();e.stopPropagation()});preview.querySelectorAll('.aj-shape-handle-v227').forEach(h=>h.addEventListener('pointerdown',e=>{drag={mode:h.dataset.handle,x:e.clientX,y:e.clientY,w:preview.offsetWidth,h:preview.offsetHeight,l:parseFloat(preview.style.left)||0,t:parseFloat(preview.style.top)||0};h.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopImmediatePropagation()},true));
 window.addEventListener('pointermove',e=>{if(!drag)return;const k=wrapper.getBoundingClientRect().width/LOGICAL_W,dx=(e.clientX-drag.x)/k,dy=(e.clientY-drag.y)/k;if(drag.mode==='move'){if(endpoints){endpoints.x1+=dx;endpoints.x2+=dx;endpoints.y1+=dy;endpoints.y2+=dy;drag.x=e.clientX;drag.y=e.clientY}else{preview.style.left=drag.l+dx+'px';preview.style.top=drag.t+dy+'px'}}else if(drag.mode==='br'){preview.style.width=Math.max(70,drag.w+dx)+'px';preview.style.height=Math.max(50,drag.h+dy)+'px'}else if(drag.mode==='tl'){preview.style.left=drag.l+dx+'px';preview.style.top=drag.t+dy+'px';preview.style.width=Math.max(70,drag.w-dx)+'px';preview.style.height=Math.max(50,drag.h-dy)+'px'}else if(drag.mode==='start'&&endpoints){endpoints.x1+=dx;endpoints.y1+=dy;drag.x=e.clientX;drag.y=e.clientY}else if(drag.mode==='end'&&endpoints){endpoints.x2+=dx;endpoints.y2+=dy;drag.x=e.clientX;drag.y=e.clientY}draw()},true);window.addEventListener('pointerup',()=>drag=null,true);window.addEventListener('pointercancel',()=>drag=null,true);
 $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');preview.classList.remove('open')};$('ajShapeConfirmV227').onclick=()=>{if(!choice)return;let c;if(choice.kind==='connector'){const wr=wrapper.getBoundingClientRect(),scale=wr.width/LOGICAL_W,hs=preview.querySelector('.start').getBoundingClientRect(),he=preview.querySelector('.end').getBoundingClientRect(),x=((hs.left+hs.width/2)-wr.left)/scale,y=((hs.top+hs.height/2)-wr.top)/scale,x2=((he.left+he.width/2)-wr.left)/scale,y2=((he.top+he.height/2)-wr.top)/scale;c={type:'connector',shapeType:choice.type,x,y,x2,y2,lineWidth:+width.value,stroke:stroke.value}}else{const x=parseFloat(preview.style.left)||0,y=parseFloat(preview.style.top)||0,w=preview.offsetWidth,h=preview.offsetHeight;c={type:'shape',shapeType:choice.type,x,y,w,h,lineWidth:+width.value,stroke:stroke.value,fill:fill.value,text:text.value,fontSize:+font.value,fontFamily:family.value,textColor:textColor.value,bold,italic,underline}}c=JSON.parse(JSON.stringify(c));commands.push(c);ajInkPagesKeyV215='';ajRenderInkPagesV215(true);redrawMainCanvas();ajSendCommand(c);redoCommands=[];$('undoBtn').disabled=false;choice=null;editor.classList.remove('open');preview.classList.remove('open')};
-})();</script><script id="AIRJOTTER_V2272_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.2';</script><script id="AIRJOTTER_V2273_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.3';</script><script id="AIRJOTTER_V2274_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.4';</script><script id="AIRJOTTER_V2275_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.5';</script><script id="AIRJOTTER_V2276_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.6';</script><script id="AIRJOTTER_TITLE_REALTIME_V2277">
+})();</script><script id="AIRJOTTER_V2272_VERSION"></script><script id="AIRJOTTER_V2273_VERSION"></script><script id="AIRJOTTER_V2274_VERSION"></script><script id="AIRJOTTER_V2275_VERSION"></script><script id="AIRJOTTER_V2276_VERSION"></script><script id="AIRJOTTER_TITLE_REALTIME_V2277">
 (()=>{
  if(typeof ajSocket==='undefined')return;
  ajSocket.on('board:title-updated',event=>{
@@ -4294,8 +4294,8 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  });
 })();
 </script>
-<script id="AIRJOTTER_V2277_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.7';</script>
-<script id="AIRJOTTER_V2278_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.8';</script><script id="AIRJOTTER_V2279_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.7.9';</script>
+<script id="AIRJOTTER_V2277_VERSION"></script>
+<script id="AIRJOTTER_V2278_VERSION"></script><script id="AIRJOTTER_V2279_VERSION"></script>
 <style id="AIRJOTTER_V2280_EXTRA_PAGES_STYLE">
 .aj-extra-pages-modal-v2280{position:fixed;inset:0;z-index:16080;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(9,24,48,.58);backdrop-filter:blur(5px)}
 .aj-extra-pages-card-v2280{width:min(590px,calc(100vw - 24px));max-height:88dvh;overflow:auto;background:rgba(255,255,255,.98);border:1px solid #bed2ee;border-radius:24px;box-shadow:0 24px 70px rgba(9,31,65,.32);padding:24px;color:#1d2e47}
@@ -4369,7 +4369,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  if(previousOpen)ajOpenBoard=async function(board){const result=await previousOpen(board);if(pendingArchiveChoice&&board?.role==='owner'){pendingArchiveChoice=false;openPurchase(board.id,1)}return result};
  const previousExtras=window.ajApplyExtrasV226;
  if(previousExtras)window.ajApplyExtrasV226=async function(showNotice){const result=await previousExtras(false);try{const d=await api('/api/extras/me'),relevant=d.extras.filter(x=>x.board_id===ajBoard?.id&&x.kind==='page'&&(x.expired||new Date(x.expires_at)-Date.now()<7*864e5));if(showNotice&&relevant.length){let box=document.getElementById('ajExpiryModalV226');if(box){const list=box.querySelector('.aj-expiry-list-v226');if(list)list.innerHTML=relevant.map(x=>{let range='';if(x.page_from&&x.page_to)range='Pagine '+x.page_from+'–'+x.page_to;else range='Pagine extra: '+x.units;return '<div class="aj-expiry-row-v226 aj-extra-expiry-notice-v2280 '+(x.expired?'expired':'')+'"><b>'+range+'</b><br>'+(x.title||'Jotter')+'<br>Scadenza: '+dateLabel(x.expires_at)+'<br><button class="btn renew-extra-v226" data-id="'+x.id+'">Rinnova 30 giorni</button></div>';}).join('');box.style.display='flex'}}}catch(e){console.warn('Promemoria pagine extra:',e)}return result};
- window.AIRJOTTER_FRONTEND_VERSION='22.8.0';
+ 
 })();
 </script>
 
@@ -4396,7 +4396,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  document.addEventListener('click',e=>{const b=e.target.closest('.aj-admin-count-link-v2281');if(b)openDetail(b.dataset.user)},true);
  const obs=new MutationObserver(()=>{document.querySelectorAll('#adminUsers tr').forEach(tr=>{const cells=[...tr.querySelectorAll('td')];const action=cells.at(-1)?.querySelector('[data-user-id]');const id=action?.dataset.userId||tr.dataset.userId;if(!id)return;const head=[...document.querySelectorAll('#adminUsersBody')][0]?.closest('table')?.querySelectorAll('thead th');let idx=-1;if(head)idx=[...head].findIndex(x=>/jotter/i.test(x.textContent));if(idx<0)idx=cells.findIndex(x=>/^\s*\d+\s*$/.test(x.textContent));const cell=cells[idx];if(!cell||cell.querySelector('.aj-admin-count-link-v2281'))return;const n=cell.textContent.trim();if(!/^\d+$/.test(n))return;cell.innerHTML='<button class="aj-admin-count-link-v2281" data-user="'+id+'">'+n+'</button>'})});obs.observe(document.body,{childList:true,subtree:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.8.1';
+ 
 })();
 </script>
 
@@ -4414,7 +4414,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
    throw e;
   }
  };
- window.AIRJOTTER_FRONTEND_VERSION='22.8.2';
+ 
 })();
 </script>
 
@@ -4435,7 +4435,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  const obs=new MutationObserver(()=>{document.querySelectorAll('#ajPublicPlansV220 .aj-plan-card').forEach(card=>{const stripe=card.querySelector('.aj-stripe-buy');if(!stripe||card.querySelector('.aj-credit-plan-buy'))return;stripe.textContent='Carta di credito';const c=document.createElement('button');c.className='btn aj-credit-plan-buy';c.dataset.id=stripe.dataset.id;c.textContent='Credito residuo';stripe.parentNode.insertBefore(c,stripe);const pp=card.querySelector('.aj-paypal-buy');if(pp)pp.textContent='PayPal'})});obs.observe(document.getElementById('ajPublicPlansV220'),{childList:true,subtree:true});
  document.getElementById('ajCreditPlanCancelV2283').onclick=()=>creditModal.style.display='none';rechargeBtn.onclick=()=>{creditModal.style.display='none';openRecharge()};confirmBtn.onclick=async()=>{if(!selected)return;confirmBtn.disabled=true;try{const r=await api('/api/billing/credit/activate',{method:'POST',body:JSON.stringify({planId:selected.plan.id,requestId:crypto.randomUUID()})});alert('Piano '+r.plan.name+' attivato. Credito residuo: '+money(r.balanceCents,r.plan.currency));creditModal.style.display='none';await refreshCommerce()}catch(e){if(e.status===402){rechargeBtn.hidden=false;confirmBtn.hidden=true;body.insertAdjacentHTML('beforeend','<p class="aj-plan-benefit-v2283">Credito insufficiente. Ricarica con Carta o PayPal per continuare.</p>')}else alert(e.message)}finally{confirmBtn.disabled=false}};
  new MutationObserver(()=>{if(modal.style.display==='flex')setTimeout(refreshCommerce,150)}).observe(modal,{attributes:true,attributeFilter:['style']});
- window.AIRJOTTER_FRONTEND_VERSION='22.8.3';
+ 
 })();
 </script>
 
@@ -4455,13 +4455,13 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
  function renderHistory(pay){const hist=document.getElementById('ajBillingOrdersV220');if(!hist)return;const typeLabel=t=>({topup:'Credito acquistato',spend:'Utilizzo credito',admin_adjustment:'Credito omaggio',refund:'Rimborso'}[t]||t),providerLabel=p=>({stripe:'Ricarica Carta',paypal:'Ricarica PayPal','internal-pages':'Pagine extra','internal-jotters':'Jotters extra','wallet-plan':'Credito residuo',admin:'Amministratore'}[p]||p||''),itemLabel=i=>({page:'Pagine extra',jotter:'Jotters extra',export:'Export PDF',credit:'Credito',plan:'Piano'}[i]||i||'');hist.innerHTML=pay.transactions?.length?`<div class="aj-history-v2283">${pay.transactions.map(t=>{let desc=String(t.description||'Operazione AirJotter').replace(/;?\s*validità\s+30\s+giorni/gi,'').trim();if(t.valid_until)desc+=(desc?'; ':'')+'validità fino al '+longDate(t.valid_until);const inferredJotter=t.item_type==='jotter'||/acquisto\s+\d+\s+jotter/i.test(desc),inferredPages=t.item_type==='page'||/pagine extra/i.test(desc),source=t.transaction_type==='spend'&&inferredJotter?'Jotters extra':t.transaction_type==='spend'&&inferredPages?'Pagine extra':providerLabel(t.provider),sub=inferredJotter?'Jotters extra':inferredPages?'Pagine extra':itemLabel(t.item_type);return `<div class="aj-history-row-v2283"><span>${new Intl.DateTimeFormat('it-IT',{dateStyle:'medium',timeStyle:'short'}).format(new Date(t.created_at))}</span><div class="aj-history-kind-v2284"><b>${source||typeLabel(t.transaction_type)}</b>${source&&source!==typeLabel(t.transaction_type)?`<small>${typeLabel(t.transaction_type)}${sub?' · '+sub:''}</small>`:''}</div><span>${desc}</span><b>${money(t.amount_cents,pay.currency||'EUR')}</b></div>`}).join('')}</div>`:'Nessuna transazione'}
  const plans=document.getElementById('ajPlansModalV220');if(plans)new MutationObserver(()=>{if(plans.style.display==='flex')setTimeout(renderSummary,180)}).observe(plans,{attributes:true,attributeFilter:['style']});
  const grid=document.getElementById('ajPublicPlansV220');if(grid)new MutationObserver(()=>setTimeout(raiseButtons,0)).observe(grid,{childList:true,subtree:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.8.5';
+ 
 })();
 </script>
 
 <!-- AIRJOTTER_V2285_EXTRAS_SUMMARY_AND_HISTORY -->
 <!-- AIRJOTTER_V2286_EXACT_TEXT_ANCHOR -->
-<script id="AIRJOTTER_V2286_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.8.6';</script>
+<script id="AIRJOTTER_V2286_VERSION"></script>
 
 <!-- AIRJOTTER_V2287_EXACT_ANCHOR_PALETTE_UI -->
 <style id="AIRJOTTER_V2287_STYLE">
@@ -4470,7 +4470,7 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
 #colorPicker{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}.aj-main-color-v2287{position:relative;display:inline-flex}.aj-main-color-button-v2287{width:30px;height:30px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--c,#1D1D1F);box-shadow:0 0 0 1px #aebbd0,0 3px 8px rgba(20,42,75,.2);cursor:pointer}.aj-main-palette-v2287{display:none;position:absolute;left:50%;top:40px;transform:translateX(-50%);z-index:50000;width:252px;padding:11px;border:1px solid #c8d5e7;border-radius:14px;background:#fff;box-shadow:0 14px 35px rgba(20,42,75,.25)}.aj-main-palette-v2287.open{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.aj-main-swatch-v2287{width:26px;height:26px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--c);box-shadow:0 0 0 1px #aebbd0;cursor:pointer}.aj-main-swatch-v2287.active{box-shadow:0 0 0 3px #1769e8}.aj-main-custom-v2287{grid-column:1/-1;min-height:39px;border:1px solid #bdcbe0;border-radius:9px;background:#f4f7fb;color:#173f72;font-weight:800;cursor:pointer}
 </style>
 <script id="AIRJOTTER_V2287_SCRIPT">
-(()=>{const input=document.getElementById('colorPicker');if(!input||document.getElementById('ajMainColorV2287'))return;const wrap=document.createElement('span');wrap.id='ajMainColorV2287';wrap.className='aj-main-color-v2287';const main=document.createElement('button');main.type='button';main.className='aj-main-color-button-v2287';main.title='Colori standard e Tavolozza';const palette=document.createElement('span');palette.className='aj-main-palette-v2287';palette.setAttribute('aria-hidden','true');const colors=[['#1D1D1F','Nero'],['#FFFFFF','Bianco'],['#1769E8','Blu'],['#D92D20','Rosso'],['#176B3A','Verde'],['#E87500','Arancione'],['#F4C430','Giallo']];const select=c=>{input.value=c;main.style.setProperty('--c',c);input.dispatchEvent(new Event('input',{bubbles:true}));palette.querySelectorAll('[data-color]').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===c.toLowerCase()))};colors.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.color=c;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=e=>{e.stopPropagation();select(c);palette.classList.remove('open')};palette.appendChild(b)});const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.textContent='Tavolozza…';custom.onclick=e=>{e.stopPropagation();input.click()};palette.appendChild(custom);main.onclick=e=>{e.stopPropagation();palette.classList.toggle('open');palette.setAttribute('aria-hidden',String(!palette.classList.contains('open')))};input.parentNode.insertBefore(wrap,input);wrap.append(main,input,palette);input.addEventListener('input',()=>select(input.value));document.addEventListener('pointerdown',e=>{if(!e.target.closest('#ajMainColorV2287'))palette.classList.remove('open')},true);select(input.value||'#1D1D1F');window.AIRJOTTER_FRONTEND_VERSION='22.8.7'})();
+(()=>{const input=document.getElementById('colorPicker');if(!input||document.getElementById('ajMainColorV2287'))return;const wrap=document.createElement('span');wrap.id='ajMainColorV2287';wrap.className='aj-main-color-v2287';const main=document.createElement('button');main.type='button';main.className='aj-main-color-button-v2287';main.title='Colori standard e Tavolozza';const palette=document.createElement('span');palette.className='aj-main-palette-v2287';palette.setAttribute('aria-hidden','true');const colors=[['#1D1D1F','Nero'],['#FFFFFF','Bianco'],['#1769E8','Blu'],['#D92D20','Rosso'],['#176B3A','Verde'],['#E87500','Arancione'],['#F4C430','Giallo']];const select=c=>{input.value=c;main.style.setProperty('--c',c);input.dispatchEvent(new Event('input',{bubbles:true}));palette.querySelectorAll('[data-color]').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===c.toLowerCase()))};colors.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='aj-main-swatch-v2287';b.dataset.color=c;b.title=n;b.setAttribute('aria-label',n);b.style.setProperty('--c',c);b.onclick=e=>{e.stopPropagation();select(c);palette.classList.remove('open')};palette.appendChild(b)});const custom=document.createElement('button');custom.type='button';custom.className='aj-main-custom-v2287';custom.textContent='Tavolozza…';custom.onclick=e=>{e.stopPropagation();input.click()};palette.appendChild(custom);main.onclick=e=>{e.stopPropagation();palette.classList.toggle('open');palette.setAttribute('aria-hidden',String(!palette.classList.contains('open')))};input.parentNode.insertBefore(wrap,input);wrap.append(main,input,palette);input.addEventListener('input',()=>select(input.value));document.addEventListener('pointerdown',e=>{if(!e.target.closest('#ajMainColorV2287'))palette.classList.remove('open')},true);select(input.value||'#1D1D1F');})();
 </script>
 
 <div id="ajFileTransferModalV2291" class="aj-ft-overlay-v2291" role="dialog" aria-modal="true" aria-labelledby="ajFtTitleV2291">
@@ -4561,7 +4561,7 @@ async function failTransfer(msg){window.ajFtConnectionReadyV2292?.();await close
 function resetTransfer(keepSide=false){cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();if(!keepSide)side.classList.remove('open')}
 function cancelTransfer(){state.cancelled=true;if(state.transferId)ajSocket.emit('file-transfer:cancel',{transferId:state.transferId,reason:'Trasferimento annullato'});failTransfer('Trasferimento annullato')}
 function installSocket(){if(typeof ajSocket==='undefined')return setTimeout(installSocket,250);ajSocket.on('file-transfer:available',offer=>{if(offer.boardId===currentBoardId()){state.offerMap.set(offer.transferId,offer);if(modal.classList.contains('open'))refreshOffers();toast(`${offer.senderName||'Un utente'} ha file disponibili.`)}});ajSocket.on('file-transfer:withdrawn',e=>{state.offerMap.delete(e.transferId);if(modal.classList.contains('open'))refreshOffers()});ajSocket.on('file-transfer:request',req=>{state.pendingRequest=req;$('ajFtRequestTextV2291').innerHTML=`<strong>${esc(req.requesterName||'Un utente')}</strong> vuole ricevere i file condivisi.<br>Autorizza solo se riconosci la richiesta.`;$('ajFtRequestFilesV2291').innerHTML=`<div class="aj-ft-file-v2291"><span>📦</span><div><strong>${state.manifest?.fileCount||0} file · ${fmt(state.manifest?.totalSize||0)}</strong><small>Un ricevente alla volta</small></div></div>`;$('ajFtRequestV2291').classList.add('open')});ajSocket.on('file-transfer:authorized',async e=>{if(e.transferId!==state.transferId)return;$('ajFtRequestV2291').classList.remove('open');if(e.role==='sender'){showSide('Invio autorizzato','Avvio P2P in corso: puo richiedere fino a 2 minuti');window.ajFtConnectionWaitingV2292?.(e.receiverName);await createPeer(true,{socketId:e.receiverSocketId,name:e.receiverName})}else{showSide('Ricezione autorizzata','Avvio P2P in corso: puo richiedere fino a 2 minuti');window.ajFtConnectionWaitingV2292?.(e.senderName);await createPeer(false,{socketId:e.senderSocketId,name:e.senderName})}});ajSocket.on('file-transfer:rejected',e=>{if(e.transferId===state.transferId){closeSinkSafe();toast('Il mittente non ha autorizzato il download.');resetTransfer(true);$('ajFtSideStatusV2291').textContent='Richiesta rifiutata'}});ajSocket.on('file-transfer:queued',e=>{if(e.transferId===state.transferId)$('ajFtSideStatusV2291').textContent=`In coda · posizione ${e.position}`});ajSocket.on('file-transfer:signal',async e=>{if(e.transferId!==state.transferId)return;try{await handleSignal(e)}catch(err){failTransfer(err.message)}});ajSocket.on('file-transfer:cancelled',e=>{if(e.transferId===state.transferId)failTransfer(e.reason||'Trasferimento interrotto')});ajSocket.on('file-transfer:peer-complete',e=>{if(e.transferId===state.transferId){$('ajFtSideStatusV2291').textContent='Trasferimento completato';updateProgress(state.total,state.total,'Completato');state.active=false;toast('Trasferimento completato.')}})}
-$('ajFileTransferBtnV2291').onclick=openModal;$('ajFtCloseV2291').onclick=closeModal;modal.onclick=e=>{if(e.target===modal)closeModal()};$('ajFtUploadV2291').onclick=openLoadChoice;$('ajFtReceiveV2291').onclick=refreshOffers;$('ajFtFilesInputV2291').onchange=e=>shareFiles(e.target.files);$('ajFtFolderInputV2291').onchange=e=>shareFiles(e.target.files);$('ajFtSideCloseV2291').onclick=()=>side.classList.remove('open');$('ajFtCancelV2291').onclick=cancelTransfer;$('ajFtRejectV2291').onclick=()=>{if(state.pendingRequest)ajSocket.emit('file-transfer:decision',{transferId:state.pendingRequest.transferId,requesterSocketId:state.pendingRequest.requesterSocketId,approved:false});state.pendingRequest=null;$('ajFtRequestV2291').classList.remove('open')};$('ajFtAuthorizeV2291').onclick=()=>{if(state.pendingRequest)ajSocket.emit('file-transfer:decision',{transferId:state.pendingRequest.transferId,requesterSocketId:state.pendingRequest.requesterSocketId,approved:true});state.pendingRequest=null;$('ajFtRequestV2291').classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});installSocket();window.AIRJOTTER_FRONTEND_VERSION='22.9.1';
+$('ajFileTransferBtnV2291').onclick=openModal;$('ajFtCloseV2291').onclick=closeModal;modal.onclick=e=>{if(e.target===modal)closeModal()};$('ajFtUploadV2291').onclick=openLoadChoice;$('ajFtReceiveV2291').onclick=refreshOffers;$('ajFtFilesInputV2291').onchange=e=>shareFiles(e.target.files);$('ajFtFolderInputV2291').onchange=e=>shareFiles(e.target.files);$('ajFtSideCloseV2291').onclick=()=>side.classList.remove('open');$('ajFtCancelV2291').onclick=cancelTransfer;$('ajFtRejectV2291').onclick=()=>{if(state.pendingRequest)ajSocket.emit('file-transfer:decision',{transferId:state.pendingRequest.transferId,requesterSocketId:state.pendingRequest.requesterSocketId,approved:false});state.pendingRequest=null;$('ajFtRequestV2291').classList.remove('open')};$('ajFtAuthorizeV2291').onclick=()=>{if(state.pendingRequest)ajSocket.emit('file-transfer:decision',{transferId:state.pendingRequest.transferId,requesterSocketId:state.pendingRequest.requesterSocketId,approved:true});state.pendingRequest=null;$('ajFtRequestV2291').classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});installSocket();
 })();
 </script>
 
@@ -4613,8 +4613,7 @@ header .aj-file-transfer-btn-v2291{bottom:0!important}
   clearTimeout(connectionTimer);
   document.getElementById('ajFtSideV2291')?.classList.remove('aj-ft-connecting-v2292')
  };
- window.AIRJOTTER_FRONTEND_VERSION='22.9.2'
-})();
+ })();
 </script>
 
 
@@ -4660,7 +4659,7 @@ header .aj-file-transfer-btn-v2291{bottom:0!important}
   window.ajFtConnectionWaitingV2292=function(){originalWaiting?.apply(this,arguments);side.classList.add('open');restore.classList.remove('open')};
   const originalReady=window.ajFtConnectionReadyV2292;
   window.ajFtConnectionReadyV2292=function(){originalReady?.apply(this,arguments);restore.classList.remove('open')};
-  window.AIRJOTTER_FRONTEND_VERSION='22.9.3-safe';
+  
  });
 })();
 </script>
@@ -4700,7 +4699,7 @@ body>.aj-main-palette-v2287.open{display:grid!important;position:fixed!important
    palette.addEventListener('click',e=>e.stopPropagation());
    document.addEventListener('click',e=>{if(e.target!==button&&!button.contains(e.target)&&!palette.contains(e.target))close()});
   }
-  window.AIRJOTTER_FRONTEND_VERSION='22.9.6-encoding-touch-fix';
+  
  });
 })();
 </script>
@@ -4750,7 +4749,7 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
    if(e.target.closest('header,#canvas-wrapper,.mobile-tools,#mobileViewport'))warnViewer();
   },true);
   syncRole();setInterval(syncRole,500);
-  window.AIRJOTTER_FRONTEND_VERSION='22.9.7-viewer-ui';
+  
  });
 })();
 </script>
@@ -4794,7 +4793,7 @@ body.aj-role-viewer-v2297.aj-viewer-red-v2297 #ajRequestEdit{
   addEventListener('resize',()=>{if(palette.classList.contains('open'))place()});
   input.addEventListener('input',()=>{button.style.setProperty('--c',input.value)});
   button.style.setProperty('--c',input.value||'#1D1D1F');
-  window.AIRJOTTER_FRONTEND_VERSION='22.9.9-palette-hard-fix';
+  
  });
 })();
 </script>
@@ -4870,7 +4869,7 @@ header button:disabled{opacity:.34!important}
   [document.getElementById('importPdfBtn'),document.getElementById('importSignBtn'),document.getElementById('importRealImgBtn'),document.getElementById('ajFileTransferBtnV2291')].filter(Boolean).forEach(b=>b.classList.add('aj-upload-visual-v22103'));
   document.getElementById('exportPdfBtn')?.classList.add('aj-output-visual-v22103');
   header.setAttribute('role','toolbar');header.setAttribute('aria-label','Strumenti AirJotter');
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.3-toolbar-skin-only';
+  
  });
 })();
 </script>
@@ -4940,7 +4939,7 @@ header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!i
   if(plans&&clear)plans.insertAdjacentElement('afterend',clear);
   const sourceGroup=clear?.closest('.tools-group');
   if(sourceGroup&&sourceGroup.children.length===0)sourceGroup.remove();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.4-toolbar-precise';
+  
  });
 })();
 </script>
@@ -5037,7 +5036,7 @@ header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!i
   const oldClearGroup=clear?.closest('.tools-group');
   if(plans&&clear)plans.insertAdjacentElement('beforebegin',clear);
   if(oldClearGroup&&oldClearGroup!==clear?.closest('.tools-group')&&oldClearGroup.children.length===0)oldClearGroup.remove();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.5-toolbar-alignment';
+  
  });
 })();
 </script>
@@ -5126,7 +5125,7 @@ header #clearBtn svg{width:21px!important;height:21px!important;stroke:#b42318!i
    if(!row){row=document.createElement('span');row.className='aj-plan-row-v22106';plans.parentNode.insertBefore(row,plans)}
    row.append(clear,plans);
   }
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.6-literal-toolbar-fix';
+  
  });
 })();
 </script>
@@ -5227,7 +5226,7 @@ header .aj-plan-column-v22107 span{align-self:center!important;text-align:center
     if(current)column.appendChild(current);
    }
   }
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.7-toolbar-layout';
+  
  });
 })();
 </script>
@@ -5290,7 +5289,7 @@ header .aj-jotter-link-color-v2283{display:none!important}
    transfer.insertAdjacentElement('beforebegin',exportPdf);
   }
   header.querySelectorAll('.aj-jotter-link-color-v2283').forEach(x=>x.remove());
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.8-surgical-toolbar';
+  
  });
 })();
 </script>
@@ -5360,7 +5359,7 @@ header .aj-room-current-v2266{
    button.setAttribute('tabindex','-1');
    button.setAttribute('aria-hidden','true');
   });
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.9-function-restore';
+  
  });
 })();
 </script>
@@ -5417,7 +5416,7 @@ header .aj-io-stack-v22107 #ajFileTransferBtnV2291:active{
    exportPdf.classList.add('aj-io-v22107');
   }
   if(exportPdf&&transfer)transfer.insertAdjacentElement('beforebegin',exportPdf);
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.10-color-fix';
+  
  });
 })();
 </script>
@@ -5451,7 +5450,7 @@ header{
    normalize();
    new MutationObserver(normalize).observe(room,{childList:true,characterData:true,subtree:true});
   }
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.11-vertical-tune';
+  
  });
 })();
 </script>
@@ -5508,7 +5507,7 @@ header .aj-plan-column-v22107 button:active{transform:translateY(2px)!important;
   const header=document.querySelector('header');
   const plans=[...(header?.querySelectorAll('button')||[])].find(b=>(b.textContent||'').trim().toLowerCase().includes('piani'));
   if(plans){const text='Visualizza piani, limiti e opzioni disponibili';plans.setAttribute('data-aj-tooltip-v22112',text);plans.title=text}
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.12-toolbar-tooltips';
+  
  });
 })();
 </script>
@@ -5539,7 +5538,7 @@ header [data-aj-tooltip-v22112]::after{
   const header=document.querySelector('header');
   const plans=[...(header?.querySelectorAll('button')||[])].find(b=>(b.textContent||'').trim().toLowerCase().includes('piani'));
   plans?.removeAttribute('data-aj-tooltip-v22112');
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.13-native-tooltips-only';
+  
  });
 })();
 </script>
@@ -5594,7 +5593,7 @@ header .aj-plan-column-v22107{
    if(button)button.title=text;
    if(input)input.title=text;
   });
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.14-perfect-vertical-center';
+  
  });
 })();
 </script>
@@ -5625,7 +5624,7 @@ header .aj-plan-column-v22107 button:active{
 }
 </style>
 <script id="AIRJOTTER_V22115_FINAL_TUNE_SCRIPT">
-(()=>{window.AIRJOTTER_FRONTEND_VERSION='22.10.15-final-toolbar-tune'})();
+(()=>{})();
 </script>
 <!-- AIRJOTTER_V22115_END -->
 <!-- AIRJOTTER_V22116_BEGIN -->
@@ -5677,7 +5676,7 @@ header .aj-plan-column-v22107 button:active{
     window.confirm=originalConfirm;bypass=false;
    }
   });
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.16-clear-confirm-modal';
+  
  });
 })();
 </script>
@@ -5730,7 +5729,7 @@ header .aj-plan-column-v22107 button:active{
    button.dataset.color=color;button.dataset.value=color;button.value=color;
    button.style.setProperty('--c',color);button.style.backgroundColor=color;
   },true);
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.17-shape-palettes';
+  
  });
 })();
 </script>
@@ -5766,7 +5765,7 @@ header .aj-plan-column-v22107 button:active{
   if(oldHint)oldHint.remove();
   const crossLabel=document.querySelector('#ajTextAnchorV2266f > b');
   if(crossLabel)crossLabel.remove();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.18-textbox-guide';
+  
  });
 })();
 </script>
@@ -5836,7 +5835,7 @@ header .aj-plan-column-v22107 button:active{
   popup.querySelector('#ajTextHelpDoneV22120')?.addEventListener('click',close);
   popup.addEventListener('click',e=>{if(e.target===popup)close()});
   popup.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.20-textbox-help-popup';
+  
  });
 })();
 </script>
@@ -5916,7 +5915,7 @@ header .aj-plan-column-v22107 button:active{
    if(height>700)box.style.height='auto';
   };
   resetOversize();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.22-compact-outer-textbox';
+  
  });
 })();
 </script>
@@ -5964,7 +5963,7 @@ header .aj-plan-column-v22107 button:active{
   actions.insertBefore(help,cancel);
   /* Elimina una sola volta l'altezza inline residua: poi il bordo segue il footer. */
   box.style.removeProperty('height');
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.23-textbox-footer-fit';
+  
  });
 })();
 </script>
@@ -6027,7 +6026,7 @@ header .aj-plan-column-v22107 button:active{
   handle.addEventListener('pointerup',finish,true);
   handle.addEventListener('pointercancel',finish,true);
 
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.27-content-based-textbox-min';
+  
  });
 })();
 </script>
@@ -6093,7 +6092,7 @@ header .aj-plan-column-v22107 button:active{
   new MutationObserver(initialize).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('pointerdown',intercept,true);
   window.addEventListener('click',intercept,true);
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.28-shape-palette-binding-fix';
+  
  });
 })();
 </script>
@@ -6147,7 +6146,7 @@ header .aj-plan-column-v22107 button:active{
   board.style.touchAction='none';
   if(wet)wet.style.touchAction='none';
 
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.30-ipad-pencil-ultra-v2';
+  
  });
 })();
 </script>
@@ -6236,7 +6235,7 @@ header .aj-plan-column-v22107 button:active{
   }
   const plans=[...header.querySelectorAll('button')].find(button=>(button.textContent||'').trim().toLowerCase().includes('piani'));
   if(plans)plans.setAttribute('data-aj-toolbar-v22132','plans');
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.32-toolbar-refinement';
+  
  });
 })();
 </script>
@@ -6307,7 +6306,7 @@ header .aj-plan-column-v22107 button:active{
    ['Scarica il lavoro in un PDF multipagina con un clic','Genera un PDF multipagina pronto da archiviare, inviare o stampare. Riordina le pagine ed elimina quelle che non servono.']
   ];
   replacements.forEach(([from,to])=>exactLeaf(from,to)||replaceSmallest(from,to));
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.34-marketing-copy-safe';
+  
  });
 })();
 </script>
@@ -6356,7 +6355,7 @@ header .aj-plan-column-v22107 button:active{
    'Assegna il ruolo di editor o reader, e mantieni sempre il controllo dei tuoi Jotter.'
   );
 
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.35-copy-refinement';
+  
  });
 })();
 </script>
@@ -6436,7 +6435,7 @@ header .aj-plan-column-v22107 button:active{
   };
   apply();
   new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.36-jotter-actions';
+  
  });
 })();
 </script>
@@ -6542,7 +6541,7 @@ header .aj-plan-column-v22107 button:active{
   };
   apply();
   new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.37-my-jotters-buttons-fix';
+  
  });
 })();
 </script>
@@ -6579,7 +6578,7 @@ function applyGeometry(){if(rendering)return;rendering=true;const layouts=Array.
 function save(){const nv=norm({size:$('ajPaperSizeV221042').value,orientation:$('ajPaperOrientationV221042').value});if(target===null){state.global=nv;state.pages={}}else if(total()===1){state.global=nv;state.pages={}}else{state.pages[String(target)]=nv}close();applyGeometry();window.ajSend?.('paper:set',JSON.parse(JSON.stringify(state))).catch(e=>alert(e.message))}
 function remote(p){if(p?.global)state.global=norm(p.global);if(p?.pages&&typeof p.pages==='object')state.pages=p.pages;applyGeometry()}
 function logo(e){if(innerWidth<=760)return;e.preventDefault();e.stopImmediatePropagation();const fit=$('ajPcFitV204');if(fit)fit.click();else if(typeof handleResize==='function')handleResize();setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'smooth'}),80)}
-function init(){$('ajPaperGlobalBtnV221042').onclick=()=>open(null);$('ajPaperCancelV221042').onclick=close;$('ajPaperApplyV221042').onclick=save;$('ajPaperModalV221042').onclick=e=>{if(e.target===$('ajPaperModalV221042'))close()};const oldApply=window.ajApplyOperation;if(typeof oldApply==='function')window.ajApplyOperation=function(op){const t=op?.operation_type||op?.type;if(t==='paper:set'){remote(op.payload||{});return}const r=oldApply.apply(this,arguments);setTimeout(controls,0);return r};const oldRender=window.renderVisiblePageBreaks;if(typeof oldRender==='function')window.renderVisiblePageBreaks=function(){const r=oldRender.apply(this,arguments);setTimeout(controls,0);return r};const brand=$('brandBtn');if(brand){brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';brand.removeAttribute('data-aj-tip');brand.setAttribute('tabindex','0');brand.addEventListener('click',logo,true);brand.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')logo(e)},true)}controls();window.AIRJOTTER_FRONTEND_VERSION='22.10.42-ui-single-page-fix'}
+function init(){$('ajPaperGlobalBtnV221042').onclick=()=>open(null);$('ajPaperCancelV221042').onclick=close;$('ajPaperApplyV221042').onclick=save;$('ajPaperModalV221042').onclick=e=>{if(e.target===$('ajPaperModalV221042'))close()};const oldApply=window.ajApplyOperation;if(typeof oldApply==='function')window.ajApplyOperation=function(op){const t=op?.operation_type||op?.type;if(t==='paper:set'){remote(op.payload||{});return}const r=oldApply.apply(this,arguments);setTimeout(controls,0);return r};const oldRender=window.renderVisiblePageBreaks;if(typeof oldRender==='function')window.renderVisiblePageBreaks=function(){const r=oldRender.apply(this,arguments);setTimeout(controls,0);return r};const brand=$('brandBtn');if(brand){brand.title='Adatta pagina e toolbar, poi torna all’inizio del Jotter';brand.removeAttribute('data-aj-tip');brand.setAttribute('tabindex','0');brand.addEventListener('click',logo,true);brand.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')logo(e)},true)}controls();}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.ajPaperV221042={remote,open,refresh:applyGeometry};})();
 </script>
 <!-- AIRJOTTER_V221042_PAPER_FORMAT_END -->
@@ -6590,7 +6589,7 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ini
 
 
 <!-- AIRJOTTER_V221045_EMERGENCY_ROLLBACK_BEGIN -->
-<script id="AIRJOTTER_V221045_EMERGENCY_ROLLBACK_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.45-emergency-rollback-v44';</script>
+<script id="AIRJOTTER_V221045_EMERGENCY_ROLLBACK_SCRIPT"></script>
 <!-- AIRJOTTER_V221045_EMERGENCY_ROLLBACK_END -->
 
 
@@ -6614,7 +6613,7 @@ html body header #ajFileTransferBtnV2291 svg{display:block!important;visibility:
  }
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
  setTimeout(apply,300);setTimeout(apply,1000);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.49-surgical-ui';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221049_SURGICAL_UI_END -->
@@ -6656,7 +6655,7 @@ html body header #ajFileTransferBtnV2291 svg{
 (()=>{'use strict';
  const ensureIcon=()=>{const b=document.getElementById('ajFileTransferBtnV2291');if(b&&!b.querySelector('svg'))b.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3"></path><path d="M17 17H6l3 3m-3-3 3-3"></path></svg>')};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ensureIcon,{once:true}):ensureIcon();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.51-flat-only-from-v49';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221051_FLAT_ONLY_FROM_V49_END -->
@@ -6690,7 +6689,7 @@ html body header #ajFileTransferBtnV2291 svg{
  }
 }
 </style>
-<script id="AIRJOTTER_V221052_SMALLER_MY_JOTTERS_BUTTONS_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.52-smaller-my-jotters-buttons';</script>
+<script id="AIRJOTTER_V221052_SMALLER_MY_JOTTERS_BUTTONS_SCRIPT"></script>
 <!-- AIRJOTTER_V221052_SMALLER_MY_JOTTERS_BUTTONS_END -->
 
 
@@ -6722,7 +6721,7 @@ html body header button[data-aj-toolbar-v22132="plans"]:active{
  const apply=()=>{[...document.querySelectorAll('header button')].filter(b=>(b.textContent||'').trim().toLowerCase()==='piani').forEach(b=>{const css={background:'#fff','background-color':'#fff','background-image':'none',border:'1px solid #173d72',color:'#173d72','box-shadow':'none','text-shadow':'none',filter:'none',transform:'none',outline:'none'};Object.entries(css).forEach(([k,v])=>b.style.setProperty(k,v,'important'))})};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
  requestAnimationFrame(apply);setTimeout(apply,300);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.53-plans-flat';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221053_PLANS_FLAT_END -->
@@ -6772,7 +6771,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 (()=>{'use strict';
  const fix=()=>{const b=document.getElementById('ajFileTransferBtnV2291');if(!b)return;if(!b.querySelector('svg'))b.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3"></path><path d="M17 17H6l3 3m-3-3 3-3"></path></svg>');const css={position:'static',left:'auto',right:'auto',top:'auto',bottom:'auto',transform:'none',margin:'0','z-index':'2','pointer-events':'auto'};Object.entries(css).forEach(([k,v])=>b.style.setProperty(k,v,'important'))};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fix,{once:true}):fix();requestAnimationFrame(fix);setTimeout(fix,300);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.54-file-transfer-stable';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221054_FILE_TRANSFER_STABLE_END -->
@@ -6783,12 +6782,12 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 .aj-pdf-purchase-card-v225{width:min(760px,calc(100vw - 32px));padding:28px;border-radius:20px;background:#fff;border:1px solid #b8cce7;box-shadow:0 24px 70px rgba(18,43,78,.28);color:#17365f}.aj-pdf-purchase-card-v225 h2{margin:0 0 8px;font-size:1.8rem}.aj-pdf-purchase-card-v225>p{margin:0 0 22px;color:#657b98;line-height:1.5}.aj-pdf-purchase-metrics-v225{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.aj-pdf-purchase-metrics-v225>div{padding:18px;border:1px solid #c9d8eb;border-radius:14px;background:#f5f8fc}.aj-pdf-purchase-metrics-v225 span{display:block;color:#6a809d;margin-bottom:7px}.aj-pdf-purchase-metrics-v225 strong{font-size:1.35rem;color:#0d3569}.aj-pdf-purchase-warning-v225{margin-top:14px;padding:15px;border:1px solid #f2a5a5;border-radius:13px;background:#fff2f2;color:#991c1c}.aj-pdf-purchase-actions-v225{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}@media(max-width:680px){.aj-pdf-purchase-metrics-v225{grid-template-columns:1fr}.aj-pdf-purchase-card-v225{padding:20px}.aj-pdf-purchase-actions-v225{flex-direction:column-reverse}.aj-pdf-purchase-actions-v225 button{width:100%;justify-content:center}}
 #ajFreeExportNoticeV225{display:none!important}
 </style>
-<script id="AIRJOTTER_V221055_EXPORT_PURCHASE_FLOW_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.55-export-purchase-flow';</script>
+<script id="AIRJOTTER_V221055_EXPORT_PURCHASE_FLOW_SCRIPT"></script>
 <!-- AIRJOTTER_V221055_EXPORT_PURCHASE_FLOW_END -->
 
 
 <!-- AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_BEGIN -->
-<script id="AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.55.1-cancel-to-first-page';</script>
+<script id="AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_SCRIPT"></script>
 <!-- AIRJOTTER_V2210551_CANCEL_TO_FIRST_PAGE_END -->
 
 
@@ -6797,7 +6796,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 (()=>{'use strict';
  const sync=()=>requestAnimationFrame(()=>{const d=document.getElementById('draftBoard'),w=document.getElementById('canvas-wrapper');if(!d||!w)return;d.style.width='100%';d.style.height='100%';d.style.left='0';d.style.top='0';void d.getBoundingClientRect()});
  addEventListener('orientationchange',sync,{passive:true});window.visualViewport?.addEventListener('resize',sync,{passive:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.56-ipad-paper-canvas-fix';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221056_IPAD_PAPER_CANVAS_FIX_END -->
@@ -6810,7 +6809,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 (()=>{'use strict';
  const rebuild=()=>requestAnimationFrame(()=>{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true)});
  addEventListener('orientationchange',()=>setTimeout(rebuild,220),{passive:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.58-a3-ipad-safe-backing';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221058_A3_IPAD_SAFE_BACKING_END -->
@@ -6821,7 +6820,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 (()=>{'use strict';
  const rebuild=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{if(typeof ajInkPagesKeyV215!=='undefined')ajInkPagesKeyV215='';if(typeof ajRenderInkPagesV215==='function')ajRenderInkPagesV215(true)}));
  document.getElementById('ajPaperApplyV221042')?.addEventListener('click',rebuild,{capture:false});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.59-real-ios-a3-renderer-fix';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221059_REAL_IOS_A3_RENDERER_FIX_END -->
@@ -6851,14 +6850,14 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  const lobby=document.getElementById('ajLobby');if(lobby)new MutationObserver(()=>{if(!lobby.classList.contains('aj-hidden'))refreshLobby()}).observe(lobby,{attributes:true,attributeFilter:['class']});
  addEventListener('resize',refreshWatermarks,{passive:true});document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(refreshWatermarks,80));
  setInterval(refreshWatermarks,1500);setTimeout(()=>{refreshWatermarks();refreshLobby()},0);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.60-free-watermark-lobby';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V221060_FREE_WATERMARK_LOBBY_END -->
 
 
 <!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_BEGIN -->
-<script id="AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.1-login-freeze-fix';</script>
+<script id="AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_SCRIPT"></script>
 <!-- AIRJOTTER_V2210601_LOGIN_FREEZE_FIX_END -->
 
 
@@ -6868,54 +6867,54 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  const request=document.getElementById('ajRequestEdit'),user=document.getElementById('ajUser'),lobby=document.getElementById('ajLobby');
  const guard=()=>{if(lobby&&!lobby.classList.contains('aj-hidden')){request?.classList.add('aj-hidden');if(user&&window.ajMe?.name)user.textContent=window.ajMe.name}};
  new MutationObserver(guard).observe(lobby,{attributes:true,attributeFilter:['class']});guard();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.60.2-archive-from-lobby-fix';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V2210602_ARCHIVE_FROM_LOBBY_FIX_END -->
 
 
 <!-- AIRJOTTER_V2210603_OPEN_ARCHIVE_REAL_HANDLER_BEGIN -->
-<script id="AIRJOTTER_V2210603_OPEN_ARCHIVE_REAL_HANDLER_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.3-open-archive-real-handler';</script>
+<script id="AIRJOTTER_V2210603_OPEN_ARCHIVE_REAL_HANDLER_SCRIPT"></script>
 <!-- AIRJOTTER_V2210603_OPEN_ARCHIVE_REAL_HANDLER_END -->
 
 
 <!-- AIRJOTTER_V2210604_DIRECT_ARCHIVE_HANDLER_BEGIN -->
-<script id="AIRJOTTER_V2210604_DIRECT_ARCHIVE_HANDLER_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.4-direct-archive-handler';</script>
+<script id="AIRJOTTER_V2210604_DIRECT_ARCHIVE_HANDLER_SCRIPT"></script>
 <!-- AIRJOTTER_V2210604_DIRECT_ARCHIVE_HANDLER_END -->
 
 
 <!-- AIRJOTTER_V2210605_ARCHIVE_AVAILABLE_AT_LOGIN_BEGIN -->
-<script id="AIRJOTTER_V2210605_ARCHIVE_AVAILABLE_AT_LOGIN_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.5-archive-available-at-login';</script>
+<script id="AIRJOTTER_V2210605_ARCHIVE_AVAILABLE_AT_LOGIN_SCRIPT"></script>
 <!-- AIRJOTTER_V2210605_ARCHIVE_AVAILABLE_AT_LOGIN_END -->
 
 
 <!-- AIRJOTTER_V2210606_OPEN_THEN_CREATE_BEGIN -->
-<script id="AIRJOTTER_V2210606_OPEN_THEN_CREATE_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.6-open-then-create';</script>
+<script id="AIRJOTTER_V2210606_OPEN_THEN_CREATE_SCRIPT"></script>
 <!-- AIRJOTTER_V2210606_OPEN_THEN_CREATE_END -->
 
 
 <!-- AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_BEGIN -->
-<script id="AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.7-open-existing-then-archive';</script>
+<script id="AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_SCRIPT"></script>
 <!-- AIRJOTTER_V2210607_OPEN_EXISTING_THEN_ARCHIVE_END -->
 
 
 <!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_BEGIN -->
-<script id="AIRJOTTER_V2210608_LATEST_SCOPE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.8-latest-scope-fix';</script>
+<script id="AIRJOTTER_V2210608_LATEST_SCOPE_FIX_SCRIPT"></script>
 <!-- AIRJOTTER_V2210608_LATEST_SCOPE_FIX_END -->
 
 
 <!-- AIRJOTTER_V2210609_LOBBY_COPY_BEGIN -->
-<script id="AIRJOTTER_V2210609_LOBBY_COPY_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.60.9-lobby-copy';</script>
+<script id="AIRJOTTER_V2210609_LOBBY_COPY_SCRIPT"></script>
 <!-- AIRJOTTER_V2210609_LOBBY_COPY_END -->
 
 
 <!-- AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_BEGIN -->
-<script id="AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.0-free-watermark-plan-scope-fix';</script>
+<script id="AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_SCRIPT"></script>
 <!-- AIRJOTTER_V2210610_FREE_WATERMARK_PLAN_SCOPE_FIX_END -->
 
 
 <!-- AIRJOTTER_V2210611_WATERMARK_BOTTOM_RIGHT_BEGIN -->
-<script id="AIRJOTTER_V2210611_WATERMARK_BOTTOM_RIGHT_SCRIPT">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.1-watermark-bottom-right';</script>
+<script id="AIRJOTTER_V2210611_WATERMARK_BOTTOM_RIGHT_SCRIPT"></script>
 <!-- AIRJOTTER_V2210611_WATERMARK_BOTTOM_RIGHT_END -->
 
 
@@ -6944,7 +6943,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  let historyBusy=false,lastHistoryAt=0;
  async function oneAction(kind,e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const now=performance.now();if(historyBusy||now-lastHistoryAt<280)return;historyBusy=true;lastHistoryAt=now;try{await action(kind,e)}finally{setTimeout(()=>historyBusy=false,120)}}
  undo.addEventListener('click',e=>oneAction('undo',e),true);redo.addEventListener('click',e=>oneAction('redo',e),true);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z')action(e.shiftKey?'redo':'undo',e)},true);ajSocket?.on('board:history',e=>reconcile(e?.revision,e));ajSocket?.on('board:operation',()=>{serverCanUndo=true;serverCanRedo=false;buttons()});
- function a3(){const phone=matchMedia('(max-width:760px)').matches,label=document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim();document.documentElement.classList.toggle('aj-a3-phone-v22106111',phone&&label==='A3')}document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(a3,100));addEventListener('orientationchange',()=>setTimeout(a3,250),{passive:true});a3();serverCanUndo=commands.length>0;buttons();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.15-viewport-a3-stable';
+ function a3(){const phone=matchMedia('(max-width:760px)').matches,label=document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim();document.documentElement.classList.toggle('aj-a3-phone-v22106111',phone&&label==='A3')}document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(a3,100));addEventListener('orientationchange',()=>setTimeout(a3,250),{passive:true});a3();serverCanUndo=commands.length>0;buttons();
 })})();
 </script>
 <!-- AIRJOTTER_V22106111_SYNC_STABILITY_END -->
@@ -6969,7 +6968,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 }
 </style>
 <script id="AIRJOTTER_V22106116_STAGE_HEIGHT_SCRIPT">
-(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.1-registration-copy-google-fit'})();
+(()=>{'use strict';function fix(){if(!matchMedia('(max-width:760px)').matches)return;const st=document.getElementById('mobileStageV109'),w=document.getElementById('canvas-wrapper');if(!st||!w)return;const m=(w.style.transform||getComputedStyle(w).transform||'');let scale=1;const a=m.match(/scale\(([^)]+)\)/);if(a)scale=parseFloat(a[1])||1;else{const b=m.match(/matrix\(([^,]+)/);if(b)scale=parseFloat(b[1])||1}const h=Math.max(1,Math.ceil((w.offsetHeight||0)*scale)+24);st.style.height=h+'px';st.style.minHeight=h+'px';st.style.setProperty('--aj-stage-height',h+'px')}let raf=0;const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(fix))};addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,250),{passive:true});document.getElementById('mobileZoomFit')?.addEventListener('click',()=>setTimeout(schedule,80));document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(schedule,140));new MutationObserver(schedule).observe(document.getElementById('canvas-wrapper'),{attributes:true,attributeFilter:['style']});schedule();})();
 </script>
 
 <style id="AIRJOTTER_V22106129_SMARTPHONE_FIX_STYLE">
@@ -7043,7 +7042,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   window.ajReload=async function(){const result=await oldReload.apply(this,arguments);await restore(currentBoardId());return result};
   window.ajReload.__ajPaperRestoreV2210613317=true;
  }
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.17-smartphone-canvas-ft-paper';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V2210613317_END -->
@@ -7079,7 +7078,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  addEventListener('resize',clearPreview,{passive:true});
  new MutationObserver(clearPreview).observe(document.getElementById('ajPaperGlobalBtnV221042')||document.body,{childList:true,subtree:true,characterData:true});
  clearPreview();
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.18-a3-live-stroke-alignment';
+ 
 })();
 </script>
 <!-- AIRJOTTER_V2210613318_END -->
@@ -7115,14 +7114,14 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   input.addEventListener('pointerup',end,{capture:true,passive:true});input.addEventListener('pointercancel',end,{capture:true,passive:true});
   document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(()=>{clear();geometry()},130),true);
   addEventListener('resize',()=>{clear();geometry()},{passive:true});geometry();
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19-a3-live-ink-aligned';
+  
  });
 })();
 </script>
 <!-- AIRJOTTER_V2210613319_END -->
-<!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_BEGIN --><script id="AIRJOTTER_V2210613319_ARCHIVE_ONLY_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.1';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.1';</script><!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_END -->
-<!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133192_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.2';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.2';</script><!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_END -->
-<!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_BEGIN --><script id="AIRJOTTER_V22106133193_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.3';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.3';</script><!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_END -->
+<!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_BEGIN --><script id="AIRJOTTER_V2210613319_ARCHIVE_ONLY_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.1';</script><!-- AIRJOTTER_V2210613319_ARCHIVE_ONLY_END -->
+<!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133192_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.2';</script><!-- AIRJOTTER_V22106133192_DESKTOP_VIRTUAL_PAGES_END -->
+<!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_BEGIN --><script id="AIRJOTTER_V22106133193_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.3';</script><!-- AIRJOTTER_V22106133193_POST_LOAD_LAYOUT_END -->
 <!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_BEGIN -->
 <script id="AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_SCRIPT">
 (()=>{'use strict';
@@ -7146,12 +7145,12 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   document.getElementById('ajLobby')?.classList.remove('aj-hidden');
   openedFromLobby=false;
  },true);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.6';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.6';
+ document.documentElement.dataset.airjotterVersion='22.10.61.33.19.6';
 })();
 </script>
 <!-- AIRJOTTER_V22106133196_LOBBY_ARCHIVE_VISIBILITY_END -->
-<!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133197_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.7';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.7';</script><!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_END -->
-<!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_BEGIN --><script id="AIRJOTTER_V22106133198_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.8';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.8';</script><!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_END -->
+<!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_BEGIN --><script id="AIRJOTTER_V22106133197_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.7';</script><!-- AIRJOTTER_V22106133197_EXPORT_ALL_PAGES_END -->
+<!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_BEGIN --><script id="AIRJOTTER_V22106133198_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.8';</script><!-- AIRJOTTER_V22106133198_EXPORT_HEAVY_PDF_END -->
 <!-- AIRJOTTER_V22106133199_TEXT_TOOLBAR_COMPACT_BEGIN -->
 <style id="AIRJOTTER_V22106133199_TEXT_TOOLBAR_COMPACT_STYLE">
 /* v22.10.61.33.19.9: il colore testo resta governato dalla toolbar principale. */
@@ -7170,7 +7169,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  }
 }
 </style>
-<script id="AIRJOTTER_V22106133199_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.9';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.9';</script>
+<script id="AIRJOTTER_V22106133199_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.9';</script>
 <!-- AIRJOTTER_V22106133199_TEXT_TOOLBAR_COMPACT_END -->
 <!-- AIRJOTTER_V221061331910_ARCHIVE_CLOSE_CONTEXT_BEGIN -->
 <script id="AIRJOTTER_V221061331910_ARCHIVE_CLOSE_CONTEXT_SCRIPT">
@@ -7188,7 +7187,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
   if(lobby)lobby.classList.toggle('aj-hidden',Boolean(boardOpen));
  };
  document.addEventListener('click',closeArchiveInContext,true);
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.10';
+ 
  document.documentElement.dataset.airjotterVersion='22.10.61.33.19.10';
 })();
 </script>
@@ -7221,7 +7220,7 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  }
 }
 </style>
-<script id="AIRJOTTER_V221061331911_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.11';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.11';</script>
+<script id="AIRJOTTER_V221061331911_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.11';</script>
 <!-- AIRJOTTER_V221061331911_MOBILE_PLANS_OFFSET_END -->
 <!-- AIRJOTTER_V221061331912_SHAPES_HIGHLIGHTER_LABELS_BEGIN -->
 <style id="AIRJOTTER_V221061331912_SHAPES_HIGHLIGHTER_LABELS_STYLE">
@@ -7231,25 +7230,25 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
 #ajCurrentJotterV2266{color:#0878ff!important;font-weight:500!important;font-size:.78rem!important;letter-spacing:.005em!important;text-shadow:none!important;background:transparent!important}
 #ajPlanNameV2265,.aj-plan-column-v22107 small{color:#0878ff!important;font-weight:850!important;letter-spacing:-.012em!important;text-shadow:none!important;background:transparent!important}
 </style>
-<script id="AIRJOTTER_V221061331912_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.12';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.12';</script>
+<script id="AIRJOTTER_V221061331912_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.12';</script>
 <!-- AIRJOTTER_V221061331912_SHAPES_HIGHLIGHTER_LABELS_END -->
 <!-- AIRJOTTER_V221061331913_TYPO_HIGHLIGHTER_LEGAL_BEGIN -->
 <style id="AIRJOTTER_V221061331913_TYPO_HIGHLIGHTER_LEGAL_STYLE">
 #ajCurrentJotterV2266{font-family:"Arial Narrow","Roboto Condensed",Arial,sans-serif!important;font-stretch:condensed!important;font-weight:400!important;font-size:.82rem!important;line-height:1.35!important;min-height:1.35em!important;padding:1px 0 3px!important;overflow:visible!important;color:#0878ff!important}
 </style>
-<script id="AIRJOTTER_V221061331913_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.13';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.13';</script>
+<script id="AIRJOTTER_V221061331913_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.13';</script>
 <!-- AIRJOTTER_V221061331913_TYPO_HIGHLIGHTER_LEGAL_END -->
 <!-- AIRJOTTER_V221061331914_LEGAL_CLOSE_HIGHLIGHTER_BEGIN -->
-<script id="AIRJOTTER_V221061331914_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.14';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.14';</script>
+<script id="AIRJOTTER_V221061331914_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.14';</script>
 <!-- AIRJOTTER_V221061331914_LEGAL_CLOSE_HIGHLIGHTER_END -->
 <!-- AIRJOTTER_V221061331915_LEGAL_X_BEGIN -->
-<script id="AIRJOTTER_V221061331915_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.15';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.15';</script>
+<script id="AIRJOTTER_V221061331915_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.15';</script>
 <!-- AIRJOTTER_V221061331915_LEGAL_X_END -->
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_BEGIN -->
-<script id="AIRJOTTER_V221061331916_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.16-PENCIL-WOW';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.16-PENCIL-WOW';</script>
+<script id="AIRJOTTER_V221061331916_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.16-PENCIL-WOW';</script>
 <!-- AIRJOTTER_V221061331916_PENCIL_WOW_END -->
 <!-- AIRJOTTER_V221061331917_SMARTPHONE_ONLY_CAUSAL_FIX_BEGIN -->
-<script id="AIRJOTTER_V221061331917_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.17-SMARTPHONE-ONLY';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.17-SMARTPHONE-ONLY';</script>
+<script id="AIRJOTTER_V221061331917_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.17-SMARTPHONE-ONLY';</script>
 <!-- AIRJOTTER_V221061331917_SMARTPHONE_ONLY_CAUSAL_FIX_END -->
 <!-- AIRJOTTER_V221061331918_TABLET_CANVAS_GAP_BEGIN -->
 <style id="AIRJOTTER_V221061331918_TABLET_CANVAS_GAP_STYLE">
@@ -7258,25 +7257,25 @@ html body header .aj-io-stack-v22107 #ajFileTransferBtnV2291 span{pointer-events
  #mobileViewport{padding-top:calc(env(safe-area-inset-top,0px) + 109px)!important}
 }
 </style>
-<script id="AIRJOTTER_V221061331918_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.18-TABLET-CANVAS-GAP';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.18-TABLET-CANVAS-GAP';</script>
+<script id="AIRJOTTER_V221061331918_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.18-TABLET-CANVAS-GAP';</script>
 <!-- AIRJOTTER_V221061331918_TABLET_CANVAS_GAP_END -->
 <!-- AIRJOTTER_V221061331919_PAID_PDF_NO_WATERMARK_BEGIN -->
-<script id="AIRJOTTER_V221061331919_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.19-PAID-PDF-NO-WATERMARK';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.19-PAID-PDF-NO-WATERMARK';</script>
+<script id="AIRJOTTER_V221061331919_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.19-PAID-PDF-NO-WATERMARK';</script>
 <!-- AIRJOTTER_V221061331919_PAID_PDF_NO_WATERMARK_END -->
 <!-- AIRJOTTER_V221061331920_PURCHASED_JOTTER_IMMEDIATE_BEGIN -->
-<script id="AIRJOTTER_V221061331920_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.20-PURCHASED-JOTTER-IMMEDIATE';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.20-PURCHASED-JOTTER-IMMEDIATE';</script>
+<script id="AIRJOTTER_V221061331920_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.20-PURCHASED-JOTTER-IMMEDIATE';</script>
 <!-- AIRJOTTER_V221061331920_PURCHASED_JOTTER_IMMEDIATE_END -->
 <!-- AIRJOTTER_V221061331921_PENCILKIT_WEB_MAGIC_BEGIN -->
-<script id="AIRJOTTER_V221061331921_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.21-PENCILKIT-WEB-MAGIC';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.21-PENCILKIT-WEB-MAGIC';</script>
+<script id="AIRJOTTER_V221061331921_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.21-PENCILKIT-WEB-MAGIC';</script>
 <!-- AIRJOTTER_V221061331921_PENCILKIT_WEB_MAGIC_END -->
 <!-- AIRJOTTER_V221061331922_REGISTRATION_WOW_BEGIN -->
-<script id="AIRJOTTER_V221061331922_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.22-REGISTRATION-WOW';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.22-REGISTRATION-WOW';</script>
+<script id="AIRJOTTER_V221061331922_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.22-REGISTRATION-WOW';</script>
 <!-- AIRJOTTER_V221061331922_REGISTRATION_WOW_END -->
 <!-- AIRJOTTER_V221061331923_GOOGLE_CENTER_BEGIN -->
-<script id="AIRJOTTER_V221061331923_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.23-GOOGLE-CENTER';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.23-GOOGLE-CENTER';</script>
+<script id="AIRJOTTER_V221061331923_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.23-GOOGLE-CENTER';</script>
 <!-- AIRJOTTER_V221061331923_GOOGLE_CENTER_END -->
 <!-- AIRJOTTER_V221061331924_PDF_LIVE_PAGES_BEGIN -->
-<script id="AIRJOTTER_V221061331924_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.24-PDF-LIVE-PAGES';document.documentElement.dataset.airjotterVersion='22.10.61.33.19.24-PDF-LIVE-PAGES';</script>
+<script id="AIRJOTTER_V221061331924_VERSION">document.documentElement.dataset.airjotterVersion='22.10.61.33.19.24-PDF-LIVE-PAGES';</script>
 <!-- AIRJOTTER_V221061331924_PDF_LIVE_PAGES_END -->
 <script type="module" id="AIRJOTTER_V221061331925_FIREBASE_EMAIL_AUTH">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";import{getAuth,setPersistence,browserLocalPersistence,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendEmailVerification,sendPasswordResetEmail,signOut,updateProfile,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
@@ -7288,7 +7287,7 @@ open.onclick=()=>{let h=panel.classList.toggle("aj-hidden");open.setAttribute("a
 form.onsubmit=async e=>{e.preventDefault();msg("");let email=emailI.value.trim().toLowerCase(),password=passI.value;submit.disabled=true;try{if(mode==="register"){let name=nameI.value.trim();if(!name)throw Error("Inserisci il tuo nome.");if(password.length<8)throw Error("La password deve contenere almeno 8 caratteri.");if(password!==confirmI.value)throw Error("Le due password non coincidono.");let c=await createUserWithEmailAndPassword(fa,email,password);await updateProfile(c.user,{displayName:name});await sendEmailVerification(c.user,{url:"https://airjotter.com/"});await signOut(fa);setMode("login");emailI.value=email;msg("Account creato. Controlla la posta e conferma il tuo indirizzo prima di accedere.","success")}else{let c=await signInWithEmailAndPassword(fa,email,password);await c.user.reload();if(!c.user.emailVerified){await signOut(fa);resend.classList.remove("aj-hidden");msg("Indirizzo non ancora verificato. Apri l’email ricevuta da AirJotter, poi riprova.","error");return}msg("Accesso in corso…","success");await exchange(c.user)}}catch(x){let m={"auth/email-already-in-use":"Esiste già un account con questa email. Prova ad accedere.","auth/invalid-credential":"Email o password non corrette.","auth/invalid-email":"Inserisci un indirizzo email valido.","auth/weak-password":"Scegli una password più sicura.","auth/too-many-requests":"Troppi tentativi. Attendi qualche minuto e riprova."};msg(m[x.code]||x.message||"Operazione non riuscita.","error")}finally{submit.disabled=false}};
 forgot.onclick=async()=>{let email=emailI.value.trim().toLowerCase();if(!email)return msg("Inserisci prima il tuo indirizzo email.","error");try{await sendPasswordResetEmail(fa,email,{url:"https://airjotter.com/"});msg("Se l’indirizzo è registrato, riceverai un’email per scegliere una nuova password.","success")}catch{msg("Non è stato possibile inviare l’email.","error")}};
 resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.value.trim().toLowerCase(),passI.value);if(c.user.emailVerified)return exchange(c.user);await sendEmailVerification(c.user,{url:"https://airjotter.com/"});await signOut(fa);msg("Email di verifica inviata di nuovo.","success")}catch{msg("Email o password non corrette.","error")}};onAuthStateChanged(fa,u=>{if(u?.emailVerified)exchange(u).catch(async x=>{console.warn("Ripristino sessione email:",x.message);if(x?.status===401||['auth/user-token-expired','auth/user-not-found','auth/invalid-user-token'].includes(x?.code)){try{await signOut(fa)}catch{}}})});window.ajFirebaseEmailAuthV1925={auth:fa,signOut:()=>signOut(fa)};
-</script><script id="AIRJOTTER_V221061331925_VERSION">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.26-BRANDING-COPY";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+</script><script id="AIRJOTTER_V221061331925_VERSION"></script>
 <script id="AIRJOTTER_V221061331926_FIX3_RUNTIME">
 (function(){
  const apply=function(){
@@ -7314,7 +7313,7 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
 })();
 </script>
 
-<script id="AIRJOTTER_V221061331928_DELETE_FIREBASE_ACCOUNT">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.28-DELETE-FIREBASE-ACCOUNT";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+<script id="AIRJOTTER_V221061331928_DELETE_FIREBASE_ACCOUNT"></script>
 
 <script id="AIRJOTTER_V221061331929_PAGE_REFRESH">
 (()=>{'use strict';
@@ -7336,8 +7335,8 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
   });
   ajSocket.on('board:reload',refresh);
  }
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.29-PAGE-REFRESH';
- document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ 
+ 
 })();
 </script>
 
@@ -7360,15 +7359,15 @@ resend.onclick=async()=>{try{let c=await signInWithEmailAndPassword(fa,emailI.va
  },true);
  document.getElementById('ajPaperApplyV221042')?.addEventListener('click',()=>setTimeout(stabilizeA3PhonePages,160),true);
  addEventListener('resize',stabilizeA3PhonePages,{passive:true});
- window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.30-A3-PHONE-CANVAS';
- document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+ 
+ 
 })();
 </script>
 
 
 <script id="AIRJOTTER_V221061331932_A3_LOCAL_REMOTE_REBUILD">
-window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.32-A3-LOCAL-REMOTE-REBUILD';
-document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+
+
 </script>
 
 
@@ -7379,7 +7378,7 @@ html.aj-ios-a3-v221061331935 #pencilPredictionBoard,html.aj-ios-a3-v221061331935
 html.aj-ios-a3-v221061331935 #ajIpadSmartWetV19{display:block!important;visibility:visible!important;opacity:1!important}
 </style>
 <script id="AIRJOTTER_V221061331935_IOS_A3_STABLE_SCRIPT">
-(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{const f=document.getElementById('ajPaperGlobalBtnV221042'),v=document.getElementById('mobileViewport');if(!f||!v)return;const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const sync=()=>document.documentElement.classList.toggle('aj-ios-a3-v221061331935',ios&&f.textContent.trim().toUpperCase()==='A3');new MutationObserver(sync).observe(f,{childList:true,subtree:true,characterData:true});sync();window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.35-IOS-A3-STABLE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;});})();
+(()=>{'use strict';const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();ready(()=>{const f=document.getElementById('ajPaperGlobalBtnV221042'),v=document.getElementById('mobileViewport');if(!f||!v)return;const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const sync=()=>document.documentElement.classList.toggle('aj-ios-a3-v221061331935',ios&&f.textContent.trim().toUpperCase()==='A3');new MutationObserver(sync).observe(f,{childList:true,subtree:true,characterData:true});sync();});})();
 </script>
 
 
@@ -7424,8 +7423,8 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   }
   draft.addEventListener('pointerup',finishFirstStroke,{capture:false,passive:true});
   draft.addEventListener('pointercancel',()=>{strokeStartedOnNewPage=false},{capture:true,passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.37-IPAD-LIVE-INK-PHONE-AFTER-STROKE';
-  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+  
+  
  });
 })();
 </script>
@@ -7531,14 +7530,14 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
   vp.addEventListener('touchmove',event=>{if(pinching&&event.touches.length>=2)clearTransient()},{capture:true,passive:true});
   function finishPinch(event){if(!pinching||event.touches?.length>=2)return;clearTransient();setTimeout(()=>{pinching=false;document.documentElement.classList.remove('aj-phone-a3-pinch-v1946')},90)}
   vp.addEventListener('touchend',finishPinch,{capture:true,passive:true});vp.addEventListener('touchcancel',finishPinch,{capture:true,passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.46-TOUCH-INPUT-RESET';
-  document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+  
+  
  });
 })();
 </script>
 <!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_END -->
 
-<script id="AIRJOTTER_V221061331947A_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.47A-A3-VECTOR-SMOOTH-FIXED";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+<script id="AIRJOTTER_V221061331947A_MARKER"></script>
 
 
 
@@ -7566,11 +7565,11 @@ html.aj-ipad-a3-finger-v1952 #ajIpadA3FingerWetV1952{display:block}
   function finish(e){if(!active||e.pointerId!==pid)return;e.preventDefault();e.stopImmediatePropagation();active=false;pid=-1;if(cancelled||points.length<2){points=[];clear();return}const mode=currentMode,cmd={type:'path',color:currentColor,points:points.map(p=>({x:Math.round(p.x*100)/100,y:Math.round(p.y*100)/100,w:Math.round(p.w*100)/100})),isEraser:mode==='eraser',isHighlighter:mode==='highlighter',opacity:mode==='highlighter'?.18:1,renderIndex:1};commands.push(cmd);redoCommands=[];document.getElementById('undoBtn').disabled=false;ajDrawPathOnPagesV224(cmd);ajSendStrokePreviewV224(cmd,true);ajSendCommand(cmd);ajInkPagesKeyV215='';redrawMainCanvas();points=[];clear()}
   document.addEventListener('pointerdown',down,true);document.addEventListener('pointermove',move,true);document.addEventListener('pointerup',finish,true);document.addEventListener('pointercancel',e=>{if(active&&e.pointerId===pid){cancelled=true;finish(e)}},true);
   document.addEventListener('touchstart',e=>{if(active&&e.touches.length>1){cancelled=true;points=[];clear()}},{capture:true,passive:true});
-  window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.52-IPAD-A3-DEDICATED-FINGER-ENGINE';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+  
  });
 })();
 </script>
-<script id="AIRJOTTER_V221061331953_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.53-PENCIL-ULTRA-LOW-LATENCY";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+<script id="AIRJOTTER_V221061331953_MARKER"></script>
 
 
 <!-- AIRJOTTER_V221061331956_BEGIN -->
@@ -7604,7 +7603,7 @@ html.aj-tablet-pencil-v1956.aj-jotter-visible-v1956 #ajTabletPencilPaletteV1956{
  const topButton=document.querySelector('#ajMainColorV2287 .aj-main-color-button-v2287');if(topButton&&!topButton.querySelector('.aj-native-color-v1956')){const ci=document.createElement('input');ci.type='color';ci.className='aj-native-color-v1956';ci.value=native?.value||'#1D1D1F';ci.setAttribute('aria-label','Tavolozza colori');ci.addEventListener('input',()=>{setColor(ci.value);topButton.style.setProperty('--c',ci.value)});native?.addEventListener('input',()=>ci.value=native.value);topButton.appendChild(ci)}
  let positioned=false;function openJotter(){const login=document.getElementById('ajLogin'),lobby=document.getElementById('ajLobby'),w=document.getElementById('canvas-wrapper');return Boolean(w&&w.getClientRects().length&&login?.classList.contains('aj-hidden')&&lobby?.classList.contains('aj-hidden')&&typeof ACTUAL_ROOM_CODE!=='undefined'&&ACTUAL_ROOM_CODE)}function positionAtPage(){if(positioned)return;const r=document.getElementById('canvas-wrapper')?.getBoundingClientRect();if(!r||!r.width)return;const left=Math.max(6,Math.min(innerWidth-p.offsetWidth-6,r.left+10)),top=Math.max(6,Math.min(innerHeight-p.offsetHeight-6,r.bottom-p.offsetHeight-12));p.style.left=left+'px';p.style.top=top+'px';positioned=true}
  function sync(){const v=openJotter();document.documentElement.classList.toggle('aj-jotter-visible-v1956',v);if(v)requestAnimationFrame(positionAtPage);else positioned=false}new MutationObserver(sync).observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});setInterval(sync,500);sync();
- let d=null;grip.onpointerdown=e=>{e.preventDefault();e.stopImmediatePropagation();const r=p.getBoundingClientRect();d={id:e.pointerId,x:e.clientX-r.left,y:e.clientY-r.top};grip.setPointerCapture?.(e.pointerId)};grip.onpointermove=e=>{if(!d||e.pointerId!==d.id)return;e.preventDefault();p.style.left=Math.max(4,Math.min(innerWidth-p.offsetWidth-4,e.clientX-d.x))+'px';p.style.top=Math.max(4,Math.min(innerHeight-p.offsetHeight-4,e.clientY-d.y))+'px'};grip.onpointerup=grip.onpointercancel=e=>{if(d&&e.pointerId===d.id){d=null;positioned=true}};document.addEventListener('pointerdown',e=>{if(!p.contains(e.target))p.classList.remove('popup-open','paper-open-v1958')},true);document.documentElement.classList.add('aj-tablet-pencil-v1956');window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.60-PAYPAL-CONFIRM-COLOR-FIX';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;});})();
+ let d=null;grip.onpointerdown=e=>{e.preventDefault();e.stopImmediatePropagation();const r=p.getBoundingClientRect();d={id:e.pointerId,x:e.clientX-r.left,y:e.clientY-r.top};grip.setPointerCapture?.(e.pointerId)};grip.onpointermove=e=>{if(!d||e.pointerId!==d.id)return;e.preventDefault();p.style.left=Math.max(4,Math.min(innerWidth-p.offsetWidth-4,e.clientX-d.x))+'px';p.style.top=Math.max(4,Math.min(innerHeight-p.offsetHeight-4,e.clientY-d.y))+'px'};grip.onpointerup=grip.onpointercancel=e=>{if(d&&e.pointerId===d.id){d=null;positioned=true}};document.addEventListener('pointerdown',e=>{if(!p.contains(e.target))p.classList.remove('popup-open','paper-open-v1958')},true);document.documentElement.classList.add('aj-tablet-pencil-v1956');});})();
 </script>
 <!-- AIRJOTTER_V221061331956_END -->
 
@@ -7613,7 +7612,9 @@ html.aj-tablet-pencil-v1956.aj-jotter-visible-v1956 #ajTabletPencilPaletteV1956{
 <script id="AIRJOTTER_PAYPAL_UI_V1959_SCRIPT">(()=>{'use strict';const money=c=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(c/100);async function enhance(){const cfg=await fetch('/api/billing/config').then(r=>r.json()).catch(()=>null);if(!cfg?.paypal)return;document.querySelectorAll('.aj-wallet-recharge-v2283').forEach(box=>{if(box.querySelector('.aj-paypal-packs-v1959'))return;const input=box.querySelector('input[type=number]');if(!input)return;const row=document.createElement('div');row.className='aj-paypal-packs-v1959';(cfg.creditPacksCents||[300,500,1000,2000]).forEach(c=>{const b=document.createElement('button');b.type='button';b.className='aj-paypal-pack-v1959';b.textContent=money(c);b.onclick=()=>{input.value=(c/100).toFixed(2);row.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b))};row.appendChild(b)});input.insertAdjacentElement('afterend',row);if(cfg.paypalEnv==='sandbox'){const n=document.createElement('div');n.className='aj-paypal-sandbox-v1959';n.textContent='Modalita test PayPal Sandbox: nessun addebito reale.';box.appendChild(n)}})}new MutationObserver(()=>enhance()).observe(document.body,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',enhance);enhance();window.AIRJOTTER_PAYPAL_VERSION='22.10.61.33.19.60-PAYPAL-CONFIRM-COLOR-FIX'})();</script>
 <!-- AIRJOTTER_PAYPAL_UI_V1959_END -->
 
-
-<script id="AIRJOTTER_1960A_AUTHORITATIVE_VERSION">window.AIRJOTTER_FRONTEND_VERSION='22.10.61.33.19.60A-PAYPAL-VERSION-COLOR-HOTFIX';document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
+<script id="AIRJOTTER_1960A_AUTHORITATIVE_VERSION">
+Object.defineProperty(window,'AIRJOTTER_FRONTEND_VERSION',{configurable:false,enumerable:true,writable:false,value:'22.10.61.33.19.60A-PAYPAL-VERSION-COLOR-HOTFIX'});
+document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;
+</script>
 </body>
 </html>
