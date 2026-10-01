@@ -1020,6 +1020,13 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 .aj-card-label-1964b{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;line-height:1.05!important;pointer-events:none!important}
 .aj-card-icon-1964a{flex:0 0 28px!important}.aj-payment-icon-1964a{flex:0 0 28px!important}
 @media(max-width:560px){#ajPublicPlansV220 .aj-plan-actions{grid-template-columns:1fr!important}#ajTopStripeV2283,#ajTopPaypalV2283,#ajTopStripeV222,#ajTopPaypalV222{width:100%!important}}
+</style><style id="AIRJOTTER_PAYMENT_SIZE_1964C">
+/* Ogni coppia Carta/PayPal usa la stessa geometria. */
+#ajPublicPlansV220 .aj-plan-actions>.aj-stripe-buy,#ajPublicPlansV220 .aj-plan-actions>.aj-paypal-buy{height:58px!important;min-height:58px!important;max-height:58px!important;width:100%!important;min-width:0!important}
+.aj-wallet-recharge-v2283 #ajTopStripeV2283,.aj-wallet-recharge-v2283 #ajTopPaypalV2283{height:58px!important;min-height:58px!important;max-height:58px!important;width:220px!important;min-width:220px!important;max-width:220px!important}
+#ajTopStripeV222,#ajTopPaypalV222{height:58px!important;min-height:58px!important;max-height:58px!important;width:220px!important;min-width:220px!important;max-width:220px!important}
+.aj-card-label-1964b{font-size:15px!important;line-height:1.05!important}.aj-payment-label-1964a{font-size:17px!important}
+@media(max-width:650px){.aj-wallet-recharge-v2283 #ajTopStripeV2283,.aj-wallet-recharge-v2283 #ajTopPaypalV2283,#ajTopStripeV222,#ajTopPaypalV222{width:100%!important;min-width:0!important;max-width:none!important}}
 </style></head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
@@ -7652,5 +7659,24 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 </script>
 <script id="AIRJOTTER_PAYMENT_CARD_LABEL_1964B">
 (()=>{function fix(){document.querySelectorAll('.aj-stripe-buy,#ajTopStripeV2283,#ajTopStripeV222').forEach(b=>{const label=b.querySelector('.aj-payment-label-1964a');if(!label||label.classList.contains('aj-card-label-1964b'))return;label.classList.add('aj-card-label-1964b');label.replaceChildren(Object.assign(document.createElement('span'),{textContent:'Carta di'}),Object.assign(document.createElement('span'),{textContent:'credito'}))})}function run(){[0,60,180,400,800].forEach(x=>setTimeout(fix,x))}document.addEventListener('click',run,true);document.addEventListener('DOMContentLoaded',run,{once:true});run()})();
+</script><script id="AIRJOTTER_PAYPAL_PLANS_HANDLER_1964C">
+(()=>{
+ let busy=false;
+ async function startPlanPayPal(button){
+  if(busy)return;const planId=button?.dataset?.id;if(!planId){alert('Piano PayPal non identificato.');return}
+  busy=true;const oldDisabled=button.disabled;button.disabled=true;
+  try{
+   const response=await fetch('/api/billing/paypal/create',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({planId,quantity:1})});
+   const text=await response.text();let data={};try{data=text?JSON.parse(text):{}}catch{}
+   if(!response.ok)throw new Error(data.error||data.message||('PayPal non disponibile ('+response.status+')'));
+   if(!data.url)throw new Error('PayPal non ha restituito la pagina di autorizzazione.');
+   location.assign(data.url);
+  }catch(error){alert(error.message||'Avvio PayPal non riuscito.');busy=false;button.disabled=oldDisabled}
+ }
+ document.addEventListener('click',event=>{
+  const button=event.target.closest('#ajPublicPlansV220 .aj-paypal-buy');if(!button)return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();startPlanPayPal(button);
+ },true);
+})();
 </script></body>
 </html>
