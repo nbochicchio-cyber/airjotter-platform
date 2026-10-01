@@ -2342,8 +2342,16 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             for(const cmd of paths){
                 const pts=cmd.points;if(!pts.length)continue;const p=document.createElementNS(NS,'path');
                 let d=`M${Number(pts[0].x||0).toFixed(2)} ${Number(pts[0].y||0).toFixed(2)}`;
-                for(let i=1;i<pts.length;i++)d+=` L${Number(pts[i].x||0).toFixed(2)} ${Number(pts[i].y||0).toFixed(2)}`;
-                const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length?widths.reduce((a,b)=>a+b,0)/widths.length:Number(cmd.width||2.5);
+                if(pts.length===2){d+=` L${Number(pts[1].x||0).toFixed(2)} ${Number(pts[1].y||0).toFixed(2)}`}
+                else if(pts.length>2){
+                    for(let i=1;i<pts.length-1;i++){
+                        const q=pts[i],n=pts[i+1],mx=(Number(q.x||0)+Number(n.x||0))/2,my=(Number(q.y||0)+Number(n.y||0))/2;
+                        d+=` Q${Number(q.x||0).toFixed(2)} ${Number(q.y||0).toFixed(2)} ${mx.toFixed(2)} ${my.toFixed(2)}`
+                    }
+                    const z=pts.at(-1);d+=` L${Number(z.x||0).toFixed(2)} ${Number(z.y||0).toFixed(2)}`
+                }
+                
+const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length?widths.reduce((a,b)=>a+b,0)/widths.length:Number(cmd.width||2.5);
                 p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
                 p.setAttribute('stroke',cmd.isEraser?'#ffffff':cmd.isHighlighter?'#FFE000':(cmd.color||'#1D1D1F'));
                 p.setAttribute('stroke-opacity',cmd.isHighlighter?String(cmd.opacity??.30):'1');p.setAttribute('stroke-width',String(Math.max(.55,width||2.5)));svg.appendChild(p)
@@ -7531,5 +7539,6 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 </script>
 <!-- AIRJOTTER_V221061331946_TOUCH_INPUT_RESET_END -->
 
+<script id="AIRJOTTER_V221061331947A_MARKER">window.AIRJOTTER_FRONTEND_VERSION="22.10.61.33.19.47A-A3-VECTOR-SMOOTH-FIXED";document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERSION;</script>
 </body>
 </html>
