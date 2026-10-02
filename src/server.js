@@ -234,7 +234,39 @@ app.get('/api/file-transfer/ice',auth,(req,res)=>res.json({
 }));
 app.get('/api/plans',async(req,res)=>{const q=await pool.query("SELECT * FROM billing_plans WHERE status='active' AND public=true ORDER BY sort_order,name");res.json(q.rows.map(planPublic))});
 app.get('/api/billing/config',(req,res)=>res.json({stripe:Boolean(process.env.STRIPE_PUBLISHABLE_KEY&&process.env.STRIPE_SECRET_KEY),stripePublishableKey:process.env.STRIPE_PUBLISHABLE_KEY||'',paypal:Boolean(process.env.PAYPAL_CLIENT_ID&&process.env.PAYPAL_CLIENT_SECRET),paypalClientId:process.env.PAYPAL_CLIENT_ID||'',paypalEnv:process.env.PAYPAL_ENV||'sandbox',creditPacksCents:String(process.env.PAYPAL_CREDIT_PACKS_EUR||'3,5,10,20').split(',').map(x=>Math.round(Number(x)*100)).filter(x=>x>=300)}));
-app.get('/api/billing/me',auth,async(req,res)=>{const p=await resolvedPlan(req.user.sub);const u=(await pool.query('SELECT subscription_current_period_end,subscription_provider,subscription_status,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0];const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);res.json({plan:{...p,currentPeriodEnd:u?.subscription_current_period_end||null,subscriptionProvider:u?.subscription_provider||null,subscriptionStatus:u?.subscription_status||null,subscriptionExternalId:u?.subscription_external_id||null,cancelAtPeriodEnd:u?.subscription_status==='cancel_at_period_end'},orders:orders.rows})});
+// AIRJOTTER_SCHEDULED_PLAN_STATUS_1968
+app.get('/api/billing/me',auth,async(req,res)=>{
+ try{
+  const p=await resolvedPlan(req.user.sub);
+  const u=(await pool.query('SELECT email,subscription_current_period_end,subscription_provider,subscription_status,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
+  const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);
+  let scheduledChange=null;
+  const planSummary=async(code)=>{const x=(await pool.query('SELECT code,name,amount_cents,currency,boards_limit,pages_limit,exports_limit FROM billing_plans WHERE code=$1 LIMIT 1',[code])).rows[0];return x?{code:x.code,name:x.name,amountCents:Number(x.amount_cents||0),currency:x.currency||'EUR',limits:{boards:Number(x.boards_limit||1),pages:Number(x.pages_limit||2),freePdfPages:x.code==='free'?Math.max(0,Number(x.exports_limit??1)):null}}:null};
+  if(stripe&&u.subscription_provider==='stripe'&&String(u.subscription_external_id||'').startsWith('sub_')){
+   try{
+    const sub=await stripe.subscriptions.retrieve(u.subscription_external_id,{expand:['items.data.price','schedule']});
+    const endAt=stripePeriodEnd(sub)||u.subscription_current_period_end||null;
+    if(sub.cancel_at_period_end){const target=await planSummary('free');if(target)scheduledChange={type:'downgrade',targetPlan:target,effectiveAt:endAt,provider:'stripe',externalId:sub.id,reason:'cancel_at_period_end'}}
+    else{
+     const scheduleId=typeof sub.schedule==='string'?sub.schedule:sub.schedule?.id;
+     if(scheduleId){
+      const sch=await stripe.subscriptionSchedules.retrieve(scheduleId);
+      const now=Math.floor(Date.now()/1000),future=(sch.phases||[]).find(ph=>Number(ph.start_date)>now);
+      const priceId=typeof future?.items?.[0]?.price==='string'?future.items[0].price:future?.items?.[0]?.price?.id;
+      if(priceId){const targetRow=(await pool.query('SELECT code FROM billing_plans WHERE stripe_price_id=$1 LIMIT 1',[priceId])).rows[0];const target=targetRow?await planSummary(targetRow.code):null;if(target&&target.code!==p.code)scheduledChange={type:target.amountCents>Number(p.amount_cents||0)?'upgrade':'downgrade',targetPlan:target,effectiveAt:new Date(Number(future.start_date)*1000).toISOString(),provider:'stripe',externalId:scheduleId,reason:'subscription_schedule'}}
+     }
+    }
+   }catch(e){console.warn('Lettura variazione Stripe non bloccante:',e.message)}
+  }
+  if(!scheduledChange){
+   const pending=(await pool.query("SELECT bo.provider,bo.status,bo.external_id,bo.raw,bp.code FROM billing_orders bo JOIN billing_plans bp ON bp.id=bo.plan_id WHERE bo.user_id=$1 AND bo.status IN ('approved_next_cycle','pending_cycle_upgrade') ORDER BY bo.updated_at DESC LIMIT 1",[req.user.sub])).rows[0];
+   if(pending){const target=await planSummary(pending.code),effectiveAt=pending.raw?.effectiveAt||u.subscription_current_period_end||null;if(target&&target.code!==p.code)scheduledChange={type:target.amountCents>Number(p.amount_cents||0)?'upgrade':'downgrade',targetPlan:target,effectiveAt,provider:pending.provider,externalId:pending.external_id,reason:'billing_order'}}
+  }
+  const owned=Number((await pool.query('SELECT count(*) FROM boards WHERE owner_user_id=$1',[req.user.sub])).rows[0]?.count||0);
+  if(scheduledChange)scheduledChange.impact={ownedJotters:owned,policyVersion:'1968'};
+  res.json({plan:{...p,currentPeriodEnd:u.subscription_current_period_end||null,subscriptionProvider:u.subscription_provider||null,subscriptionStatus:u.subscription_status||null,subscriptionExternalId:u.subscription_external_id||null,cancelAtPeriodEnd:u.subscription_status==='cancel_at_period_end'||scheduledChange?.targetPlan?.code==='free',scheduledChange},orders:orders.rows});
+ }catch(e){console.error('Stato billing 19.68:',e);res.status(500).json({error:'Impossibile caricare lo stato dell’abbonamento'})}
+});
 // AIRJOTTER_STRIPE_SAFE_CHECKOUT_1966C
 app.post('/api/billing/stripe/checkout',auth,async(req,res)=>{
  try{
