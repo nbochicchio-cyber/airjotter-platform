@@ -7766,5 +7766,6 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  function install(){watch('ajPublicPlansV220');watch('ajPayUseV222');schedule()}
  document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',install,{once:true});window.addEventListener('resize',schedule);install();
 })();
-</script></body>
+</script><script id="AIRJOTTER_STRIPE_CHECKOUT_1966B">(()=>{const p=new URLSearchParams(location.search),billing=p.get('billing'),sessionId=p.get('session_id');if(!sessionId||!['stripe-credit-return','stripe-subscription-return'].includes(billing))return;fetch('/api/billing/stripe/session/confirm',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||r.statusText);history.replaceState(null,'',location.pathname);if(d.kind==='credit'){const euro=c=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(c||0)/100);alert(d.duplicate?'Ricarica gia acquisita.\n\nNessun nuovo accredito.\nSaldo: '+euro(d.balanceCents):'Ricarica completata.\n\nCredito aggiunto: '+euro(d.creditedCents)+'\nNuovo saldo: '+euro(d.balanceCents))}else alert('Abbonamento '+(d.plan?.name||'AirJotter')+' attivato.');location.reload()}).catch(e=>alert(e.message||'Verifica Stripe non riuscita'))})();</script>
+</body>
 </html>
