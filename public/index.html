@@ -1069,6 +1069,39 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 #ajPayUseV222 .aj-card-text-1965b,
 #ajPayUseV222 .aj-card-text-1965d{font-weight:600!important}
 #ajPayUseV222 .aj-credit-packs-1965b button{font-size:15px!important}
+</style><style id="AIRJOTTER_PAYMENT_LABELS_UI_1965G">
+/* Stessa tipografia per i sei pulsanti di pagamento. */
+#ajPublicPlansV220 .aj-pay-button-1965b,
+#ajPublicPlansV220 .aj-pay-button-1965d,
+#ajPayUseV222 .aj-pay-button-1965b,
+#ajPayUseV222 .aj-pay-button-1965d{
+  font-family:"Segoe UI",Arial,sans-serif!important;
+  font-size:17px!important;
+  font-weight:600!important;
+  letter-spacing:.005em!important;
+}
+#ajPublicPlansV220 .aj-card-text-1965b,
+#ajPublicPlansV220 .aj-card-text-1965d,
+#ajPayUseV222 .aj-card-text-1965b,
+#ajPayUseV222 .aj-card-text-1965d{
+  display:inline!important;
+  font-family:"Segoe UI",Arial,sans-serif!important;
+  font-size:17px!important;
+  font-weight:600!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+}
+#ajPublicPlansV220 .aj-paypal-label-1965,
+#ajPublicPlansV220 .aj-paypal-label-1965b,
+#ajPublicPlansV220 .aj-pay-text-1964d,
+#ajPayUseV222 .aj-paypal-label-1965,
+#ajPayUseV222 .aj-paypal-label-1965b,
+#ajPayUseV222 .aj-pay-text-1964d{
+  font-family:"Segoe UI",Arial,sans-serif!important;
+  font-size:17px!important;
+  font-weight:600!important;
+  letter-spacing:.005em!important;
+}
 </style></head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
@@ -7712,6 +7745,20 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  function watch(id){const el=document.getElementById(id);if(!el||el.dataset.ajExact1965d)return;el.dataset.ajExact1965d='1';new MutationObserver(()=>queueMicrotask(cleanAndMeasure)).observe(el,{childList:true,subtree:true})}
  function install(){watch('ajPublicPlansV220');watch('ajPayUseV222');schedule()}
  document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',install,{once:true});window.addEventListener('resize',schedule);install();
+})();
+</script><script id="AIRJOTTER_PAYMENT_LABELS_HANDLER_1965G">
+(()=>{
+ function labels(){
+  document.querySelectorAll('#ajPublicPlansV220 .aj-stripe-buy,#ajPayUseV222 #ajTopStripeV2283,#ajPayUseV222 #ajTopStripeV222').forEach(b=>{
+   const label=b.querySelector('.aj-card-text-1965b,.aj-card-text-1965d,.aj-payment-label-1964a');
+   if(label){label.replaceChildren(document.createTextNode('Credit card'));label.classList.remove('aj-card-label-1964b')}
+   else if(!b.querySelector('.aj-card-icon-1965b,.aj-card-icon-1965d,.aj-card-icon-1964a'))b.textContent='Credit card';
+  });
+ }
+ function schedule(){[0,60,180,400,800].forEach(ms=>setTimeout(labels,ms))}
+ function watch(id){const el=document.getElementById(id);if(!el||el.dataset.ajLabels1965g)return;el.dataset.ajLabels1965g='1';new MutationObserver(()=>queueMicrotask(labels)).observe(el,{childList:true,subtree:true})}
+ function install(){watch('ajPublicPlansV220');watch('ajPayUseV222');schedule()}
+ document.addEventListener('click',schedule,true);document.addEventListener('DOMContentLoaded',install,{once:true});install();
 })();
 </script></body>
 </html>
