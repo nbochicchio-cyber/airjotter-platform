@@ -127,6 +127,24 @@ async function paypalWebhookHandler(req,res){
  }catch(e){console.error('Webhook PayPal:',e);res.status(500).json({error:'Webhook PayPal non elaborato'})}
 }
 app.post('/api/billing/paypal/webhook',paypalWebhookHandler);
+// AIRJOTTER_STRIPE_PROVISION_1966A
+app.post('/api/admin/billing/stripe/provision',auth,adminOnly,async(req,res)=>{
+ try{
+  if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
+  if((process.env.STRIPE_ENV||'test')==='live'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Stripe Live non autorizzato'});
+  const out=[];
+  for(const code of ['plus','ultra']){
+   let plan=(await pool.query('SELECT * FROM billing_plans WHERE code=$1',[code])).rows[0];
+   if(!plan)continue;
+   if(!plan.stripe_product_id||!plan.stripe_price_id){
+    const remote=await provisionStripe({...plan,stripe_product_id:plan.stripe_product_id||null});
+    plan=(await pool.query('UPDATE billing_plans SET stripe_product_id=$1,stripe_price_id=$2,updated_at=now() WHERE id=$3 RETURNING *',[remote.stripe_product_id,remote.stripe_price_id,plan.id])).rows[0];
+   }
+   out.push({code:plan.code,name:plan.name,amountCents:Number(plan.amount_cents),currency:plan.currency,stripeProductId:plan.stripe_product_id,stripePriceId:plan.stripe_price_id,ready:Boolean(plan.stripe_price_id)});
+  }
+  res.json({ok:true,environment:process.env.STRIPE_ENV||'test',plans:out});
+ }catch(e){console.error('Provisioning Stripe 19.66A:',e);res.status(500).json({error:e.message||'Provisioning Stripe non riuscito'})}
+});
 app.post('/api/admin/billing/paypal/provision',auth,adminOnly,async(req,res)=>{
  if((process.env.PAYPAL_ENV||'sandbox')!=='sandbox'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Live non autorizzato'});
  const desired={plus:Math.round(Number(process.env.PAYPAL_PLUS_MONTHLY_EUR||4.99)*100),ultra:Math.round(Number(process.env.PAYPAL_ULTRA_MONTHLY_EUR||9.99)*100)},out=[];
