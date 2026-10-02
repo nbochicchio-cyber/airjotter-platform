@@ -4175,7 +4175,7 @@ window.AIRJOTTER_PENCIL_PERFORMANCE={version:'17.2',strategy:'smooth-real-path-p
  const fmt=x=>x?new Date(x).toLocaleDateString('it-IT'):'da confermare',end=fmt(p.currentPeriodEnd),renewal=p.cancelAtPeriodEnd?'Disattivato':'Attivo',sc=p.scheduledChange;
  let future='';
  if(sc?.targetPlan){const t=sc.targetPlan,effective=fmt(sc.effectiveAt),isFree=t.code==='free',isDown=sc.type==='downgrade',owned=Number(sc.impact?.ownedJotters||0),boards=Number(t.limits?.boards||1),pages=Number(t.limits?.pages||2);let consequences='';
-  if(isDown){consequences=`<div class="aj-change-effects-v1968"><strong class="aj-downgrade-heading-v1968a">Cosa succede ai tuoi Jotter</strong><p><strong>Nessun Jotter viene eliminato automaticamente.</strong><br>I Jotter che hai già creato resteranno sempre visibili nel tuo archivio.</p><p>Al momento possiedi <strong>${owned} Jotter</strong>, mentre il nuovo piano <strong>${t.name}</strong> ne include <strong>${boards}</strong>. Se raggiungi il limite di <strong>${boards} Jotter</strong>, non potrai crearne di nuovi, a meno che tu non scelga di acquistare Jotter aggiuntivi, utilizzando il relativo credito AirJotter Spot.</p><p><strong>E le pagine già esistenti?</strong><br>Le pagine che superano il limite di <strong>${pages} pagine per Jotter</strong> previsto dal nuovo piano <strong>${t.name}</strong> resteranno visibili e consultabili, ma non potranno essere modificate. Non sarà inoltre possibile aggiungere nuove pagine oltre il limite, salvo acquisto di pagine aggiuntive tramite il tuo credito AirJotter Spot.</p><p><strong>Export in PDF</strong><br>Gli export in PDF seguiranno le condizioni previste dal nuovo piano <strong>${t.name}</strong>.<br>${isFree?'Ti ricordiamo che, con il piano <strong>Free</strong>, è comunque possibile acquistare l’export completo (in caso di stampa della sola prima pagina, verrà applicato il watermark AirJotter previsto dal piano Free).':'Con il piano <strong>'+t.name+'</strong>, l’export PDF completo resta incluso senza watermark.'}</p><p><strong>Credito ed extra già acquistati</strong><br>Il tuo <strong>credito AirJotter Spot</strong> e tutti gli <strong>extra già acquistati</strong> resteranno disponibili e utilizzabili fino alla loro naturale scadenza.</p></div>`}
+  if(isDown){consequences=`<div class="aj-change-effects-v1968"><strong class="aj-downgrade-heading-v1968a">Cosa succede ai tuoi Jotter</strong><p><strong>Nessun Jotter viene eliminato automaticamente.</strong><br>I Jotter che hai già creato resteranno sempre visibili nel tuo archivio.</p><p>Al momento possiedi <strong>${owned} Jotter</strong>, mentre il nuovo piano <strong>${t.name}</strong> ne include <strong>${boards}</strong>. Se raggiungi il limite di <strong>${boards} Jotter</strong>, non potrai crearne di nuovi, a meno che tu non scelga di acquistare Jotter aggiuntivi, utilizzando il relativo credito AirJotter Spot.</p><p><strong>E le pagine già esistenti?</strong><br>Le pagine che superano il limite di <strong>${pages} pagine per Jotter</strong> previsto dal nuovo piano <strong>${t.name}</strong> resteranno visibili e consultabili, ma non potranno essere modificate. Non sarà inoltre possibile aggiungere nuove pagine oltre il limite, salvo che tu scelga di acquistare pagine aggiuntive tramite il tuo credito AirJotter Spot.</p><p><strong>Export in PDF</strong><br>Gli export in PDF seguiranno le condizioni previste dal nuovo piano <strong>${t.name}</strong>.<br>${isFree?'Ti ricordiamo che, con il piano <strong>Free</strong>, è comunque possibile acquistare l’export completo in PDF (in caso di stampa gratuita della sola prima pagina, verrà invece applicato il watermark AirJotter).':'Con il piano <strong>'+t.name+'</strong>, l’export PDF completo resta incluso senza watermark.'}</p><p><strong>Credito ed extra già acquistati</strong><br>Il tuo <strong>credito AirJotter Spot</strong> e tutti gli <strong>extra già acquistati</strong> resteranno disponibili e utilizzabili fino alla loro naturale scadenza.</p></div>`}
   future=`<div class="aj-scheduled-change-v1968 ${isDown?'is-downgrade':'is-upgrade'}"><div class="aj-change-title-v1968">${isDown?'Downgrade':'Upgrade'} programmato</div><div class="aj-change-grid-v1968"><span>Nuovo piano</span><b>${t.name}</b><span>Decorrenza</span><b>${effective}</b><span>Nuovo canone</span><b>${t.amountCents?money(t.amountCents,t.currency)+' al mese':'0,00 €'}</b><span>Addebiti prima della data</span><b>Nessuno</b></div>${consequences}</div>`}
  return `<h3>Il tuo abbonamento</h3><div class="aj-sub-grid-v221"><div class="aj-sub-item-v221"><small>Piano attuale</small><b>${p.name||p.code||'-'}</b></div><div class="aj-sub-item-v221"><small>Valido fino al</small><b>${end}</b></div><div class="aj-sub-item-v221"><small>Rinnovo automatico</small><b>${renewal}</b></div></div>${future}<div class="aj-sub-actions-v221"><button id="ajManageSubscriptionV221" class="btn primary">Gestisci rinnovo e disdetta</button></div>`;
 }
@@ -7803,6 +7803,30 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  document.addEventListener('DOMContentLoaded',schedule,{once:true});
  document.addEventListener('click',e=>{if(e.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))schedule()},true);
  window.addEventListener('resize',schedule,{passive:true});schedule();
+})();
+</script>
+
+<style id="AIRJOTTER_UI_REFINEMENTS_1968C">
+#ajPayUseV222 .aj-spot-compact-v1968b{padding-top:11px!important;padding-bottom:11px!important}
+#ajPayUseV222 .aj-spot-compact-v1968b>*{margin-top:4px!important;margin-bottom:4px!important}
+#ajPlansModalV220 .aj-credit-icon-shift-v1968c{transform:translateX(15px)!important}
+</style>
+<script id="AIRJOTTER_UI_REFINEMENTS_1968C_SCRIPT">
+(()=>{
+ function apply(){
+  const modal=document.getElementById('ajPlansModalV220');if(!modal)return;
+  [...modal.querySelectorAll('button')].forEach(b=>{
+   const t=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+   if(t!=='credit card'&&t!=='creditcard')return;
+   const candidates=[...b.children].filter(x=>!x.matches('span,small,strong')||!/credit|card/i.test(x.textContent||''));
+   const icon=candidates.find(x=>x.matches('svg,img,i')||x.querySelector?.('svg,img'))||b.querySelector('svg,img,i')||b.firstElementChild;
+   if(icon)icon.classList.add('aj-credit-icon-shift-v1968c');
+  });
+ }
+ function schedule(){[0,80,220,500].forEach(ms=>setTimeout(apply,ms))}
+ document.addEventListener('DOMContentLoaded',schedule,{once:true});
+ document.addEventListener('click',e=>{if(e.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))schedule()},true);
+ schedule();
 })();
 </script>
 </body>
