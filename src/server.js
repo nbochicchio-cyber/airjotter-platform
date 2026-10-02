@@ -126,12 +126,12 @@ async function reconcileStripeCheckoutSession(session,userId){
    await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[session,session.id]);
    const balance=Number((await c.query('SELECT spot_credit_cents FROM users WHERE id=$1',[userId])).rows[0]?.spot_credit_cents||0);
    await c.query('COMMIT');
-   return {kind:'credit',duplicate:!ins.rowCount,creditedCents:ins.rowCount?cents:0,balanceCents:balance};
+   return {kind:'credit',duplicate:!ins.rowCount,creditedCents:cents,balanceCents:balance};
   }
   const plan=await planById(session.metadata?.planId);
   if(!plan)throw new Error('Piano Stripe non riconosciuto');
   let sub=null;
-  if(session.subscription)sub=await stripe.subscriptions.retrieve(String(session.subscription),{expand:['items.data.price']});
+  if(session.subscription){const subId=typeof session.subscription==='string'?session.subscription:session.subscription?.id;sub=subId?await stripe.subscriptions.retrieve(subId,{expand:['items.data.price']}):session.subscription}
   const current=(await c.query('SELECT plan_code,subscription_external_id FROM users WHERE id=$1 FOR UPDATE',[userId])).rows[0]||{};
   if(current.plan_code!==plan.code||current.subscription_external_id!==String(session.subscription||session.id))await applyPlanAndExtendExtras(c,userId,plan,'stripe',String(session.subscription||session.id));
   const end=stripePeriodEnd(sub);
@@ -564,6 +564,7 @@ socket.on('disconnect',()=>{const closingBoardId=socket.data.currentBoardId,clos
 // v15.6: pulizia deterministica eseguita all'avvio utente e prima della creazione
 if(process.env.NODE_ENV==='production'&&process.env.DEV_AUTH==='true')throw new Error('Configurazione non sicura: DEV_AUTH non può essere attivo in produzione');
 if(process.env.NODE_ENV==='production'&&!process.env.ADMIN_GOOGLE_SUB)throw new Error('ADMIN_GOOGLE_SUB obbligatorio in produzione');
+// AIRJOTTER_STRIPE_RETURN_FIX_1967A
 // AIRJOTTER_STRIPE_LIFECYCLE_1967_READY
 server.listen(process.env.PORT||3000,()=>console.log(`airjotter su porta ${process.env.PORT||3000}`));
 
