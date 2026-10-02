@@ -133,7 +133,8 @@ async function reconcileStripeCheckoutSession(session,userId){
   let sub=null;
   if(session.subscription){const subId=typeof session.subscription==='string'?session.subscription:session.subscription?.id;sub=subId?await stripe.subscriptions.retrieve(subId,{expand:['items.data.price']}):session.subscription}
   const current=(await c.query('SELECT plan_code,subscription_external_id FROM users WHERE id=$1 FOR UPDATE',[userId])).rows[0]||{};
-  if(current.plan_code!==plan.code||current.subscription_external_id!==String(session.subscription||session.id))await applyPlanAndExtendExtras(c,userId,plan,'stripe',String(session.subscription||session.id));
+  const subscriptionId=typeof session.subscription==='string'?session.subscription:(session.subscription?.id||session.id);
+  if(current.plan_code!==plan.code||current.subscription_external_id!==subscriptionId)await applyPlanAndExtendExtras(c,userId,plan,'stripe',subscriptionId);
   const end=stripePeriodEnd(sub);
   await c.query("UPDATE users SET billing_customer_id=COALESCE($1,billing_customer_id),subscription_status=$2,subscription_current_period_end=COALESCE($3,subscription_current_period_end) WHERE id=$4",[String(session.customer||sub?.customer||'')||null,sub?.cancel_at_period_end?'cancel_at_period_end':(sub?.status||'active'),end,userId]);
   await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[session,session.id]);
@@ -278,9 +279,27 @@ app.get('/api/billing/stripe/session/:id',auth,async(req,res)=>{
 app.post('/api/billing/stripe/upgrade',auth,async(req,res)=>{
  try{
   if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
-  const target=await planById(req.body.planId),u=(await pool.query('SELECT plan_code,subscription_provider,subscription_external_id,subscription_current_period_end FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
-  if(!target||target.code!=='ultra'||u.plan_code!=='plus'||u.subscription_provider!=='stripe'||!String(u.subscription_external_id||'').startsWith('sub_'))return res.status(409).json({error:'Upgrade Stripe non applicabile a questo account'});
-  const sub=await stripe.subscriptions.retrieve(u.subscription_external_id,{expand:['items.data.price','schedule']});
+  const target=await planById(req.body.planId),u=(await pool.query('SELECT plan_code,subscription_provider,subscription_external_id,subscription_current_period_end,billing_customer_id,email FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
+  if(!target||target.code!=='ultra'||u.plan_code!=='plus')return res.status(409).json({error:'Upgrade Stripe non applicabile a questo account'});
+  const plusPlan=(await pool.query("SELECT stripe_price_id FROM billing_plans WHERE code='plus' LIMIT 1")).rows[0];
+  let subscriptionId=String(u.subscription_external_id||'');
+  let sub=null;
+  if(subscriptionId.startsWith('sub_')){try{sub=await stripe.subscriptions.retrieve(subscriptionId,{expand:['items.data.price','schedule']})}catch(e){if(e?.code!=='resource_missing')throw e}}
+  if(!sub){
+   let customerId=String(u.billing_customer_id||'');
+   if(!customerId.startsWith('cus_')){
+    const customers=await stripe.customers.list({email:u.email,limit:10});
+    customerId=customers.data[0]?.id||'';
+   }
+   if(customerId){
+    const list=await stripe.subscriptions.list({customer:customerId,status:'all',limit:100,expand:['data.items.data.price','data.schedule']});
+    sub=list.data.find(x=>['active','trialing','past_due'].includes(x.status)&&x.items.data.some(y=>(typeof y.price==='string'?y.price:y.price?.id)===plusPlan?.stripe_price_id))||null;
+   }
+  }
+  if(!sub)return res.status(409).json({error:'Sottoscrizione Stripe Plus attiva non trovata'});
+  subscriptionId=sub.id;
+  const customerId=typeof sub.customer==='string'?sub.customer:sub.customer?.id;
+  await pool.query("UPDATE users SET subscription_provider='stripe',subscription_external_id=$1,billing_customer_id=COALESCE($2,billing_customer_id),subscription_status=CASE WHEN subscription_status IS NULL OR subscription_status='' THEN 'active' ELSE subscription_status END WHERE id=$3",[subscriptionId,customerId||null,req.user.sub]);
   const start=Math.floor(Date.now()/1000),periodEnd=Math.floor((new Date(u.subscription_current_period_end||stripePeriodEnd(sub)||Date.now()+30*86400000)).getTime()/1000);
   let scheduleId=typeof sub.schedule==='string'?sub.schedule:sub.schedule?.id;
   if(!scheduleId){const created=await stripe.subscriptionSchedules.create({from_subscription:sub.id});scheduleId=created.id}
@@ -564,6 +583,7 @@ socket.on('disconnect',()=>{const closingBoardId=socket.data.currentBoardId,clos
 // v15.6: pulizia deterministica eseguita all'avvio utente e prima della creazione
 if(process.env.NODE_ENV==='production'&&process.env.DEV_AUTH==='true')throw new Error('Configurazione non sicura: DEV_AUTH non può essere attivo in produzione');
 if(process.env.NODE_ENV==='production'&&!process.env.ADMIN_GOOGLE_SUB)throw new Error('ADMIN_GOOGLE_SUB obbligatorio in produzione');
+// AIRJOTTER_STRIPE_LINK_UPGRADE_1967B
 // AIRJOTTER_STRIPE_RETURN_FIX_1967A
 // AIRJOTTER_STRIPE_LIFECYCLE_1967_READY
 server.listen(process.env.PORT||3000,()=>console.log(`airjotter su porta ${process.env.PORT||3000}`));
