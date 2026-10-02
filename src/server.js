@@ -102,9 +102,80 @@ async function grantPurchase(client,userId,plan,provider,externalId,status='paid
  if(plan.billing_type==='consumable'){const column={jotter:'spot_jotters',page:'spot_pages',export:'spot_exports'}[plan.consumable_kind];if(column)await client.query(`UPDATE users SET ${column}=${column}+$1 WHERE id=$2`,[Number(plan.consumable_units||1),userId]);}
  else await applyPlanAndExtendExtras(client,userId,plan,provider,externalId);
 }
-async function stripeWebhookHandler(req,res){if(!stripe||!process.env.STRIPE_WEBHOOK_SECRET)return res.status(503).send('Stripe non configurato');let event;try{event=stripe.webhooks.constructEvent(req.body,req.headers['stripe-signature'],process.env.STRIPE_WEBHOOK_SECRET)}catch(e){return res.status(400).send('Firma webhook non valida')}const c=await pool.connect();try{await c.query('BEGIN');const ins=await c.query('INSERT INTO billing_webhook_events(provider,external_event_id,payload) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING external_event_id',['stripe',event.id,event]);if(!ins.rowCount){await c.query('ROLLBACK');return res.json({received:true,duplicate:true})}if(event.type==='checkout.session.completed'){const s=event.data.object;if(s.metadata?.kind==='credit_topup'){const cents=Number(s.metadata.amountCents||0);/* AIRJOTTER_STRIPE_IDEMPOTENCY_1966D */const ins=await c.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,provider,external_id,description) SELECT $1,$2,'topup',$3,'credit','stripe',$4,'Ricarica credito con carta' WHERE NOT EXISTS (SELECT 1 FROM pay_use_transactions WHERE provider='stripe' AND external_id=$4) RETURNING id",[crypto.randomUUID(),s.client_reference_id,cents,s.id]);if(ins.rowCount)await c.query('UPDATE users SET spot_credit_cents=spot_credit_cents+$1 WHERE id=$2',[cents,s.client_reference_id]);}else{const plan=await planById(s.metadata?.planId);if(plan)await grantPurchase(c,s.client_reference_id,plan,'stripe',s.subscription||s.payment_intent||s.id,'active')}await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[s,s.id])}else if(event.type==='customer.subscription.deleted'||event.type==='customer.subscription.paused'){const sub=event.data.object;await c.query("UPDATE users SET subscription_status='suspended' WHERE subscription_external_id=$1",[sub.id])}else if(event.type==='invoice.payment_failed'){const inv=event.data.object;await c.query("UPDATE users SET subscription_status='past_due' WHERE billing_customer_id=$1",[inv.customer])}await c.query('COMMIT');res.json({received:true})}catch(e){await c.query('ROLLBACK');console.error('Webhook Stripe:',e);res.sendStatus(500)}finally{c.release()}}
-
-
+function stripePeriodEnd(sub){
+ const values=[sub?.current_period_end,...(sub?.items?.data||[]).map(x=>x?.current_period_end)].map(Number).filter(Number.isFinite);
+ return values.length?new Date(Math.max(...values)*1000):null;
+}
+async function stripePlanFromSubscription(sub){
+ const priceId=sub?.items?.data?.[0]?.price?.id||sub?.items?.data?.[0]?.price||null;
+ if(!priceId)return null;
+ return (await pool.query('SELECT * FROM billing_plans WHERE stripe_price_id=$1 LIMIT 1',[priceId])).rows[0]||null;
+}
+async function reconcileStripeCheckoutSession(session,userId){
+ if(!stripe)throw new Error('Stripe non configurato');
+ if(!session||String(session.client_reference_id||'')!==String(userId))throw new Error('Sessione Stripe non associata a questo account');
+ const c=await pool.connect();
+ try{
+  await c.query('BEGIN');
+  await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',[String(userId)+':stripe:'+session.id]);
+  if(session.metadata?.kind==='credit_topup'){
+   const cents=Number(session.metadata.amountCents||session.amount_total||0);
+   if(session.payment_status!=='paid')throw new Error('Pagamento carta non ancora completato');
+   const ins=await c.query("INSERT INTO pay_use_transactions(id,user_id,transaction_type,amount_cents,item_type,provider,external_id,description) SELECT $1,$2,'topup',$3,'credit','stripe',$4,'Ricarica credito con carta' WHERE NOT EXISTS (SELECT 1 FROM pay_use_transactions WHERE provider='stripe' AND external_id=$4) RETURNING id",[crypto.randomUUID(),userId,cents,session.id]);
+   if(ins.rowCount)await c.query('UPDATE users SET spot_credit_cents=spot_credit_cents+$1 WHERE id=$2',[cents,userId]);
+   await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[session,session.id]);
+   const balance=Number((await c.query('SELECT spot_credit_cents FROM users WHERE id=$1',[userId])).rows[0]?.spot_credit_cents||0);
+   await c.query('COMMIT');
+   return {kind:'credit',duplicate:!ins.rowCount,creditedCents:ins.rowCount?cents:0,balanceCents:balance};
+  }
+  const plan=await planById(session.metadata?.planId);
+  if(!plan)throw new Error('Piano Stripe non riconosciuto');
+  let sub=null;
+  if(session.subscription)sub=await stripe.subscriptions.retrieve(String(session.subscription),{expand:['items.data.price']});
+  const current=(await c.query('SELECT plan_code,subscription_external_id FROM users WHERE id=$1 FOR UPDATE',[userId])).rows[0]||{};
+  if(current.plan_code!==plan.code||current.subscription_external_id!==String(session.subscription||session.id))await applyPlanAndExtendExtras(c,userId,plan,'stripe',String(session.subscription||session.id));
+  const end=stripePeriodEnd(sub);
+  await c.query("UPDATE users SET billing_customer_id=COALESCE($1,billing_customer_id),subscription_status=$2,subscription_current_period_end=COALESCE($3,subscription_current_period_end) WHERE id=$4",[String(session.customer||sub?.customer||'')||null,sub?.cancel_at_period_end?'cancel_at_period_end':(sub?.status||'active'),end,userId]);
+  await c.query("UPDATE billing_orders SET status='paid',updated_at=now(),raw=$1 WHERE external_id=$2",[session,session.id]);
+  await c.query('COMMIT');
+  return {kind:'subscription',plan:{code:plan.code,name:plan.name},amountCents:Number(plan.amount_cents),currentPeriodEnd:end?.toISOString()||null,cancelAtPeriodEnd:Boolean(sub?.cancel_at_period_end)};
+ }catch(e){try{await c.query('ROLLBACK')}catch{};throw e}finally{c.release()}
+}
+async function stripeWebhookHandler(req,res){
+ if(!stripe||!process.env.STRIPE_WEBHOOK_SECRET)return res.status(503).send('Stripe non configurato');
+ let event;
+ try{event=stripe.webhooks.constructEvent(req.body,req.headers['stripe-signature'],process.env.STRIPE_WEBHOOK_SECRET)}catch(e){return res.status(400).send('Firma webhook non valida')}
+ const c=await pool.connect();
+ try{
+  await c.query('BEGIN');
+  const once=await c.query('INSERT INTO billing_webhook_events(provider,external_event_id,payload) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING external_event_id',['stripe',event.id,event]);
+  if(!once.rowCount){await c.query('ROLLBACK');return res.json({received:true,duplicate:true})}
+  await c.query('COMMIT');
+ }catch(e){try{await c.query('ROLLBACK')}catch{};c.release();console.error('Webhook Stripe registro evento:',e);return res.sendStatus(500)}
+ c.release();
+ try{
+  if(event.type==='checkout.session.completed'){
+   await reconcileStripeCheckoutSession(event.data.object,event.data.object.client_reference_id);
+  }else if(event.type==='customer.subscription.created'||event.type==='customer.subscription.updated'){
+   const sub=event.data.object,plan=await stripePlanFromSubscription(sub),end=stripePeriodEnd(sub);
+   const user=(await pool.query('SELECT id,plan_code FROM users WHERE subscription_external_id=$1 OR ($2<>\'\' AND id::text=$2) LIMIT 1',[sub.id,String(sub.metadata?.airjotterUserId||'')])).rows[0];
+   if(user){
+    const tx=await pool.connect();try{await tx.query('BEGIN');if(plan&&user.plan_code!==plan.code)await applyPlanAndExtendExtras(tx,user.id,plan,'stripe',sub.id);await tx.query("UPDATE users SET billing_customer_id=COALESCE($1,billing_customer_id),subscription_status=$2,subscription_current_period_end=COALESCE($3,subscription_current_period_end) WHERE id=$4",[String(sub.customer||'')||null,sub.cancel_at_period_end?'cancel_at_period_end':sub.status,end,user.id]);await tx.query('COMMIT')}catch(e){await tx.query('ROLLBACK');throw e}finally{tx.release()}
+   }
+  }else if(event.type==='customer.subscription.deleted'){
+   const sub=event.data.object,free=(await pool.query("SELECT id FROM billing_plans WHERE code='free' LIMIT 1")).rows[0];
+   if(free)await pool.query("UPDATE users SET plan_id=$1,plan_code='free',subscription_status='cancelled',subscription_provider=NULL,subscription_external_id=NULL,billing_customer_id=NULL WHERE subscription_external_id=$2",[free.id,sub.id]);
+  }else if(event.type==='customer.subscription.paused'){
+   await pool.query("UPDATE users SET subscription_status='suspended' WHERE subscription_external_id=$1",[event.data.object.id]);
+  }else if(event.type==='invoice.paid'){
+   const inv=event.data.object,subId=typeof inv.subscription==='string'?inv.subscription:inv.subscription?.id;
+   if(subId){const sub=await stripe.subscriptions.retrieve(subId,{expand:['items.data.price']});const plan=await stripePlanFromSubscription(sub),end=stripePeriodEnd(sub);const user=(await pool.query('SELECT id,plan_code FROM users WHERE subscription_external_id=$1 LIMIT 1',[subId])).rows[0];if(user){const tx=await pool.connect();try{await tx.query('BEGIN');if(plan&&user.plan_code!==plan.code)await applyPlanAndExtendExtras(tx,user.id,plan,'stripe',subId);await tx.query("UPDATE users SET subscription_status='active',subscription_current_period_end=COALESCE($1,subscription_current_period_end) WHERE id=$2",[end,user.id]);await tx.query('COMMIT')}catch(e){await tx.query('ROLLBACK');throw e}finally{tx.release()}}}
+  }else if(event.type==='invoice.payment_failed'){
+   const inv=event.data.object;await pool.query("UPDATE users SET subscription_status='past_due' WHERE billing_customer_id=$1",[String(inv.customer||'')]);
+  }
+  res.json({received:true});
+ }catch(e){console.error('Webhook Stripe:',e);res.sendStatus(500)}
+}
 // AIRJOTTER FILE TRANSFER V22.9.8 - P2P diretto, nessun relay TURN
 
 // AIRJOTTER_PAYPAL_V1959: webhook verificato, provisioning Sandbox e stati abbonamento.
@@ -162,7 +233,7 @@ app.get('/api/file-transfer/ice',auth,(req,res)=>res.json({
 }));
 app.get('/api/plans',async(req,res)=>{const q=await pool.query("SELECT * FROM billing_plans WHERE status='active' AND public=true ORDER BY sort_order,name");res.json(q.rows.map(planPublic))});
 app.get('/api/billing/config',(req,res)=>res.json({stripe:Boolean(process.env.STRIPE_PUBLISHABLE_KEY&&process.env.STRIPE_SECRET_KEY),stripePublishableKey:process.env.STRIPE_PUBLISHABLE_KEY||'',paypal:Boolean(process.env.PAYPAL_CLIENT_ID&&process.env.PAYPAL_CLIENT_SECRET),paypalClientId:process.env.PAYPAL_CLIENT_ID||'',paypalEnv:process.env.PAYPAL_ENV||'sandbox',creditPacksCents:String(process.env.PAYPAL_CREDIT_PACKS_EUR||'3,5,10,20').split(',').map(x=>Math.round(Number(x)*100)).filter(x=>x>=300)}));
-app.get('/api/billing/me',auth,async(req,res)=>{const p=await resolvedPlan(req.user.sub);const u=(await pool.query('SELECT subscription_current_period_end FROM users WHERE id=$1',[req.user.sub])).rows[0];const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);res.json({plan:{...p,currentPeriodEnd:u?.subscription_current_period_end||null},orders:orders.rows})});
+app.get('/api/billing/me',auth,async(req,res)=>{const p=await resolvedPlan(req.user.sub);const u=(await pool.query('SELECT subscription_current_period_end,subscription_provider,subscription_status,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0];const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);res.json({plan:{...p,currentPeriodEnd:u?.subscription_current_period_end||null,subscriptionProvider:u?.subscription_provider||null,subscriptionStatus:u?.subscription_status||null,subscriptionExternalId:u?.subscription_external_id||null,cancelAtPeriodEnd:u?.subscription_status==='cancel_at_period_end'},orders:orders.rows})});
 // AIRJOTTER_STRIPE_SAFE_CHECKOUT_1966C
 app.post('/api/billing/stripe/checkout',auth,async(req,res)=>{
  try{
@@ -172,15 +243,18 @@ app.post('/api/billing/stripe/checkout',auth,async(req,res)=>{
   if(plan.billing_type==='free')return res.status(400).json({error:'Il piano Free non richiede pagamento'});
   if(!plan.stripe_price_id)return res.status(409).json({error:'Piano Stripe non ancora configurato'});
   const quantity=plan.billing_type==='per_seat'?Math.max(Number(plan.min_seats||1),Number(req.body.quantity||1)):Math.max(1,Number(req.body.quantity||1));
+   const current=(await pool.query('SELECT plan_code,subscription_provider,subscription_external_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
+   if(plan.code==='ultra'&&current.plan_code==='plus'&&current.subscription_provider==='stripe'&&String(current.subscription_external_id||'').startsWith('sub_'))return res.status(409).json({error:'Upgrade Stripe da programmare al rinnovo',code:'stripe_upgrade_required'});
   const session=await stripe.checkout.sessions.create({
    mode:plan.billing_type==='consumable'?'payment':'subscription',
    managed_payments:{enabled:false},
    line_items:[{price:plan.stripe_price_id,quantity}],
    client_reference_id:req.user.sub,
    customer_email:req.user.email,
-   success_url:appBaseUrl+'/?billing=success',
+   success_url:appBaseUrl+'/?billing=stripe-subscription-success&session_id={CHECKOUT_SESSION_ID}',
    cancel_url:appBaseUrl+'/?billing=cancel',
    metadata:{planId:plan.id,quantity:String(quantity)},
+    subscription_data:{metadata:{airjotterUserId:req.user.sub,airjotterPlanId:plan.id}},
    allow_promotion_codes:true
   });
   await pool.query('INSERT INTO billing_orders(id,user_id,plan_id,provider,kind,external_id,status,amount_cents,currency,quantity) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[crypto.randomUUID(),req.user.sub,plan.id,'stripe',plan.billing_type==='consumable'?'one_time':'subscription',session.id,'pending',plan.amount_cents,plan.currency,quantity]);
@@ -189,6 +263,49 @@ app.post('/api/billing/stripe/checkout',auth,async(req,res)=>{
   console.error('Stripe Checkout piano 19.66C:',{type:error?.type||null,code:error?.code||null,message:error?.message||String(error),requestId:error?.requestId||null});
   if(!res.headersSent)res.status(502).json({error:'Checkout carta temporaneamente non disponibile. Nessun addebito effettuato.',detail:process.env.NODE_ENV==='production'?undefined:error?.message});
  }
+});
+// AIRJOTTER_STRIPE_LIFECYCLE_1967
+app.get('/api/billing/stripe/session/:id',auth,async(req,res)=>{
+ try{
+  if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
+  const id=String(req.params.id||'');if(!id.startsWith('cs_'))return res.status(400).json({error:'Sessione Stripe non valida'});
+  const session=await stripe.checkout.sessions.retrieve(id,{expand:['subscription','line_items']});
+  if(String(session.client_reference_id||'')!==String(req.user.sub))return res.status(403).json({error:'Sessione Stripe non associata a questo account'});
+  const result=await reconcileStripeCheckoutSession(session,req.user.sub);
+  res.json({ok:true,...result});
+ }catch(e){console.error('Conferma Stripe 19.67:',e);res.status(500).json({error:e.message||'Conferma Stripe non riuscita'})}
+});
+app.post('/api/billing/stripe/upgrade',auth,async(req,res)=>{
+ try{
+  if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
+  const target=await planById(req.body.planId),u=(await pool.query('SELECT plan_code,subscription_provider,subscription_external_id,subscription_current_period_end FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
+  if(!target||target.code!=='ultra'||u.plan_code!=='plus'||u.subscription_provider!=='stripe'||!String(u.subscription_external_id||'').startsWith('sub_'))return res.status(409).json({error:'Upgrade Stripe non applicabile a questo account'});
+  const sub=await stripe.subscriptions.retrieve(u.subscription_external_id,{expand:['items.data.price','schedule']});
+  const start=Math.floor(Date.now()/1000),periodEnd=Math.floor((new Date(u.subscription_current_period_end||stripePeriodEnd(sub)||Date.now()+30*86400000)).getTime()/1000);
+  let scheduleId=typeof sub.schedule==='string'?sub.schedule:sub.schedule?.id;
+  if(!scheduleId){const created=await stripe.subscriptionSchedules.create({from_subscription:sub.id});scheduleId=created.id}
+  const schedule=await stripe.subscriptionSchedules.retrieve(scheduleId);
+  const currentStart=Number(schedule.current_phase?.start_date||start),currentEnd=Number(schedule.current_phase?.end_date||periodEnd);
+  const currentItems=sub.items.data.map(x=>({price:typeof x.price==='string'?x.price:x.price.id,quantity:x.quantity||1}));
+  await stripe.subscriptionSchedules.update(scheduleId,{end_behavior:'release',metadata:{airjotterUserId:req.user.sub,airjotterTargetPlanId:target.id,airjotterUpgrade:'plus-to-ultra-next-cycle'},phases:[{start_date:currentStart,end_date:currentEnd,items:currentItems,proration_behavior:'none'},{start_date:currentEnd,iterations:1,items:[{price:target.stripe_price_id,quantity:1}],proration_behavior:'none',metadata:{airjotterUserId:req.user.sub,airjotterPlanId:target.id}}]});
+  await pool.query("INSERT INTO billing_orders(id,user_id,plan_id,provider,kind,external_id,status,amount_cents,currency,quantity,raw) VALUES($1,$2,$3,'stripe','subscription',$4,'approved_next_cycle',$5,$6,1,$7) ON CONFLICT DO NOTHING",[crypto.randomUUID(),req.user.sub,target.id,scheduleId,target.amount_cents,target.currency,JSON.stringify({subscriptionId:sub.id,effectiveAt:new Date(currentEnd*1000).toISOString()})]);
+  res.json({ok:true,scheduled:true,plan:{code:target.code,name:target.name},effectiveAt:new Date(currentEnd*1000).toISOString(),amountCents:Number(target.amount_cents)});
+ }catch(e){console.error('Upgrade Stripe 19.67:',e);res.status(500).json({error:e.message||'Programmazione upgrade Stripe non riuscita'})}
+});
+app.post('/api/billing/manage',auth,async(req,res)=>{
+ try{
+  const u=(await pool.query('SELECT subscription_provider,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
+  if(u.subscription_provider==='stripe'){
+   if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
+   let customer=u.billing_customer_id;
+   if(!customer&&u.subscription_external_id){const sub=await stripe.subscriptions.retrieve(u.subscription_external_id);customer=typeof sub.customer==='string'?sub.customer:sub.customer?.id}
+   if(!customer)return res.status(409).json({error:'Cliente Stripe non associato'});
+   const portal=await stripe.billingPortal.sessions.create({customer,return_url:appBaseUrl+'/?billing=manage-return'});
+   return res.json({url:portal.url,provider:'stripe'});
+  }
+  if(u.subscription_provider==='paypal')return res.json({url:process.env.PAYPAL_ENV==='live'?'https://www.paypal.com/myaccount/autopay/':'https://www.sandbox.paypal.com/myaccount/autopay/',provider:'paypal'});
+  res.status(409).json({error:'Nessun abbonamento ricorrente da gestire'});
+ }catch(e){console.error('Gestione abbonamento 19.67:',e);res.status(500).json({error:e.message||'Gestione abbonamento non disponibile'})}
 });
 app.post('/api/billing/paypal/create',auth,async(req,res)=>{let plan=await planById(req.body.planId);if(!plan||plan.status!=='active'||!plan.public)return res.sendStatus(404);const authp=await paypalToken();if(!authp)return res.status(503).json({error:'PayPal non configurato'});const quantity=plan.billing_type==='per_seat'?Math.max(Number(plan.min_seats||1),Number(req.body.quantity||1)):Math.max(1,Number(req.body.quantity||1));const currentBilling=(await pool.query('SELECT plan_code,subscription_provider,subscription_external_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};const upgradeFromSubscriptionId=plan.code==='ultra'&&currentBilling.plan_code==='plus'&&currentBilling.subscription_provider==='paypal'&&/^I-[A-Z0-9]+$/i.test(String(currentBilling.subscription_external_id||''))?String(currentBilling.subscription_external_id):null;if(upgradeFromSubscriptionId){const currentPlan=(await pool.query("SELECT bp.* FROM users u JOIN billing_plans bp ON bp.id=u.plan_id OR (u.plan_id IS NULL AND bp.code=u.plan_code) WHERE u.id=$1 ORDER BY (bp.id=u.plan_id) DESC LIMIT 1",[req.user.sub])).rows[0];if(!currentPlan?.paypal_product_id)return res.status(409).json({error:'Piano Plus PayPal privo di prodotto associato.'});if(currentPlan.paypal_product_id!==plan.paypal_product_id){const compatible=await provisionPayPal({...plan,paypal_product_id:currentPlan.paypal_product_id,paypal_plan_id:null});plan=(await pool.query('UPDATE billing_plans SET paypal_product_id=$1,paypal_plan_id=$2,updated_at=now() WHERE id=$3 RETURNING *',[currentPlan.paypal_product_id,compatible.paypal_plan_id,plan.id])).rows[0]}const r=await fetch(authp.base+'/v1/billing/subscriptions/'+encodeURIComponent(upgradeFromSubscriptionId)+'/revise',{method:'POST',headers:{Authorization:'Bearer '+authp.token,'Content-Type':'application/json'},body:JSON.stringify({plan_id:plan.paypal_plan_id,application_context:{return_url:appBaseUrl+'/?billing=paypal-return&subscription_id='+encodeURIComponent(upgradeFromSubscriptionId),cancel_url:appBaseUrl+'/?billing=cancel',user_action:'CONTINUE'}})});const revised=await r.json().catch(()=>({}));if(!r.ok){const detail={httpStatus:r.status,name:revised.name||null,message:revised.message||null,issue:revised.details?.[0]?.issue||null,description:revised.details?.[0]?.description||null,field:revised.details?.[0]?.field||null,debugId:revised.debug_id||null,subscriptionId:upgradeFromSubscriptionId,planId:plan.paypal_plan_id};console.error('AIRJOTTER_PAYPAL_REVISE_DIAGNOSTIC_1964F',detail);return res.status(502).json({error:detail.description||detail.message||detail.issue||'Upgrade PayPal non disponibile',paypal:detail})}/* AIRJOTTER_PAYPAL_UPGRADE_ORDER_1964G: la sottoscrizione PayPal ha un solo external_id; aggiorna il suo ordine invece di inserirne un duplicato. */await pool.query("UPDATE billing_orders SET plan_id=$1,status='pending_cycle_upgrade',amount_cents=$2,currency=$3,raw=$4,updated_at=now() WHERE external_id=$5 AND user_id=$6 AND provider='paypal' AND kind='subscription'",[plan.id,plan.amount_cents,plan.currency,JSON.stringify({airjotterUpgrade:'plus-to-ultra-next-cycle',upgradeFromSubscriptionId}),upgradeFromSubscriptionId,req.user.sub]);return res.json({id:upgradeFromSubscriptionId,url:revised.links?.find(x=>x.rel==='approve')?.href,upgrade:'plus-to-ultra-next-cycle'})}if(plan.billing_type==='consumable'){const r=await fetch(authp.base+'/v2/checkout/orders',{method:'POST',headers:{Authorization:'Bearer '+authp.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({intent:'CAPTURE',purchase_units:[{custom_id:req.user.sub+'|'+plan.id,amount:{currency_code:plan.currency,value:((plan.amount_cents*quantity)/100).toFixed(2)}}],application_context:{return_url:appBaseUrl+'/?billing=paypal-return',cancel_url:appBaseUrl+'/?billing=cancel'}})});const order=await r.json();if(!r.ok)return res.status(502).json({error:order.message||'PayPal non disponibile'});await pool.query('INSERT INTO billing_orders(id,user_id,plan_id,provider,kind,external_id,status,amount_cents,currency,quantity) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[crypto.randomUUID(),req.user.sub,plan.id,'paypal','one_time',order.id,'pending',plan.amount_cents,plan.currency,quantity]);return res.json({id:order.id,url:order.links?.find(x=>x.rel==='approve')?.href})}if(!plan.paypal_plan_id)return res.status(400).json({error:'Piano PayPal non ancora configurato'});const r=await fetch(authp.base+'/v1/billing/subscriptions',{method:'POST',headers:{Authorization:'Bearer '+authp.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({plan_id:plan.paypal_plan_id,quantity:String(quantity),custom_id:req.user.sub+'|'+plan.id,application_context:{return_url:appBaseUrl+'/?billing=paypal-return',cancel_url:appBaseUrl+'/?billing=cancel',user_action:'SUBSCRIBE_NOW'}})});const sub=await r.json();if(!r.ok)return res.status(502).json({error:sub.message||'PayPal non disponibile'});await pool.query('INSERT INTO billing_orders(id,user_id,plan_id,provider,kind,external_id,status,amount_cents,currency,quantity) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[crypto.randomUUID(),req.user.sub,plan.id,'paypal','subscription',sub.id,'pending',plan.amount_cents,plan.currency,quantity]);res.json({id:sub.id,url:sub.links?.find(x=>x.rel==='approve')?.href})});
 
@@ -242,7 +359,7 @@ app.post('/api/pay-use/stripe/topup',auth,async(req,res)=>{
    line_items:[{price_data:{currency:settings.currency.toLowerCase(),unit_amount:amount,product_data:{name:'Credito AirJotter Pay per Use'}},quantity:1}],
    client_reference_id:req.user.sub,
    customer_email:req.user.email,
-   success_url:appBaseUrl+'/?billing=credit-success',
+   success_url:appBaseUrl+'/?billing=stripe-credit-success&session_id={CHECKOUT_SESSION_ID}',
    cancel_url:appBaseUrl+'/?billing=cancel',
    metadata:{kind:'credit_topup',amountCents:String(amount)}
   });
@@ -447,6 +564,7 @@ socket.on('disconnect',()=>{const closingBoardId=socket.data.currentBoardId,clos
 // v15.6: pulizia deterministica eseguita all'avvio utente e prima della creazione
 if(process.env.NODE_ENV==='production'&&process.env.DEV_AUTH==='true')throw new Error('Configurazione non sicura: DEV_AUTH non può essere attivo in produzione');
 if(process.env.NODE_ENV==='production'&&!process.env.ADMIN_GOOGLE_SUB)throw new Error('ADMIN_GOOGLE_SUB obbligatorio in produzione');
+// AIRJOTTER_STRIPE_LIFECYCLE_1967_READY
 server.listen(process.env.PORT||3000,()=>console.log(`airjotter su porta ${process.env.PORT||3000}`));
 
 // AIRJOTTER_V2285_EXTRAS_SUMMARY_AND_HISTORY
