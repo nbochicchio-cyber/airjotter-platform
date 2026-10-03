@@ -4657,6 +4657,7 @@ function toast(msg,ms=3800){const t=$('ajFtToastV2291');t.textContent=msg;t.clas
 // AIRJOTTER_FILE_TRANSFER_V2300L_ZIP_COPY_PRIMARY_NOTICE
 // AIRJOTTER_FILE_TRANSFER_V2300M_DETERMINISTIC_ZIP_OFFSETS
 // AIRJOTTER_FILE_TRANSFER_V2300N_STREAM_TRUNCATE
+// AIRJOTTER_FILE_TRANSFER_V2300O_CENTRAL_OFFSETS_REBUILD
 function boardReady(){return typeof ajBoard!=='undefined'&&Boolean(ajBoard?.id)}
 function currentBoardId(){return boardReady()?ajBoard.id:null}
 function openModal(){if(!boardReady()){toast('Apri prima un Jotter e attendi la connessione.');return}modal.classList.add('open');refreshOffers()}
@@ -4712,12 +4713,18 @@ class ZipWriter{
   this.entries.push(c);this.current=null;
  }
  async finish(){
-  const cdStart=this.offset;let cdSize=0n;
+  let localCursor=0n;
   for(const e of this.entries){
-   const size=BigInt(e.f.size),off64=e.start>=0xffffffffn,size64=size>=0xffffffffn,zip64=off64||size64,payload=[];
-   if(size64)payload.push(u64(size),u64(size));if(off64)payload.push(u64(e.start));
+   e.centralOffset=localCursor;
+   const size=BigInt(e.f.size),descriptorLength=e.zip64?24n:16n;
+   localCursor+=e.headerLength+size+descriptorLength;
+  }
+  const cdStart=localCursor;let cdSize=0n;
+  for(const e of this.entries){
+   const size=BigInt(e.f.size),localOff=e.centralOffset,off64=localOff>=0xffffffffn,size64=size>=0xffffffffn,zip64=off64||size64,payload=[];
+   if(size64)payload.push(u64(size),u64(size));if(off64)payload.push(u64(localOff));
    const data=payload.length?cat(...payload):new Uint8Array(),extra=payload.length?cat(u16(1),u16(data.length),data):new Uint8Array();
-   const central=cat(u32(0x02014b50),u16(45),u16(zip64?45:20),u16(0x0808),u16(0),u16(0),u16(0),u32(e.crc),u32(size64?0xffffffff:Number(size)),u32(size64?0xffffffff:Number(size)),u16(e.name.length),u16(extra.length),u16(0),u16(0),u16(0),u32(0),u32(off64?0xffffffff:Number(e.start)),e.name,extra);
+   const central=cat(u32(0x02014b50),u16(45),u16(zip64?45:20),u16(0x0808),u16(0),u16(0),u16(0),u32(e.crc),u32(size64?0xffffffff:Number(size)),u32(size64?0xffffffff:Number(size)),u16(e.name.length),u16(extra.length),u16(0),u16(0),u16(0),u32(0),u32(off64?0xffffffff:Number(localOff)),e.name,extra);
    await this.write(central);cdSize+=BigInt(central.byteLength);
   }
   this.offset=cdStart+cdSize;
@@ -4725,7 +4732,6 @@ class ZipWriter{
   if(needs){const zStart=this.offset,z64=cat(u32(0x06064b50),u64(44),u16(45),u16(45),u32(0),u32(0),u64(count),u64(count),u64(cdSize),u64(cdStart)),loc=cat(u32(0x07064b50),u32(0),u64(zStart),u32(1));await this.write(z64);await this.write(loc);this.offset+=BigInt(z64.byteLength+loc.byteLength)}
   await this.write(cat(u32(0x06054b50),u16(0),u16(0),u16(needs?65535:Number(count)),u16(needs?65535:Number(count)),u32(needs?0xffffffff:Number(cdSize)),u32(needs?0xffffffff:Number(cdStart)),u16(0)));
  }
-}
 // AIRJOTTER_FILE_TRANSFER_SYNC_1969C
 // Mantiene libero il main thread per Socket.IO e UI; nessun board:join periodico.
 const AJ_FT_SYNC_YIELD_BYTES=512*1024;
