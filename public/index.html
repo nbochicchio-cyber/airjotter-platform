@@ -8047,5 +8047,25 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  setInterval(apply,900);window.ajApplyBillingUiV2300T=apply;
 })();
 </script>
+
+<!-- AIRJOTTER_SPOT_CARD_BUTTON_ALIGN_V2300V -->
+<style id="AIRJOTTER_SPOT_CARD_BUTTON_ALIGN_V2300V_STYLE">
+/* Il checkout resta one-shot: questa patch modifica solo l'allineamento visivo. */
+#ajPayUseV222 #ajTopStripeV2283,#ajPayUseV222 #ajTopStripeV222{
+ display:grid!important;
+ grid-template-columns:32px max-content!important;
+ align-items:center!important;
+ justify-content:center!important;
+ column-gap:13px!important;
+ padding:0 16px!important;
+ text-align:center!important;
+}
+#ajPayUseV222 #ajTopStripeV2283 .aj-card-icon-1965b,#ajPayUseV222 #ajTopStripeV222 .aj-card-icon-1965b{
+ position:relative!important;left:auto!important;right:auto!important;margin:0!important;justify-self:center!important;
+}
+#ajPayUseV222 #ajTopStripeV2283 .aj-card-text-1965b,#ajPayUseV222 #ajTopStripeV222 .aj-card-text-1965b{
+ margin:0!important;justify-self:center!important;min-width:74px!important;
+}
+</style>
 </body>
 </html>
