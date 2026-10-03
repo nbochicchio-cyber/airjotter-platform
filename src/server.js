@@ -96,7 +96,23 @@ async function role(boardId,userId){const q=await pool.query('SELECT role,status
 function planPublic(row){const free=String(row.code).toLowerCase()==='free';return {id:row.id,code:row.code,name:row.name,description:free?'Piano gratuito con watermark AirJotter.com permanente su ogni pagina, incluso negli export completi acquistati.':row.description,status:row.status,billingType:row.billing_type,currency:row.currency,amountCents:Number(row.amount_cents),intervalUnit:row.interval_unit,intervalCount:Number(row.interval_count||1),minSeats:Number(row.min_seats||1),maxSeats:row.max_seats==null?null:Number(row.max_seats),limits:{boards:Number(row.boards_limit),pages:Number(row.pages_limit),guests:row.guests_limit,exports:row.exports_limit,historyDays:row.history_days,freePdfPages:String(row.code).toLowerCase()==='free'?Math.max(0,Number(row.exports_limit??1)):null},included:{jotters:Number(row.included_spot_jotters||0),pages:Number(row.included_spot_pages||0),exports:Number(row.included_spot_exports||0)},features:Array.isArray(row.features)?row.features:[],consumableKind:row.consumable_kind,consumableUnits:Number(row.consumable_units||0),sortOrder:Number(row.sort_order||0),featured:Boolean(row.featured),public:Boolean(row.public),stripeReady:Boolean(row.stripe_price_id),paypalReady:Boolean(row.paypal_plan_id)}}
 async function planById(id){return (await pool.query('SELECT * FROM billing_plans WHERE id=$1',[id])).rows[0]}
 async function paypalToken(){if(!process.env.PAYPAL_CLIENT_ID||!process.env.PAYPAL_CLIENT_SECRET)return null;const base=process.env.PAYPAL_ENV==='live'?'https://api-m.paypal.com':'https://api-m.sandbox.paypal.com';const auth=Buffer.from(process.env.PAYPAL_CLIENT_ID+':'+process.env.PAYPAL_CLIENT_SECRET).toString('base64');const r=await fetch(base+'/v1/oauth2/token',{method:'POST',headers:{Authorization:'Basic '+auth,'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=client_credentials'});if(!r.ok)throw new Error('Autenticazione PayPal non riuscita');return {base,token:(await r.json()).access_token}}
-async function provisionStripe(plan){if(!stripe||plan.billing_type==='free')return {};const product=plan.stripe_product_id?{id:plan.stripe_product_id}:await stripe.products.create({name:'AirJotter '+plan.name,description:plan.description||undefined,metadata:{airjotter_plan_id:plan.id}});const priceParams={product:product.id,currency:plan.currency.toLowerCase(),unit_amount:Number(plan.amount_cents),metadata:{airjotter_plan_id:plan.id}};if(plan.billing_type==='subscription'||plan.billing_type==='per_seat')priceParams.recurring={interval:plan.interval_unit||'month',interval_count:Number(plan.interval_count||1)};const price=await stripe.prices.create(priceParams);return {stripe_product_id:product.id,stripe_price_id:price.id}}
+// AIRJOTTER_STRIPE_LIVE_PROVISION_V2300Q2: verifica gli ID nel conto Stripe corrente e ricrea solo gli oggetti assenti o incompatibili.
+async function stripeObjectOrNull(kind,id){
+ if(!id)return null;
+ try{return kind==='product'?await stripe.products.retrieve(id):await stripe.prices.retrieve(id)}
+ catch(error){if(error?.code==='resource_missing'||error?.statusCode===404)return null;throw error}
+}
+async function provisionStripe(plan){
+ if(!stripe||plan.billing_type==='free')return {};
+ let product=await stripeObjectOrNull('product',plan.stripe_product_id);
+ if(!product||product.deleted){product=await stripe.products.create({name:'AirJotter '+plan.name,description:plan.description||undefined,metadata:{airjotter_plan_id:plan.id,airjotter_plan_code:plan.code||''}})}
+ let price=await stripeObjectOrNull('price',plan.stripe_price_id);
+ const productId=typeof price?.product==='string'?price.product:price?.product?.id;
+ const expectedRecurring=(plan.billing_type==='subscription'||plan.billing_type==='per_seat')?{interval:plan.interval_unit||'month',interval_count:Number(plan.interval_count||1)}:null;
+ const priceMatches=Boolean(price&&price.active!==false&&productId===product.id&&String(price.currency||'').toLowerCase()===String(plan.currency||'').toLowerCase()&&Number(price.unit_amount)===Number(plan.amount_cents)&&((!expectedRecurring&&!price.recurring)||(expectedRecurring&&price.recurring?.interval===expectedRecurring.interval&&Number(price.recurring?.interval_count||1)===expectedRecurring.interval_count)));
+ if(!priceMatches){const priceParams={product:product.id,currency:plan.currency.toLowerCase(),unit_amount:Number(plan.amount_cents),metadata:{airjotter_plan_id:plan.id,airjotter_plan_code:plan.code||''}};if(expectedRecurring)priceParams.recurring=expectedRecurring;price=await stripe.prices.create(priceParams)}
+ return {stripe_product_id:product.id,stripe_price_id:price.id,recreatedProduct:product.id!==plan.stripe_product_id,recreatedPrice:price.id!==plan.stripe_price_id};
+}
 async function provisionPayPal(plan){if(plan.billing_type==='free'||plan.billing_type==='consumable')return {};const auth=await paypalToken();if(!auth)return {};let productId=plan.paypal_product_id;if(!productId){const r=await fetch(auth.base+'/v1/catalogs/products',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({name:'AirJotter '+plan.name,description:plan.description||plan.name,type:'SERVICE',category:'SOFTWARE'})});if(!r.ok)throw new Error('Creazione prodotto PayPal non riuscita');productId=(await r.json()).id}const r=await fetch(auth.base+'/v1/billing/plans',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({product_id:productId,name:plan.name,description:plan.description,status:'ACTIVE',billing_cycles:[{frequency:{interval_unit:(plan.interval_unit||'month').toUpperCase(),interval_count:Number(plan.interval_count||1)},tenure_type:'REGULAR',sequence:1,total_cycles:0,pricing_scheme:{fixed_price:{value:(Number(plan.amount_cents)/100).toFixed(2),currency_code:plan.currency}}}],payment_preferences:{auto_bill_outstanding:true,payment_failure_threshold:1}})});if(!r.ok)throw new Error('Creazione piano PayPal non riuscita');return {paypal_product_id:productId,paypal_plan_id:(await r.json()).id}}
 async function grantPurchase(client,userId,plan,provider,externalId,status='paid'){
  if(plan.billing_type==='consumable'){const column={jotter:'spot_jotters',page:'spot_pages',export:'spot_exports'}[plan.consumable_kind];if(column)await client.query(`UPDATE users SET ${column}=${column}+$1 WHERE id=$2`,[Number(plan.consumable_units||1),userId]);}
@@ -203,19 +219,18 @@ app.post('/api/billing/paypal/webhook',paypalWebhookHandler);
 app.post('/api/admin/billing/stripe/provision',auth,adminOnly,async(req,res)=>{
  try{
   if(!stripe)return res.status(503).json({error:'Stripe non configurato'});
-  if((process.env.STRIPE_ENV||'test')==='live'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Stripe Live non autorizzato'});
+  const environment=process.env.STRIPE_ENV||'test';
+  if(environment==='live'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Stripe Live non autorizzato'});
   const out=[];
   for(const code of ['plus','ultra']){
    let plan=(await pool.query('SELECT * FROM billing_plans WHERE code=$1',[code])).rows[0];
    if(!plan)continue;
-   if(!plan.stripe_product_id||!plan.stripe_price_id){
-    const remote=await provisionStripe({...plan,stripe_product_id:plan.stripe_product_id||null});
-    plan=(await pool.query('UPDATE billing_plans SET stripe_product_id=$1,stripe_price_id=$2,updated_at=now() WHERE id=$3 RETURNING *',[remote.stripe_product_id,remote.stripe_price_id,plan.id])).rows[0];
-   }
-   out.push({code:plan.code,name:plan.name,amountCents:Number(plan.amount_cents),currency:plan.currency,stripeProductId:plan.stripe_product_id,stripePriceId:plan.stripe_price_id,ready:Boolean(plan.stripe_price_id)});
+   const remote=await provisionStripe(plan);
+   plan=(await pool.query('UPDATE billing_plans SET stripe_product_id=$1,stripe_price_id=$2,updated_at=now() WHERE id=$3 RETURNING *',[remote.stripe_product_id,remote.stripe_price_id,plan.id])).rows[0];
+   out.push({code:plan.code,name:plan.name,amountCents:Number(plan.amount_cents),currency:plan.currency,stripeProductId:plan.stripe_product_id,stripePriceId:plan.stripe_price_id,ready:Boolean(plan.stripe_price_id),recreatedProduct:Boolean(remote.recreatedProduct),recreatedPrice:Boolean(remote.recreatedPrice)});
   }
-  res.json({ok:true,environment:process.env.STRIPE_ENV||'test',plans:out});
- }catch(e){console.error('Provisioning Stripe 19.66A:',e);res.status(500).json({error:e.message||'Provisioning Stripe non riuscito'})}
+  res.json({ok:true,environment,plans:out});
+ }catch(e){console.error('Provisioning Stripe V2300Q2:',{type:e?.type||null,code:e?.code||null,message:e?.message||String(e),requestId:e?.requestId||null});res.status(500).json({error:e.message||'Provisioning Stripe non riuscito'})}
 });
 app.post('/api/admin/billing/paypal/provision',auth,adminOnly,async(req,res)=>{
  if((process.env.PAYPAL_ENV||'sandbox')!=='sandbox'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Live non autorizzato'});
