@@ -4648,7 +4648,8 @@ const state={files:[],manifest:null,transferId:null,offerMap:new Map(),peer:null
 function fmt(n){n=Number(n)||0;const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return `${n>=10||i===0?n.toFixed(0):n.toFixed(1)} ${u[i]}`}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg,ms=3800){const t=$('ajFtToastV2291');t.textContent=msg;t.classList.add('open');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('open'),ms)}
-function boardReady(){return typeof ajBoard!=='undefined'&&ajBoard?.id&&typeof ajFtSocket!=='undefined'&&ajFtSocket.connected}
+// AIRJOTTER_FILE_TRANSFER_V2300E_MODAL_READY
+function boardReady(){return typeof ajBoard!=='undefined'&&Boolean(ajBoard?.id)}
 function currentBoardId(){return boardReady()?ajBoard.id:null}
 function openModal(){if(!boardReady()){toast('Apri prima un Jotter e attendi la connessione.');return}modal.classList.add('open');refreshOffers()}
 function closeModal(){modal.classList.remove('open')}
