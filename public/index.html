@@ -1999,11 +1999,11 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
                     id: e.pointerId, type: pt, mode, legacy, g, path: currentPath, toolWidth,
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
                     done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
-                    filter: (mode === 'pen' && pt !== 'mouse') ? makeFilter(pt) : null,
+                    filter: (mode === 'pen' && pt === 'pen') ? makeFilter(pt) : null,
                     minDist: legacy ? 0 : (pt==='pen'?clamp(0.20/Math.max(vs,1e-3),0.07,0.34):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
                     nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
                     tauW: pt === 'pen' ? 9 : 23,
-                    predict: mode === 'pen' && (pt === 'pen' || pt === 'touch')
+                    predict: mode === 'pen' && pt === 'pen'
                 };
                 if (mode === 'eraser') {
                     mainCtx.save();
@@ -4657,6 +4657,7 @@ function toast(msg,ms=3800){const t=$('ajFtToastV2291');t.textContent=msg;t.clas
 // AIRJOTTER_FILE_TRANSFER_V2300L_ZIP_COPY_PRIMARY_NOTICE
 // AIRJOTTER_FILE_TRANSFER_V2300M_DETERMINISTIC_ZIP_OFFSETS
 // AIRJOTTER_FILE_TRANSFER_V2300N_STREAM_TRUNCATE
+// AIRJOTTER_V2300P_ZIP_QUEUE_TOUCH_START
 function boardReady(){return typeof ajBoard!=='undefined'&&Boolean(ajBoard?.id)}
 function currentBoardId(){return boardReady()?ajBoard.id:null}
 function openModal(){if(!boardReady()){toast('Apri prima un Jotter e attendi la connessione.');return}modal.classList.add('open');refreshOffers()}
@@ -4789,7 +4790,7 @@ function wireDataChannel(){
  const channel=state.dc;if(!channel)return;
  channel.binaryType='arraybuffer';channel.bufferedAmountLowThreshold=2*1024*1024;
  channel.onopen=()=>{if(state.dc!==channel)return;ajFtClearPeerTimers();ajFtSetState('transferring','Trasferimento in corso');const current=$('ajFtCurrentV2291');if(current)current.textContent='';window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll(channel).catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};
- channel.onmessage=e=>{if(state.dc!==channel)return;receiveMessage(e).catch(err=>failTransfer(err.message))};
+ let receiveQueue=Promise.resolve();channel.onmessage=e=>{if(state.dc!==channel)return;receiveQueue=receiveQueue.then(()=>receiveMessage(e)).catch(err=>{failTransfer(err.message);throw err})};
  channel.onerror=()=>{if(state.dc!==channel||!state.active||['completing','completed'].includes(state.phase))return;failTransfer('Errore nel canale cifrato',true)};
  channel.onclose=()=>{if(state.dc!==channel||!state.active||state.cancelled||['completing','completed'].includes(state.phase))return;failTransfer('Canale di trasferimento chiuso',true)};
 }
