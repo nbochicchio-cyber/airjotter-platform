@@ -4676,19 +4676,28 @@ const AJ_FT_SYNC_YIELD_BYTES=512*1024;
 // AIRJOTTER_FILE_TRANSFER_RECOVERY_1969D
 // AIRJOTTER_FILE_TRANSFER_TERMINAL_UI_1969E
 // AIRJOTTER_FILE_TRANSFER_LIFECYCLE_1969F
-const AJ_FT_CONNECT_TIMEOUT_MS=120000,AJ_FT_DISCONNECT_GRACE_MS=8000;
-let ajFtConnectTimer=0,ajFtDisconnectTimer=0,ajFtRecoveryPromise=null;
-function ajFtClearPeerTimers(){clearTimeout(ajFtConnectTimer);clearTimeout(ajFtDisconnectTimer);ajFtConnectTimer=0;ajFtDisconnectTimer=0}
+// AIRJOTTER_FILE_TRANSFER_CONNECT_CLOCK_SYNC_1969G
+let ajFtConnectTimer=0,ajFtConnectStartedAt=0,ajFtRecoveryPromise=null;
+function ajFtClockText(){const seconds=Math.max(0,Math.floor((Date.now()-ajFtConnectStartedAt)/1000));const mm=String(Math.floor(seconds/60)).padStart(2,'0'),ss=String(seconds%60).padStart(2,'0');return 'In fase di connessione... '+mm+':'+ss}
+function ajFtStartConnectClock(){clearInterval(ajFtConnectTimer);ajFtConnectStartedAt=Date.now();const tick=()=>{const current=$('ajFtCurrentV2291');if(current)current.textContent=ajFtClockText()};tick();ajFtConnectTimer=setInterval(tick,1000)}
+function ajFtClearPeerTimers(){clearInterval(ajFtConnectTimer);ajFtConnectTimer=0;ajFtConnectStartedAt=0}
+function ajFtWaitSocketConnected(){
+ if(typeof ajSocket==='undefined')return Promise.reject(new Error('Socket realtime non disponibile'));
+ if(ajSocket.connected)return Promise.resolve();
+ return new Promise(resolve=>ajSocket.once('connect',resolve));
+}
 async function ajFtRecoverBoardOnce(){
  if(ajFtRecoveryPromise)return ajFtRecoveryPromise;
+ document.body.classList.add('aj-ft-sync-recovering-v1969g');
  ajFtRecoveryPromise=(async()=>{
   try{
-   const boardId=currentBoardId();if(!boardId||typeof ajSocket==='undefined'||!ajSocket.connected)return;
+   const boardId=currentBoardId();if(!boardId)return;
+   await ajFtWaitSocketConnected();
    const ack=await ajSocket.emitWithAck('board:join',{boardId});if(ack?.error)throw new Error(ack.error);
    const reload=typeof window.ajReload==='function'?window.ajReload:(typeof ajReload==='function'?ajReload:null);if(reload)await reload();
    if(typeof updateHistoryButtons==='function')updateHistoryButtons();
   }catch(error){console.warn('Ripristino Jotter dopo File Transfer:',error?.message||error)}
-  finally{setTimeout(()=>{ajFtRecoveryPromise=null},1000)}
+  finally{document.body.classList.remove('aj-ft-sync-recovering-v1969g');ajFtRecoveryPromise=null}
  })();
  return ajFtRecoveryPromise;
 }
@@ -4718,12 +4727,12 @@ async function handleSignal(e){
 }
 async function createPeer(asSender,peerInfo){
  cleanupPeer(false);ajFtClearPeerTimers();state.seenDescriptions=new Set();state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;state.peerInfo=peerInfo;window.ajFtConnectionWaitingV2292?.(peerInfo?.name||'utente');state.cancelled=false;state.startTime=performance.now();state.lastTime=state.startTime;state.lastBytes=0;state.receivedSinceYield=0;$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;
- ajFtConnectTimer=setTimeout(()=>{if(state.active&&state.dc?.readyState!=='open')failTransfer('Connessione protetta non stabilita entro 2 minuti',true)},AJ_FT_CONNECT_TIMEOUT_MS);
+ ajFtStartConnectClock();
  state.peer.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};
  state.peer.onconnectionstatechange=()=>{
   const s=state.peer?.connectionState;if(!state.active)return;
-  if(s==='connected'){clearTimeout(ajFtDisconnectTimer);ajFtDisconnectTimer=0;return}
-  if(s==='disconnected'){clearTimeout(ajFtDisconnectTimer);ajFtDisconnectTimer=setTimeout(()=>{if(state.active&&state.peer?.connectionState==='disconnected')failTransfer('Connessione interrotta',true)},AJ_FT_DISCONNECT_GRACE_MS);return}
+  if(s==='connected')return;
+  if(s==='disconnected')return;
   if(s==='failed')failTransfer('Connessione interrotta',true);
  };
  if(asSender){state.dc=state.peer.createDataChannel('airjotter-files',{ordered:true});wireDataChannel();const offer=await state.peer.createOffer();await state.peer.setLocalDescription(offer);ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{description:state.peer.localDescription}})}else state.peer.ondatachannel=e=>{state.dc=e.channel;wireDataChannel()};
@@ -4732,7 +4741,7 @@ async function createPeer(asSender,peerInfo){
 function wireDataChannel(){
  const channel=state.dc;if(!channel)return;
  channel.binaryType='arraybuffer';channel.bufferedAmountLowThreshold=2*1024*1024;
- channel.onopen=()=>{if(state.dc!==channel)return;ajFtClearPeerTimers();window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll(channel).catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};
+ channel.onopen=()=>{if(state.dc!==channel)return;ajFtClearPeerTimers();const current=$('ajFtCurrentV2291');if(current)current.textContent='';window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll(channel).catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};
  channel.onmessage=e=>{if(state.dc!==channel)return;receiveMessage(e).catch(err=>failTransfer(err.message))};
  channel.onerror=()=>{if(state.dc===channel&&state.active)failTransfer('Errore nel canale cifrato',true)};
  channel.onclose=()=>{if(state.dc===channel&&state.active&&!state.cancelled)failTransfer('Canale di trasferimento chiuso',true)};
@@ -7918,5 +7927,10 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 </script>
 
 <!-- AIRJOTTER_FILE_TRANSFER_RECOVERY_1969 -->
+
+<style id="AIRJOTTER_FILE_TRANSFER_SYNC_GUARD_1969G_STYLE">
+body.aj-ft-sync-recovering-v1969g #canvas-wrapper{pointer-events:none!important;cursor:wait!important}
+body.aj-ft-sync-recovering-v1969g #canvas-wrapper::after{content:'Ripristino sincronizzazione in corso...';position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:2147483646;background:#173d72;color:#fff;padding:10px 16px;border-radius:999px;font:700 14px/1.2 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.24)}
+</style>
 </body>
 </html>
