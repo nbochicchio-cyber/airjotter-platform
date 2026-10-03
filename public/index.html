@@ -4675,7 +4675,8 @@ class ZipWriter{constructor(){this.offset=0n;this.entries=[];this.current=null}a
 const AJ_FT_SYNC_YIELD_BYTES=512*1024;
 // AIRJOTTER_FILE_TRANSFER_RECOVERY_1969D
 // AIRJOTTER_FILE_TRANSFER_TERMINAL_UI_1969E
-const AJ_FT_CONNECT_TIMEOUT_MS=30000,AJ_FT_DISCONNECT_GRACE_MS=5000;
+// AIRJOTTER_FILE_TRANSFER_LIFECYCLE_1969F
+const AJ_FT_CONNECT_TIMEOUT_MS=120000,AJ_FT_DISCONNECT_GRACE_MS=8000;
 let ajFtConnectTimer=0,ajFtDisconnectTimer=0,ajFtRecoveryPromise=null;
 function ajFtClearPeerTimers(){clearTimeout(ajFtConnectTimer);clearTimeout(ajFtDisconnectTimer);ajFtConnectTimer=0;ajFtDisconnectTimer=0}
 async function ajFtRecoverBoardOnce(){
@@ -4717,7 +4718,7 @@ async function handleSignal(e){
 }
 async function createPeer(asSender,peerInfo){
  cleanupPeer(false);ajFtClearPeerTimers();state.seenDescriptions=new Set();state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;state.peerInfo=peerInfo;window.ajFtConnectionWaitingV2292?.(peerInfo?.name||'utente');state.cancelled=false;state.startTime=performance.now();state.lastTime=state.startTime;state.lastBytes=0;state.receivedSinceYield=0;$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;
- ajFtConnectTimer=setTimeout(()=>{if(state.active&&state.dc?.readyState!=='open')failTransfer('Connessione protetta non stabilita entro 30 secondi',true)},AJ_FT_CONNECT_TIMEOUT_MS);
+ ajFtConnectTimer=setTimeout(()=>{if(state.active&&state.dc?.readyState!=='open')failTransfer('Connessione protetta non stabilita entro 2 minuti',true)},AJ_FT_CONNECT_TIMEOUT_MS);
  state.peer.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};
  state.peer.onconnectionstatechange=()=>{
   const s=state.peer?.connectionState;if(!state.active)return;
@@ -4775,8 +4776,17 @@ async function failTransfer(msg,notifyPeer=false){
  toast(msg,5200);await ajFtRecoverBoardOnce();state.failureRunning=false
 }
 function resetTransfer(keepSide=false){cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();state.failureRunning=false;side.dataset.terminal='false';const cancelBtn=$('ajFtCancelV2291');if(cancelBtn){cancelBtn.textContent='Annulla trasferimento';cancelBtn.setAttribute('aria-label','Annulla trasferimento')}if(!keepSide)side.classList.remove('open')}
+function ajFtCloseTerminal(){
+ cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();state.failureRunning=false;state.active=false;state.role=null;state.received=0;state.total=0;
+ side.dataset.terminal='false';side.classList.remove('open','aj-ft-connecting-v2292');
+ const cancelBtn=$('ajFtCancelV2291');if(cancelBtn){cancelBtn.textContent='Annulla trasferimento';cancelBtn.setAttribute('aria-label','Annulla trasferimento')}
+ const status=$('ajFtSideStatusV2291');if(status)status.textContent='File Transfer chiuso';
+ const current=$('ajFtCurrentV2291');if(current)current.textContent='';
+ const restore=document.getElementById('ajFtRestoreV2293');if(restore)restore.classList.remove('open');
+ const selection=$('ajFtSelectionV2291');if(selection)selection.hidden=true;
+}
 function cancelTransfer(){
- if(side.dataset.terminal==='true'||!state.active){side.classList.remove('open');side.dataset.terminal='false';return}
+ if(side.dataset.terminal==='true'||!state.active){ajFtCloseTerminal();return}
  state.cancelled=true;failTransfer('Trasferimento annullato',true)
 }
 function installSocket(){if(typeof ajSocket==='undefined')return setTimeout(installSocket,250);ajSocket.on('file-transfer:available',offer=>{if(offer.boardId===currentBoardId()){state.offerMap.set(offer.transferId,offer);if(modal.classList.contains('open'))refreshOffers();toast(`${offer.senderName||'Un utente'} ha file disponibili.`)}});ajSocket.on('file-transfer:withdrawn',e=>{state.offerMap.delete(e.transferId);if(modal.classList.contains('open'))refreshOffers()});ajSocket.on('file-transfer:request',req=>{state.pendingRequest=req;$('ajFtRequestTextV2291').innerHTML=`<strong>${esc(req.requesterName||'Un utente')}</strong> vuole ricevere i file condivisi.<br>Autorizza solo se riconosci la richiesta.`;$('ajFtRequestFilesV2291').innerHTML=`<div class="aj-ft-file-v2291"><span>📦</span><div><strong>${state.manifest?.fileCount||0} file · ${fmt(state.manifest?.totalSize||0)}</strong><small>Un ricevente alla volta</small></div></div>`;$('ajFtRequestV2291').classList.add('open')});ajSocket.on('file-transfer:authorized',async e=>{if(e.transferId!==state.transferId)return;$('ajFtRequestV2291').classList.remove('open');if(e.role==='sender'){showSide('Invio autorizzato','Avvio P2P in corso: puo richiedere fino a 2 minuti');window.ajFtConnectionWaitingV2292?.(e.receiverName);await createPeer(true,{socketId:e.receiverSocketId,name:e.receiverName})}else{showSide('Ricezione autorizzata','Avvio P2P in corso: puo richiedere fino a 2 minuti');window.ajFtConnectionWaitingV2292?.(e.senderName);await createPeer(false,{socketId:e.senderSocketId,name:e.senderName})}});ajSocket.on('file-transfer:rejected',e=>{if(e.transferId===state.transferId){closeSinkSafe();toast('Il mittente non ha autorizzato il download.');resetTransfer(true);$('ajFtSideStatusV2291').textContent='Richiesta rifiutata'}});ajSocket.on('file-transfer:queued',e=>{if(e.transferId===state.transferId)$('ajFtSideStatusV2291').textContent=`In coda · posizione ${e.position}`});ajSocket.on('file-transfer:signal',async e=>{if(e.transferId!==state.transferId)return;try{await handleSignal(e)}catch(err){failTransfer(err.message,true)}});ajSocket.on('file-transfer:cancelled',e=>{if(e.transferId===state.transferId)failTransfer(e.reason||'Trasferimento interrotto',false)});ajSocket.on('file-transfer:peer-complete',e=>{if(e.transferId===state.transferId){$('ajFtSideStatusV2291').textContent='Trasferimento completato';updateProgress(state.total,state.total,'Completato');completePeerAndRestore();toast('Trasferimento completato.')}})}
@@ -4870,7 +4880,7 @@ header .aj-file-transfer-btn-v2291{bottom:0!important}
   minimize.title='Riduci a icona';
   minimize.setAttribute('aria-label','Riduci a icona');
   minimize.textContent='−';
-  const syncRestore=()=>restore.classList.toggle('open',!side.classList.contains('open')&&(side.classList.contains('aj-ft-connecting-v2292')||/corso|preparazione|collegando|connessione/i.test(document.getElementById('ajFtSideStatusV2291')?.textContent||'')));
+  const syncRestore=()=>restore.classList.toggle('open',side.dataset.terminal!=='true'&&!side.classList.contains('open')&&(side.classList.contains('aj-ft-connecting-v2292')||/corso|preparazione|collegando|connessione/i.test(document.getElementById('ajFtSideStatusV2291')?.textContent||'')));
   minimize.addEventListener('click',()=>{side.classList.remove('open');syncRestore()});
   restore.addEventListener('click',()=>{side.classList.add('open');restore.classList.remove('open')});
   new MutationObserver(syncRestore).observe(side,{attributes:true,attributeFilter:['class']});
