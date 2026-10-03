@@ -4651,12 +4651,28 @@ function toast(msg,ms=3800){const t=$('ajFtToastV2291');t.textContent=msg;t.clas
 // AIRJOTTER_FILE_TRANSFER_V2300E_MODAL_READY
 // AIRJOTTER_FILE_TRANSFER_V2300G_SUCCESS_HANDSHAKE
 // AIRJOTTER_FILE_TRANSFER_V2300H_COMPLETED_BUTTON
+// AIRJOTTER_FILE_TRANSFER_V2300I_REALTIME_STATS
 function boardReady(){return typeof ajBoard!=='undefined'&&Boolean(ajBoard?.id)}
 function currentBoardId(){return boardReady()?ajBoard.id:null}
 function openModal(){if(!boardReady()){toast('Apri prima un Jotter e attendi la connessione.');return}modal.classList.add('open');refreshOffers()}
 function closeModal(){modal.classList.remove('open')}
 function showSide(title,status){$('ajFtSideTitleV2291').textContent=title;$('ajFtSideStatusV2291').textContent=status;side.classList.add('open')}
-function updateProgress(done,total,current=''){state.received=done;state.total=total;const pct=total?Math.min(100,done/total*100):0;$('ajFtProgressBarV2291').style.width=pct+'%';$('ajFtBytesV2291').textContent=`${fmt(done)} / ${fmt(total)}`;$('ajFtCurrentV2291').textContent=current;const now=performance.now(),dt=(now-(state.lastTime||now))/1000,db=done-(state.lastBytes||0);if(dt>.5){const speed=db/dt;state.lastTime=now;state.lastBytes=done;$('ajFtSpeedV2291').textContent=`${fmt(speed)}/s`;const eta=speed>0?(total-done)/speed:0;$('ajFtEtaV2291').textContent=`Tempo stimato: ${eta>0?formatSeconds(eta):'--'}`}}
+function updateProgress(done,total,current=''){
+ state.received=done;state.total=total;
+ const pct=total?Math.min(100,done/total*100):0;
+ $('ajFtProgressBarV2291').style.width=pct+'%';$('ajFtBytesV2291').textContent=`${fmt(done)} / ${fmt(total)}`;$('ajFtCurrentV2291').textContent=current;
+ const now=performance.now();
+ if(!Number.isFinite(state.lastTime)||state.lastTime<=0||done<state.lastBytes){state.lastTime=now;state.lastBytes=done;state.speedBps=0;return}
+ const dt=(now-state.lastTime)/1000,db=done-state.lastBytes;
+ if(dt<0.25)return;
+ const instant=db>0?db/dt:0;
+ state.speedBps=state.speedBps>0?(state.speedBps*0.72+instant*0.28):instant;
+ state.lastTime=now;state.lastBytes=done;
+ const mbps=state.speedBps/(1024*1024);
+ $('ajFtSpeedV2291').textContent=mbps>0?mbps.toFixed(mbps>=10?1:2)+' MB/s':'0 MB/s';
+ const remaining=Math.max(0,total-done),eta=state.speedBps>0?remaining/state.speedBps:0;
+ $('ajFtEtaV2291').textContent=done>=total&&total>0?'Tempo stimato: completato':`Tempo stimato: ${eta>0?formatSeconds(eta):'--'}`;
+}
 function formatSeconds(s){s=Math.max(0,Math.round(s));if(s<60)return s+' s';if(s<3600)return `${Math.floor(s/60)} min ${s%60}s`;return `${Math.floor(s/3600)} h ${Math.floor((s%3600)/60)} min`}
 function manifestFrom(files){let total=0;const list=files.map((f,i)=>{total+=f.size;return {index:i,name:f.name,path:(f.webkitRelativePath||f.name).replace(/^\/+/,''),size:f.size,type:f.type||'application/octet-stream'}});if(!list.length)throw new Error('Seleziona almeno un file.');if(total>MAX_TOTAL)throw new Error('Il limite complessivo è 5 GB.');return {files:list,totalSize:total,fileCount:list.length,folder:list.some(x=>x.path.includes('/'))}}
 function renderSelection(){const box=$('ajFtSelectionV2291');box.hidden=false;box.innerHTML=`<div class="aj-ft-section-title-v2291">Pronti per la condivisione</div><div class="aj-ft-file-v2291"><div class="aj-ft-grow-v2291"><strong>${state.manifest.fileCount} file · ${fmt(state.manifest.totalSize)}</strong><small>${state.manifest.folder?'Cartella mantenuta nello ZIP':'File selezionati'}</small></div><button id="ajFtStopShareV2291" class="aj-ft-mini-v2291">Rimuovi</button></div><div id="ajFtFilesPreviewV2291">${state.manifest.files.slice(0,5).map(x=>`<div class="aj-ft-file-v2291"><span>📄</span><div class="aj-ft-grow-v2291"><strong class="aj-ft-name-v2291">${esc(x.path)}</strong><small>${fmt(x.size)}</small></div></div>`).join('')}${state.manifest.fileCount>5?`<div class="aj-ft-empty-v2291">e altri ${state.manifest.fileCount-5} file</div>`:''}</div>`;box.querySelector('#ajFtStopShareV2291').onclick=stopSharing}
