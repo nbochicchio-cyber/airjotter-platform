@@ -4673,6 +4673,11 @@ class ZipWriter{constructor(){this.offset=0n;this.entries=[];this.current=null}a
 // AIRJOTTER_FILE_TRANSFER_SYNC_1969C
 // Mantiene libero il main thread per Socket.IO e UI; nessun board:join periodico.
 const AJ_FT_SYNC_YIELD_BYTES=512*1024;
+// AIRJOTTER_FILE_TRANSFER_V2300
+const AJ_FT_V2300_STATES=new Set(['idle','announced','requested','authorizing','connecting','transferring','completing','completed','failed','cancelled','closed']);
+function ajFtSetState(next,detail=''){if(!AJ_FT_V2300_STATES.has(next))throw new Error('Stato File Transfer non valido');state.phase=next;side.dataset.phase=next;if(detail)$('ajFtSideStatusV2291').textContent=detail}
+function ajFtTerminal(){return ['completed','failed','cancelled','closed'].includes(state.phase)}
+
 // AIRJOTTER_FILE_TRANSFER_RECOVERY_1969D
 // AIRJOTTER_FILE_TRANSFER_TERMINAL_UI_1969E
 // AIRJOTTER_FILE_TRANSFER_LIFECYCLE_1969F
@@ -4681,67 +4686,36 @@ let ajFtConnectTimer=0,ajFtConnectStartedAt=0,ajFtRecoveryPromise=null;
 function ajFtClockText(){const seconds=Math.max(0,Math.floor((Date.now()-ajFtConnectStartedAt)/1000));const mm=String(Math.floor(seconds/60)).padStart(2,'0'),ss=String(seconds%60).padStart(2,'0');return 'In fase di connessione... '+mm+':'+ss}
 function ajFtStartConnectClock(){clearInterval(ajFtConnectTimer);ajFtConnectStartedAt=Date.now();const tick=()=>{const current=$('ajFtCurrentV2291');if(current)current.textContent=ajFtClockText()};tick();ajFtConnectTimer=setInterval(tick,1000)}
 function ajFtClearPeerTimers(){clearInterval(ajFtConnectTimer);ajFtConnectTimer=0;ajFtConnectStartedAt=0}
-function ajFtWaitSocketConnected(){
- if(typeof ajSocket==='undefined')return Promise.reject(new Error('Socket realtime non disponibile'));
- if(ajSocket.connected)return Promise.resolve();
- return new Promise(resolve=>ajSocket.once('connect',resolve));
-}
-async function ajFtRecoverBoardOnce(){
- if(ajFtRecoveryPromise)return ajFtRecoveryPromise;
- document.body.classList.add('aj-ft-sync-recovering-v1969g');
- ajFtRecoveryPromise=(async()=>{
-  try{
-   const boardId=currentBoardId();if(!boardId)return;
-   await ajFtWaitSocketConnected();
-   const ack=await ajSocket.emitWithAck('board:join',{boardId});if(ack?.error)throw new Error(ack.error);
-   const reload=typeof window.ajReload==='function'?window.ajReload:(typeof ajReload==='function'?ajReload:null);if(reload)await reload();
-   if(typeof updateHistoryButtons==='function')updateHistoryButtons();
-  }catch(error){console.warn('Ripristino Jotter dopo File Transfer:',error?.message||error)}
-  finally{document.body.classList.remove('aj-ft-sync-recovering-v1969g');ajFtRecoveryPromise=null}
- })();
- return ajFtRecoveryPromise;
-}
+// AIRJOTTER_FILE_TRANSFER_V2300: isolamento assoluto dal Jotter
+function ajFtRecoverBoardOnce(){return Promise.resolve()}
 function ajFtSyncYield(){return new Promise(resolve=>setTimeout(resolve,0))}
 async function iceConfig(){const r=await fetch('/api/file-transfer/ice',{credentials:'same-origin'}),d=await r.json();if(!r.ok)throw new Error(d.error||'Configurazione WebRTC non disponibile');return {iceServers:d.iceServers||[{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302']}],iceCandidatePoolSize:10,bundlePolicy:'max-bundle'}}
 async function handleSignal(e){
- if(!e?.data)return;
- if(!state.peer){state.pendingSignals.push(e);return}
- if(e.data.description){
-  const d=e.data.description,key=d.type+':'+String(d.sdp||'');
-  if(state.seenDescriptions.has(key))return;
-  if(d.type==='answer'&&state.peer.signalingState!=='have-local-offer')return;
-  if(d.type==='offer'&&state.peer.signalingState!=='stable')return;
-  state.seenDescriptions.add(key);
-  await state.peer.setRemoteDescription(d);
-  if(d.type==='offer'){
-   const answer=await state.peer.createAnswer();
-   await state.peer.setLocalDescription(answer);
-   ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:e.fromSocketId,data:{description:state.peer.localDescription}})
-  }
-  const rest=state.pendingSignals.splice(0);
-  for(const queued of rest)if(queued.data?.candidate)await handleSignal(queued)
- }else if(e.data.candidate){
-  if(!state.peer.remoteDescription){state.pendingSignals.push(e);return}
-  try{await state.peer.addIceCandidate(e.data.candidate)}catch(error){if(state.peer.connectionState!=='closed')throw error}
- }
+ if(!e?.data)return;if(!state.peer){state.pendingSignals.push(e);return}
+ const pc=state.peer,d=e.data.description;
+ try{
+  if(d){
+   const ready=!state.makingOffer&&(pc.signalingState==='stable'||state.settingRemoteAnswer);
+   const collision=d.type==='offer'&&!ready;state.ignoreOffer=!state.polite&&collision;if(state.ignoreOffer)return;
+   state.settingRemoteAnswer=d.type==='answer';await pc.setRemoteDescription(d);state.settingRemoteAnswer=false;
+   if(d.type==='offer'){await pc.setLocalDescription();ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:e.fromSocketId,data:{description:pc.localDescription}})}
+   const q=state.pendingCandidates.splice(0);for(const c of q)await pc.addIceCandidate(c);
+  }else if(e.data.candidate){if(pc.remoteDescription)await pc.addIceCandidate(e.data.candidate);else state.pendingCandidates.push(e.data.candidate)}
+ }catch(error){if(!state.ignoreOffer)throw error}
 }
 async function createPeer(asSender,peerInfo){
- cleanupPeer(false);ajFtClearPeerTimers();state.seenDescriptions=new Set();state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;state.peerInfo=peerInfo;window.ajFtConnectionWaitingV2292?.(peerInfo?.name||'utente');state.cancelled=false;state.startTime=performance.now();state.lastTime=state.startTime;state.lastBytes=0;state.receivedSinceYield=0;$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;
- ajFtStartConnectClock();
- state.peer.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};
- state.peer.onconnectionstatechange=()=>{
-  const s=state.peer?.connectionState;if(!state.active)return;
-  if(s==='connected')return;
-  if(s==='disconnected')return;
-  if(s==='failed')failTransfer('Connessione interrotta',true);
- };
- if(asSender){state.dc=state.peer.createDataChannel('airjotter-files',{ordered:true});wireDataChannel();const offer=await state.peer.createOffer();await state.peer.setLocalDescription(offer);ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{description:state.peer.localDescription}})}else state.peer.ondatachannel=e=>{state.dc=e.channel;wireDataChannel()};
- const queued=state.pendingSignals.splice(0);for(const signal of queued)await handleSignal(signal)
+ cleanupPeer(false);ajFtClearPeerTimers();state.seenDescriptions=new Set();state.pendingCandidates=[];state.makingOffer=false;state.ignoreOffer=false;state.settingRemoteAnswer=false;state.polite=!asSender;state.iceRestarted=false;
+ const pc=state.peer=new RTCPeerConnection(await iceConfig());state.role=asSender?'sender':'receiver';state.active=true;state.peerInfo=peerInfo;state.cancelled=false;ajFtSetState('connecting','Connessione P2P in preparazione');ajFtStartConnectClock();$('ajFtPeerV2291').textContent=`Peer: ${peerInfo?.name||'utente'}`;
+ pc.onicecandidate=e=>{if(e.candidate)ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{candidate:e.candidate}})};
+ pc.onnegotiationneeded=async()=>{try{state.makingOffer=true;await pc.setLocalDescription();ajSocket.emit('file-transfer:signal',{transferId:state.transferId,targetSocketId:peerInfo.socketId,data:{description:pc.localDescription}})}catch(e){failTransfer(e.message,true)}finally{state.makingOffer=false}};
+ pc.oniceconnectionstatechange=()=>{if(pc.iceConnectionState==='failed'&&!state.iceRestarted){state.iceRestarted=true;pc.restartIce();ajFtSetState('connecting','Nuovo tentativo di connessione P2P')}else if(pc.iceConnectionState==='failed'&&state.iceRestarted)failTransfer('Connessione P2P non disponibile',true)};
+ if(asSender){state.dc=pc.createDataChannel('airjotter-files',{ordered:true});wireDataChannel()}else pc.ondatachannel=e=>{state.dc=e.channel;wireDataChannel()};
+ const queued=state.pendingSignals.splice(0);for(const x of queued)await handleSignal(x)
 }
 function wireDataChannel(){
  const channel=state.dc;if(!channel)return;
  channel.binaryType='arraybuffer';channel.bufferedAmountLowThreshold=2*1024*1024;
- channel.onopen=()=>{if(state.dc!==channel)return;ajFtClearPeerTimers();const current=$('ajFtCurrentV2291');if(current)current.textContent='';window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll(channel).catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};
+ channel.onopen=()=>{if(state.dc!==channel)return;ajFtClearPeerTimers();ajFtSetState('transferring','Trasferimento in corso');const current=$('ajFtCurrentV2291');if(current)current.textContent='';window.ajFtConnectionReadyV2292?.();if(state.role==='sender')sendAll(channel).catch(e=>failTransfer(e.message));else showSide('Ricezione in corso','Connessione protetta stabilita')};
  channel.onmessage=e=>{if(state.dc!==channel)return;receiveMessage(e).catch(err=>failTransfer(err.message))};
  channel.onerror=()=>{if(state.dc===channel&&state.active)failTransfer('Errore nel canale cifrato',true)};
  channel.onclose=()=>{if(state.dc===channel&&state.active&&!state.cancelled)failTransfer('Canale di trasferimento chiuso',true)};
@@ -4778,15 +4752,15 @@ async function failTransfer(msg,notifyPeer=false){
  if(state.failureRunning)return;state.failureRunning=true;const transferId=state.transferId;window.ajFtConnectionReadyV2292?.();
  if(notifyPeer&&transferId&&typeof ajSocket!=='undefined'&&ajSocket.connected)ajSocket.emit('file-transfer:cancel',{transferId,reason:msg});
  await closeSinkSafe();state.cancelled=true;cleanupPeer();
- side.classList.remove('aj-ft-connecting-v2292');side.dataset.terminal='true';
+ side.classList.remove('aj-ft-connecting-v2292');side.dataset.terminal='true';ajFtSetState(msg==='Trasferimento annullato'?'cancelled':'failed',msg);
  $('ajFtSideStatusV2291').textContent=msg;
  $('ajFtCurrentV2291').textContent='Il trasferimento e stato arrestato. Il Jotter viene riconnesso automaticamente.';
  const cancelBtn=$('ajFtCancelV2291');if(cancelBtn){cancelBtn.textContent='CHIUDI';cancelBtn.setAttribute('aria-label','Chiudi pannello File Transfer')}
- toast(msg,5200);await ajFtRecoverBoardOnce();state.failureRunning=false
+ toast(msg,5200);state.failureRunning=false
 }
 function resetTransfer(keepSide=false){cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();state.failureRunning=false;side.dataset.terminal='false';const cancelBtn=$('ajFtCancelV2291');if(cancelBtn){cancelBtn.textContent='Annulla trasferimento';cancelBtn.setAttribute('aria-label','Annulla trasferimento')}if(!keepSide)side.classList.remove('open')}
-function ajFtCloseTerminal(){
- cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();state.failureRunning=false;state.active=false;state.role=null;state.received=0;state.total=0;
+function ajFtCloseTerminal(){ajFtSetState('closed','File Transfer chiuso');
+ cleanupPeer();state.files=[];state.manifest=null;state.transferId=null;state.cancelled=false;state.pendingRequest=null;state.pendingSignals=[];state.seenDescriptions=new Set();state.failureRunning=false;state.active=false;state.role=null;state.phase='closed';state.received=0;state.total=0;
  side.dataset.terminal='false';side.classList.remove('open','aj-ft-connecting-v2292');
  const cancelBtn=$('ajFtCancelV2291');if(cancelBtn){cancelBtn.textContent='Annulla trasferimento';cancelBtn.setAttribute('aria-label','Annulla trasferimento')}
  const status=$('ajFtSideStatusV2291');if(status)status.textContent='File Transfer chiuso';
@@ -7928,9 +7902,6 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 
 <!-- AIRJOTTER_FILE_TRANSFER_RECOVERY_1969 -->
 
-<style id="AIRJOTTER_FILE_TRANSFER_SYNC_GUARD_1969G_STYLE">
-body.aj-ft-sync-recovering-v1969g #canvas-wrapper{pointer-events:none!important;cursor:wait!important}
-body.aj-ft-sync-recovering-v1969g #canvas-wrapper::after{content:'Ripristino sincronizzazione in corso...';position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:2147483646;background:#173d72;color:#fff;padding:10px 16px;border-radius:999px;font:700 14px/1.2 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.24)}
-</style>
+
 </body>
 </html>
