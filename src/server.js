@@ -256,7 +256,8 @@ app.get('/api/billing/me',auth,async(req,res)=>{
  try{
   const p=await resolvedPlan(req.user.sub);
   const u=(await pool.query('SELECT email,subscription_current_period_end,subscription_provider,subscription_status,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
-  const orders=await pool.query('SELECT id,provider,kind,status,amount_cents,currency,quantity,created_at FROM billing_orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.sub]);
+  // AIRJOTTER_BILLING_UI_3_FIX_V2300R2
+  const orders=await pool.query("SELECT bo.id,bo.provider,bo.kind,bo.status,bo.amount_cents,bo.currency,bo.quantity,bo.created_at,bp.name AS plan_name,bp.code AS plan_code FROM billing_orders bo LEFT JOIN billing_plans bp ON bp.id=bo.plan_id WHERE bo.user_id=$1 ORDER BY bo.created_at DESC LIMIT 50",[req.user.sub]);
   let scheduledChange=null;
   const planSummary=async(code)=>{const x=(await pool.query('SELECT code,name,amount_cents,currency,boards_limit,pages_limit,exports_limit FROM billing_plans WHERE code=$1 LIMIT 1',[code])).rows[0];return x?{code:x.code,name:x.name,amountCents:Number(x.amount_cents||0),currency:x.currency||'EUR',limits:{boards:Number(x.boards_limit||1),pages:Number(x.pages_limit||2),freePdfPages:x.code==='free'?Math.max(0,Number(x.exports_limit??1)):null}}:null};
   if(stripe&&u.subscription_provider==='stripe'&&String(u.subscription_external_id||'').startsWith('sub_')){

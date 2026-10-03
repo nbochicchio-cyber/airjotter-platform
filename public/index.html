@@ -7983,5 +7983,33 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 <!-- AIRJOTTER_FILE_TRANSFER_RECOVERY_1969 -->
 
 
+<!-- AIRJOTTER_BILLING_UI_3_FIX_V2300R2 -->
+<script id="AIRJOTTER_BILLING_UI_3_FIX_V2300R2">
+(()=>{'use strict';
+ const money=(c,cur='EUR')=>new Intl.NumberFormat('it-IT',{style:'currency',currency:cur}).format((Number(c)||0)/100);
+ const when=v=>new Intl.DateTimeFormat('it-IT',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v));
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let busy=false,lastSignature='';
+ async function refresh(){
+  const modal=document.getElementById('ajPlansModalV220');if(!modal||getComputedStyle(modal).display==='none'||busy)return;busy=true;
+  try{
+   const r=await fetch('/api/billing/me',{credentials:'include'});if(!r.ok)return;const data=await r.json(),p=data.plan||{};
+   const summary=document.getElementById('ajCurrentPlanV220');
+   if(summary){const first=summary.querySelector('.aj-summary-line-v2284');if(first){const spans=first.querySelectorAll('span');const planCode=String(p.code||'').toLowerCase(),isFree=planCode==='free',off=Boolean(p.cancelAtPeriodEnd);if(spans[1])spans[1].textContent='Prossimo rinnovo: '+(isFree?'Non applicabile':off?'disattivato':(p.currentPeriodEnd?new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',year:'2-digit'}).format(new Date(p.currentPeriodEnd)).replace(/\./g,''):'da confermare'))}}
+   }
+   const hist=document.getElementById('ajBillingOrdersV220');if(hist){
+    const orders=(data.orders||[]).filter(o=>o.kind==='subscription'&&['paid','active','approved_next_cycle'].includes(String(o.status||'')));
+    const signature=orders.map(o=>o.id+':'+o.status).join('|');
+    hist.querySelectorAll('[data-aj-sub-order-v2300r2]').forEach(x=>x.remove());
+    if(orders.length){let wrap=hist.querySelector('.aj-history-v2283');if(!wrap){wrap=document.createElement('div');wrap.className='aj-history-v2283';hist.textContent='';hist.appendChild(wrap)}for(const o of orders){const provider=String(o.provider||'').toLowerCase()==='stripe'?'Carta / Stripe':String(o.provider||'').toLowerCase()==='paypal'?'PayPal':String(o.provider||'Pagamento');const plan=o.plan_name||o.plan_code||'Piano AirJotter',status=o.status==='approved_next_cycle'?'Variazione programmata':'Abbonamento attivato',row=document.createElement('div');row.className='aj-history-row-v2283';row.dataset.ajSubOrderV2300r2=o.id;row.innerHTML='<span>'+esc(when(o.created_at))+'</span><div class="aj-history-kind-v2284"><b>Abbonamento '+esc(plan)+'</b><small>'+esc(status+' · '+provider)+'</small></div><span>Canone '+esc(plan)+'</span><b>'+esc(money(o.amount_cents,o.currency||'EUR'))+'</b>';wrap.prepend(row)}lastSignature=signature}
+   }
+  }catch(e){console.warn('AIRJOTTER_BILLING_UI_3_FIX_V2300R2:',e.message)}finally{busy=false}
+ }
+ function schedule(){[0,80,220,600].forEach(ms=>setTimeout(refresh,ms))}
+ document.addEventListener('click',e=>{if(e.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))schedule()},true);
+ new MutationObserver(schedule).observe(document.body,{subtree:true,childList:true});
+ window.addEventListener('pageshow',schedule);schedule();
+})();
+</script>
 </body>
 </html>
