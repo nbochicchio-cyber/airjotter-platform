@@ -544,7 +544,9 @@ async function pagePurchaseQuote(userId,boardId,units){
  const totalCostCents=unitCostCents*count;
  const now=new Date();
  const expiresAt=new Date(now.getTime()+30*86400000);
- return {boardId:board.id,boardTitle:board.title||'Jotter senza titolo',roomCode:board.room_code,units:count,currentPages,pageLimit,fromPage:currentPages+1,toPage:currentPages+count,unitCostCents,totalCostCents,balanceCents:Number(user?.spot_credit_cents||0),remainingCents:Number(user?.spot_credit_cents||0)-totalCostCents,expiresAt:expiresAt.toISOString(),currency:settings.currency||'EUR',sufficient:Number(user?.spot_credit_cents||0)>=totalCostCents};
+ // AIRJOTTER_EXTRA_PAGE_RANGE_LABEL_V2300W quote: gli extra iniziano dopo la capienza gia inclusa/attiva, non dopo le sole pagine fisicamente presenti.
+ const entitlementBase=Math.max(currentPages,pageLimit),fromPage=entitlementBase+1,toPage=entitlementBase+count;
+ return {boardId:board.id,boardTitle:board.title||'Jotter senza titolo',roomCode:board.room_code,units:count,currentPages,pageLimit,fromPage,toPage,unitCostCents,totalCostCents,balanceCents:Number(user?.spot_credit_cents||0),remainingCents:Number(user?.spot_credit_cents||0)-totalCostCents,expiresAt:expiresAt.toISOString(),currency:settings.currency||'EUR',sufficient:Number(user?.spot_credit_cents||0)>=totalCostCents};
 }
 app.get('/api/pay-use/pages/quote',auth,async(req,res)=>{try{res.json(await pagePurchaseQuote(req.user.sub,String(req.query.boardId||''),req.query.units))}catch(e){res.status(e.status||500).json({error:e.message||'Impossibile calcolare il preventivo'})}});
 app.post('/api/pay-use/pages/purchase',auth,async(req,res)=>{
@@ -564,7 +566,9 @@ app.post('/api/pay-use/pages/purchase',auth,async(req,res)=>{
   if(!settings?.enabled){await c.query('ROLLBACK');return res.status(403).json({error:'Pay per Use non disponibile'})}
   const user=(await c.query('SELECT spot_credit_cents FROM users WHERE id=$1 FOR UPDATE',[req.user.sub])).rows[0];
   const unitCostCents=Number(settings.page_cost_cents||0),totalCostCents=unitCostCents*units,balanceCents=Number(user?.spot_credit_cents||0);
-  const currentPages=await currentBoardPageCount(c,boardId),fromPage=currentPages+1,toPage=currentPages+units;
+  const currentPages=await currentBoardPageCount(c,boardId);
+  const plan=await resolvedPlan(req.user.sub),activeExtraPages=Number((await c.query("SELECT COALESCE(sum(units),0) n FROM user_extra_entitlements WHERE board_id=$1 AND kind='page' AND expires_at>now()",[boardId])).rows[0].n||0),pageLimit=Number(plan.pages||0)+activeExtraPages;
+  const entitlementBase=Math.max(currentPages,pageLimit),fromPage=entitlementBase+1,toPage=entitlementBase+units; // AIRJOTTER_EXTRA_PAGE_RANGE_LABEL_V2300W
   if(balanceCents<totalCostCents){await c.query('ROLLBACK');return res.status(402).json({error:'Credito insufficiente.',balanceCents,totalCostCents,shortageCents:totalCostCents-balanceCents,minimumTopupCents:Number(settings.minimum_topup_cents||300),currency:settings.currency||'EUR'})}
   const entitlementId=crypto.randomUUID();
   const ent=(await c.query("INSERT INTO user_extra_entitlements(id,user_id,kind,board_id,units,source,amount_cents,expires_at,page_from,page_to,purchase_request_id) VALUES($1,$2,'page',$3,$4,'purchase',$5,now()+interval '30 days',$6,$7,$8) RETURNING id,expires_at",[entitlementId,req.user.sub,boardId,units,totalCostCents,fromPage,toPage,requestId])).rows[0];

@@ -4484,7 +4484,8 @@ $('ajShapeCancelV227').onclick=()=>{choice=null;editor.classList.remove('open');
   clearTimeout(timer);if(!boardId)return;
   try{
    quote=await api('/api/pay-use/pages/quote?boardId='+encodeURIComponent(boardId)+'&units='+encodeURIComponent(Math.max(1,Number(qty.value)||1)));
-   document.getElementById('ajExtraPagesLeadV2280').textContent='Jotter: '+quote.boardTitle;
+   // AIRJOTTER_EXTRA_PAGE_RANGE_LABEL_V2300W
+   document.getElementById('ajExtraPagesLeadV2280').textContent='Jotter selezionato: '+quote.boardTitle;
    document.getElementById('ajExtraBalanceV2280').textContent=money(quote.balanceCents,quote.currency);
    document.getElementById('ajExtraCostV2280').textContent=money(quote.totalCostCents,quote.currency);
    document.getElementById('ajExtraRemainingV2280').textContent=money(Math.max(0,quote.remainingCents),quote.currency);
