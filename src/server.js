@@ -281,9 +281,19 @@ app.get('/api/file-transfer/ice',auth,(req,res)=>{
 });
 app.get('/api/plans',async(req,res)=>{const q=await pool.query("SELECT * FROM billing_plans WHERE status='active' AND public=true ORDER BY sort_order,name");res.json(q.rows.map(planPublic))});
 app.get('/api/billing/config',(req,res)=>res.json({stripe:Boolean(process.env.STRIPE_PUBLISHABLE_KEY&&process.env.STRIPE_SECRET_KEY),stripePublishableKey:process.env.STRIPE_PUBLISHABLE_KEY||'',paypal:Boolean(process.env.PAYPAL_CLIENT_ID&&process.env.PAYPAL_CLIENT_SECRET),paypalClientId:process.env.PAYPAL_CLIENT_ID||'',paypalEnv:process.env.PAYPAL_ENV||'sandbox',creditPacksCents:String(process.env.PAYPAL_CREDIT_PACKS_EUR||'3,5,10,20').split(',').map(x=>Math.round(Number(x)*100)).filter(x=>x>=300)}));
+// AIRJOTTER_PAYPAL_CANCEL_DOWNGRADE_V2300U: PayPal cancella subito il rinnovo, AirJotter conserva il piano pagato fino alla scadenza e poi passa a Free.
+async function reconcilePayPalCancelledPlan(userId){
+ const u=(await pool.query('SELECT plan_code,subscription_provider,subscription_status,subscription_current_period_end FROM users WHERE id=$1',[userId])).rows[0]||{};
+ if(u.subscription_provider!=='paypal'||String(u.subscription_status||'').toLowerCase()!=='cancelled'||!u.subscription_current_period_end)return {changed:false,user:u};
+ const end=new Date(u.subscription_current_period_end);if(!Number.isFinite(end.getTime())||end.getTime()>Date.now())return {changed:false,user:u};
+ const free=(await pool.query("SELECT id FROM billing_plans WHERE code='free' LIMIT 1")).rows[0];if(!free)return {changed:false,user:u};
+ await pool.query("UPDATE users SET plan_id=$1,plan_code='free',subscription_provider=NULL,subscription_external_id=NULL,billing_customer_id=NULL,subscription_current_period_end=NULL WHERE id=$2 AND subscription_provider='paypal' AND subscription_status='cancelled'",[free.id,userId]);
+ return {changed:true,user:{...u,plan_code:'free'}};
+}
 // AIRJOTTER_SCHEDULED_PLAN_STATUS_1968
 app.get('/api/billing/me',auth,async(req,res)=>{
  try{
+  await reconcilePayPalCancelledPlan(req.user.sub);
   const p=await resolvedPlan(req.user.sub);
   const u=(await pool.query('SELECT email,subscription_current_period_end,subscription_provider,subscription_status,subscription_external_id,billing_customer_id FROM users WHERE id=$1',[req.user.sub])).rows[0]||{};
   // AIRJOTTER_BILLING_UI_3_FIX_V2300R2
@@ -305,6 +315,10 @@ app.get('/api/billing/me',auth,async(req,res)=>{
      }
     }
    }catch(e){console.warn('Lettura variazione Stripe non bloccante:',e.message)}
+  }
+  if(!scheduledChange&&u.subscription_provider==='paypal'&&String(u.subscription_status||'').toLowerCase()==='cancelled'&&u.subscription_current_period_end&&String(p.code||'').toLowerCase()!=='free'){
+   const target=await planSummary('free');
+   if(target)scheduledChange={type:'downgrade',targetPlan:target,effectiveAt:u.subscription_current_period_end,provider:'paypal',externalId:u.subscription_external_id||null,reason:'paypal_subscription_cancelled'};
   }
   if(!scheduledChange){
    const pending=(await pool.query("SELECT bo.provider,bo.status,bo.external_id,bo.raw,bp.code FROM billing_orders bo JOIN billing_plans bp ON bp.id=bo.plan_id WHERE bo.user_id=$1 AND bo.status IN ('approved_next_cycle','pending_cycle_upgrade') ORDER BY bo.updated_at DESC LIMIT 1",[req.user.sub])).rows[0];
