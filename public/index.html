@@ -7996,7 +7996,7 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
    const response=await fetch('/api/billing/me?ui-v2300r3='+Date.now(),{credentials:'include',cache:'no-store'});if(!response.ok)return;
    const data=await response.json(),p=data.plan||{};
    const first=document.querySelector('#ajCurrentPlanV220 .aj-summary-line-v2284');
-   if(first){const labels=first.querySelectorAll('span');if(labels.length>=2){const free=String(p.code||'').toLowerCase()==='free';labels[1].textContent='Prossimo rinnovo: '+(free?'Non applicabile':p.cancelAtPeriodEnd?'disattivato':p.currentPeriodEnd?shortDate(p.currentPeriodEnd):'da confermare')}}
+   if(first){const labels=first.querySelectorAll('span');if(labels.length>=2){const free=String(p.code||'').toLowerCase()==='free';labels[1].textContent='Prossimo rinnovo: '+(free?'Non applicabile':(p.cancelAtPeriodEnd||String(p.subscriptionStatus||'').toLowerCase()==='cancelled')?'disattivato':p.currentPeriodEnd?shortDate(p.currentPeriodEnd):'da confermare')}}
    const history=document.getElementById('ajBillingOrdersV220');
    if(history){
     history.querySelectorAll('[data-aj-sub-order-v2300r3]').forEach(x=>x.remove());
@@ -8012,6 +8012,39 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  document.addEventListener('click',event=>{if(event.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))[40,160,450,900].forEach(ms=>setTimeout(apply,ms))},true);
  setInterval(pulse,700);
  window.ajApplyBillingUiV2300R3=apply;
+})();
+</script>
+
+<!-- AIRJOTTER_BILLING_UI_COMPLETE_V2300T -->
+<style id="AIRJOTTER_BILLING_UI_COMPLETE_V2300T_STYLE">
+/* Compattazione verticale del solo rettangolo bianco AirJotter Spot. */
+#ajPayUseV222 .aj-wallet-topup-v2283{padding:10px 16px!important;margin:8px 0 10px!important;min-height:0!important}
+#ajPayUseV222 .aj-wallet-balance-v2283{margin:0 0 8px!important;line-height:1.15!important}
+#ajPayUseV222 .aj-wallet-recharge-v2283{margin:0!important;padding:0!important;min-height:0!important;gap:8px!important}
+#ajPayUseV222 .aj-wallet-recharge-v2283+*{margin-top:4px!important}
+#ajPayUseV222 .aj-paypal-packs-v1959{margin:4px 0!important}
+#ajPayUseV222 .aj-wallet-topup-v2283 p,#ajPayUseV222 .aj-wallet-topup-v2283 small{margin-top:4px!important;margin-bottom:0!important}
+</style>
+<script id="AIRJOTTER_BILLING_UI_COMPLETE_V2300T_SCRIPT">
+(()=>{'use strict';
+ let busy=false,lastKey='';
+ const lower=v=>String(v||'').toLowerCase();
+ function setSubscriptionBox(plan){
+  const box=document.getElementById('ajSubscriptionV221');if(!box)return;
+  const free=lower(plan.code)==='free',hasSubscription=Boolean(plan.subscriptionProvider||plan.subscriptionId||plan.subscriptionStatus||plan.currentPeriodEnd),cancelled=plan.cancelAtPeriodEnd===true||lower(plan.subscriptionStatus)==='cancelled';
+  const items=[...box.querySelectorAll('.aj-sub-item-v221')];
+  for(const item of items){const label=lower(item.querySelector('small')?.textContent),value=item.querySelector('b');if(!value)continue;if(label.includes('valido fino'))value.textContent=free&&!hasSubscription?'Non applicabile':(plan.currentPeriodEnd?new Date(plan.currentPeriodEnd).toLocaleDateString('it-IT'):'Non applicabile');if(label.includes('rinnovo automatico'))value.textContent=free&&!hasSubscription?'Non applicabile':cancelled?'Disattivato':'Attivo'}
+  const manage=document.getElementById('ajManageSubscriptionV221');if(manage)manage.style.display=hasSubscription&&!free?'':'none';
+ }
+ async function apply(){
+  const modal=document.getElementById('ajPlansModalV220');if(!modal||getComputedStyle(modal).display==='none'||busy)return;busy=true;
+  try{const response=await fetch('/api/billing/me?ui-v2300t='+Date.now(),{credentials:'include',cache:'no-store'});if(!response.ok)return;const data=await response.json(),plan=data.plan||{},free=lower(plan.code)==='free',cancelled=plan.cancelAtPeriodEnd===true||lower(plan.subscriptionStatus)==='cancelled';
+   const first=document.querySelector('#ajCurrentPlanV220 .aj-summary-line-v2284');if(first){const spans=first.querySelectorAll('span');if(spans[1])spans[1].textContent='Prossimo rinnovo: '+(free?'Non applicabile':cancelled?'disattivato':plan.currentPeriodEnd?new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',year:'2-digit'}).format(new Date(plan.currentPeriodEnd)).replace(/\./g,''):'da confermare')}
+   setSubscriptionBox(plan);lastKey=[plan.code,plan.subscriptionStatus,plan.cancelAtPeriodEnd,plan.currentPeriodEnd].join('|');
+  }catch(error){console.error('AIRJOTTER_BILLING_UI_COMPLETE_V2300T',error)}finally{busy=false}
+ }
+ document.addEventListener('click',event=>{if(event.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))[40,180,500].forEach(ms=>setTimeout(apply,ms))},true);
+ setInterval(apply,900);window.ajApplyBillingUiV2300T=apply;
 })();
 </script>
 </body>
