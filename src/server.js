@@ -113,7 +113,33 @@ async function provisionStripe(plan){
  if(!priceMatches){const priceParams={product:product.id,currency:plan.currency.toLowerCase(),unit_amount:Number(plan.amount_cents),metadata:{airjotter_plan_id:plan.id,airjotter_plan_code:plan.code||''}};if(expectedRecurring)priceParams.recurring=expectedRecurring;price=await stripe.prices.create(priceParams)}
  return {stripe_product_id:product.id,stripe_price_id:price.id,recreatedProduct:product.id!==plan.stripe_product_id,recreatedPrice:price.id!==plan.stripe_price_id};
 }
-async function provisionPayPal(plan){if(plan.billing_type==='free'||plan.billing_type==='consumable')return {};const auth=await paypalToken();if(!auth)return {};let productId=plan.paypal_product_id;if(!productId){const r=await fetch(auth.base+'/v1/catalogs/products',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({name:'AirJotter '+plan.name,description:plan.description||plan.name,type:'SERVICE',category:'SOFTWARE'})});if(!r.ok)throw new Error('Creazione prodotto PayPal non riuscita');productId=(await r.json()).id}const r=await fetch(auth.base+'/v1/billing/plans',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({product_id:productId,name:plan.name,description:plan.description,status:'ACTIVE',billing_cycles:[{frequency:{interval_unit:(plan.interval_unit||'month').toUpperCase(),interval_count:Number(plan.interval_count||1)},tenure_type:'REGULAR',sequence:1,total_cycles:0,pricing_scheme:{fixed_price:{value:(Number(plan.amount_cents)/100).toFixed(2),currency_code:plan.currency}}}],payment_preferences:{auto_bill_outstanding:true,payment_failure_threshold:1}})});if(!r.ok)throw new Error('Creazione piano PayPal non riuscita');return {paypal_product_id:productId,paypal_plan_id:(await r.json()).id}}
+// AIRJOTTER_PAYPAL_LIVE_PLAN_IDS_V2300S: valida prodotto e piano nel conto PayPal corrente; gli ID Sandbox non sono validi in Live.
+async function paypalResourceOrNull(auth,resourcePath){
+ if(!resourcePath)return null;
+ const r=await fetch(auth.base+resourcePath,{headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json'}});
+ if(r.status===404)return null;
+ const body=await r.json().catch(()=>({}));
+ if(!r.ok){const e=new Error(body.message||'Verifica risorsa PayPal non riuscita');e.status=r.status;e.paypal=body;throw e}
+ return body;
+}
+async function provisionPayPal(plan){
+ if(plan.billing_type==='free'||plan.billing_type==='consumable')return {};
+ const auth=await paypalToken();if(!auth)return {};
+ let product=await paypalResourceOrNull(auth,plan.paypal_product_id?'/v1/catalogs/products/'+encodeURIComponent(plan.paypal_product_id):null);
+ if(!product){
+  const r=await fetch(auth.base+'/v1/catalogs/products',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({name:'AirJotter '+plan.name,description:plan.description||plan.name,type:'SERVICE',category:'SOFTWARE'})});
+  const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.message||'Creazione prodotto PayPal non riuscita');product=body;
+ }
+ let remotePlan=await paypalResourceOrNull(auth,plan.paypal_plan_id?'/v1/billing/plans/'+encodeURIComponent(plan.paypal_plan_id):null);
+ const cycle=remotePlan?.billing_cycles?.find(x=>x.tenure_type==='REGULAR');
+ const fixed=cycle?.pricing_scheme?.fixed_price;
+ const matches=Boolean(remotePlan&&remotePlan.product_id===product.id&&remotePlan.status==='ACTIVE'&&String(fixed?.currency_code||'').toUpperCase()===String(plan.currency||'EUR').toUpperCase()&&Math.round(Number(fixed?.value||0)*100)===Number(plan.amount_cents)&&cycle?.frequency?.interval_unit===String(plan.interval_unit||'month').toUpperCase()&&Number(cycle?.frequency?.interval_count||1)===Number(plan.interval_count||1));
+ if(!matches){
+  const r=await fetch(auth.base+'/v1/billing/plans',{method:'POST',headers:{Authorization:'Bearer '+auth.token,'Content-Type':'application/json','PayPal-Request-Id':crypto.randomUUID()},body:JSON.stringify({product_id:product.id,name:plan.name,description:plan.description,status:'ACTIVE',billing_cycles:[{frequency:{interval_unit:(plan.interval_unit||'month').toUpperCase(),interval_count:Number(plan.interval_count||1)},tenure_type:'REGULAR',sequence:1,total_cycles:0,pricing_scheme:{fixed_price:{value:(Number(plan.amount_cents)/100).toFixed(2),currency_code:plan.currency}}}],payment_preferences:{auto_bill_outstanding:true,payment_failure_threshold:1}})});
+  const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.message||'Creazione piano PayPal non riuscita');remotePlan=body;
+ }
+ return {paypal_product_id:product.id,paypal_plan_id:remotePlan.id,recreatedProduct:product.id!==plan.paypal_product_id,recreatedPlan:remotePlan.id!==plan.paypal_plan_id};
+}
 async function grantPurchase(client,userId,plan,provider,externalId,status='paid'){
  if(plan.billing_type==='consumable'){const column={jotter:'spot_jotters',page:'spot_pages',export:'spot_exports'}[plan.consumable_kind];if(column)await client.query(`UPDATE users SET ${column}=${column}+$1 WHERE id=$2`,[Number(plan.consumable_units||1),userId]);}
  else await applyPlanAndExtendExtras(client,userId,plan,provider,externalId);
@@ -233,15 +259,19 @@ app.post('/api/admin/billing/stripe/provision',auth,adminOnly,async(req,res)=>{
  }catch(e){console.error('Provisioning Stripe V2300Q2:',{type:e?.type||null,code:e?.code||null,message:e?.message||String(e),requestId:e?.requestId||null});res.status(500).json({error:e.message||'Provisioning Stripe non riuscito'})}
 });
 app.post('/api/admin/billing/paypal/provision',auth,adminOnly,async(req,res)=>{
- if((process.env.PAYPAL_ENV||'sandbox')!=='sandbox'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Live non autorizzato'});
- const desired={plus:Math.round(Number(process.env.PAYPAL_PLUS_MONTHLY_EUR||4.99)*100),ultra:Math.round(Number(process.env.PAYPAL_ULTRA_MONTHLY_EUR||9.99)*100)},out=[];
- for(const code of ['plus','ultra']){let plan=(await pool.query('UPDATE billing_plans SET amount_cents=$1,currency=$2,interval_unit=$3,interval_count=1,status=$4,updated_at=now() WHERE code=$5 RETURNING *',[desired[code],'EUR','month','active',code])).rows[0];if(!plan)continue;
-  if(!plan.paypal_product_id||!plan.paypal_plan_id){const remote=await provisionPayPal(plan);plan=(await pool.query('UPDATE billing_plans SET paypal_product_id=COALESCE($1,paypal_product_id),paypal_plan_id=COALESCE($2,paypal_plan_id),updated_at=now() WHERE id=$3 RETURNING *',[remote.paypal_product_id||null,remote.paypal_plan_id||null,plan.id])).rows[0]}
-  out.push({code:plan.code,name:plan.name,amountCents:Number(plan.amount_cents),paypalProductId:plan.paypal_product_id,paypalPlanId:plan.paypal_plan_id,ready:Boolean(plan.paypal_plan_id)});
- }
- res.json({ok:true,environment:process.env.PAYPAL_ENV||'sandbox',plans:out});
+ try{
+  const environment=process.env.PAYPAL_ENV||'sandbox';
+  if(environment!=='sandbox'&&!req.body?.confirmLive)return res.status(400).json({error:'Provisioning Live non autorizzato'});
+  const desired={plus:Math.round(Number(process.env.PAYPAL_PLUS_MONTHLY_EUR||4.99)*100),ultra:Math.round(Number(process.env.PAYPAL_ULTRA_MONTHLY_EUR||9.99)*100)},out=[];
+  for(const code of ['plus','ultra']){
+   let plan=(await pool.query('UPDATE billing_plans SET amount_cents=$1,currency=$2,interval_unit=$3,interval_count=1,status=$4,updated_at=now() WHERE code=$5 RETURNING *',[desired[code],'EUR','month','active',code])).rows[0];if(!plan)continue;
+   const remote=await provisionPayPal(plan);
+   plan=(await pool.query('UPDATE billing_plans SET paypal_product_id=$1,paypal_plan_id=$2,updated_at=now() WHERE id=$3 RETURNING *',[remote.paypal_product_id,remote.paypal_plan_id,plan.id])).rows[0];
+   out.push({code:plan.code,name:plan.name,amountCents:Number(plan.amount_cents),currency:plan.currency,paypalProductId:plan.paypal_product_id,paypalPlanId:plan.paypal_plan_id,ready:Boolean(plan.paypal_plan_id),recreatedProduct:Boolean(remote.recreatedProduct),recreatedPlan:Boolean(remote.recreatedPlan)});
+  }
+  res.json({ok:true,environment,plans:out});
+ }catch(e){console.error('Provisioning PayPal V2300S:',{status:e?.status||null,message:e?.message||String(e),debugId:e?.paypal?.debug_id||null});res.status(500).json({error:e.message||'Provisioning PayPal non riuscito'})}
 });
-
 // AIRJOTTER_FILE_TRANSFER_V2300
 app.get('/api/file-transfer/ice',auth,(req,res)=>{
  const iceServers=[{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302']}];
