@@ -310,6 +310,25 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  addEventListener('pageshow',()=>requestAnimationFrame(apply),{once:true});
  setTimeout(apply,350);
 })();
+
+// AIRJOTTER_NOTES_UNDER_TRANSFER_V2304K
+(()=>{'use strict';
+ const place=()=>{
+  const note=document.getElementById('ajNotesBtnV2301');
+  const transfer=document.getElementById('ajFileTransferBtnV2291');
+  const owner=document.getElementById('ajUser');
+  if(!note||!transfer||!owner)return;
+  const io=transfer.closest('.aj-io-stack-v22107,.aj-import-tools-v2291');
+  let row=io?.querySelector('.aj-owner-row-v22107')||owner.closest('.aj-owner-row-v22107');
+  if(!row&&io){row=document.createElement('div');row.className='aj-owner-row-v22107';io.appendChild(row);row.appendChild(owner)}
+  if(!row)return;
+  row.appendChild(note);
+  note.classList.add('aj-note-under-transfer-v2304k');
+ };
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',place,{once:true}):place();
+ addEventListener('pageshow',place,{once:true});
+ setTimeout(place,500);
+})();
 })();
 
 // AIRJOTTER_NOTES_TIMESTAMP_ROOT_V2301L

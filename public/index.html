@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <!-- AIRJOTTER_NOTES_DEFINITIVE_V2303B -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>airjotter.com</title>
@@ -1130,7 +1131,51 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
 <style id="AIRJOTTER_DOWNGRADE_COPY_1968A">
 .aj-downgrade-heading-v1968a{display:block;font-size:1.13rem;font-weight:850;line-height:1.25;margin-bottom:12px}.aj-change-effects-v1968 p{margin:11px 0;line-height:1.5}.aj-change-effects-v1968 p:last-child{margin-bottom:0}
 </style>
-<!-- AIRJOTTER_NOTES_V2301A --><link rel="stylesheet" href="/airjotter-notes.css"><script src="/airjotter-notes.js" defer></script>
+<!-- AIRJOTTER_NOTES_V2301A -->
+    <!-- AIRJOTTER_NOTES_BUTTON_BIND_V2303C -->
+  <!-- AIRJOTTER_LOAD_NOTES_MODULE_V2303D -->
+  <link rel="stylesheet" href="/airjotter-notes.css?v=2303D">
+
+<!-- AIRJOTTER_FOUR_IN_ONE_TRASH_V2304J2_BEGIN -->
+<style id="AIRJOTTER_FOUR_IN_ONE_TRASH_V2304J2_STYLE">
+.aj-wow-threeinone-grid-v1925{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.aj-wow-threeinone-card-v1925.notes-v2304j2{border-color:#b8d5c1!important;background:linear-gradient(145deg,#f2fbf5,#fff)!important}
+.aj-wow-threeinone-card-v1925.notes-v2304j2 i{background:#e3f4e8!important;color:#176b3a!important}
+.aj-discover-notes-v2304j2{border-color:#b8d5c1!important;background:linear-gradient(145deg,#f2fbf5,#fffdfa)!important}
+header #clearBtn.aj-clear-format-v2304j2{position:static!important;transform:none!important;order:initial!important;width:48px!important;min-width:48px!important;height:48px!important;min-height:48px!important;margin:0 7px 0 0!important;padding:0!important;align-self:center!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:13px!important;background:#fff!important;border:1px solid #e1a09b!important;box-shadow:0 3px 8px rgba(150,35,27,.12)!important}
+header #clearBtn.aj-clear-format-v2304j2 svg{width:29px!important;height:29px!important;stroke:#b42318!important;stroke-width:2.3!important}
+@media(max-width:980px){.aj-wow-threeinone-grid-v1925{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:620px){.aj-wow-threeinone-grid-v1925{grid-template-columns:1fr!important}}
+</style>
+<script id="AIRJOTTER_FOUR_IN_ONE_TRASH_V2304J2_SCRIPT">
+(()=>{'use strict';
+ const norm=s=>(s||'').replace(/s+/g,' ').trim().toLowerCase();
+ const updateDiscover=()=>{
+  const modal=document.getElementById('welcomeDiscoverModal');if(!modal)return;
+  const heading=modal.querySelector('.discover-heading p');
+  if(heading)heading.innerHTML='<strong>AirJotter</strong> è una web app <strong>4 in 1</strong>: Paperboard multidevice, PDF editor avanzato, File Transfer sicuro P2P e Note multimediali.';
+  const grid=modal.querySelector('.discover-grid-rich');
+  if(grid&&!grid.querySelector('.aj-discover-notes-v2304j2')){
+   const card=document.createElement('div');card.className='aj-discover-notes-v2304j2';
+   card.innerHTML='<span class="discover-icon">📝</span><section><strong>Note multimediali</strong><span>Crea e organizza <b>note con testo formattato, colori, immagini e allegati</b>, disponibili dal tuo account su PC, smartphone e tablet.</span></section>';
+   const finalCard=grid.querySelector('.discover-pdf-card');grid.insertBefore(card,finalCard||null);
+  }
+ };
+ const placeClear=()=>{
+  const header=document.querySelector('header'),clear=document.getElementById('clearBtn');if(!header||!clear)return;
+  const groups=[...header.querySelectorAll('.tools-group')];
+  const formatGroup=groups.find(g=>/formato/.test(norm(g.textContent))&&g.querySelector('button,input,select'));
+  if(!formatGroup||!formatGroup.parentElement)return;
+  formatGroup.parentElement.insertBefore(clear,formatGroup);
+  clear.classList.add('aj-clear-format-v2304j2');clear.setAttribute('title','Cancella tutte le pagine');
+ };
+ const apply=()=>{updateDiscover();placeClear()};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
+ document.addEventListener('click',e=>{if(e.target.closest('#welcomeDiscoverBtn'))requestAnimationFrame(updateDiscover)},true);
+ addEventListener('pageshow',apply,{once:true});setTimeout(apply,450);
+})();
+</script>
+<!-- AIRJOTTER_FOUR_IN_ONE_TRASH_V2304J2_END -->
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
@@ -1151,7 +1196,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
             </div>
             <div class="aj-wow-media-v1922"><img src="airjotter-registration-multidevice.png" alt="AirJotter condiviso fra tablet e computer"><div>Scrivi qui.<br>Appare ovunque. ✦</div></div>
           </section>
-          <section class="aj-wow-threeinone-v1925" aria-labelledby="ajThreeInOneTitleV1925"><div class="aj-wow-threeinone-head-v1925"><span>UN SOLO SPAZIO. TRE STRUMENTI.</span><h2 id="ajThreeInOneTitleV1925">La web app <em>3-in-1</em> che accompagna il lavoro dall’idea al file finale.</h2><p>Paperboard digitale wireless, editor PDF evoluto e trasferimento diretto di file convivono nella stessa piattaforma web, senza dover cambiare app.</p></div><div class="aj-wow-threeinone-grid-v1925"><article class="aj-wow-threeinone-card-v1925"><b>1</b><i>✍</i><h3>Paperboard collaborativa</h3><p>Scrivi, disegna e organizza con mouse, touch o pennino. Condividi lo stesso Jotter dal vivo durante lezioni, riunioni e videocall.</p><strong>Idee e collaborazione, in tempo reale</strong></article><article class="aj-wow-threeinone-card-v1925 pdf"><b>2</b><i>PDF</i><h3>Editor PDF avanzato</h3><p>Importa PDF e immagini, annota, evidenzia, ritaglia, inserisci testo, forme, foto e firme, poi esporta il documento completo.</p><strong>Dal documento grezzo al risultato finale</strong></article><article class="aj-wow-threeinone-card-v1925 transfer"><b>3</b><i>⇄</i><h3>File Transfer P2P</h3><p>Trasferisci file e cartelle fino a 5 GB direttamente tra dispositivi, senza caricarli su server intermedi.</p><strong>Condivisione diretta, semplice e protetta</strong></article></div></section>
+          <section class="aj-wow-threeinone-v1925" aria-labelledby="ajThreeInOneTitleV1925"><div class="aj-wow-threeinone-head-v1925"><span>UN SOLO SPAZIO. QUATTRO STRUMENTI.</span><h2 id="ajThreeInOneTitleV1925">La web app <em>4-in-1</em> che accompagna il lavoro dall’idea alle note, ai documenti e ai file.</h2><p>Paperboard multidevice, PDF editor avanzato, File Transfer sicuro P2P e Note multimediali convivono nella stessa piattaforma web, senza dover cambiare app.</p></div><div class="aj-wow-threeinone-grid-v1925"><article class="aj-wow-threeinone-card-v1925"><b>1</b><i>✍</i><h3>Paperboard collaborativa</h3><p>Scrivi, disegna e organizza con mouse, touch o pennino. Condividi lo stesso Jotter dal vivo durante lezioni, riunioni e videocall.</p><strong>Idee e collaborazione, in tempo reale</strong></article><article class="aj-wow-threeinone-card-v1925 pdf"><b>2</b><i>PDF</i><h3>Editor PDF avanzato</h3><p>Importa PDF e immagini, annota, evidenzia, ritaglia, inserisci testo, forme, foto e firme, poi esporta il documento completo.</p><strong>Dal documento grezzo al risultato finale</strong></article><article class="aj-wow-threeinone-card-v1925 transfer"><b>3</b><i>⇄</i><h3>File Transfer P2P</h3><p>Trasferisci file e cartelle fino a 5 GB direttamente tra dispositivi, senza caricarli su server intermedi.</p><strong>Condivisione diretta, semplice e protetta</strong></article><article class="aj-wow-threeinone-card-v1925 notes-v2304j2"><b>4</b><i>📝</i><h3>Note multimediali</h3><p>Crea note con testo formattato, colori, immagini e allegati. Ritrovale dal tuo account su PC, smartphone e tablet.</p><strong>Appunti ricchi, sempre disponibili</strong></article></div></section>
           <section class="aj-wow-story-v1922"><div class="aj-wow-story-inner-v1922"><h2>Dal tratto sul tablet<br>alla stanza intera.</h2><div class="aj-wow-story-grid-v1922"><img src="airjotter-registration-realtime.png" alt="AirJotter in tempo reale su più schermi"><div class="aj-wow-steps-v1922"><div><i>1</i><span><strong>Scrivi sul tablet (iOS oppure Android)</strong>Usa Apple Pencil, una penna digitale o il dito come su un foglio.</span></div><div><i>2</i><span><strong>Mostra sul PC o sul grande schermo</strong>Apri lo stesso Jotter con codice o QR durante una lezione, una riunione o una videoconferenza.</span></div><div><i>3</i><span><strong>Lavora insieme, in diretta</strong>Più persone possono vedere e modificare lo stesso Jotter da dispositivi e luoghi diversi.</span></div></div></div></div></section>
           <section class="aj-wow-uses-v1922" id="ajWowUsesV1922"><div class="aj-wow-use-head-v1922"><h2>Un Jotter.<br><span class="aj-wow-script-v1922">Molte vite reali.</span></h2><p>Dall’idea iniziale al documento finale, senza cambiare strumento. AirJotter unisce persone, appunti, documenti e condivisione nello stesso ambiente web.</p></div><div class="aj-wow-gallery-v1922"><article><img src="airjotter-registration-paperboard.png" alt="Documenti e PDF in AirJotter"><div><strong>Hai un documento? Modificalo. Devi firmarlo? Fallo.</strong><span>Importa, evidenzia, inserisci foto o firme, organizza le pagine, esporta e condividi.</span></div></article><article><img src="airjotter-registration-realtime.png" alt="Collaborazione AirJotter"><div><strong>Hai un’idea? Scrivila. Vuoi condividerla? Collabora.</strong><span>Scrivi dal tablet e mostra in tempo reale su PC, videoconferenza o grande schermo.</span></div></article></div></section>
           <section class="aj-wow-access-v1922 aj-wow-access-v1925" id="ajWowAccessV1922"><span class="aj-wow-access-kicker-v1925">INIZIA GRATIS</span><h2>Il tuo primo Jotter è a un clic.</h2><p>Registrati con Google oppure con la tua email. Un solo spazio, zero vincoli.</p><div class="aj-auth-choice-v1925"><div class="aj-auth-choice-cell-v1925 welcome-google"><div id="ajGoogleNativeV3314" aria-label="Registrati con Google"></div><small id="googleStatus">Continua con il tuo account Google.</small></div><div class="aj-auth-choice-or-v1925"><span>oppure</span></div><div class="aj-auth-choice-cell-v1925"><button id="ajEmailAuthOpenV1925" class="aj-email-auth-open-v1925" type="button" aria-controls="ajEmailAuthPanelV1925" aria-expanded="false"><span>✉</span><strong>Continua con email</strong></button><small>Registrati o accedi con email e password.</small></div></div><div id="ajEmailAuthPanelV1925" class="aj-email-auth-panel-v1925 aj-hidden"><div class="aj-email-auth-tabs-v1925"><button id="ajEmailRegisterTabV1925" class="is-active" type="button">Registrati</button><button id="ajEmailLoginTabV1925" type="button">Accedi</button></div><form id="ajEmailAuthFormV1925" novalidate><label id="ajEmailNameLabelV1925">Nome<input id="ajEmailNameV1925" type="text" autocomplete="name" maxlength="80" placeholder="Il tuo nome"></label><label>Email<input id="ajEmailAddressV1925" type="email" autocomplete="email" maxlength="254" placeholder="nome@esempio.it" required></label><label>Password<input id="ajEmailPasswordV1925" type="password" autocomplete="new-password" minlength="8" placeholder="Almeno 8 caratteri" required></label><label id="ajEmailConfirmLabelV1925">Conferma password<input id="ajEmailConfirmV1925" type="password" autocomplete="new-password" minlength="8" placeholder="Ripeti la password"></label><button id="ajEmailSubmitV1925" class="aj-email-submit-v1925" type="submit">Crea il mio account</button><button id="ajEmailForgotV1925" class="aj-email-link-v1925 aj-hidden" type="button">Password dimenticata?</button><button id="ajEmailResendV1925" class="aj-email-link-v1925 aj-hidden" type="button">Invia di nuovo l’email di verifica</button><div id="ajEmailStatusV1925" class="aj-email-status-v1925" role="status"></div></form></div><div id="devLogin" class="aj-hidden welcome-dev"><h3>Accesso test di sviluppo</h3><div class="welcome-fields"><input id="devName" value="Utente Demo" aria-label="Nome utente"><input id="devEmail" value="demo1@local.test" aria-label="Email"></div><button id="devBtn" class="btn primary welcome-enter">Entra in AirJotter</button></div></section>
@@ -1163,7 +1208,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
   <div class="aj-card aj-access-card">
     <img src="airjotter_logo.png" alt="airjotter.com" class="aj-access-logo">
     <h2 class="aj-access-title">Come vuoi usare airjotter?</h2>
-    <p class="aj-access-subtitle">Paperboard digitale | PDF Editor | File transfer</p>
+    <p class="aj-access-subtitle">Paperboard multidevice | PDF Editor avanzato | File Transfer P2P | Note multimediali</p>
     <div class="aj-choice-grid">
       <section class="aj-choice aj-choice-new">
         <h3>1. Crea o apri il tuo Jotter</h3>
@@ -1222,7 +1267,7 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         </div>
 
         <div class="tools-group aj-share-tools-v2291">
-            <span class="aj-user-archive-v2266d"><small class="aj-jotter-link-color-v2283">⬇Clicca qui per i tuoi Jotter⬇</small><button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button></span><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span class="aj-room-current-v2266"><span id="roomCode" class="room-code">***-***</span><small id="ajCurrentJotterV2266">Jotter senza titolo</small></span>
+            <span class="aj-user-archive-v2266d"><small class="aj-jotter-link-color-v2283">⬇Clicca qui per i tuoi Jotter⬇</small><button id="ajUser" class="aj-user" type="button" title="Apri I miei Jotter"></button></span><button id="ajNotesBtnV2301" class="btn aj-notes-btn-v2301" type="button" title="Apri Note" aria-label="Apri Note" onclick="window.ajOpenNotesV2303C?.(event)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h10l3 3v15H6z"/><path d="M16 3v4h4M9 11h7M9 15h7"/></svg><span>Note</span></button><button id="clearBtn" class="btn danger aj-clear-inline-v2303b" title="Pulisci Foglio" aria-label="Cestino"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button><button id="ajRequestEdit" class="btn aj-request aj-hidden">Richiedi modifica</button><span class="aj-room-current-v2266"><span id="roomCode" class="room-code">***-***</span><small id="ajCurrentJotterV2266">Jotter senza titolo</small></span>
             <button id="toggleCodeBtn" class="icon-btn" title="Mostra Codice"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
             <button id="showQrBtn" class="icon-btn" title="QR Code"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1z"/><path d="M17 17h1v1h-1z"/><path d="M14 17h1v1h-1z"/><path d="M17 14h1v1h-1z"/></svg></button>
         </div>
@@ -1238,7 +1283,6 @@ document.addEventListener('DOMContentLoaded',function(){document.querySelectorAl
         </div>
 
         <div class="tools-group">
-            <button id="clearBtn" class="btn danger" title="Pulisci Foglio"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
             <button id="exportPdfBtn" class="btn primary">Esporta PDF</button>
         </div>
     </header>
@@ -3230,7 +3274,21 @@ const widths=pts.map(q=>Number(q.w)).filter(Number.isFinite),width=widths.length
                 ajBoard=board; ACTUAL_ROOM_CODE=board.roomCode; document.getElementById('roomCode').innerText='***-****';
                 document.getElementById('ajLobby').classList.add('aj-hidden');
                 history.replaceState(null,'',`/?room=${board.roomCode}`);
-                await ajSocket.emitWithAck('board:join',{boardId:board.id}); await ajReload(); ajSetRole(board.role); queueMicrotask(()=>ajFtEnsureSocket().catch(error=>console.warn('Notifiche File Transfer non disponibili:',error.message)));
+                await ajSocket.emitWithAck('board:join',{boardId:board.id}); await ajReload(); ajSetRole(board.role); /* AIRJOTTER_FT_INIT_ORDER_V2303F: la vera funzione File Transfer e definita in uno script successivo. */
+                {
+                  const startFileTransferNotificationsV2303F=()=>{
+                    if(typeof ajFtEnsureSocket!=='function'){
+                      console.warn('Notifiche File Transfer non ancora disponibili');
+                      return;
+                    }
+                    ajFtEnsureSocket().catch(error=>console.warn('Notifiche File Transfer non disponibili:',error.message));
+                  };
+                  if(document.readyState==='loading'){
+                    document.addEventListener('DOMContentLoaded',startFileTransferNotificationsV2303F,{once:true});
+                  }else{
+                    setTimeout(startFileTransferNotificationsV2303F,0);
+                  }
+                }
                 await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
                 if(window.ajApplyExtrasV226){setTimeout(()=>window.ajApplyExtrasV226(false).catch(error=>console.warn('Extra AirJotter non bloccanti:',error)),350)}
             } finally { ajHideJotterLoadingV223(); }
@@ -6578,7 +6636,7 @@ header .aj-plan-column-v22107 button:active{
    lead.append('AirJotter è la web app ');
    const three=document.createElement('span');three.className='aj-three-in-one-v22134';three.textContent='3 in 1';
    lead.append(three,' che semplifica il tuo lavoro digitale.');
-   intro.append(lead,document.createElement('br'),'Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.',document.createElement('br'));
+   intro.append(lead,document.createElement('br'),'Paperboard multidevice, PDF editor avanzato, File Transfer sicuro P2P e Note multimediali.',document.createElement('br'));
    const closing=document.createElement('strong');closing.textContent='Meno strumenti, meno passaggi, più libertà.';
    intro.append(closing);
   }
@@ -6633,8 +6691,8 @@ header .aj-plan-column-v22107 button:active{
 
   /* Maschera informativa: sostituzioni testuali senza toccare grafica, schede o icone. */
   replaceText(
-   'Paperboard wireless multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.',
-   'Paperboard multidevice, PDF editor avanzato e File Transfer sicuro peer-to-peer.'
+   'Paperboard multidevice, PDF editor avanzato, File Transfer sicuro P2P e Note multimediali.',
+   'Paperboard multidevice, PDF editor avanzato, File Transfer sicuro P2P e Note multimediali.'
   );
   replaceText(
    'Importa PDF, immagini e firme. Annota, modifica, firma e prepara documenti completi.',
@@ -8012,7 +8070,7 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  }
  function pulse(){const modal=document.getElementById('ajPlansModalV220');if(modal&&getComputedStyle(modal).display!=='none')apply()}
  document.addEventListener('click',event=>{if(event.target.closest('#ajPlansBtnV220,#ajPlansModalV220'))[40,160,450,900].forEach(ms=>setTimeout(apply,ms))},true);
- setInterval(pulse,700);
+ /* AIRJOTTER_PLANS_FREEZE_FIX_V2303E: polling permanente rimosso; aggiornamenti solo su apertura e interazione. */
  window.ajApplyBillingUiV2300R3=apply;
 })();
 </script>
@@ -8070,5 +8128,6 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 }
 </style>
 <!-- AIRJOTTER_ADMIN_NOTE_LIMITS_V2301B -->
+  <script src="/airjotter-notes.js?v=2303D" defer></script>
 </body>
 </html>

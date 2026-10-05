@@ -344,3 +344,42 @@ html body header #ajFileTransferBtnV2291{
  border-color:#084699!important;
 }
 html body header #ajFileTransferBtnV2291 *{color:#fff!important;stroke:#fff!important}
+
+/* AIRJOTTER_NOTES_UNDER_TRANSFER_V2304K: Note nella seconda riga I/O, sotto File Transfer. */
+header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k{
+ position:static!important;
+ order:initial!important;
+ flex:0 0 auto!important;
+ width:auto!important;
+ min-width:66px!important;
+ max-width:none!important;
+ height:25px!important;
+ min-height:25px!important;
+ max-height:25px!important;
+ margin:0!important;
+ padding:3px 8px!important;
+ border-radius:10px!important;
+ font-size:.64rem!important;
+ line-height:1!important;
+ align-self:center!important;
+ transform:none!important;
+ box-sizing:border-box!important;
+}
+header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
+ width:16px!important;height:16px!important;min-width:16px!important;
+}
+/* Smartphone: annulla la precedente altezza touch da 44 px che causava sovrapposizione. */
+@media(max-width:760px){
+ body.mobile-tools-open header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k{
+  height:25px!important;min-height:25px!important;max-height:25px!important;
+  min-width:66px!important;padding:3px 8px!important;font-size:.64rem!important;
+ }
+}
+/* Tablet touch: stessa altezza del controllo utente nella toolbar tablet. */
+@media(min-width:761px) and (pointer:coarse),
+       (min-width:761px) and (hover:none) and (any-pointer:coarse){
+ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k,
+ header .aj-owner-row-v22107 #ajUser{
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+ }
+}
