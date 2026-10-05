@@ -248,3 +248,23 @@ UPDATE billing_plans SET amount_cents=999,currency='EUR',interval_unit='month',i
 UPDATE pay_use_settings SET minimum_topup_cents=300,currency='EUR',updated_at=now() WHERE id=1;
 CREATE INDEX IF NOT EXISTS billing_orders_provider_status_v1959_idx ON billing_orders(provider,status,created_at DESC);
 CREATE INDEX IF NOT EXISTS users_subscription_external_v1959_idx ON users(subscription_external_id) WHERE subscription_external_id IS NOT NULL;
+
+
+-- AIRJOTTER_NOTES_V2301A
+ALTER TABLE billing_plans ADD COLUMN IF NOT EXISTS notes_limit INTEGER NOT NULL DEFAULT 10 CHECK(notes_limit>0);
+UPDATE billing_plans SET notes_limit=CASE code WHEN 'free' THEN 10 WHEN 'plus' THEN 50 WHEN 'ultra' THEN 500 ELSE notes_limit END WHERE code IN ('free','plus','ultra');
+CREATE TABLE IF NOT EXISTS notes (
+ id UUID PRIMARY KEY,
+ user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ title VARCHAR(180) NOT NULL DEFAULT '',
+ body_html TEXT NOT NULL DEFAULT '',
+ color VARCHAR(20) NOT NULL DEFAULT '#8fa9e0',
+ pinned BOOLEAN NOT NULL DEFAULT false,
+ attachments JSONB NOT NULL DEFAULT '[]'::jsonb,
+ server_revision BIGINT NOT NULL DEFAULT 1,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ deleted_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS notes_user_updated_v2301a_idx ON notes(user_id,pinned DESC,updated_at DESC);
+CREATE INDEX IF NOT EXISTS notes_user_deleted_v2301a_idx ON notes(user_id,deleted_at);
