@@ -430,8 +430,40 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 })();
 
+// AIRJOTTER_NOTES_MOBILE_FORMATTING_V2304O
+(()=>{'use strict';
+ let savedRange=null;
+ const body=()=>document.querySelector('.aj-note-body');
+ const inBody=range=>{const b=body();if(!b||!range)return false;const node=range.commonAncestorContainer;return node===b||b.contains(node.nodeType===1?node:node.parentNode)};
+ const remember=()=>{const sel=getSelection();if(sel&&sel.rangeCount){const range=sel.getRangeAt(0);if(inBody(range))savedRange=range.cloneRange()}};
+ const restore=()=>{const b=body();if(!b)return null;b.focus({preventScroll:true});const sel=getSelection();if(savedRange&&inBody(savedRange)){sel.removeAllRanges();sel.addRange(savedRange.cloneRange());return sel.getRangeAt(0)}return null};
+ const finish=()=>{remember();schedule();requestAnimationFrame(()=>body()?.focus({preventScroll:true}))};
+ function wrapSelection(style){const range=restore();if(!range||range.collapsed)return false;const span=document.createElement('span');Object.assign(span.style,style);try{range.surroundContents(span)}catch{const fragment=range.extractContents();span.appendChild(fragment);range.insertNode(span)}const selected=document.createRange();selected.selectNodeContents(span);const sel=getSelection();sel.removeAllRanges();sel.addRange(selected);savedRange=selected.cloneRange();return true}
+ function applyFont(value){const family=String(value||'Arial').replace(/[<>"']/g,'');if(!wrapSelection({fontFamily:family})){const b=body();if(!b)return;b.style.fontFamily=family}finish()}
+ function applySize(value){const px=Math.max(8,Math.min(72,Number(value)||16));if(!wrapSelection({fontSize:px+'px'})){const b=body();if(!b)return;b.style.fontSize=px+'px'}finish()}
+ function applyCommand(command){restore();document.execCommand(command,false,null);finish()}
+ function install(){
+  const bar=document.querySelector('.aj-wordbar-v2301c'),b=body();if(!bar||!b)return;
+  const pink=document.querySelector('.aj-standard-colors-v2301d [data-aj-color-v2301d="#f8bbd0"]');pink?.remove();
+  if(!b.dataset.ajMobileFormattingV2304o){b.dataset.ajMobileFormattingV2304o='1';for(const type of ['selectionchange'])document.addEventListener(type,remember);for(const type of ['pointerup','touchend','keyup','mouseup'])b.addEventListener(type,remember,{passive:true})}
+  if(bar.dataset.ajMobileFormattingV2304o)return;bar.dataset.ajMobileFormattingV2304o='1';
+  bar.addEventListener('pointerdown',event=>{if(event.target.closest('button,select,input'))remember()},{capture:true,passive:true});
+  bar.addEventListener('touchstart',event=>{if(event.target.closest('button,select,input'))remember()},{capture:true,passive:true});
+  const font=bar.querySelector('[data-font]');if(font){font.onchange=event=>applyFont(event.target.value)}
+  const size=bar.querySelector('[data-font-size]');if(size){size.onchange=()=>applySize(size.value);size.oninput=()=>{}}
+  const minus=bar.querySelector('[data-size-minus]');if(minus)minus.onclick=event=>{event.preventDefault();size.value=Math.max(8,(Number(size.value)||16)-1);applySize(size.value)};
+  const plus=bar.querySelector('[data-size-plus]');if(plus)plus.onclick=event=>{event.preventDefault();size.value=Math.min(72,(Number(size.value)||16)+1);applySize(size.value)};
+  bar.querySelectorAll('[data-word]').forEach(button=>button.onclick=event=>{event.preventDefault();applyCommand(button.dataset.word)});
+ }
+ const previousSelect=select;select=function(note){savedRange=null;previousSelect(note);requestAnimationFrame(install)};
+ const previousOpen=openApp;openApp=function(){previousOpen();requestAnimationFrame(install)};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0),{once:true}):setTimeout(install,0);
+ document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301,.aj-note-card,[data-new]'))requestAnimationFrame(install)},true);
+ addEventListener('resize',()=>requestAnimationFrame(install),{passive:true});
+})();
+
 // AIRJOTTER_NOTES_MOBILE_SELECTION_TIMESTAMP_V2304N_REVISED
-// Durante l'idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
+// Durante l idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
 // AIRJOTTER_NOTES_TIMESTAMP_ROOT_V2301L
 // Percorsi legacy colore neutralizzati: nessun cambio colore puo chiamare schedule/localSave o impostare updated_at.
 
