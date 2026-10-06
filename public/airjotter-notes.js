@@ -500,6 +500,36 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  addEventListener('orientationchange',()=>requestAnimationFrame(installQ),{passive:true});
 })();
 
+// AIRJOTTER_NOTES_PIN_LOADING_V2304R
+(()=>{'use strict';
+ let loadingDepth=0,loadingFailsafe=0;
+ function loadingBox(){let el=document.querySelector('.aj-note-loading-v2304q');if(!el){el=document.createElement('div');el.className='aj-note-loading-v2304q';el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.innerHTML='<div>Caricamento in corso...</div>';document.body.appendChild(el)}return el}
+ function startLoading(){installStyle();loadingDepth++;loadingBox().classList.add('show');clearTimeout(loadingFailsafe);loadingFailsafe=setTimeout(stopLoading,12000)}
+ function stopLoading(){loadingDepth=0;clearTimeout(loadingFailsafe);loadingBox().classList.remove('show')}
+ async function savePinState(){
+  if(!current)return;
+  clearTimeout(saveTimer);
+  const originalUpdated=current.updated_at;
+  current.pinned=!current.pinned;
+  current.updated_at=new Date().toISOString();
+  current.sync_state='pending';
+  const snapshot={...current};
+  const pin=document.querySelector('[data-pin]');if(pin)pin.textContent=current.pinned?'📌 Fissata':'📌 Fissa';
+  await put(STORE,snapshot);
+  await put(QUEUE,{id:snapshot.id,note:snapshot});
+  notes=notes.map(note=>note.id===snapshot.id?snapshot:note);
+  current=snapshot;
+  render();
+  try{await sync()}catch{current.updated_at=current.updated_at||originalUpdated}
+ }
+ function installPin(){const pin=document.querySelector('[data-pin]');if(!pin||pin.dataset.ajPinV2304r)return;pin.dataset.ajPinV2304r='1';pin.onclick=event=>{event.preventDefault();event.stopPropagation();savePinState()}}
+ const loadBeforeV2304R=load;load=async function(){try{return await loadBeforeV2304R()}finally{stopLoading();requestAnimationFrame(installPin)}};
+ const selectBeforeV2304R=select;select=function(note){selectBeforeV2304R(note);requestAnimationFrame(installPin)};
+ document.addEventListener('pointerdown',event=>{if(event.target.closest('#ajNotesBtnV2301'))startLoading()},{capture:true,passive:true});
+ document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301')){startLoading();requestAnimationFrame(installPin)}},true);
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(installPin,0),{once:true}):setTimeout(installPin,0);
+})();
+
 })();
 // AIRJOTTER_NOTES_MOBILE_SELECTION_TIMESTAMP_V2304N_REVISED
 // Durante l idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
