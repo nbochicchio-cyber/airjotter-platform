@@ -428,9 +428,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  addEventListener('orientationchange',()=>requestAnimationFrame(place),{passive:true});
  setTimeout(place,550);
 })();
-})();
-
-// AIRJOTTER_NOTES_MOBILE_FORMATTING_V2304O
+// AIRJOTTER_NOTES_MOBILE_FORMATTING_V2304P
 (()=>{'use strict';
  let savedRange=null;
  const body=()=>document.querySelector('.aj-note-body');
@@ -444,7 +442,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  function applyCommand(command){restore();document.execCommand(command,false,null);finish()}
  function install(){
   const bar=document.querySelector('.aj-wordbar-v2301c'),b=body();if(!bar||!b)return;
-  const pink=document.querySelector('.aj-standard-colors-v2301d [data-aj-color-v2301d="#f8bbd0"]');pink?.remove();
+  document.querySelectorAll('[data-aj-color-v2301d="#f8bbd0"],[data-note-color="#f8bbd0"]').forEach(pink=>pink.remove());
   if(!b.dataset.ajMobileFormattingV2304o){b.dataset.ajMobileFormattingV2304o='1';for(const type of ['selectionchange'])document.addEventListener(type,remember);for(const type of ['pointerup','touchend','keyup','mouseup'])b.addEventListener(type,remember,{passive:true})}
   if(bar.dataset.ajMobileFormattingV2304o)return;bar.dataset.ajMobileFormattingV2304o='1';
   bar.addEventListener('pointerdown',event=>{if(event.target.closest('button,select,input'))remember()},{capture:true,passive:true});
@@ -461,7 +459,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301,.aj-note-card,[data-new]'))requestAnimationFrame(install)},true);
  addEventListener('resize',()=>requestAnimationFrame(install),{passive:true});
 })();
-
+})();
 // AIRJOTTER_NOTES_MOBILE_SELECTION_TIMESTAMP_V2304N_REVISED
 // Durante l idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
 // AIRJOTTER_NOTES_TIMESTAMP_ROOT_V2301L
