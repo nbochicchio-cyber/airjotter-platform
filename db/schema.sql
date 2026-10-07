@@ -251,8 +251,31 @@ CREATE INDEX IF NOT EXISTS users_subscription_external_v1959_idx ON users(subscr
 
 
 -- AIRJOTTER_NOTES_V2301A
-ALTER TABLE billing_plans ADD COLUMN IF NOT EXISTS notes_limit INTEGER NOT NULL DEFAULT 10 CHECK(notes_limit>0);
-UPDATE billing_plans SET notes_limit=CASE code WHEN 'free' THEN 10 WHEN 'plus' THEN 50 WHEN 'ultra' THEN 500 ELSE notes_limit END WHERE code IN ('free','plus','ultra');
+-- AIRJOTTER_PLAN_NOTES_ADMIN_AUTHORITY_V2304Y
+-- Bootstrap una tantum: dopo la creazione della colonna, solo la Console amministrativa modifica notes_limit.
+DO $airjotter_notes_limit_bootstrap$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'billing_plans'
+      AND column_name = 'notes_limit'
+  ) THEN
+    ALTER TABLE billing_plans
+      ADD COLUMN notes_limit INTEGER NOT NULL DEFAULT 10 CHECK(notes_limit > 0);
+
+    UPDATE billing_plans
+    SET notes_limit = CASE code
+      WHEN 'free' THEN 10
+      WHEN 'plus' THEN 50
+      WHEN 'ultra' THEN 500
+      ELSE notes_limit
+    END
+    WHERE code IN ('free','plus','ultra');
+  END IF;
+END
+$airjotter_notes_limit_bootstrap$;
 CREATE TABLE IF NOT EXISTS notes (
  id UUID PRIMARY KEY,
  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
