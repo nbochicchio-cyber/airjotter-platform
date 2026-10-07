@@ -311,3 +311,23 @@ CREATE TABLE IF NOT EXISTS user_legal_acceptance_events (
 );
 CREATE INDEX IF NOT EXISTS user_legal_acceptance_user_idx ON user_legal_acceptance_events(user_id,occurred_at DESC);
 CREATE INDEX IF NOT EXISTS user_legal_acceptance_email_idx ON user_legal_acceptance_events(lower(email_snapshot),occurred_at DESC);
+
+-- AIRJOTTER GDPR ADMIN FIX V221061331932A
+ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_notice_version TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_notice_acknowledged_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_version TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS registration_method TEXT;
+CREATE TABLE IF NOT EXISTS user_legal_acceptance_events (
+ id UUID PRIMARY KEY,
+ user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+ email_snapshot TEXT NOT NULL,
+ event_type TEXT NOT NULL CHECK(event_type IN ('registration_acceptance','consent_withdrawal','profile_deletion_request')),
+ privacy_notice_version TEXT,
+ terms_version TEXT,
+ occurred_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ method TEXT NOT NULL CHECK(method IN ('email','google','admin')),
+ evidence JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+CREATE INDEX IF NOT EXISTS user_legal_acceptance_user_idx ON user_legal_acceptance_events(user_id,occurred_at DESC);
+CREATE INDEX IF NOT EXISTS user_legal_acceptance_email_idx ON user_legal_acceptance_events(lower(email_snapshot),occurred_at DESC);
