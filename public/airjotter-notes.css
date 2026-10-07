@@ -451,7 +451,7 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
 
 
 
-/* AIRJOTTER_NOTES_TABLET_SMARTPHONE_LOGIC_V2306B */
+/* AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_V2306C */
 .aj-notes-shell[hidden],.aj-notes-shell[inert]:not(.open),html.aj-ipad-notes-v2305d .aj-notes-shell[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
 .aj-notes-shell.open:not([hidden]){display:flex!important;visibility:visible!important;pointer-events:auto!important}
 @media (min-width:761px) and (max-width:1400px) and (pointer:coarse),
@@ -479,4 +479,25 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
  .aj-notes-shell.open:not([hidden]) .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>*,.aj-notes-shell.open:not([hidden]) .aj-note-toolbar.aj-note-toolbar-single-v2304e>button,.aj-notes-shell.open:not([hidden]) .aj-note-toolbar.aj-note-toolbar-single-v2304e>label{flex:0 0 auto!important;margin:0!important}
  .aj-notes-shell.open:not([hidden]) .aj-note-body{margin:0 12px 10px!important;padding:18px!important;min-height:0!important;flex:1!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;font-size:17px!important}
  .aj-notes-shell.open:not([hidden]) .aj-note-top [data-restore],.aj-notes-shell.open:not([hidden]) .aj-note-top [data-restore][style]{background-color:#138149!important;background-image:linear-gradient(180deg,#49dd8e 0%,#19a861 48%,#08743f 100%)!important;color:#fff!important;border:1px solid #08703c!important;font-weight:800!important;-webkit-appearance:none!important;appearance:none!important}
+}
+
+
+/* AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_LAYOUT_V2306C
+   Solo tablet/iPad orizzontale: lista a sinistra, nota selezionata a destra. */
+@media (min-width:761px) and (max-width:1400px) and (orientation:landscape){
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c{display:grid!important;grid-template-columns:minmax(300px,36%) minmax(0,64%)!important;grid-template-rows:100%!important;background:#efe9e1!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-sidebar,
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c[data-mobile-view="editor"] .aj-notes-sidebar{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;grid-column:1!important;grid-row:1!important;border-right:1px solid #e4ddd4!important;z-index:2!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-main,
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c[data-mobile-view="editor"] .aj-notes-main{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;grid-column:2!important;grid-row:1!important;z-index:3!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-back{display:none!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>label>span{display:none!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>label{display:flex!important;align-items:center!important;gap:3px!important;margin:0!important;padding:0!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>label>div{display:flex!important;align-items:center!important;gap:3px!important;white-space:nowrap!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e select{width:118px!important;min-width:118px!important;padding:0 7px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e input[data-font-size]{width:48px!important;min-width:48px!important;text-align:center!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e button{min-width:40px!important;padding:0 8px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-empty{display:flex;align-items:center;justify-content:center;flex-direction:column;height:100%}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-list{padding:0 8px 18px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card{margin:7px 4px!important;padding:13px!important}
 }
