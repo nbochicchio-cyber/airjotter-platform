@@ -67,7 +67,7 @@
  .aj-note-body{margin:0 8px 7px!important;padding:13px!important;min-height:0!important;flex:1!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
  .aj-note-attachments{padding:5px 8px calc(9px + env(safe-area-inset-bottom))!important;max-height:24dvh!important;overflow:auto!important}
 }
-@media(min-width:761px) and (max-width:1180px) and (orientation:landscape){
+@media(min-width:761px) and (max-width:1400px) and (orientation:landscape){
  .aj-notes-sidebar{width:35vw!important;min-width:310px!important;max-width:390px!important}
  .aj-note-top,.aj-note-toolbar,.aj-wordbar-v2301c,.aj-note-colors-v2301d{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important}
  .aj-note-top>*,.aj-note-toolbar>*,.aj-wordbar-v2301c>*,.aj-note-colors-v2301d>*{flex:0 0 auto!important}
@@ -410,10 +410,10 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
  }
 }
 
-/* AIRJOTTER_NOTES_TABLET_EQUALS_SMARTPHONE_V2305B
+/* AIRJOTTER_NOTES_IPAD_EQUALS_SMARTPHONE_V2305C
    Tablet touch: stesso flusso lista/editor dello smartphone in entrambi gli orientamenti. */
-@media (min-width:761px) and (max-width:1180px) and (pointer:coarse),
-       (min-width:761px) and (max-width:1180px) and (hover:none){
+@media (min-width:761px) and (max-width:1400px) and (pointer:coarse),
+       (min-width:761px) and (max-width:1400px) and (hover:none){
   .aj-notes-shell,
   .aj-notes-shell.open{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:block!important;overflow:hidden!important;background:#fffdf9!important;z-index:2147483640!important;isolation:isolate!important}
   .aj-notes-sidebar,.aj-notes-main{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;box-sizing:border-box!important;background:#fffdf9!important}
