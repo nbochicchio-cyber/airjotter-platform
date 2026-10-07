@@ -544,6 +544,41 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 
 })();
 
+// AIRJOTTER_NOTES_TABLET_SPACING_RESTORE_TRASH_V2304Z
+(()=>{'use strict';
+ function installV2304Z(){
+  if(document.getElementById('ajNotesV2304ZStyle'))return;
+  const style=document.createElement('style');style.id='ajNotesV2304ZStyle';style.textContent=`
+   .aj-note-top [data-restore]{
+    background-color:#168a4b!important;
+    background-image:linear-gradient(180deg,#35c878 0%,#159657 48%,#08743f 100%)!important;
+    color:#fff!important;
+    border-color:#08703c!important;
+    box-shadow:0 3px 9px rgba(8,116,63,.28),inset 0 1px 0 rgba(255,255,255,.42),inset 0 -2px 0 rgba(5,83,43,.26)!important;
+    text-shadow:0 1px 1px rgba(0,0,0,.28)!important;
+    font-weight:800!important;
+   }
+   .aj-note-top [data-restore]:hover{background-image:linear-gradient(180deg,#43d887 0%,#18a660 48%,#087b43 100%)!important}
+   .aj-note-top [data-restore]:focus-visible{outline:3px solid rgba(42,194,112,.35)!important;outline-offset:2px!important}
+   .aj-note-top [data-restore]:disabled{opacity:.72!important;color:#fff!important}
+   @media (min-width:761px) and (max-width:1180px) and (pointer:coarse),
+          (min-width:761px) and (max-width:1180px) and (hover:none){
+    .aj-note-top .aj-standard-colors-v2301d{
+     flex:0 0 auto!important;width:max-content!important;min-width:0!important;max-width:none!important;
+     margin:0 5px 0 0!important;padding-left:0!important;padding-right:0!important;
+     justify-content:flex-start!important;gap:4px!important
+    }
+    .aj-note-top .aj-standard-colors-v2301d~[data-share]{margin-left:0!important}
+    .aj-notes-controls [data-mobile-trash-v2304u]{
+     display:inline-flex!important;flex:0 0 76px!important;width:76px!important;min-width:76px!important;max-width:76px!important;
+     padding-left:7px!important;padding-right:7px!important;justify-content:center!important;white-space:nowrap!important
+    }
+   }
+  `;document.head.appendChild(style)
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',installV2304Z,{once:true}):installV2304Z();
+ addEventListener('pageshow',installV2304Z,{once:true});
+})();
 // AIRJOTTER_NOTES_BACK_ICON_V2304X
 // AIRJOTTER_NOTES_MOBILE_SELECTION_TIMESTAMP_V2304N_REVISED
 // Durante l idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
