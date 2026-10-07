@@ -1184,6 +1184,33 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
   -webkit-transform-origin: center center !important;
 }
 </style>
+<style id="AIRJOTTER_SIGNED_ROTATION_TABLET_NOTES_V1931C">
+@media (min-width:761px) and (max-width:1400px) and (pointer:coarse){
+ html body header .aj-io-stack-v22107{grid-template-columns:max-content max-content max-content max-content max-content max-content!important}
+ html body header .aj-io-stack-v22107 #ajNotesBtnV2301{
+  grid-column:6!important;grid-row:1!important;position:static!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  align-self:center!important;justify-self:center!important;
+  height:25px!important;min-height:25px!important;max-height:25px!important;
+  margin:0!important;padding:3px 7px!important;transform:none!important;
+  box-sizing:border-box!important;white-space:nowrap!important;z-index:2!important
+ }
+ html body header .aj-io-stack-v22107 #ajNotesBtnV2301 svg{width:14px!important;height:14px!important;flex:0 0 14px!important}
+}
+</style>
+<script id="AIRJOTTER_SIGNED_ROTATION_TABLET_NOTES_V1931C_SCRIPT">
+(()=>{'use strict';
+ const ids=['ajStampRotV1926','ajTextRotV1926','ajShapeRotV1926'];
+ const clamp=v=>Math.max(-180,Math.min(180,Math.round(Number(v)||0)));
+ const target=id=>id==='ajStampRotV1926'?document.getElementById('stamp-container'):id==='ajTextRotV1926'?document.getElementById('text-tool-input'):document.getElementById('ajShapePreviewV227');
+ const apply=(id,value)=>{const n=document.getElementById(id);if(!n)return;const box=n.closest('.aj-rot-v1926'),r=box?.querySelector('input[type="range"]');if(!box||!r)return;const v=clamp(value);n.min=r.min='-180';n.max=r.max='180';n.step=r.step='1';n.value=r.value=String(v);target(id)?.style.setProperty('transform','rotate('+v+'deg)','important')};
+ const rotations=()=>ids.forEach(id=>{const n=document.getElementById(id);if(!n)return;const box=n.closest('.aj-rot-v1926'),r=box?.querySelector('input[type="range"]');if(!box||!r)return;if(!box.dataset.ajSignedV1931c){box.dataset.ajSignedV1931c='1';r.addEventListener('input',e=>{e.stopImmediatePropagation();apply(id,e.currentTarget.value)},true);n.addEventListener('input',e=>{e.stopImmediatePropagation();apply(id,e.currentTarget.value)},true)}apply(id,0)});
+ const tablet=()=>matchMedia('(min-width:761px) and (max-width:1400px) and (pointer:coarse)').matches;
+ const notes=()=>{if(!tablet())return;const n=document.getElementById('ajNotesBtnV2301'),f=document.getElementById('ajFileTransferBtnV2291'),g=f?.closest('.aj-io-stack-v22107');if(!n||!f||!g)return;if(n.parentElement!==g||n.previousElementSibling!==f)f.insertAdjacentElement('afterend',n)};
+ const install=()=>{rotations();notes()};const schedule=()=>{requestAnimationFrame(install);setTimeout(install,100);setTimeout(install,400)};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();addEventListener('pageshow',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,150),{passive:true});document.addEventListener('click',e=>{if(e.target.closest('#toolTextBtn,[data-aj-shape],[data-aj-connector],#importPdfBtn,#importSignBtn,#importRealImgBtn'))setTimeout(rotations,0)},true);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
