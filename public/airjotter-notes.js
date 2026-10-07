@@ -3,6 +3,7 @@
 const DB='airjotter-notes-v1',STORE='notes',QUEUE='queue';let db,notes=[],current=null,saveTimer,sort='updated_at',dir='desc',trash=false,lastRange=null,noteContentDirty=false,noteEditorHydrating=false;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+// AIRJOTTER_NOTES_IPAD_HARD_CLOSE_V2306E
 // AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_V2306C
 function ajNotesIsIPadV2306B(){return /iPad/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)}
 function ajNotesCompactV2306B(){return matchMedia('(max-width:760px)').matches||ajNotesIsIPadV2306B()||((navigator.maxTouchPoints||0)>0&&Math.min(screen.width||innerWidth,screen.height||innerHeight)<=1400)}
