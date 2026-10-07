@@ -3,12 +3,6 @@
 const DB='airjotter-notes-v1',STORE='notes',QUEUE='queue';let db,notes=[],current=null,saveTimer,sort='updated_at',dir='desc',trash=false,lastRange=null,noteContentDirty=false,noteEditorHydrating=false;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-// AIRJOTTER_NOTES_RESPONSIVE_REWRITE_V2306A
-function ajNotesIsIPadV2306A(){return /iPad/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)}
-function ajNotesIsTouchV2306A(){return (navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches}
-function ajNotesIsCompactV2306A(){return innerWidth<=760||ajNotesIsIPadV2306A()||(ajNotesIsTouchV2306A()&&Math.min(screen.width||innerWidth,screen.height||innerHeight)<=1400)}
-function ajNotesApplyResponsiveV2306A(){const compact=ajNotesIsCompactV2306A(),tablet=compact&&innerWidth>760;for(const root of [document.documentElement,document.body])if(root){root.classList.toggle('aj-notes-compact-v2306a',compact);root.classList.toggle('aj-notes-tablet-v2306a',tablet)}const shell=document.querySelector('.aj-notes-shell');if(shell){shell.classList.toggle('aj-notes-compact-v2306a',compact);shell.classList.toggle('aj-notes-tablet-v2306a',tablet);if(!compact)delete shell.dataset.mobileView;else if(!shell.dataset.mobileView)shell.dataset.mobileView='list'}}
-
 function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});if(!d.objectStoreNames.contains(QUEUE))d.createObjectStore(QUEUE,{keyPath:'id'})};r.onsuccess=()=>{db=r.result;ok(db)};r.onerror=()=>no(r.error)})}
 function tx(store,mode='readonly'){return db.transaction(store,mode).objectStore(store)}function all(store){return new Promise((ok,no)=>{const r=tx(store).getAll();r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}function put(store,v){return new Promise((ok,no)=>{const r=tx(store,'readwrite').put(v);r.onsuccess=()=>ok(v);r.onerror=()=>no(r.error)})}function del(store,id){return new Promise((ok,no)=>{const r=tx(store,'readwrite').delete(id);r.onsuccess=()=>ok();r.onerror=()=>no(r.error)})}
 function api(url,opt={}){return fetch(url,{credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})},...opt}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok){const e=Error(j.error||'Operazione non riuscita');e.status=r.status;throw e}return j})}
@@ -77,13 +71,13 @@ function insertImage(file,attachment=false){const r=new FileReader();r.onload=()
 function attachments(){$('.aj-note-files').innerHTML=(current?.attachments||[]).map(a=>`<span class="aj-note-file"><button type="button" data-open-file="${a.id}">📎 ${esc(a.name)}</button><button type="button" data-remove-file="${a.id}" aria-label="Rimuovi allegato">×</button></span>`).join('');document.querySelectorAll('[data-open-file]').forEach(b=>b.onclick=()=>ajOpenAttachmentV2301C((current.attachments||[]).find(a=>a.id===b.dataset.openFile)));document.querySelectorAll('[data-remove-file]').forEach(b=>b.onclick=()=>{current.attachments=current.attachments.filter(a=>a.id!==b.dataset.removeFile);attachments();schedule()})}
 function schedule(){if(noteEditorHydrating)return;noteContentDirty=true;clearTimeout(saveTimer);$('.aj-note-sync').textContent='Salvataggio…';saveTimer=setTimeout(()=>localSave(false),650)}
 // AIRJOTTER_NOTES_MOBILE_TRASH_RESTORE_DELETE_V2304X
-function ajMobileNotesV2304U(){return ajNotesIsCompactV2306A()}
+function ajMobileNotesV2304U(){return innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches)}
 function ajNotesListViewV2304U(){const shell=$('.aj-notes-shell');if(shell)shell.dataset.mobileView='list';closeEditor()}
 function ajSetTrashModeV2304U(on){clearTimeout(saveTimer);current=null;trash=Boolean(on);$('.aj-note-trashbar')?.classList.toggle('open',trash);if(trash)ajResetEditorForTrashV2301E();else ajRestoreEditorEmptyV2301E();ajTrashUiV2301D(trash);ajNotesListViewV2304U();render()}
 async function restoreCurrentV2304U(){if(!current)return;const restored=current,button=$('[data-restore]');if(button){button.disabled=true;button.textContent='Ripristino…'}try{clearTimeout(saveTimer);restored.deleted_at=null;restored.updated_at=new Date().toISOString();restored.sync_state='pending';restored.is_new=false;await put(STORE,restored);await put(QUEUE,{id:restored.id,note:{...restored}});notes=notes.map(n=>n.id===restored.id?restored:n);current=null;trash=false;$('.aj-note-trashbar')?.classList.remove('open');ajTrashUiV2301D(false);ajRestoreEditorEmptyV2301E();ajNotesListViewV2304U();render();toast('Nota ripristinata');await sync()}finally{if(button){button.disabled=false;button.textContent='Ripristina'}}}
 async function trashCurrent(){if(!current)return;if(trash){if(!confirm('Eliminare definitivamente questa nota? L’operazione è irreversibile.'))return;const id=current.id,button=$('[data-delete]');if(button){button.disabled=true;button.textContent='Eliminazione…'}try{await api('/api/notes/'+id+'?permanent=true',{method:'DELETE'});await del(STORE,id);notes=notes.filter(n=>n.id!==id);current=null;const remaining=notes.filter(n=>Boolean(n.deleted_at));if(ajMobileNotesV2304U()){trash=remaining.length>0;$('.aj-note-trashbar')?.classList.toggle('open',trash);ajTrashUiV2301D(trash);if(!trash)ajRestoreEditorEmptyV2301E();ajNotesListViewV2304U();render();toast('Nota eliminata definitivamente')}else{closeEditor();render()}}finally{if(button){button.disabled=false;button.textContent=trash?'Elimina definitivamente':'Cestino'}}}else{if(!confirm('Spostare questa nota nel cestino? La nota continuerà a essere conteggiata nel limite del piano finché non verrà eliminata definitivamente.'))return;current.deleted_at=new Date().toISOString();schedule();await localSave();current=null;closeEditor();render()}}
 function closeEditor(){$('.aj-note-editor').classList.remove('open');$('.aj-note-empty').style.display='block';$('.aj-notes-main').classList.remove('mobile-open')}
-function openApp(){ajNotesApplyResponsiveV2306A();let s=$('.aj-notes-shell');if(!s){init();s=$('.aj-notes-shell')}if(!s)return;const overlay=document.querySelector('.aj-note-loading-v2304q');overlay?.classList.add('show');if(ajNotesIsCompactV2306A())s.dataset.mobileView='list';s.classList.add('open');s.setAttribute('aria-hidden','false');ajEnsureNotesDbV2304A2().then(load).catch(()=>toast('Archivio Note non disponibile')).finally(()=>overlay?.classList.remove('show'))}
+function openApp(){let s=$('.aj-notes-shell');if(!s){init();s=$('.aj-notes-shell')}if(!s)return;const overlay=document.querySelector('.aj-note-loading-v2304q');overlay?.classList.add('show');if(ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches)))s.dataset.mobileView='list';s.classList.add('open');s.setAttribute('aria-hidden','false');ajEnsureNotesDbV2304A2().then(load).catch(()=>toast('Archivio Note non disponibile')).finally(()=>overlay?.classList.remove('show'))}
 function closeApp(){clearTimeout(saveTimer);const title=$('.aj-note-title')?.value.trim()||'',body=sanitize($('.aj-note-body')?.innerHTML||'');if(current&&(title!==String(current.title||'')||body!==String(current.body_html||'')))localSave(false);$('.aj-notes-shell').classList.remove('open');$('.aj-notes-shell').setAttribute('aria-hidden','true')}
 async function share(){collect();const text=(current.title+'\n\n'+strip(current.body_html)).trim();if(navigator.share)await navigator.share({title:current.title||'Nota AirJotter',text});else{await navigator.clipboard.writeText(text);toast('Nota copiata negli appunti')}}
 function pdf(){collect();const w=open('','_blank');w.document.write(`<title>${esc(current.title||'Nota')}</title><style>body{font:16px Arial;max-width:800px;margin:40px auto;line-height:1.5}img{max-width:100%}</style><h1>${esc(current.title||'Nota')}</h1>${current.body_html}`);w.document.close();w.print()}
@@ -95,7 +89,7 @@ let ajNotesInitializedV2304A2=false,ajNotesDbPromiseV2304A2=null;
 function ajEnsureNotesDbV2304A2(){if(db)return Promise.resolve(db);if(!ajNotesDbPromiseV2304A2)ajNotesDbPromiseV2304A2=openDB().catch(e=>{ajNotesDbPromiseV2304A2=null;console.error('AIRJOTTER_NOTES_COMPLETE_CLEAN_V2304A2: IndexedDB',e);throw e});return ajNotesDbPromiseV2304A2}
 function ajInstallMobileTrashV2304U(){if(document.getElementById('ajNotesMobileTrashV2304U'))return;const style=document.createElement('style');style.id='ajNotesMobileTrashV2304U';style.textContent='.aj-mobile-trash-v2304u{display:none!important}@media (max-width:760px),(min-width:761px) and (max-width:1400px) and (pointer:coarse),(min-width:761px) and (max-width:1400px) and (hover:none){.aj-mobile-trash-v2304u{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important}.aj-note-top{position:relative!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important}.aj-note-top .aj-note-back{position:sticky!important;left:0!important;z-index:50!important;flex:0 0 46px!important;min-width:46px!important;width:46px!important;height:46px!important;margin:0 8px 0 0!important;background:#0b55b7!important;color:#fff!important;border-color:#084699!important;box-shadow:6px 0 8px rgba(255,255,255,.95)!important}.aj-note-top .aj-note-back{font-size:0!important;line-height:0!important;overflow:hidden!important;border-radius:12px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;text-align:center!important;background:linear-gradient(180deg,#176bd8 0%,#0b55b7 58%,#08469a 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),inset 0 -2px 0 rgba(0,32,92,.35),6px 0 8px rgba(255,255,255,.95)!important}.aj-note-top .aj-note-back::before,.aj-note-top .aj-note-back::after{content:none!important;display:none!important}.aj-note-top .aj-note-back .aj-back-icon-v2304x{display:block!important;width:35px!important;height:35px!important;min-width:35px!important;margin:0!important;transform:none!important;fill:none!important;stroke:#fff!important;stroke-width:4.4!important;stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important;filter:drop-shadow(0 1.5px 1.5px rgba(0,0,0,.32))}.aj-note-top .aj-note-back+*{position:relative!important;z-index:1!important}}';document.head.appendChild(style)}
 document.addEventListener('click',event=>{const button=event.target.closest('[data-trash-view],[data-mobile-trash-v2304u]');if(!button)return;event.preventDefault();event.stopImmediatePropagation();ajSetTrashModeV2304U(true)},true);
-function init(){ajNotesApplyResponsiveV2306A();if(ajNotesInitializedV2304A2)return;ajNotesInitializedV2304A2=true;try{ajInstallMobileTrashV2304U();if(!document.querySelector('.aj-notes-shell'))shell();wire();ajEnhanceNotesV2301C();makeButton();planText();ajEnsureNotesDbV2304A2().catch(()=>{})}catch(e){ajNotesInitializedV2304A2=false;console.error('AIRJOTTER_NOTES_COMPLETE_CLEAN_V2304A2: init',e)}}
+function init(){if(ajNotesInitializedV2304A2)return;ajNotesInitializedV2304A2=true;try{ajInstallMobileTrashV2304U();if(!document.querySelector('.aj-notes-shell'))shell();wire();ajEnhanceNotesV2301C();makeButton();planText();ajEnsureNotesDbV2304A2().catch(()=>{})}catch(e){ajNotesInitializedV2304A2=false;console.error('AIRJOTTER_NOTES_COMPLETE_CLEAN_V2304A2: init',e)}}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 
 // AIRJOTTER_NOTES_UX_V2301C
@@ -286,7 +280,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 
 // AIRJOTTER_NOTES_MOBILE_TABLET_V2304B
 (()=>{'use strict';
- const compact=()=>ajNotesIsCompactV2306A();
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  const shell=()=>document.querySelector('.aj-notes-shell');
  const setView=view=>{const s=shell();if(!s)return;if(compact())s.dataset.mobileView=view;else delete s.dataset.mobileView};
  document.addEventListener('click',event=>{
@@ -300,7 +294,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 
 // AIRJOTTER_NOTES_MOBILE_SINGLE_TOOLBAR_V2304E
 (()=>{'use strict';
- const compact=()=>ajNotesIsCompactV2306A();
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  function arrange(){
   const toolbar=document.querySelector('.aj-note-toolbar');
   const wordbar=document.querySelector('.aj-wordbar-v2301c');
@@ -478,7 +472,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 // AIRJOTTER_NOTES_MOBILE_LOADING_COMPACT_SELECTION_V2304Q
 (()=>{'use strict';
- const compact=()=>ajNotesIsCompactV2306A();
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  function installStyle(){if(document.getElementById('ajNotesV2304QStyle'))return;const style=document.createElement('style');style.id='ajNotesV2304QStyle';style.textContent=`
  .aj-note-loading-v2304q{position:fixed;inset:0;z-index:2147483646;display:none;align-items:center;justify-content:center;background:rgba(17,25,39,.28);backdrop-filter:blur(2px)}
  .aj-note-loading-v2304q.show{display:flex}.aj-note-loading-v2304q>div{background:#fff;color:#17365f;border:1px solid #d4deed;border-radius:12px;padding:13px 18px;font:700 15px Arial,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.22)}
@@ -548,10 +542,31 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 
 
-document.addEventListener('DOMContentLoaded',ajNotesApplyResponsiveV2306A,{once:true});
-addEventListener('pageshow',ajNotesApplyResponsiveV2306A,{passive:true});
-addEventListener('resize',()=>requestAnimationFrame(ajNotesApplyResponsiveV2306A),{passive:true});
-addEventListener('orientationchange',()=>setTimeout(ajNotesApplyResponsiveV2306A,50),{passive:true});
+// AIRJOTTER_NOTES_IPAD_CLASS_AUTHORITY_V2305D
+// Rilevamento iPad stabile: indipendente da orientamento, viewport, hover e trackpad.
+function ajIsIPadV2305D(){return /iPad/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)}
+function ajInstallIPadClassV2305D(){const on=ajIsIPadV2305D();document.documentElement.classList.toggle('aj-ipad-notes-v2305d',on);document.body?.classList.toggle('aj-ipad-notes-v2305d',on);return on}
+ajInstallIPadClassV2305D();
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ajInstallIPadClassV2305D,{once:true}):ajInstallIPadClassV2305D();
+addEventListener('pageshow',ajInstallIPadClassV2305D,{passive:true});addEventListener('orientationchange',()=>setTimeout(ajInstallIPadClassV2305D,30),{passive:true});
+// AIRJOTTER_NOTES_TABLET_UI_AUTHORITY_V2305A
+function ajNotesTabletV2305A(){return false}
+function ajApplyNotesUiV2305A(){
+ const top=document.querySelector('.aj-note-top'),palette=top?.querySelector('.aj-standard-colors-v2301d'),share=top?.querySelector('[data-share]'),restore=top?.querySelector('[data-restore]'),trashNav=top?.querySelector('[data-trash-view]');
+ if(restore){const values={'background-color':'#168a4b','background-image':'linear-gradient(180deg,#45d98b 0%,#19a861 48%,#08743f 100%)','color':'#ffffff','border-color':'#08703c','box-shadow':'0 3px 9px rgba(8,116,63,.32),inset 0 1px 0 rgba(255,255,255,.46),inset 0 -2px 0 rgba(5,83,43,.28)','text-shadow':'0 1px 1px rgba(0,0,0,.3)','font-weight':'800'};for(const [k,v] of Object.entries(values))restore.style.setProperty(k,v,'important')}
+ if(ajNotesTabletV2305A()){
+  if(palette){const values={flex:'0 0 auto',width:'max-content','min-width':'0','max-width':'none',margin:'0 4px 0 0','padding-left':'0','padding-right':'0','justify-content':'flex-start',gap:'4px'};for(const [k,v] of Object.entries(values))palette.style.setProperty(k,v,'important')}
+  if(share)share.style.setProperty('margin-left','0','important');
+  if(trashNav){const editorOpen=document.querySelector('.aj-note-editor')?.classList.contains('open'),width=editorOpen?'126px':'72px';for(const prop of ['width','min-width','max-width'])trashNav.style.setProperty(prop,width,'important');trashNav.style.setProperty('flex','0 0 '+width,'important');trashNav.style.setProperty('padding-left','6px','important');trashNav.style.setProperty('padding-right','6px','important')}
+ }
+}
+const ajRenderBeforeV2305A=render;render=function(){const value=ajRenderBeforeV2305A();requestAnimationFrame(ajApplyNotesUiV2305A);return value};
+const ajSelectBeforeV2305A=select;select=function(note){const value=ajSelectBeforeV2305A(note);requestAnimationFrame(ajApplyNotesUiV2305A);return value};
+const ajOpenBeforeV2305A=openApp;openApp=function(){const value=ajOpenBeforeV2305A();requestAnimationFrame(ajApplyNotesUiV2305A);setTimeout(ajApplyNotesUiV2305A,120);return value};
+document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301,.aj-note-card,[data-trash-view],[data-restore],.aj-note-back'))requestAnimationFrame(ajApplyNotesUiV2305A)},true);
+addEventListener('resize',()=>requestAnimationFrame(ajApplyNotesUiV2305A),{passive:true});addEventListener('orientationchange',()=>setTimeout(ajApplyNotesUiV2305A,80),{passive:true});
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(ajApplyNotesUiV2305A,250),{once:true}):setTimeout(ajApplyNotesUiV2305A,250);
+
 })();
 
 // AIRJOTTER_NOTES_BACK_ICON_V2304X
