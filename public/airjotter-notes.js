@@ -77,7 +77,7 @@ function ajSetTrashModeV2304U(on){clearTimeout(saveTimer);current=null;trash=Boo
 async function restoreCurrentV2304U(){if(!current)return;const restored=current,button=$('[data-restore]');if(button){button.disabled=true;button.textContent='Ripristino…'}try{clearTimeout(saveTimer);restored.deleted_at=null;restored.updated_at=new Date().toISOString();restored.sync_state='pending';restored.is_new=false;await put(STORE,restored);await put(QUEUE,{id:restored.id,note:{...restored}});notes=notes.map(n=>n.id===restored.id?restored:n);current=null;trash=false;$('.aj-note-trashbar')?.classList.remove('open');ajTrashUiV2301D(false);ajRestoreEditorEmptyV2301E();ajNotesListViewV2304U();render();toast('Nota ripristinata');await sync()}finally{if(button){button.disabled=false;button.textContent='Ripristina'}}}
 async function trashCurrent(){if(!current)return;if(trash){if(!confirm('Eliminare definitivamente questa nota? L’operazione è irreversibile.'))return;const id=current.id,button=$('[data-delete]');if(button){button.disabled=true;button.textContent='Eliminazione…'}try{await api('/api/notes/'+id+'?permanent=true',{method:'DELETE'});await del(STORE,id);notes=notes.filter(n=>n.id!==id);current=null;const remaining=notes.filter(n=>Boolean(n.deleted_at));if(ajMobileNotesV2304U()){trash=remaining.length>0;$('.aj-note-trashbar')?.classList.toggle('open',trash);ajTrashUiV2301D(trash);if(!trash)ajRestoreEditorEmptyV2301E();ajNotesListViewV2304U();render();toast('Nota eliminata definitivamente')}else{closeEditor();render()}}finally{if(button){button.disabled=false;button.textContent=trash?'Elimina definitivamente':'Cestino'}}}else{if(!confirm('Spostare questa nota nel cestino? La nota continuerà a essere conteggiata nel limite del piano finché non verrà eliminata definitivamente.'))return;current.deleted_at=new Date().toISOString();schedule();await localSave();current=null;closeEditor();render()}}
 function closeEditor(){$('.aj-note-editor').classList.remove('open');$('.aj-note-empty').style.display='block';$('.aj-notes-main').classList.remove('mobile-open')}
-function openApp(){let s=$('.aj-notes-shell');if(!s){init();s=$('.aj-notes-shell')}if(!s)return;const overlay=document.querySelector('.aj-note-loading-v2304q');overlay?.classList.add('show');if(matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches)))s.dataset.mobileView='list';s.classList.add('open');s.setAttribute('aria-hidden','false');ajEnsureNotesDbV2304A2().then(load).catch(()=>toast('Archivio Note non disponibile')).finally(()=>overlay?.classList.remove('show'))}
+function openApp(){let s=$('.aj-notes-shell');if(!s){init();s=$('.aj-notes-shell')}if(!s)return;const overlay=document.querySelector('.aj-note-loading-v2304q');overlay?.classList.add('show');if(ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches)))s.dataset.mobileView='list';s.classList.add('open');s.setAttribute('aria-hidden','false');ajEnsureNotesDbV2304A2().then(load).catch(()=>toast('Archivio Note non disponibile')).finally(()=>overlay?.classList.remove('show'))}
 function closeApp(){clearTimeout(saveTimer);const title=$('.aj-note-title')?.value.trim()||'',body=sanitize($('.aj-note-body')?.innerHTML||'');if(current&&(title!==String(current.title||'')||body!==String(current.body_html||'')))localSave(false);$('.aj-notes-shell').classList.remove('open');$('.aj-notes-shell').setAttribute('aria-hidden','true')}
 async function share(){collect();const text=(current.title+'\n\n'+strip(current.body_html)).trim();if(navigator.share)await navigator.share({title:current.title||'Nota AirJotter',text});else{await navigator.clipboard.writeText(text);toast('Nota copiata negli appunti')}}
 function pdf(){collect();const w=open('','_blank');w.document.write(`<title>${esc(current.title||'Nota')}</title><style>body{font:16px Arial;max-width:800px;margin:40px auto;line-height:1.5}img{max-width:100%}</style><h1>${esc(current.title||'Nota')}</h1>${current.body_html}`);w.document.close();w.print()}
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 
 // AIRJOTTER_NOTES_MOBILE_TABLET_V2304B
 (()=>{'use strict';
- const compact=()=>matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  const shell=()=>document.querySelector('.aj-notes-shell');
  const setView=view=>{const s=shell();if(!s)return;if(compact())s.dataset.mobileView=view;else delete s.dataset.mobileView};
  document.addEventListener('click',event=>{
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 
 // AIRJOTTER_NOTES_MOBILE_SINGLE_TOOLBAR_V2304E
 (()=>{'use strict';
- const compact=()=>matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  function arrange(){
   const toolbar=document.querySelector('.aj-note-toolbar');
   const wordbar=document.querySelector('.aj-wordbar-v2301c');
@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 // AIRJOTTER_NOTES_MOBILE_LOADING_COMPACT_SELECTION_V2304Q
 (()=>{'use strict';
- const compact=()=>matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
+ const compact=()=>ajIsIPadV2305D()||matchMedia('(max-width:760px)').matches||(innerWidth<=1400&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches));
  function installStyle(){if(document.getElementById('ajNotesV2304QStyle'))return;const style=document.createElement('style');style.id='ajNotesV2304QStyle';style.textContent=`
  .aj-note-loading-v2304q{position:fixed;inset:0;z-index:2147483646;display:none;align-items:center;justify-content:center;background:rgba(17,25,39,.28);backdrop-filter:blur(2px)}
  .aj-note-loading-v2304q.show{display:flex}.aj-note-loading-v2304q>div{background:#fff;color:#17365f;border:1px solid #d4deed;border-radius:12px;padding:13px 18px;font:700 15px Arial,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.22)}
@@ -542,7 +542,13 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 
 
-// AIRJOTTER_NOTES_IPAD_EQUALS_SMARTPHONE_V2305C
+// AIRJOTTER_NOTES_IPAD_CLASS_AUTHORITY_V2305D
+// Rilevamento iPad stabile: indipendente da orientamento, viewport, hover e trackpad.
+function ajIsIPadV2305D(){return /iPad/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)}
+function ajInstallIPadClassV2305D(){const on=ajIsIPadV2305D();document.documentElement.classList.toggle('aj-ipad-notes-v2305d',on);document.body?.classList.toggle('aj-ipad-notes-v2305d',on);return on}
+ajInstallIPadClassV2305D();
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ajInstallIPadClassV2305D,{once:true}):ajInstallIPadClassV2305D();
+addEventListener('pageshow',ajInstallIPadClassV2305D,{passive:true});addEventListener('orientationchange',()=>setTimeout(ajInstallIPadClassV2305D,30),{passive:true});
 // AIRJOTTER_NOTES_TABLET_UI_AUTHORITY_V2305A
 function ajNotesTabletV2305A(){return false}
 function ajApplyNotesUiV2305A(){

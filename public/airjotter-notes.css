@@ -410,7 +410,7 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
  }
 }
 
-/* AIRJOTTER_NOTES_IPAD_EQUALS_SMARTPHONE_V2305C
+/* AIRJOTTER_NOTES_IPAD_CLASS_AUTHORITY_V2305D
    Tablet touch: stesso flusso lista/editor dello smartphone in entrambi gli orientamenti. */
 @media (min-width:761px) and (max-width:1400px) and (pointer:coarse),
        (min-width:761px) and (max-width:1400px) and (hover:none){
@@ -447,3 +447,26 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
   .aj-notes-controls [data-mobile-trash-v2304u]{flex:0 0 88px!important;width:88px!important;min-width:88px!important;max-width:88px!important;padding:0 8px!important}
   body:has(.aj-notes-shell.open)>header,body:has(.aj-notes-shell.open)>#mobileTopbar{visibility:hidden!important;pointer-events:none!important}
 }
+
+
+/* AIRJOTTER_NOTES_IPAD_PORTRAIT_LANDSCAPE_PARITY_V2305D
+   Autorita iPad: stessa UI Note in verticale e orizzontale, senza media query pointer/hover. */
+html.aj-ipad-notes-v2305d .aj-notes-shell,
+html.aj-ipad-notes-v2305d .aj-notes-shell.open{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:block!important;overflow:hidden!important;background:#fffdf9!important;z-index:2147483640!important;isolation:isolate!important}
+html.aj-ipad-notes-v2305d .aj-notes-sidebar,html.aj-ipad-notes-v2305d .aj-notes-main{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;box-sizing:border-box!important;background:#fffdf9!important}
+html.aj-ipad-notes-v2305d .aj-notes-sidebar{display:flex!important;border:0!important;z-index:2!important}
+html.aj-ipad-notes-v2305d .aj-notes-main{display:none!important;z-index:3!important}
+html.aj-ipad-notes-v2305d .aj-notes-shell[data-mobile-view="editor"] .aj-notes-sidebar{display:none!important}
+html.aj-ipad-notes-v2305d .aj-notes-shell[data-mobile-view="editor"] .aj-notes-main{display:flex!important}
+html.aj-ipad-notes-v2305d .aj-note-top{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:8px!important;padding:10px 12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important}
+html.aj-ipad-notes-v2305d .aj-note-top>*{flex:0 0 auto!important}
+html.aj-ipad-notes-v2305d .aj-note-top .aj-note-back{display:flex!important;position:sticky!important;left:0!important;z-index:60!important}
+html.aj-ipad-notes-v2305d .aj-note-top .aj-standard-colors-v2301d{display:flex!important;flex:0 0 auto!important;flex-grow:0!important;flex-shrink:0!important;width:auto!important;min-width:0!important;max-width:max-content!important;margin:0 4px 0 0!important;padding:0!important;gap:5px!important;justify-content:flex-start!important;white-space:nowrap!important}
+html.aj-ipad-notes-v2305d .aj-note-top .aj-standard-colors-v2301d~[data-share]{margin-left:0!important}
+html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;width:100%!important;min-width:0!important;height:58px!important;min-height:58px!important;max-height:58px!important;margin:0 0 10px!important;padding:6px 12px!important;gap:7px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;box-sizing:border-box!important}
+html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e>.aj-wordbar-v2301c{display:contents!important}
+html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>*,html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e>button,html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e>label{flex:0 0 auto!important;margin:0!important}
+html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e select,html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e input,html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e button,html.aj-ipad-notes-v2305d .aj-note-toolbar.aj-note-toolbar-single-v2304e label{height:42px!important;min-height:42px!important;font-size:14px!important;box-sizing:border-box!important}
+html.aj-ipad-notes-v2305d .aj-note-top [data-restore],html.aj-ipad-notes-v2305d .aj-note-top [data-restore][style]{background-color:#138149!important;background-image:linear-gradient(180deg,#49dd8e 0%,#19a861 48%,#08743f 100%)!important;color:#fff!important;border:1px solid #08703c!important;box-shadow:0 3px 9px rgba(8,116,63,.35),inset 0 1px 0 rgba(255,255,255,.48),inset 0 -2px 0 rgba(5,83,43,.3)!important;text-shadow:0 1px 1px rgba(0,0,0,.3)!important;font-weight:800!important;-webkit-appearance:none!important;appearance:none!important}
+html.aj-ipad-notes-v2305d .aj-note-top [data-restore]:not([hidden]){display:inline-flex!important;align-items:center!important;justify-content:center!important}
+html.aj-ipad-notes-v2305d .aj-notes-controls [data-mobile-trash-v2304u]{flex:0 0 88px!important;width:88px!important;min-width:88px!important;max-width:88px!important;padding:0 8px!important}
