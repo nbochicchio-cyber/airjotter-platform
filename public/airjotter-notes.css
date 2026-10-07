@@ -451,7 +451,7 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
 
 
 
-/* AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_V2306C */
+/* AIRJOTTER_NOTES_MOBILE_LANDSCAPE_SPLIT_V2306D */
 .aj-notes-shell[hidden],.aj-notes-shell[inert]:not(.open),html.aj-ipad-notes-v2305d .aj-notes-shell[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
 .aj-notes-shell.open:not([hidden]){display:flex!important;visibility:visible!important;pointer-events:auto!important}
 @media (min-width:761px) and (max-width:1400px) and (pointer:coarse),
@@ -482,9 +482,9 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
 }
 
 
-/* AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_LAYOUT_V2306C
+/* AIRJOTTER_NOTES_MOBILE_LANDSCAPE_SPLIT_LAYOUT_V2306D
    Solo tablet/iPad orizzontale: lista a sinistra, nota selezionata a destra. */
-@media (min-width:761px) and (max-width:1400px) and (orientation:landscape){
+@media (max-width:1400px) and (orientation:landscape){
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c{display:grid!important;grid-template-columns:minmax(300px,36%) minmax(0,64%)!important;grid-template-rows:100%!important;background:#efe9e1!important}
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-sidebar,
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c[data-mobile-view="editor"] .aj-notes-sidebar{display:flex!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;grid-column:1!important;grid-row:1!important;border-right:1px solid #e4ddd4!important;z-index:2!important}
@@ -500,4 +500,33 @@ header .aj-owner-row-v22107 #ajNotesBtnV2301.aj-note-under-transfer-v2304k svg{
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-empty{display:flex;align-items:center;justify-content:center;flex-direction:column;height:100%}
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-list{padding:0 8px 18px!important}
  .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card{margin:7px 4px!important;padding:13px!important}
+}
+
+
+/* Smartphone orizzontale: stesso split, proporzioni e controlli compatti. */
+@media (max-width:760px) and (orientation:landscape){
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c{grid-template-columns:minmax(210px,42%) minmax(0,58%)!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-brand{padding:7px 9px 4px!important;min-height:48px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-brand img{width:112px!important;max-width:112px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-header-right-v2301i>b{font-size:16px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-header-right-v2301i .aj-notes-close{width:38px!important;height:38px!important;min-width:38px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-search{padding:4px 8px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-search input{height:38px!important;font-size:13px!important;padding:7px 10px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-controls{grid-template-columns:minmax(100px,1fr) 36px auto auto!important;gap:4px!important;padding:4px 8px 6px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-controls select,.aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-controls button{height:36px!important;min-height:36px!important;padding:0 6px!important;font-size:12px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-count{padding:0 9px 5px!important;font-size:10px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-notes-list{padding:0 5px 10px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card{margin:5px 3px!important;padding:9px!important;border-left-width:5px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card h3{font-size:14px!important;margin-bottom:3px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card p{font-size:11px!important;max-height:2.7em!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-card footer{font-size:9px!important;margin-top:5px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-top{padding:5px 6px!important;gap:5px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-title{font-size:18px!important;padding:7px 9px 4px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e{height:46px!important;min-height:46px!important;max-height:46px!important;padding:4px 6px!important;gap:4px!important;margin-bottom:6px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e .aj-wordbar-v2301c>label>span{display:none!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e select{width:94px!important;min-width:94px!important;height:34px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e input[data-font-size]{width:43px!important;min-width:43px!important;height:34px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e button,.aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-toolbar.aj-note-toolbar-single-v2304e>label{height:34px!important;min-height:34px!important;min-width:34px!important;padding:0 6px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-body{margin:0 6px 6px!important;padding:10px!important;font-size:14px!important}
+ .aj-notes-shell.open:not([hidden]).aj-notes-landscape-split-v2306c .aj-note-attachments{padding:4px 7px 7px!important;max-height:18dvh!important}
 }
