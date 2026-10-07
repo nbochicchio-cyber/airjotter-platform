@@ -33,6 +33,7 @@ function makeButton(){ajEnsureLoadingV2304S();
 // AIRJOTTER_NOTES_LIMITS_TIMESTAMP_V2304L_PLAN_LIMITS
 let ajNotePlanMap=null;
 async function planText(){
+ ajNotePlanMap=null;
  try{
   const plans=await api('/api/plans');
   ajNotePlanMap=Object.fromEntries(plans.map(p=>[String(p.name||'').trim(),Number(p.limits?.notes ?? 0)]));
@@ -47,6 +48,7 @@ async function planText(){
   li.textContent=limit+' Note incluse';
  })
 }
+addEventListener('aj:plan-notes-updated',()=>planText());
 function words(){return norm($('.aj-notes-search input').value).split(/\s+/).filter(Boolean)}function match(n){const hay=norm((n.title||'')+' '+strip(n.body_html||''));return words().every(w=>hay.includes(w))}function strip(h){const d=document.createElement('div');d.innerHTML=h;d.querySelectorAll('br,p,div,li,h1,h2,h3,h4,h5,h6,blockquote,pre,tr').forEach(el=>{el.before(document.createTextNode(' '));el.after(document.createTextNode(' '))});return String(d.textContent||'').replace(/[\s\u00a0]+/g,' ').trim()}function highlight(v){let h=esc(v);for(const w of $('.aj-notes-search input').value.trim().split(/\s+/).filter(Boolean)){h=h.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')}return h}
 function sorted(){const a=notes.filter(n=>Boolean(n.deleted_at)===trash&&match(n));return a.sort((x,y)=>{if(Boolean(x.pinned)!==Boolean(y.pinned))return x.pinned?-1:1;let A=x[sort]||'',B=y[sort]||'';if(sort==='title'){A=norm(A);B=norm(B)}const z=A<B?-1:A>B?1:0;return dir==='asc'?z:-z})}
 function render(){const list=$('.aj-notes-list'),a=sorted();list.innerHTML=a.map(n=>`<article class="aj-note-card ${current?.id===n.id?'active':''}" data-id="${n.id}" style="--note-color:${esc(n.color||'#8fa9e0')}"><h3>${n.pinned?'📌 ':''}${highlight(n.title||'Senza titolo')}</h3><p>${highlight(strip(n.body_html||'').slice(0,180))}</p><footer><span>${new Date(n.updated_at||Date.now()).toLocaleString('it-IT')}</span><span>${n.sync_state==='pending'?'Da sincronizzare':''}</span></footer></article>`).join('')||'<div style="padding:24px;text-align:center;color:#7a7590">Nessuna nota.</div>';$('.aj-notes-count').textContent=`${notes.length} note totali · limite ${Number(window.ajNotesLimit ?? 10)}`;list.querySelectorAll('[data-id]').forEach(x=>x.onclick=()=>select(notes.find(n=>n.id===x.dataset.id)))}
@@ -530,6 +532,38 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
  document.addEventListener('pointerdown',event=>{if(event.target.closest('#ajNotesBtnV2301'))startLoading()},{capture:true,passive:true});
  document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301')){startLoading();requestAnimationFrame(installPin)}},true);
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(installPin,0),{once:true}):setTimeout(installPin,0);
+})();
+
+
+// AIRJOTTER_NOTES_MOBILE_TRASH_RESTORE_DELETE_V2304T
+(()=>{'use strict';
+ const mobile=()=>matchMedia('(max-width:760px),(min-width:761px) and (max-width:1024px) and (orientation:portrait)').matches;
+ function listView(){const sh=document.querySelector('.aj-notes-shell');if(sh)sh.dataset.mobileView='list';closeEditor()}
+ function ensureMobileTrash(){
+  const controls=document.querySelector('.aj-notes-controls');if(!controls)return;
+  let button=controls.querySelector('.aj-mobile-trash-v2304t');
+  if(!button){button=document.createElement('button');button.type='button';button.className='aj-note-btn aj-mobile-trash-v2304t';button.textContent='🗑 Cestino';button.onclick=()=>{trash=true;document.querySelector('.aj-note-trashbar')?.classList.add('open');listView();render()};controls.appendChild(button)}
+  button.style.display=mobile()?'inline-flex':'none';
+ }
+ async function restoreMobile(){
+  if(!current)return;const restored=current,button=document.querySelector('[data-restore]');if(button){button.disabled=true;button.textContent='Ripristino…'}
+  restored.deleted_at=null;restored.updated_at=new Date().toISOString();restored.sync_state='pending';
+  await put(STORE,restored);await put(QUEUE,{id:restored.id,note:{...restored}});notes=notes.map(n=>n.id===restored.id?restored:n);current=null;trash=false;
+  document.querySelector('.aj-note-trashbar')?.classList.remove('open');listView();render();toast('Nota ripristinata');sync();
+  if(button){button.disabled=false;button.textContent='Ripristina'}
+ }
+ async function deletePermanentMobile(){
+  if(!current||!trash)return;if(!confirm('Eliminare definitivamente questa nota? L’operazione è irreversibile.'))return;
+  const id=current.id,button=document.querySelector('[data-delete]');if(button){button.disabled=true;button.textContent='Eliminazione…'}
+  await api('/api/notes/'+id+'?permanent=true',{method:'DELETE'});await del(STORE,id);notes=notes.filter(n=>n.id!==id);current=null;
+  const remain=notes.filter(n=>Boolean(n.deleted_at));trash=remain.length>0;document.querySelector('.aj-note-trashbar')?.classList.toggle('open',trash);listView();render();toast('Nota eliminata definitivamente');
+  if(button){button.disabled=false;button.textContent='Cestino'}
+ }
+ function install(){ensureMobileTrash();const restore=document.querySelector('[data-restore]'),delButton=document.querySelector('[data-delete]');if(restore&&!restore.dataset.ajV2304t){const originalRestore=restore.onclick;restore.dataset.ajV2304t='1';restore.onclick=e=>{if(!mobile())return originalRestore?.call(restore,e);e.preventDefault();restoreMobile().catch(err=>{toast(err.message);restore.disabled=false;restore.textContent='Ripristina'})}}if(delButton&&!delButton.dataset.ajV2304t){delButton.dataset.ajV2304t='1';delButton.addEventListener('click',e=>{if(!(mobile()&&trash))return;e.preventDefault();e.stopImmediatePropagation();deletePermanentMobile().catch(err=>{toast(err.message);delButton.disabled=false;delButton.textContent='Elimina definitivamente'})},true)}}
+ const selectBeforeV2304T=select;select=function(note){selectBeforeV2304T(note);requestAnimationFrame(install)};
+ const renderBeforeV2304T=render;render=function(){renderBeforeV2304T();requestAnimationFrame(install)};
+ addEventListener('resize',()=>requestAnimationFrame(install),{passive:true});addEventListener('orientationchange',()=>requestAnimationFrame(install),{passive:true});
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0),{once:true}):setTimeout(install,0);
 })();
 
 })();
