@@ -3,11 +3,11 @@
 const DB='airjotter-notes-v1',STORE='notes',QUEUE='queue';let db,notes=[],current=null,saveTimer,sort='updated_at',dir='desc',trash=false,lastRange=null,noteContentDirty=false,noteEditorHydrating=false;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-// AIRJOTTER_NOTES_MOBILE_LANDSCAPE_SPLIT_V2306D
+// AIRJOTTER_NOTES_TABLET_LANDSCAPE_SPLIT_V2306C
 function ajNotesIsIPadV2306B(){return /iPad/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1)}
 function ajNotesCompactV2306B(){return matchMedia('(max-width:760px)').matches||ajNotesIsIPadV2306B()||((navigator.maxTouchPoints||0)>0&&Math.min(screen.width||innerWidth,screen.height||innerHeight)<=1400)}
 function ajNotesTabletV2306B(){return ajNotesCompactV2306B()&&innerWidth>760}
-function ajNotesLandscapeSplitV2306C(){return ajNotesCompactV2306B()&&innerWidth>innerHeight}
+function ajNotesLandscapeSplitV2306C(){return ajNotesTabletV2306B()&&innerWidth>innerHeight}
 function ajNotesApplyLandscapeV2306C(){const shell=document.querySelector('.aj-notes-shell');if(!shell)return;const split=ajNotesLandscapeSplitV2306C();shell.classList.toggle('aj-notes-landscape-split-v2306c',split)}
 
 function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});if(!d.objectStoreNames.contains(QUEUE))d.createObjectStore(QUEUE,{keyPath:'id'})};r.onsuccess=()=>{db=r.result;ok(db)};r.onerror=()=>no(r.error)})}
