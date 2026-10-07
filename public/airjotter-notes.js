@@ -542,43 +542,26 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(ajInstallFontV2301S,
 })();
 
 
+// AIRJOTTER_NOTES_TABLET_UI_AUTHORITY_V2305A
+function ajNotesTabletV2305A(){return innerWidth>760&&innerWidth<=1180&&((navigator.maxTouchPoints||0)>0||matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches)}
+function ajApplyNotesUiV2305A(){
+ const top=document.querySelector('.aj-note-top'),palette=top?.querySelector('.aj-standard-colors-v2301d'),share=top?.querySelector('[data-share]'),restore=top?.querySelector('[data-restore]'),trashNav=top?.querySelector('[data-trash-view]');
+ if(restore){const values={'background-color':'#168a4b','background-image':'linear-gradient(180deg,#45d98b 0%,#19a861 48%,#08743f 100%)','color':'#ffffff','border-color':'#08703c','box-shadow':'0 3px 9px rgba(8,116,63,.32),inset 0 1px 0 rgba(255,255,255,.46),inset 0 -2px 0 rgba(5,83,43,.28)','text-shadow':'0 1px 1px rgba(0,0,0,.3)','font-weight':'800'};for(const [k,v] of Object.entries(values))restore.style.setProperty(k,v,'important')}
+ if(ajNotesTabletV2305A()){
+  if(palette){const values={flex:'0 0 auto',width:'max-content','min-width':'0','max-width':'none',margin:'0 4px 0 0','padding-left':'0','padding-right':'0','justify-content':'flex-start',gap:'4px'};for(const [k,v] of Object.entries(values))palette.style.setProperty(k,v,'important')}
+  if(share)share.style.setProperty('margin-left','0','important');
+  if(trashNav){const editorOpen=document.querySelector('.aj-note-editor')?.classList.contains('open'),width=editorOpen?'126px':'72px';for(const prop of ['width','min-width','max-width'])trashNav.style.setProperty(prop,width,'important');trashNav.style.setProperty('flex','0 0 '+width,'important');trashNav.style.setProperty('padding-left','6px','important');trashNav.style.setProperty('padding-right','6px','important')}
+ }
+}
+const ajRenderBeforeV2305A=render;render=function(){const value=ajRenderBeforeV2305A();requestAnimationFrame(ajApplyNotesUiV2305A);return value};
+const ajSelectBeforeV2305A=select;select=function(note){const value=ajSelectBeforeV2305A(note);requestAnimationFrame(ajApplyNotesUiV2305A);return value};
+const ajOpenBeforeV2305A=openApp;openApp=function(){const value=ajOpenBeforeV2305A();requestAnimationFrame(ajApplyNotesUiV2305A);setTimeout(ajApplyNotesUiV2305A,120);return value};
+document.addEventListener('click',event=>{if(event.target.closest('#ajNotesBtnV2301,.aj-note-card,[data-trash-view],[data-restore],.aj-note-back'))requestAnimationFrame(ajApplyNotesUiV2305A)},true);
+addEventListener('resize',()=>requestAnimationFrame(ajApplyNotesUiV2305A),{passive:true});addEventListener('orientationchange',()=>setTimeout(ajApplyNotesUiV2305A,80),{passive:true});
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(ajApplyNotesUiV2305A,250),{once:true}):setTimeout(ajApplyNotesUiV2305A,250);
+
 })();
 
-// AIRJOTTER_NOTES_TABLET_SPACING_RESTORE_TRASH_V2304Z
-(()=>{'use strict';
- function installV2304Z(){
-  if(document.getElementById('ajNotesV2304ZStyle'))return;
-  const style=document.createElement('style');style.id='ajNotesV2304ZStyle';style.textContent=`
-   .aj-note-top [data-restore]{
-    background-color:#168a4b!important;
-    background-image:linear-gradient(180deg,#35c878 0%,#159657 48%,#08743f 100%)!important;
-    color:#fff!important;
-    border-color:#08703c!important;
-    box-shadow:0 3px 9px rgba(8,116,63,.28),inset 0 1px 0 rgba(255,255,255,.42),inset 0 -2px 0 rgba(5,83,43,.26)!important;
-    text-shadow:0 1px 1px rgba(0,0,0,.28)!important;
-    font-weight:800!important;
-   }
-   .aj-note-top [data-restore]:hover{background-image:linear-gradient(180deg,#43d887 0%,#18a660 48%,#087b43 100%)!important}
-   .aj-note-top [data-restore]:focus-visible{outline:3px solid rgba(42,194,112,.35)!important;outline-offset:2px!important}
-   .aj-note-top [data-restore]:disabled{opacity:.72!important;color:#fff!important}
-   @media (min-width:761px) and (max-width:1180px) and (pointer:coarse),
-          (min-width:761px) and (max-width:1180px) and (hover:none){
-    .aj-note-top .aj-standard-colors-v2301d{
-     flex:0 0 auto!important;width:max-content!important;min-width:0!important;max-width:none!important;
-     margin:0 5px 0 0!important;padding-left:0!important;padding-right:0!important;
-     justify-content:flex-start!important;gap:4px!important
-    }
-    .aj-note-top .aj-standard-colors-v2301d~[data-share]{margin-left:0!important}
-    .aj-notes-controls [data-mobile-trash-v2304u]{
-     display:inline-flex!important;flex:0 0 76px!important;width:76px!important;min-width:76px!important;max-width:76px!important;
-     padding-left:7px!important;padding-right:7px!important;justify-content:center!important;white-space:nowrap!important
-    }
-   }
-  `;document.head.appendChild(style)
- }
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',installV2304Z,{once:true}):installV2304Z();
- addEventListener('pageshow',installV2304Z,{once:true});
-})();
 // AIRJOTTER_NOTES_BACK_ICON_V2304X
 // AIRJOTTER_NOTES_MOBILE_SELECTION_TIMESTAMP_V2304N_REVISED
 // Durante l idratazione mobile gli eventi input sintetici sono ignorati; selezione e colore non accodano PUT completi.
