@@ -1882,6 +1882,43 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  addEventListener('pageshow',initialReset,{passive:true});
 })();
 </script>
+<style id="AIRJOTTER_TOUCH_CLOSE_DRAG_HEADER_V1932H10">
+@media(max-width:1400px) and (any-pointer:coarse){
+ /* Testata piu alta e comoda per spostamento con dito o pennino. */
+ #text-tool-overlay .aj-text-card-head-v2266f{min-height:58px!important;height:58px!important;padding:8px 62px 8px 14px!important;display:flex!important;align-items:center!important;box-sizing:border-box!important;touch-action:none!important}
+ #text-tool-overlay .aj-text-card-head-v2266f>*{pointer-events:auto}
+ /* X sopra ogni superficie di trascinamento, con bersaglio touch autonomo. */
+ .aj-text-close-v1932h1{position:absolute!important;right:10px!important;top:9px!important;width:40px!important;height:40px!important;z-index:2147483646!important;pointer-events:auto!important;touch-action:none!important}
+ .aj-text-close-v1932h1::before{content:""!important;position:absolute!important;inset:-6px!important;border-radius:50%!important;background:transparent!important;pointer-events:auto!important}
+}
+@media(max-width:760px) and (any-pointer:coarse){
+ #text-tool-overlay .aj-text-card-head-v2266f{min-height:54px!important;height:54px!important;padding:7px 58px 7px 12px!important}
+ .aj-text-close-v1932h1{right:8px!important;top:7px!important;width:40px!important;height:40px!important}
+}
+</style>
+<script id="AIRJOTTER_TOUCH_CLOSE_DRAG_HEADER_V1932H10_SCRIPT">
+(()=>{'use strict';
+ const isTouch=()=>matchMedia('(max-width:1400px) and (any-pointer:coarse)').matches;
+ function forceClose(e){
+  if(!isTouch())return;
+  const close=e.target.closest?.('.aj-text-close-v1932h1');if(!close)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const box=document.getElementById('text-tool-overlay'),input=document.getElementById('text-tool-input');if(!box)return;
+  box.classList.add('aj-touch-closed-v1932h9');
+  box.classList.remove('open','aj-text-user-sized-v1932h1','aj-text-user-sized-v1932h2');
+  box.style.setProperty('display','none','important');
+  box.style.setProperty('visibility','hidden','important');
+  box.style.setProperty('pointer-events','none','important');
+  box.style.removeProperty('width');box.style.removeProperty('height');
+  if(input){input.value='';input.blur();input.dispatchEvent(new Event('input',{bubbles:true}))}
+  document.querySelectorAll('.aj-text-color-palette-v2266i,.aj-main-palette-v2287,#ajMainPaletteV2299').forEach(p=>p.classList.remove('open'));
+ }
+ /* Chiusura immediata all'inizio del gesto: non puo essere sottratta dal drag. */
+ document.addEventListener('pointerdown',forceClose,true);
+ document.addEventListener('touchstart',forceClose,{capture:true,passive:false});
+ document.addEventListener('mousedown',forceClose,true);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
