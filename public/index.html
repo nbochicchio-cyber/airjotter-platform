@@ -1302,6 +1302,36 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<style id="AIRJOTTER_LOBBY_DIRECT_TOOLS_V1932E2">
+#ajLobby .welcome-card{width:min(1460px,96vw)!important;max-width:1460px!important}
+#ajLobby .aj-choice-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important;align-items:stretch!important}
+#ajLobby .welcome-choice{height:100%!important;min-height:390px!important;display:flex!important;flex-direction:column!important}
+#ajLobby .welcome-choice .welcome-actions,#ajLobby .welcome-choice>button:last-child{margin-top:auto!important}
+.aj-lobby-tools-v1932e2{grid-column:1/-1;position:relative;overflow:hidden;padding:30px;border:1px solid #cbdcf6;border-radius:28px;background:linear-gradient(135deg,#f6f9ff 0%,#eef5ff 52%,#f9fbff 100%);box-shadow:0 16px 42px rgba(28,77,150,.11)}
+.aj-lobby-tools-v1932e2:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-145px;background:radial-gradient(circle,rgba(23,105,232,.16),transparent 68%)}
+.aj-lobby-tools-head-v1932e2{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:22px}.aj-lobby-tools-head-v1932e2 h3{margin:0 0 7px;color:#182a4a;font-size:clamp(1.45rem,2.5vw,2rem)}.aj-lobby-tools-head-v1932e2 p{margin:0;color:#687a96;line-height:1.5;max-width:780px}.aj-lobby-tools-label-v1932e2{flex:0 0 auto;padding:7px 11px;border-radius:999px;background:#e1edff;color:#1769e8;font-weight:850;font-size:.72rem;letter-spacing:.08em}
+.aj-lobby-tools-grid-v1932e2{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px}.aj-lobby-tool-v1932e2{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:15px;padding:19px;border:1px solid #d9e5f5;border-radius:20px;background:#fff;box-shadow:0 9px 24px rgba(25,70,130,.08)}.aj-lobby-tool-icon-v1932e2{display:grid;place-items:center;width:56px;height:56px;border-radius:17px;background:#eaf2ff;color:#1769e8;font:900 22px/1 Arial}.aj-lobby-tool-copy-v1932e2 b{display:block;color:#172b4d;font-size:1.05rem;margin-bottom:5px}.aj-lobby-tool-copy-v1932e2 span{display:block;color:#6b7c95;font-size:.88rem;line-height:1.42}.aj-lobby-tool-btn-v1932e2{min-width:150px;min-height:48px;padding:0 18px;border:0;border-radius:14px;background:linear-gradient(135deg,#1769e8,#0b54c7);color:#fff;font-weight:850;font-size:.94rem;cursor:pointer;box-shadow:0 7px 17px rgba(23,105,232,.24)}.aj-lobby-tool-btn-v1932e2:disabled{opacity:.58;cursor:wait}
+.aj-lobby-tool-status-v1932e2{grid-column:1/-1;min-height:18px;text-align:center;color:#526b8d;font-weight:700;font-size:.82rem}
+@media(max-width:900px){#ajLobby .aj-choice-grid{grid-template-columns:1fr!important}.aj-lobby-tools-v1932e2{grid-column:1}.aj-lobby-tools-grid-v1932e2{grid-template-columns:1fr}.aj-lobby-tools-head-v1932e2{display:block}.aj-lobby-tools-label-v1932e2{display:inline-flex;margin-top:12px}}
+@media(max-width:600px){.aj-lobby-tools-v1932e2{padding:21px 16px;border-radius:22px}.aj-lobby-tool-v1932e2{grid-template-columns:48px 1fr}.aj-lobby-tool-icon-v1932e2{width:48px;height:48px}.aj-lobby-tool-btn-v1932e2{grid-column:1/-1;width:100%}}
+</style>
+<script id="AIRJOTTER_LOBBY_DIRECT_TOOLS_V1932E2_SCRIPT">
+(()=>{'use strict';
+ const q=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+ const status=t=>{const s=q('ajLobbyToolsStatusV1932E2');if(s)s.textContent=t||''};
+ async function waitFor(id,tries=50){for(let i=0;i<tries;i++){const e=q(id);if(e)return e;await sleep(100)}throw Error('Strumento non disponibile')}
+ async function openNotes(){status('Apertura delle tue Note...');const b=await waitFor('ajNotesBtnV2301');b.click();status('')}
+ async function openTransfer(button){button.disabled=true;status('Preparazione dello spazio File Transfer...');try{
+  let all=await ajApi('/api/my/boards'),owned=all.filter(x=>x.role==='owner'),limit=Number(window.ajMe?.limits?.boards||1),board=null;
+  if(owned.length<limit){try{board=await ajApi('/api/boards',{method:'POST',body:JSON.stringify({title:'File Transfer'})})}catch(e){if(!/limite|Jotter extra|jotter_limit/i.test(String(e.message||'')))throw e}}
+  if(!board){if(!owned.length){all=await ajApi('/api/my/boards');owned=all.filter(x=>x.role==='owner')}board=owned[0]}
+  if(!board)throw Error('Nessun Jotter disponibile per il File Transfer.');
+  await ajOpenBoard(board);const ft=await waitFor('ajFileTransferBtnV2291');await sleep(120);ft.click();status('');
+ }catch(e){status('');alert('File Transfer non disponibile: '+(e.message||e))}finally{button.disabled=false}}
+ function install(){const lobby=q('ajLobby');if(!lobby||q('ajLobbyToolsV1932E2'))return;const grid=lobby.querySelector('.aj-choice-grid');if(!grid)return;const card=document.createElement('section');card.id='ajLobbyToolsV1932E2';card.className='aj-lobby-tools-v1932e2';card.innerHTML='<div class="aj-lobby-tools-head-v1932e2"><div><h3>3. Accedi subito ai tuoi strumenti</h3><p>Apri le Note senza entrare in un Jotter, oppure avvia il File Transfer nel primo spazio disponibile del tuo piano.</p></div><span class="aj-lobby-tools-label-v1932e2">ACCESSO DIRETTO</span></div><div class="aj-lobby-tools-grid-v1932e2"><article class="aj-lobby-tool-v1932e2"><i class="aj-lobby-tool-icon-v1932e2">N</i><div class="aj-lobby-tool-copy-v1932e2"><b>Note multimediali</b><span>Crea, organizza e ritrova testi, immagini e allegati sincronizzati con il tuo account.</span></div><button id="ajLobbyNotesV1932E2" class="aj-lobby-tool-btn-v1932e2" type="button">Apri le Note</button></article><article class="aj-lobby-tool-v1932e2"><i class="aj-lobby-tool-icon-v1932e2">FT</i><div class="aj-lobby-tool-copy-v1932e2"><b>File Transfer P2P</b><span>Invia o ricevi file e cartelle direttamente tra dispositivi, con una connessione P2P criptata e sicura.</span></div><button id="ajLobbyTransferV1932E2" class="aj-lobby-tool-btn-v1932e2" type="button">Apri File Transfer</button></article><div id="ajLobbyToolsStatusV1932E2" class="aj-lobby-tool-status-v1932e2" role="status"></div></div>';grid.appendChild(card);q('ajLobbyNotesV1932E2').onclick=openNotes;q('ajLobbyTransferV1932E2').onclick=e=>openTransfer(e.currentTarget)}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true});setTimeout(()=>{install();if(!q('ajLobbyToolsV1932E2'))console.error('AirJotter E2: contenitore lobby non trovato')},500);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
