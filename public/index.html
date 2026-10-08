@@ -1836,6 +1836,52 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.addEventListener('DOMContentLoaded',()=>{if(!isTouch())return;const box=document.getElementById('text-tool-overlay');if(box&&!box.classList.contains('open'))hardClose()},{once:true});
 })();
 </script>
+<style id="AIRJOTTER_TOUCH_TEXTBOX_OPEN_CLOSE_V1932H9">
+@media(max-width:1400px) and (any-pointer:coarse){
+ /* Neutralizza la condizione H8 basata su .open: il gestore storico puo aprire via stile. */
+ #text-tool-overlay:not(.open):not(.aj-touch-closed-v1932h9){display:flex!important;visibility:visible!important;pointer-events:auto!important}
+ /* Solo questa classe indica una chiusura touch intenzionale. */
+ #text-tool-overlay.aj-touch-closed-v1932h9{display:none!important;visibility:hidden!important;pointer-events:none!important}
+}
+</style>
+<script id="AIRJOTTER_TOUCH_TEXTBOX_OPEN_CLOSE_V1932H9_SCRIPT">
+(()=>{'use strict';
+ const isTouch=()=>matchMedia('(max-width:1400px) and (any-pointer:coarse)').matches;
+ function box(){return document.getElementById('text-tool-overlay')}
+ function input(){return document.getElementById('text-tool-input')}
+ function openTouch(){
+  if(!isTouch())return;
+  const b=box();if(!b)return;
+  b.classList.remove('aj-touch-closed-v1932h9');
+  b.style.setProperty('display','flex','important');
+  b.style.setProperty('visibility','visible','important');
+  b.style.setProperty('pointer-events','auto','important');
+  setTimeout(()=>input()?.focus({preventScroll:true}),0);
+ }
+ function closeTouch(e){
+  if(!isTouch())return;
+  const b=box();if(!b)return;
+  e?.preventDefault?.();e?.stopImmediatePropagation?.();
+  b.classList.add('aj-touch-closed-v1932h9');
+  b.classList.remove('open','aj-text-user-sized-v1932h1','aj-text-user-sized-v1932h2');
+  b.style.setProperty('display','none','important');
+  b.style.setProperty('visibility','hidden','important');
+  b.style.setProperty('pointer-events','none','important');
+  b.style.removeProperty('width');b.style.removeProperty('height');
+  const i=input();if(i){i.value='';i.blur();i.dispatchEvent(new Event('input',{bubbles:true}))}
+ }
+ /* Il pulsante Testo rimuove la chiusura prima che agisca il gestore storico. */
+ document.addEventListener('pointerdown',e=>{if(e.target.closest?.('#toolTextBtn')){const b=box();b?.classList.remove('aj-touch-closed-v1932h9')}},true);
+ document.addEventListener('click',e=>{if(e.target.closest?.('#toolTextBtn')){openTouch();setTimeout(openTouch,0)}},true);
+ /* La X chiude direttamente su ogni percorso touch/click. */
+ ['pointerup','click'].forEach(type=>document.addEventListener(type,e=>{if(e.target.closest?.('.aj-text-close-v1932h1'))closeTouch(e)},true));
+ document.addEventListener('touchend',e=>{if(e.target.closest?.('.aj-text-close-v1932h1'))closeTouch(e)},{capture:true,passive:false});
+ /* Al caricamento/rientro chiude solo la text box vuota non richiesta in questa pagina. */
+ function initialReset(){if(!isTouch())return;const b=box(),i=input();if(b&&(!i||!String(i.value||'').trim()))closeTouch()}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',initialReset,{once:true}):initialReset();
+ addEventListener('pageshow',initialReset,{passive:true});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
