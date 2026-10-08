@@ -1580,6 +1580,44 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<style id="AIRJOTTER_ANDROID_GPU_RASTER_SAFE_V1932G1">
+/* Attivo solo su Android Chromium tramite classe impostata prima del rendering. */
+html.aj-android-raster-safe-v1932g1 #canvas-wrapper,
+html.aj-android-raster-safe-v1932g1 #drawingBoard,
+html.aj-android-raster-safe-v1932g1 #draftBoard,
+html.aj-android-raster-safe-v1932g1 #pencilPredictionBoard{
+ will-change:auto!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important;
+ -webkit-transform-style:flat!important;
+ transform-style:flat!important
+}
+html.aj-android-raster-safe-v1932g1 #canvas-wrapper{
+ isolation:auto!important
+}
+html.aj-android-raster-safe-v1932g1 .aj-watermark-v226{
+ transform:none!important;
+ will-change:auto!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important
+}
+html.aj-android-raster-safe-v1932g1 #ajInkPagesLayerV215,
+html.aj-android-raster-safe-v1932g1 #ajInkPagesLayerV215 canvas{
+ will-change:auto!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important;
+ -webkit-transform-style:flat!important;
+ transform-style:flat!important
+}
+</style>
+<script id="AIRJOTTER_ANDROID_GPU_RASTER_SAFE_V1932G1_SCRIPT">
+(()=>{'use strict';
+ const ua=navigator.userAgent||'';
+ const android=/Android/i.test(ua);
+ const chromium=/(Chrome|CriOS|Chromium|EdgA)\//i.test(ua);
+ if(android&&chromium)document.documentElement.classList.add('aj-android-raster-safe-v1932g1');
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
