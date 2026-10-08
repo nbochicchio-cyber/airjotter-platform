@@ -1542,6 +1542,44 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  addEventListener('pageshow',schedule,{passive:true});setInterval(apply,500);
 })();
 </script>
+<style id="AIRJOTTER_DISCOVER_GRID_ORDER_V1932G">
+#welcomeDiscoverModal .discover-grid-rich{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:stretch!important}
+#welcomeDiscoverModal .discover-grid-rich>div{grid-column:auto!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:100%!important;margin:0!important;padding:18px!important;display:flex!important;align-items:flex-start!important}
+#welcomeDiscoverModal .discover-grid-rich>div section{min-width:0!important}
+#welcomeDiscoverModal .discover-grid-rich>div strong{display:block!important;overflow-wrap:anywhere!important}
+#welcomeDiscoverModal .discover-grid-rich>div span{overflow-wrap:anywhere!important}
+#welcomeDiscoverModal .discover-pdf-card{grid-column:auto!important}
+@media(max-width:680px){#welcomeDiscoverModal .discover-grid-rich{grid-template-columns:1fr!important}}
+</style>
+<script id="AIRJOTTER_DISCOVER_GRID_ORDER_V1932G_SCRIPT">
+(()=>{'use strict';
+ const wanted=['Paperboard wireless multidevice','PDF editor avanzato','File Transfer peer-to-peer','Note multimediali','Esporta e condividi il risultato','Collabora in tempo reale','Controlla accessi e permessi','Tutto resta nel tuo archivio'];
+ const aliases={
+  'paperboard wireless multidevice':['paperboard wireless multidevice','disegna e scrivi','paperboard collaborativa'],
+  'pdf editor avanzato':['pdf editor avanzato','lavora sui documenti','editor pdf avanzato'],
+  'file transfer peer-to-peer':['file transfer peer-to-peer','file transfer p2p'],
+  'note multimediali':['note multimediali'],
+  'esporta e condividi il risultato':['esporta e condividi il risultato','esporta tutto in pdf'],
+  'collabora in tempo reale':['collabora in tempo reale','usalo nella vita reale'],
+  'controlla accessi e permessi':['controlla accessi e permessi','collabora in sicurezza'],
+  'tutto resta nel tuo archivio':['tutto resta nel tuo archivio','non perdi il lavoro']
+ };
+ const norm=s=>String(s||'').replace(/\s+/g,' ').trim().toLowerCase();
+ function arrange(){
+  const modal=document.getElementById('welcomeDiscoverModal'),grid=modal?.querySelector('.discover-grid-rich');if(!grid)return false;
+  const cards=[...grid.children].filter(x=>x.querySelector('strong'));
+  if(cards.length<8)return false;
+  const unused=new Set(cards),ordered=[];
+  for(const label of wanted){const terms=aliases[norm(label)]||[norm(label)];let card=[...unused].find(c=>terms.some(t=>norm(c.querySelector('strong')?.textContent).includes(t)));if(!card)card=[...unused][0];if(!card)return false;unused.delete(card);const strong=card.querySelector('strong');if(strong)strong.textContent=label;ordered.push(card)}
+  grid.replaceChildren(...ordered);
+  grid.dataset.v1932g='1';return true;
+ }
+ function schedule(){arrange();requestAnimationFrame(arrange);setTimeout(arrange,120);setTimeout(arrange,450)}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();
+ document.addEventListener('click',e=>{if(e.target.closest('.aj-lobby-discover,#welcomeDiscoverModal'))setTimeout(schedule,0)},true);
+ new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
