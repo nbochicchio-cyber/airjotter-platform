@@ -1756,6 +1756,30 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',sync,{once:true}):sync();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});addEventListener('resize',sync,{passive:true});
 })();
 </script>
+<style id="AIRJOTTER_TABLET_IPAD_TEXTBOX_LAYOUT_V1932H6">
+/* Estensione H5 a tablet e iPad touch; desktop con mouse escluso. */
+@media(max-width:1400px) and (any-pointer:coarse){
+ #text-tool-overlay{display:flex!important;flex-direction:column!important;overflow:hidden!important;padding-bottom:16px!important;box-sizing:border-box!important}
+ #text-tool-overlay .aj-text-card-head-v2266f,#text-tool-overlay .text-toolbar,#text-tool-overlay .aj-text-foot-v2266f,#text-tool-overlay .aj-rot-v1926{flex:0 0 auto!important}
+ #text-tool-overlay #text-tool-input{display:block!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:120px!important;max-height:none!important;box-sizing:border-box!important;resize:none!important;margin-bottom:12px!important}
+ #text-tool-overlay.aj-text-user-sized-v1932h1 #text-tool-input,#text-tool-overlay.aj-text-user-sized-v1932h2 #text-tool-input{height:auto!important;min-height:90px!important;flex:1 1 auto!important}
+ #ajTextCardResizeV2266h{width:58px!important;height:58px!important;right:10px!important;bottom:10px!important;border-width:4px!important;box-shadow:0 0 0 2px #fff,0 6px 16px rgba(21,94,205,.3)!important;z-index:80!important}
+ #text-tool-overlay .aj-text-foot-v2266f{padding-right:76px!important;margin-top:auto!important;min-height:58px!important}
+}
+@media(max-width:760px) and (any-pointer:coarse){
+ #text-tool-overlay{padding-bottom:14px!important}
+ #text-tool-overlay #text-tool-input{min-height:80px!important;margin-bottom:10px!important}
+ #ajTextCardResizeV2266h{width:54px!important;height:54px!important;right:8px!important;bottom:8px!important}
+ #text-tool-overlay .aj-text-foot-v2266f{padding-right:68px!important;min-height:54px!important}
+}
+</style>
+<script id="AIRJOTTER_TABLET_IPAD_TEXTBOX_LAYOUT_V1932H6_SCRIPT">
+(()=>{'use strict';
+ const isTouchLayout=()=>matchMedia('(max-width:1400px) and (any-pointer:coarse)').matches;
+ const sync=()=>{if(!isTouchLayout())return;const box=document.getElementById('text-tool-overlay'),input=document.getElementById('text-tool-input'),handle=document.getElementById('ajTextCardResizeV2266h');if(!box||!input||!handle)return;box.style.setProperty('display','flex','important');box.style.setProperty('flex-direction','column','important');input.style.setProperty('width','100%','important');input.style.setProperty('height','auto','important');input.style.setProperty('flex','1 1 auto','important');handle.style.setProperty('right',innerWidth<=760?'8px':'10px','important');handle.style.setProperty('bottom',innerWidth<=760?'8px':'10px','important')};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',sync,{once:true}):sync();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});addEventListener('resize',sync,{passive:true});addEventListener('orientationchange',()=>setTimeout(sync,100),{passive:true});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
