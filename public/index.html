@@ -1489,6 +1489,29 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  new MutationObserver(apply).observe(document.body,{childList:true,subtree:true,characterData:true});setInterval(apply,700);
 })();
 </script>
+<script id="AIRJOTTER_LOBBY_TITLE_COPY_FIX_V1932F4">
+(()=>{'use strict';
+ const TITLE='Crea o apri il tuo Jotter';
+ const COPY='Crea o riapri i tuoi spazi di lavoro, modifica ed esporta PDF e collabora in tempo reale.';
+ function normalize(s){return String(s||'').replace(/\s+/g,' ').trim()}
+ function apply(){
+  const lobby=document.getElementById('ajLobby');if(!lobby)return;
+  const card=document.getElementById('ajWorkspaceCardV1932F')||lobby.querySelector('.aj-choice-new');
+  if(!card)return;
+  const headings=[...card.querySelectorAll('h1,h2,h3,h4')];
+  let heading=headings.find(el=>/crea\s+o\s+apri\s+il\s+tuo\s+jotter/i.test(normalize(el.textContent)));
+  if(!heading)heading=card.querySelector(':scope>h3');
+  if(heading&&normalize(heading.textContent)!==TITLE)heading.textContent=TITLE;
+  const paras=[...card.querySelectorAll(':scope>p')];
+  let copy=paras.find(el=>/crea\s+o\s+riapri\s+i\s+tuoi\s+spazi\s+di\s+lavoro/i.test(normalize(el.textContent)))||paras[0];
+  if(copy&&normalize(copy.textContent)!==COPY)copy.textContent=COPY;
+ }
+ function schedule(){apply();requestAnimationFrame(apply);setTimeout(apply,50);setTimeout(apply,250);setTimeout(apply,800)}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();
+ const root=document.getElementById('ajLobby')||document.body;new MutationObserver(schedule).observe(root,{childList:true,subtree:true,characterData:true});
+ addEventListener('pageshow',schedule,{passive:true});setInterval(apply,500);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
