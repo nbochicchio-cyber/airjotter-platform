@@ -1419,6 +1419,39 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true});setTimeout(install,400);
 })();
 </script>
+<style id="AIRJOTTER_LOBBY_POLISH_V1932F2">
+/* Cinque CTA coerenti, tutte bold, con cinque tonalita distinte ma coordinate. */
+#ajLobby #newBtn,#ajLobby #ajOpenOwnedBtnV221060,#ajLobby #joinBtn,#ajLobby #ajLobbyNotesV1932E2,#ajLobby #ajLobbyTransferV1932E2{
+ font-family:Inter,"Segoe UI",system-ui,sans-serif!important;font-weight:850!important;font-size:clamp(.88rem,1.05vw,1rem)!important;letter-spacing:-.01em!important;color:#fff!important;border:0!important;box-shadow:0 7px 17px rgba(30,48,82,.15)!important;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important
+}
+#ajLobby #newBtn{background:linear-gradient(135deg,#1769e8,#0b55c8)!important}
+#ajLobby #ajOpenOwnedBtnV221060{background:linear-gradient(135deg,#6255b9,#4c419b)!important}
+#ajLobby #joinBtn{background:linear-gradient(135deg,#c98224,#a96516)!important}
+#ajLobby #ajLobbyNotesV1932E2{background:linear-gradient(135deg,#167f9d,#0d6985)!important}
+#ajLobby #ajLobbyTransferV1932E2{background:linear-gradient(135deg,#15956c,#087451)!important}
+#ajLobby #newBtn:hover,#ajLobby #ajOpenOwnedBtnV221060:hover,#ajLobby #joinBtn:hover,#ajLobby #ajLobbyNotesV1932E2:hover,#ajLobby #ajLobbyTransferV1932E2:hover{filter:brightness(1.06)!important;transform:translateY(-1px)!important;box-shadow:0 10px 22px rgba(30,48,82,.2)!important}
+#ajLobby #newBtn:active,#ajLobby #ajOpenOwnedBtnV221060:active,#ajLobby #joinBtn:active,#ajLobby #ajLobbyNotesV1932E2:active,#ajLobby #ajLobbyTransferV1932E2:active{transform:translateY(1px)!important}
+#ajLobby .aj-workspace-card-v1932f>h3,#ajLobby .aj-join-title-v1932f{font-family:Inter,"Segoe UI",system-ui,sans-serif!important;font-weight:850!important;font-size:clamp(1.12rem,1.7vw,1.42rem)!important;line-height:1.18!important;color:#213659!important;letter-spacing:-.025em!important}
+#ajLobby .aj-join-title-v1932f{display:block!important;margin:0 0 8px!important}
+#ajLobby .aj-join-title-v1932f i{display:none!important}
+#ajLobby .aj-workspace-primary-v1932f #ajOpenOwnedBtnV221060{color:#fff!important;border:0!important}
+#ajLobby .aj-join-section-v1932f #joinBtn{color:#fff!important;border:0!important}
+</style>
+<script id="AIRJOTTER_LOBBY_POLISH_V1932F2_SCRIPT">
+(()=>{'use strict';
+ const q=id=>document.getElementById(id);
+ function apply(){
+  const card=q('ajWorkspaceCardV1932F'),tools=q('ajLobbyToolsV1932E2');if(!card||!tools)return;
+  const mainTitle=card.querySelector(':scope>h3');if(mainTitle)mainTitle.textContent='Crea o apri il tuo Jotter';
+  const joinTitle=card.querySelector('.aj-join-title-v1932f');if(joinTitle)joinTitle.innerHTML='<span>Entra in un Jotter condiviso</span>';
+  const toolsCopy=tools.querySelector('.aj-lobby-tools-head-v1932e2 p');if(toolsCopy)toolsCopy.textContent='Accedi direttamente ai tuoi strumenti personali.';
+  const noteCard=tools.querySelector('.aj-lobby-tool-v1932e2:first-child'),noteCopy=noteCard?.querySelector('.aj-lobby-tool-copy-v1932e2 span');if(noteCopy)noteCopy.textContent='Crea, organizza e ritrova testi, immagini e allegati sincronizzati con il tuo account AirJotter.';
+  const notes=q('ajLobbyNotesV1932E2'),transfer=q('ajLobbyTransferV1932E2');if(notes)notes.textContent='Apri le tua Note';if(transfer)transfer.textContent='Avvia un File Transfer';
+ }
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',apply,{once:true}):apply();
+ new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});setTimeout(apply,350);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
