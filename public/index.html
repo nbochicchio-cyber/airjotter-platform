@@ -1613,13 +1613,55 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  const closePalettes=except=>document.querySelectorAll(paletteSelector).forEach(p=>{if(p!==except){p.classList.remove('open');p.setAttribute('aria-hidden','true')}});
  document.addEventListener('pointerdown',e=>{const inside=e.target.closest?.(paletteSelector),trigger=e.target.closest?.(triggerSelector);if(!inside&&!trigger)closePalettes(null);else if(trigger){const owner=trigger.closest('label,span,div');const own=owner?.querySelector(paletteSelector);closePalettes(own||null)}},true);
  /* Le maniglie hanno priorita sul canvas e non possono iniziare un tratto accidentale. */
- ['pointerdown','touchstart','mousedown'].forEach(type=>document.addEventListener(type,e=>{if(!e.target.closest?.('#ajShapePreviewV227 .aj-shape-handle-v227'))return;e.stopPropagation();if(type==='pointerdown')e.target.setPointerCapture?.(e.pointerId)}, {capture:true,passive:type==='touchstart'}));
+ /* V1932H1: rimosso il blocco capture che impediva ai gestori storici delle maniglie di ricevere pointerdown. */
  function installMinimize(){const editor=document.getElementById('ajShapeEditorV227'),head=editor?.querySelector('.aj-shape-editor-head-v227');if(!editor||!head||head.querySelector('.aj-shape-minimize-v1932h'))return;const b=document.createElement('button');b.type='button';b.className='aj-shape-minimize-v1932h';b.title='Minimizza pannello';b.setAttribute('aria-label','Minimizza pannello Modifica forma');b.textContent='-';const toggle=e=>{e?.preventDefault();e?.stopPropagation();const on=editor.classList.toggle('aj-minimized-v1932h');b.textContent=on?'???':'-';b.title=on?'Riapri pannello':'Minimizza pannello';b.setAttribute('aria-label',b.title)};b.addEventListener('click',toggle);head.addEventListener('click',e=>{if(editor.classList.contains('aj-minimized-v1932h')&&!e.target.closest('button'))toggle(e)});head.appendChild(b);
   document.getElementById('ajShapeCancelV227')?.addEventListener('click',()=>editor.classList.remove('aj-minimized-v1932h'));
   document.getElementById('ajShapeConfirmV227')?.addEventListener('click',()=>editor.classList.remove('aj-minimized-v1932h'));
  }
  const schedule=()=>{installMinimize();const input=document.getElementById('text-tool-input');if(input){input.style.setProperty('background-color','#fff','important');input.style.setProperty('background-image','none','important')}};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+<style id="AIRJOTTER_TEXT_SHAPE_FIX_V1932H1">
+/* Maniglie: geometria originale per i calcoli, bersaglio touch esteso con pseudo-elemento. */
+@media(any-pointer:coarse){
+ #ajShapePreviewV227 .aj-shape-handle-v227{width:28px!important;height:28px!important;margin:0!important;border-width:2px!important;overflow:visible!important;touch-action:none!important;pointer-events:auto!important;z-index:20000!important}
+ #ajShapePreviewV227 .aj-shape-handle-v227::before{content:"";position:absolute;left:50%;top:50%;width:48px;height:48px;transform:translate(-50%,-50%);border-radius:50%;background:transparent;pointer-events:auto}
+ #ajShapePreviewV227 .aj-shape-handle-v227.start,#ajShapePreviewV227 .aj-shape-handle-v227.end{width:28px!important;height:28px!important;margin:0!important}
+}
+/* Text box: X interna brillante e comandi Undo/Redo al posto di Annulla. */
+#text-tool-overlay{position:absolute!important}
+.aj-text-close-v1932h1{position:absolute;right:8px;top:8px;width:38px;height:38px;border:2px solid #fff;border-radius:50%;background:#087cff;color:#fff;font:900 25px/1 Arial,sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #087cff,0 5px 15px rgba(0,96,255,.38);z-index:50;cursor:pointer}
+.aj-text-history-v1932h1{min-width:42px;height:36px;padding:0 11px;border:1px solid #aebfd6;border-radius:9px;background:#fff;color:#1769e8;font:900 20px/1 system-ui;display:inline-flex;align-items:center;justify-content:center}
+#textCancelBtn{display:none!important}
+@media(max-width:760px){
+ #text-tool-overlay{min-width:250px!important;max-width:calc(100vw - 16px)!important;width:min(430px,calc(100vw - 24px))!important;box-sizing:border-box!important}
+ #text-tool-overlay.aj-text-user-sized-v1932h1{max-width:none!important}
+ #ajTextCardResizeV2266h{width:48px!important;height:48px!important;right:-4px!important;bottom:-4px!important;touch-action:none!important;z-index:60!important}
+}
+</style>
+<script id="AIRJOTTER_TEXT_SHAPE_FIX_V1932H1_SCRIPT">
+(()=>{'use strict';
+ function install(){
+  const box=document.getElementById('text-tool-overlay'),input=document.getElementById('text-tool-input'),cancel=document.getElementById('textCancelBtn'),confirm=document.getElementById('textConfirmBtn'),handle=document.getElementById('ajTextCardResizeV2266h');
+  if(!box||!input||!cancel||!confirm||!handle)return;
+  if(!box.querySelector('.aj-text-close-v1932h1')){
+   const close=document.createElement('button');close.type='button';close.className='aj-text-close-v1932h1';close.textContent='X';close.title='Chiudi casella di testo';close.setAttribute('aria-label','Chiudi casella di testo');close.onclick=e=>{e.preventDefault();e.stopPropagation();cancel.click()};box.appendChild(close);
+  }
+  const actions=confirm.parentElement;
+  if(actions&&!actions.querySelector('.aj-text-history-v1932h1')){
+   const undo=document.createElement('button'),redo=document.createElement('button');
+   undo.type=redo.type='button';undo.className=redo.className='aj-text-history-v1932h1';undo.textContent='???';redo.textContent='???';undo.title='Annulla modifica testo';redo.title='Ripeti modifica testo';undo.setAttribute('aria-label',undo.title);redo.setAttribute('aria-label',redo.title);
+   const run=cmd=>{input.focus({preventScroll:true});try{document.execCommand(cmd,false,null)}catch{};input.dispatchEvent(new Event('input',{bubbles:true}))};undo.onclick=e=>{e.preventDefault();run('undo')};redo.onclick=e=>{e.preventDefault();run('redo')};actions.insertBefore(undo,confirm);actions.insertBefore(redo,confirm);
+  }
+  if(!handle.dataset.ajBothV1932h1){handle.dataset.ajBothV1932h1='1';
+   handle.addEventListener('pointerdown',e=>{if(!matchMedia('(max-width:760px)').matches)return;e.preventDefault();e.stopImmediatePropagation();handle.setPointerCapture?.(e.pointerId);const r=box.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,sw=r.width,sh=r.height;
+    const move=ev=>{const maxW=Math.max(250,innerWidth-r.left-8),maxH=Math.max(220,innerHeight-r.top-8);const w=Math.max(250,Math.min(maxW,sw+ev.clientX-sx)),h=Math.max(220,Math.min(maxH,sh+ev.clientY-sy));box.classList.add('aj-text-user-sized-v1932h1');box.style.setProperty('width',w+'px','important');box.style.setProperty('height',h+'px','important')};
+    const up=()=>{handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',up);handle.removeEventListener('pointercancel',up)};handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',up);handle.addEventListener('pointercancel',up)
+   },true)
+  }
+ }
+ const schedule=()=>install();document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 </head>
