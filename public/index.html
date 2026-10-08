@@ -1580,6 +1580,48 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<style id="AIRJOTTER_MOBILE_UI_FIX_V1932H">
+/* 1. Scheda testo sempre neutra: il colore scelto riguarda solo i caratteri. */
+#text-tool-overlay,#text-tool-overlay .text-toolbar,#text-tool-overlay #text-tool-input,#text-tool-overlay .aj-text-foot-v2266f,#text-tool-overlay .aj-text-card-head-v2266f{background-color:#fff!important;background-image:none!important}
+#text-tool-overlay #text-tool-input{color:var(--aj-selected-text-color,#1D1D1F);caret-color:currentColor!important}
+/* 2. Stato attivo unico anche per Forme. */
+#toolShapesBtn.active-tool{background:#e8f2ff!important;border-color:#8fbaf3!important;color:#1769e8!important;box-shadow:inset 0 0 0 1px rgba(73,167,255,.16)!important}
+/* 4. Maniglie touch piu grandi, senza cambiare geometria desktop. */
+@media(any-pointer:coarse){
+ #ajShapePreviewV227 .aj-shape-handle-v227{width:44px!important;height:44px!important;margin:-8px!important;border-width:3px!important;z-index:20000!important;touch-action:none!important;pointer-events:auto!important;box-sizing:border-box!important}
+ #ajShapePreviewV227 .aj-shape-handle-v227.start,#ajShapePreviewV227 .aj-shape-handle-v227.end{width:46px!important;height:46px!important;margin:-9px!important}
+}
+/* 5. Pannello forma minimizzabile solo su mobile/tablet touch. */
+.aj-shape-minimize-v1932h{display:none}
+@media(max-width:1400px) and (any-pointer:coarse){
+ .aj-shape-editor-head-v227{position:relative!important;padding-right:52px!important}
+ .aj-shape-minimize-v1932h{display:flex;position:absolute;right:8px;top:7px;width:38px;height:34px;border:1px solid #aebfd6;border-radius:10px;background:#fff;color:#1769e8;font:900 22px/1 system-ui;align-items:center;justify-content:center;z-index:3}
+ #ajShapeEditorV227.aj-minimized-v1932h{width:min(260px,calc(100vw - 24px))!important;height:58px!important;min-height:58px!important;overflow:hidden!important;padding:0!important;border-radius:15px!important}
+ #ajShapeEditorV227.aj-minimized-v1932h .aj-shape-editor-head-v227{height:58px!important;min-height:58px!important;padding:10px 54px 8px 14px!important;cursor:pointer!important}
+ #ajShapeEditorV227.aj-minimized-v1932h .aj-shape-controls-v227,#ajShapeEditorV227.aj-minimized-v1932h #ajShapeTypographyV227,#ajShapeEditorV227.aj-minimized-v1932h #ajShapeTextV227,#ajShapeEditorV227.aj-minimized-v1932h .aj-shape-actions-v227,#ajShapeEditorV227.aj-minimized-v1932h .aj-rot-v1926{display:none!important}
+}
+</style>
+<script id="AIRJOTTER_MOBILE_UI_FIX_V1932H_SCRIPT">
+(()=>{'use strict';
+ const ids=['toolPenBtn','toolHighlighterBtn','toolTextBtn','toolShapesBtn','toolEraserBtn'];
+ const oneActive=id=>ids.forEach(x=>document.getElementById(x)?.classList.toggle('active-tool',x===id));
+ /* Capture garantisce esclusivita prima dei gestori storici; un secondo passaggio neutralizza riscritture successive. */
+ document.addEventListener('click',e=>{const b=e.target.closest?.('#toolPenBtn,#toolHighlighterBtn,#toolTextBtn,#toolShapesBtn,#toolEraserBtn');if(!b)return;oneActive(b.id);requestAnimationFrame(()=>oneActive(b.id));setTimeout(()=>oneActive(b.id),0)},true);
+ /* 3. Chiude ogni palette colori premendo fuori dal relativo pulsante/popup. */
+ const paletteSelector='.aj-shape-palette-v227,.aj-text-color-palette-v2266i,.aj-main-palette-v2287,#ajMainPaletteV2299';
+ const triggerSelector='.aj-shape-color-btn-v227,.aj-text-color-menu-btn-v2266i,.aj-main-color-button-v2287,#ajMainColorV2299';
+ const closePalettes=except=>document.querySelectorAll(paletteSelector).forEach(p=>{if(p!==except){p.classList.remove('open');p.setAttribute('aria-hidden','true')}});
+ document.addEventListener('pointerdown',e=>{const inside=e.target.closest?.(paletteSelector),trigger=e.target.closest?.(triggerSelector);if(!inside&&!trigger)closePalettes(null);else if(trigger){const owner=trigger.closest('label,span,div');const own=owner?.querySelector(paletteSelector);closePalettes(own||null)}},true);
+ /* Le maniglie hanno priorita sul canvas e non possono iniziare un tratto accidentale. */
+ ['pointerdown','touchstart','mousedown'].forEach(type=>document.addEventListener(type,e=>{if(!e.target.closest?.('#ajShapePreviewV227 .aj-shape-handle-v227'))return;e.stopPropagation();if(type==='pointerdown')e.target.setPointerCapture?.(e.pointerId)}, {capture:true,passive:type==='touchstart'}));
+ function installMinimize(){const editor=document.getElementById('ajShapeEditorV227'),head=editor?.querySelector('.aj-shape-editor-head-v227');if(!editor||!head||head.querySelector('.aj-shape-minimize-v1932h'))return;const b=document.createElement('button');b.type='button';b.className='aj-shape-minimize-v1932h';b.title='Minimizza pannello';b.setAttribute('aria-label','Minimizza pannello Modifica forma');b.textContent='-';const toggle=e=>{e?.preventDefault();e?.stopPropagation();const on=editor.classList.toggle('aj-minimized-v1932h');b.textContent=on?'???':'-';b.title=on?'Riapri pannello':'Minimizza pannello';b.setAttribute('aria-label',b.title)};b.addEventListener('click',toggle);head.addEventListener('click',e=>{if(editor.classList.contains('aj-minimized-v1932h')&&!e.target.closest('button'))toggle(e)});head.appendChild(b);
+  document.getElementById('ajShapeCancelV227')?.addEventListener('click',()=>editor.classList.remove('aj-minimized-v1932h'));
+  document.getElementById('ajShapeConfirmV227')?.addEventListener('click',()=>editor.classList.remove('aj-minimized-v1932h'));
+ }
+ const schedule=()=>{installMinimize();const input=document.getElementById('text-tool-input');if(input){input.style.setProperty('background-color','#fff','important');input.style.setProperty('background-image','none','important')}};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
