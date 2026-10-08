@@ -1780,6 +1780,29 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',sync,{once:true}):sync();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});addEventListener('resize',sync,{passive:true});addEventListener('orientationchange',()=>setTimeout(sync,100),{passive:true});
 })();
 </script>
+<style id="AIRJOTTER_TOUCH_TEXTBOX_CLOSE_V1932H7">
+@media(max-width:1400px) and (any-pointer:coarse){
+ .aj-text-close-v1932h1{pointer-events:auto!important;touch-action:manipulation!important;z-index:2147483000!important;-webkit-user-select:none!important;user-select:none!important}
+ .aj-text-close-v1932h1::before{content:"";position:absolute;inset:-8px;border-radius:50%;background:transparent;pointer-events:auto}
+}
+</style>
+<script id="AIRJOTTER_TOUCH_TEXTBOX_CLOSE_V1932H7_SCRIPT">
+(()=>{'use strict';
+ function closeTextBox(e){
+  const close=e.target.closest?.('.aj-text-close-v1932h1');
+  if(!close||!matchMedia('(max-width:1400px) and (any-pointer:coarse)').matches)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const cancel=document.getElementById('textCancelBtn'),box=document.getElementById('text-tool-overlay');
+  if(cancel){
+   if(typeof cancel.onclick==='function')cancel.onclick.call(cancel,e);
+   else cancel.click();
+  }else if(box){box.classList.remove('open');box.style.display='none'}
+ }
+ document.addEventListener('pointerdown',e=>{if(!e.target.closest?.('.aj-text-close-v1932h1'))return;e.preventDefault();e.stopImmediatePropagation()},true);
+ document.addEventListener('pointerup',closeTextBox,true);
+ document.addEventListener('touchend',e=>{if(!e.target.closest?.('.aj-text-close-v1932h1'))return;e.preventDefault();e.stopImmediatePropagation();const cancel=document.getElementById('textCancelBtn');if(cancel){if(typeof cancel.onclick==='function')cancel.onclick.call(cancel,e);else cancel.click()}},{capture:true,passive:false});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
