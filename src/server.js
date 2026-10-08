@@ -21,9 +21,32 @@ const ADMIN_EMAIL='nbochicchio@gmail.com';
 const AJ_PRIVACY_VERSION='PRIVACY-2026-10-07';
 const AJ_TERMS_VERSION='TERMS-2026-10-07';
 function legalAcceptance(body,method){const a=body?.legalAcceptance||{};return {valid:a.privacyAcknowledged===true&&a.termsAccepted===true&&a.privacyVersion===AJ_PRIVACY_VERSION&&a.termsVersion===AJ_TERMS_VERSION,privacyVersion:String(a.privacyVersion||''),termsVersion:String(a.termsVersion||''),method}}
-async function recordRegistrationAcceptance(client,user,email,acceptance){await client.query(`UPDATE users SET privacy_notice_version=$1,privacy_notice_acknowledged_at=COALESCE(privacy_notice_acknowledged_at,now()),terms_version=$2,terms_accepted_at=COALESCE(terms_accepted_at,now()),registration_method=COALESCE(registration_method,$3) WHERE id=$4`,[acceptance.privacyVersion,acceptance.termsVersion,acceptance.method,user.id]);await client.query(`INSERT INTO user_legal_acceptance_events(id,user_id,email_snapshot,event_type,privacy_notice_version,terms_version,method,evidence) VALUES($1,$2,$3,'registration_acceptance',$4,$5,$6,$7)`,[crypto.randomUUID(),user.id,email,acceptance.privacyVersion,acceptance.termsVersion,acceptance.method,JSON.stringify({serverRecorded:true,affirmativeAction:true})])}
-
-function adminOnly(req,res,next){const emailOk=String(req.user?.email||'').toLowerCase()===ADMIN_EMAIL;if(!emailOk)return res.sendStatus(403);if(process.env.NODE_ENV==='production'){const subOk=Boolean(process.env.ADMIN_GOOGLE_SUB)&&req.user.authProvider==='google'&&req.user.emailVerified===true&&req.user.googleSub===process.env.ADMIN_GOOGLE_SUB;if(!subOk)return res.status(403).json({error:'Consolle riservata al titolare autenticato con Google'})}next()}
+// AIRJOTTER_AUTH_GDPR_AUTO_MIGRATION_V1932C
+async function ensureLegalAcceptanceSchema(client){
+ await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_notice_version TEXT');
+ await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_notice_acknowledged_at TIMESTAMPTZ');
+ await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_version TEXT');
+ await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMPTZ');
+ await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS registration_method TEXT');
+ await client.query(`CREATE TABLE IF NOT EXISTS user_legal_acceptance_events (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  email_snapshot TEXT NOT NULL,
+  event_type TEXT NOT NULL CHECK(event_type IN ('registration_acceptance','consent_withdrawal','profile_deletion_request')),
+  privacy_notice_version TEXT,
+  terms_version TEXT,
+  occurred_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  method TEXT NOT NULL CHECK(method IN ('email','google','admin')),
+  evidence JSONB NOT NULL DEFAULT '{}'::jsonb
+ )`);
+ await client.query('CREATE INDEX IF NOT EXISTS user_legal_acceptance_user_idx ON user_legal_acceptance_events(user_id,occurred_at DESC)');
+ await client.query('CREATE INDEX IF NOT EXISTS user_legal_acceptance_email_idx ON user_legal_acceptance_events(lower(email_snapshot),occurred_at DESC)');
+}
+async function recordRegistrationAcceptance(client,user,email,acceptance){
+ await ensureLegalAcceptanceSchema(client);
+ await client.query(`UPDATE users SET privacy_notice_version=$1,privacy_notice_acknowledged_at=COALESCE(privacy_notice_acknowledged_at,now()),terms_version=$2,terms_accepted_at=COALESCE(terms_accepted_at,now()),registration_method=COALESCE(registration_method,$3) WHERE id=$4`,[acceptance.privacyVersion,acceptance.termsVersion,acceptance.method,user.id]);
+ await client.query(`INSERT INTO user_legal_acceptance_events(id,user_id,email_snapshot,event_type,privacy_notice_version,terms_version,method,evidence) VALUES($1,$2,$3,'registration_acceptance',$4,$5,$6,$7)`,[crypto.randomUUID(),user.id,email,acceptance.privacyVersion,acceptance.termsVersion,acceptance.method,JSON.stringify({serverRecorded:true,affirmativeAction:true})]);
+}function adminOnly(req,res,next){const emailOk=String(req.user?.email||'').toLowerCase()===ADMIN_EMAIL;if(!emailOk)return res.sendStatus(403);if(process.env.NODE_ENV==='production'){const subOk=Boolean(process.env.ADMIN_GOOGLE_SUB)&&req.user.authProvider==='google'&&req.user.emailVerified===true&&req.user.googleSub===process.env.ADMIN_GOOGLE_SUB;if(!subOk)return res.status(403).json({error:'Consolle riservata al titolare autenticato con Google'})}next()}
 async function resolvedPlan(userId){const q=await pool.query(`SELECT u.plan_code,u.email,u.spot_exports,u.spot_credit_cents,p.*,(SELECT COALESCE(sum(units),0) FROM user_extra_entitlements e WHERE e.user_id=u.id AND e.kind='jotter' AND e.expires_at>now()) active_extra_jotters,(SELECT COALESCE(sum(units),0) FROM user_extra_entitlements e WHERE e.user_id=u.id AND e.kind='page' AND e.expires_at>now()) active_extra_pages FROM users u LEFT JOIN LATERAL (SELECT bp.* FROM billing_plans bp WHERE bp.id=u.plan_id OR (u.plan_id IS NULL AND bp.code=u.plan_code) ORDER BY (bp.id=u.plan_id) DESC LIMIT 1) p ON true WHERE u.id=$1`,[userId]);const r=q.rows[0]||{};const fallback=PLAN_LIMITS[r.plan_code]||PLAN_LIMITS.free;if(String(r.email||'').toLowerCase()===ADMIN_EMAIL)return {id:null,code:'unlimited',name:'Unlimited',boards:Number.MAX_SAFE_INTEGER,pages:50,notes:1000000,freePdfPages:null,spotJotters:0,spotPages:Number(r.active_extra_pages||0),spotExports:Number(r.spot_exports||0),spotCreditCents:Number(r.spot_credit_cents||0),status:'active'};return {id:r.id||null,code:r.code||r.plan_code||'free',name:r.name||r.plan_code||'Free',boards:Number(r.boards_limit||fallback.boards),pages:Number(r.pages_limit||fallback.pages),notes:Number(r.notes_limit ?? fallback.notes ?? 10),freePdfPages:String(r.code||r.plan_code||'free').toLowerCase()==='free'?Math.max(0,Number(r.exports_limit??1)):null,spotJotters:Number(r.active_extra_jotters||0),spotPages:Number(r.active_extra_pages||0),spotExports:Number(r.spot_exports||0),spotCreditCents:Number(r.spot_credit_cents||0),status:r.status||'active'};}
 async function userPlan(userId){return (await resolvedPlan(userId)).code}
 async function boardPageLimit(boardId){const x=await pool.query('SELECT owner_user_id FROM boards WHERE id=$1',[boardId]);if(!x.rows[0])return PLAN_LIMITS.free.pages;const p=await resolvedPlan(x.rows[0].owner_user_id);const extra=Number((await pool.query("SELECT COALESCE(sum(units),0) n FROM user_extra_entitlements WHERE board_id=$1 AND kind='page' AND expires_at>now()",[boardId])).rows[0].n);return p.pages+extra}
