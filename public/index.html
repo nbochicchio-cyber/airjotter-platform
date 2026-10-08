@@ -1255,6 +1255,23 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  text-underline-offset:3px!important
 }
 </style>
+<style id="AIRJOTTER_AUTH_MODAL_AUTO_CLOSE_V1932D">
+.aj-gdpr-continue-v1932d{display:none;width:100%;min-height:50px;margin:18px 0 0;border:0;border-radius:14px;background:linear-gradient(135deg,#1769e8,#0a4fc4);color:#fff;font:800 16px Arial,sans-serif;cursor:pointer;box-shadow:0 8px 20px rgba(23,105,232,.25)}
+.aj-gdpr-continue-v1932d.show{display:block}
+</style>
+<script id="AIRJOTTER_AUTH_MODAL_AUTO_CLOSE_V1932D_SCRIPT">
+(()=>{'use strict';
+ const overlay=()=>document.getElementById('ajGdprOverlayV1932');
+ const login=()=>document.getElementById('ajLogin');
+ const authenticated=()=>Boolean(window.ajMe)||(login()?.classList.contains('aj-hidden'));
+ const close=()=>{const o=overlay();if(!o)return;o.classList.remove('open');o.style.display='none';o.setAttribute('aria-hidden','true');document.body.style.overflow=''};
+ const ensureButton=()=>{const card=overlay()?.querySelector('.aj-gdpr-card-v1932');if(!card)return null;let b=document.getElementById('ajGdprContinueV1932D');if(!b){b=document.createElement('button');b.id='ajGdprContinueV1932D';b.type='button';b.className='aj-gdpr-continue-v1932d';b.textContent='Chiudi e continua';b.onclick=close;card.appendChild(b)}return b};
+ const check=()=>{const o=overlay();if(!o)return;const b=ensureButton();if(authenticated()&&o.classList.contains('open')){b?.classList.add('show');b?.focus();setTimeout(()=>{if(authenticated())close()},650)}};
+ const install=()=>{ensureButton();check();const root=login()||document.body;new MutationObserver(check).observe(root,{attributes:true,attributeFilter:['class','style'],childList:true,subtree:true});setInterval(check,500)};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
+ document.addEventListener('click',e=>{if(e.target.closest('#ajEmailSubmitV1925,#ajGoogleNativeV3314')){const b=ensureButton();b?.classList.remove('show');setTimeout(check,300)}},true);
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
