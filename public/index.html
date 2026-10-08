@@ -1803,6 +1803,39 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  document.addEventListener('touchend',e=>{if(!e.target.closest?.('.aj-text-close-v1932h1'))return;e.preventDefault();e.stopImmediatePropagation();const cancel=document.getElementById('textCancelBtn');if(cancel){if(typeof cancel.onclick==='function')cancel.onclick.call(cancel,e);else cancel.click()}},{capture:true,passive:false});
 })();
 </script>
+<style id="AIRJOTTER_TOUCH_TEXTBOX_CLOSE_STATE_V1932H8">
+@media(max-width:1400px) and (any-pointer:coarse){
+ /* Corregge H5/H6: flex soltanto quando la text box e realmente aperta. */
+ #text-tool-overlay:not(.open){display:none!important;visibility:hidden!important;pointer-events:none!important}
+ #text-tool-overlay.open{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+}
+</style>
+<script id="AIRJOTTER_TOUCH_TEXTBOX_CLOSE_STATE_V1932H8_SCRIPT">
+(()=>{'use strict';
+ const isTouch=()=>matchMedia('(max-width:1400px) and (any-pointer:coarse)').matches;
+ function hardClose(e){
+  if(!isTouch())return;
+  const box=document.getElementById('text-tool-overlay');if(!box)return;
+  e?.preventDefault?.();e?.stopImmediatePropagation?.();
+  box.classList.remove('open','aj-text-user-sized-v1932h1','aj-text-user-sized-v1932h2');
+  box.style.setProperty('display','none','important');
+  box.style.setProperty('visibility','hidden','important');
+  box.style.removeProperty('width');box.style.removeProperty('height');
+  const input=document.getElementById('text-tool-input');if(input){input.value='';input.blur();input.dispatchEvent(new Event('input',{bubbles:true}))}
+  document.querySelectorAll('.aj-text-color-palette-v2266i,.aj-main-palette-v2287,#ajMainPaletteV2299').forEach(p=>p.classList.remove('open'));
+ }
+ function prepareOpen(){
+  const box=document.getElementById('text-tool-overlay');if(!box||!box.classList.contains('open'))return;
+  box.style.setProperty('display','flex','important');box.style.setProperty('visibility','visible','important');
+ }
+ document.addEventListener('pointerup',e=>{if(e.target.closest?.('.aj-text-close-v1932h1'))hardClose(e)},true);
+ document.addEventListener('click',e=>{if(e.target.closest?.('.aj-text-close-v1932h1'))hardClose(e)},true);
+ document.addEventListener('touchend',e=>{if(e.target.closest?.('.aj-text-close-v1932h1'))hardClose(e)},{capture:true,passive:false});
+ document.addEventListener('click',e=>{if(e.target.closest?.('#toolTextBtn'))setTimeout(prepareOpen,0)},true);
+ addEventListener('pageshow',()=>{if(!isTouch())return;const box=document.getElementById('text-tool-overlay'),input=document.getElementById('text-tool-input');if(box&&(!input||!String(input.value||'').trim()))hardClose()}, {passive:true});
+ document.addEventListener('DOMContentLoaded',()=>{if(!isTouch())return;const box=document.getElementById('text-tool-overlay');if(box&&!box.classList.contains('open'))hardClose()},{once:true});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
