@@ -1664,6 +1664,47 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  const schedule=()=>install();document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<style id="AIRJOTTER_MOBILE_TEXT_ICON_RESIZE_V1932H2">
+/* Icona riapertura pannello forme, disegnata in CSS e quindi sempre leggibile. */
+.aj-shape-minimize-v1932h{font-size:0!important;color:transparent!important}
+.aj-shape-minimize-v1932h::before,.aj-shape-minimize-v1932h::after{content:"";position:absolute;width:11px;height:11px;border-color:#087cff;border-style:solid}
+.aj-shape-minimize-v1932h::before{left:8px;top:7px;border-width:3px 0 0 3px}
+.aj-shape-minimize-v1932h::after{right:8px;bottom:7px;border-width:0 3px 3px 0}
+.aj-shape-minimize-v1932h:not(.aj-reopen-v1932h2)::before{left:9px;top:15px;width:16px;height:0;border-width:3px 0 0 0}
+.aj-shape-minimize-v1932h:not(.aj-reopen-v1932h2)::after{display:none}
+/* Undo/Redo H1 eliminati integralmente. */
+.aj-text-history-v1932h1{display:none!important}
+/* Maniglia text box: freccia diagonale a doppia punta grande e perfettamente centrata. */
+#ajTextCardResizeV2266h{position:absolute!important;font-size:0!important;color:transparent!important;display:block!important}
+#ajTextCardResizeV2266h::before{content:"";position:absolute;left:50%;top:50%;width:22px;height:4px;border-radius:3px;background:#fff;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 1px 1px rgba(0,40,120,.25)}
+#ajTextCardResizeV2266h::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%) rotate(45deg);border-left:4px solid #fff;border-top:4px solid #fff;border-right:4px solid #fff;border-bottom:4px solid #fff;clip-path:polygon(0 0,42% 0,42% 13%,13% 13%,13% 42%,0 42%,0 0,100% 100%,58% 100%,58% 87%,87% 87%,87% 58%,100% 58%,100% 100%)}
+@media(max-width:900px) and (any-pointer:coarse){
+ #text-tool-overlay{min-width:210px!important;max-width:none!important;box-sizing:border-box!important}
+ #text-tool-overlay.aj-text-user-sized-v1932h2{max-width:none!important;min-width:210px!important}
+ #ajTextCardResizeV2266h{width:58px!important;height:58px!important;right:-7px!important;bottom:-7px!important;touch-action:none!important;z-index:80!important}
+}
+</style>
+<script id="AIRJOTTER_MOBILE_TEXT_ICON_RESIZE_V1932H2_SCRIPT">
+(()=>{'use strict';
+ function normalize(){
+  document.querySelectorAll('.aj-text-history-v1932h1').forEach(x=>x.remove());
+  const editor=document.getElementById('ajShapeEditorV227'),button=editor?.querySelector('.aj-shape-minimize-v1932h');
+  if(button){button.textContent='';button.classList.toggle('aj-reopen-v1932h2',editor.classList.contains('aj-minimized-v1932h'));button.title=editor.classList.contains('aj-minimized-v1932h')?'Riapri pannello':'Minimizza pannello'}
+  const handle=document.getElementById('ajTextCardResizeV2266h');if(handle){handle.textContent='';handle.setAttribute('aria-label','Ridimensiona casella di testo in larghezza e altezza');handle.title='Ridimensiona in larghezza e altezza'}
+ }
+ /* Gestore autorevole per smartphone: converte il movimento dello schermo nelle coordinate locali della text box scalata. */
+ document.addEventListener('pointerdown',e=>{
+  const handle=e.target.closest?.('#ajTextCardResizeV2266h');if(!handle||!matchMedia('(max-width:900px) and (any-pointer:coarse)').matches)return;
+  const box=document.getElementById('text-tool-overlay');if(!box)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const rect=box.getBoundingClientRect(),scaleX=rect.width/Math.max(1,box.offsetWidth),scaleY=rect.height/Math.max(1,box.offsetHeight),sx=e.clientX,sy=e.clientY,sw=box.offsetWidth,sh=box.offsetHeight;
+  const move=ev=>{ev.preventDefault();const dx=(ev.clientX-sx)/Math.max(.05,scaleX),dy=(ev.clientY-sy)/Math.max(.05,scaleY);const left=box.getBoundingClientRect().left,top=box.getBoundingClientRect().top;const availableW=Math.max(210,(innerWidth-left-6)/Math.max(.05,scaleX)),availableH=Math.max(210,(innerHeight-top-6)/Math.max(.05,scaleY));const w=Math.max(210,Math.min(availableW,sw+dx)),h=Math.max(210,Math.min(availableH,sh+dy));box.classList.add('aj-text-user-sized-v1932h2');box.style.setProperty('width',w+'px','important');box.style.setProperty('height',h+'px','important')};
+  const finish=()=>{document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerup',finish,true);document.removeEventListener('pointercancel',finish,true)};
+  document.addEventListener('pointermove',move,{capture:true,passive:false});document.addEventListener('pointerup',finish,true);document.addEventListener('pointercancel',finish,true)
+ },true);
+ const schedule=()=>normalize();document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
 </head>
 <body>
     <div id="ajLogin" class="aj-overlay aj-wow-login-v1922">
