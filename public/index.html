@@ -1,6 +1,36 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<style id="AIRJOTTER_LOBBY_NO_FLASH_V1932F5">
+html:not(.aj-lobby-ready-v1932f5) #ajLobby:not(.aj-hidden){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+html.aj-lobby-ready-v1932f5 #ajLobby{visibility:visible!important;opacity:1!important;transition:opacity .14s ease!important}
+</style>
+<script id="AIRJOTTER_LOBBY_NO_FLASH_V1932F5_SCRIPT">
+(()=>{'use strict';
+ const root=document.documentElement;
+ const text=(el,value)=>{if(el&&el.textContent!==value)el.textContent=value};
+ function compose(){
+  const lobby=document.getElementById('ajLobby'),card=document.getElementById('ajWorkspaceCardV1932F'),tools=document.getElementById('ajLobbyToolsV1932E2');
+  if(!lobby||!card||!tools)return false;
+  text(lobby.querySelector('.aj-access-title'),'AirJotter: la tua scrivania digitale 4-in-1');
+  text(lobby.querySelector('.aj-access-subtitle'),'Paperboard multidevice & PDF Editor | Note multimediali | File Transfer P2P');
+  text(card.querySelector(':scope>h3'),'Crea o apri il tuo Jotter');
+  text(card.querySelector(':scope>p'),'Crea o riapri i tuoi spazi di lavoro, modifica ed esporta PDF e collabora in tempo reale.');
+  text(card.querySelector('.aj-join-title-v1932f'),'Entra in un Jotter condiviso');
+  text(card.querySelector('.aj-join-copy-v1932f'),"Inserisci il codice ricevuto. Entrerai in lettura e potrai richiedere l'accesso in modifica.");
+  text(tools.querySelector('.aj-lobby-tools-head-v1932e2 h3'),'Note e trasferimento file');
+  text(tools.querySelector('.aj-lobby-tools-head-v1932e2 p'),'Accedi direttamente ai tuoi strumenti personali.');
+  const copies=tools.querySelectorAll('.aj-lobby-tool-copy-v1932e2 span');
+  text(copies[0],'Crea, organizza e ritrova testi, immagini e allegati sincronizzati con il tuo account AirJotter.');
+  text(copies[1],'Invia o ricevi file e cartelle direttamente tra dispositivi collegati allo stesso Jotter, con una connessione P2P criptata e sicura.');
+  text(document.getElementById('ajLobbyNotesV1932E2'),'Apri le tua Note');text(document.getElementById('ajLobbyTransferV1932E2'),'Avvia un File Transfer');
+  return true;
+ }
+ function ready(){if(compose()){root.classList.add('aj-lobby-ready-v1932f5');return true}return false}
+ function start(){if(ready())return;const observer=new MutationObserver(()=>{if(ready())observer.disconnect()});observer.observe(document.documentElement,{childList:true,subtree:true});let n=0;const timer=setInterval(()=>{if(ready()||++n>80){clearInterval(timer);observer.disconnect();if(!root.classList.contains('aj-lobby-ready-v1932f5'))root.classList.add('aj-lobby-ready-v1932f5')}},25)}
+ start();addEventListener('pageshow',()=>{root.classList.remove('aj-lobby-ready-v1932f5');start()},{passive:true});
+})();
+</script>
     <!-- AIRJOTTER_NOTES_DEFINITIVE_V2303B -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
