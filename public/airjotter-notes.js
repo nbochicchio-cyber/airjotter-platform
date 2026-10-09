@@ -89,7 +89,17 @@ async function ajRefreshNotesInBackgroundV2306D(){
  })();
  return ajNotesRefreshPromiseV2306D;
 }
-async function load(){notes=await all(STORE);render();void ajRefreshNotesInBackgroundV2306D();void sync()}
+// AIRJOTTER_NOTES_LOADING_COMPLETE_V2307E
+async function load(){
+ try{
+  notes=await all(STORE);render();
+  await ajRefreshNotesInBackgroundV2306D();
+  notes=await all(STORE);render();
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  document.dispatchEvent(new CustomEvent('airjotter:notes-ready',{detail:{count:notes.length}}));
+  void sync();
+ }catch(error){document.dispatchEvent(new CustomEvent('airjotter:notes-ready',{detail:{error:true}}));throw error}
+}
 function newNote(){const limit=Number(window.ajNotesLimit ?? 10),used=notes.length;if(used>=limit){alert(`Limite Note raggiunto. Il tuo piano consente ${limit} Note complessive. Attualmente hai ${used} Note tra elenco e cestino. Per crearne una nuova devi eliminare definitivamente almeno una Nota dal cestino oppure passare a un piano superiore.`);return}const now=new Date().toISOString(),n={id:crypto.randomUUID(),title:'',body_html:'',color:'#ffffff',pinned:false,attachments:[],created_at:now,updated_at:now,deleted_at:null,is_new:true,sync_state:'pending'};notes.unshift(n);select(n);$('.aj-note-title').focus()}
 function insertImage(file,attachment=false){const r=new FileReader();r.onload=()=>{if(attachment){current.attachments=current.attachments||[];current.attachments.push({id:crypto.randomUUID(),name:file.name,type:file.type,size:file.size,data_url:r.result});attachments()}else{const img=document.createElement('img');img.src=r.result;img.alt=file.name||'Immagine';const sel=getSelection();if(lastRange){sel.removeAllRanges();sel.addRange(lastRange)}document.execCommand('insertHTML',false,img.outerHTML)}schedule()};r.readAsDataURL(file)}
 function attachments(){$('.aj-note-files').innerHTML=(current?.attachments||[]).map(a=>`<span class="aj-note-file"><button type="button" data-open-file="${a.id}">📎 ${esc(a.name)}</button><button type="button" data-remove-file="${a.id}" aria-label="Rimuovi allegato">×</button></span>`).join('');document.querySelectorAll('[data-open-file]').forEach(b=>b.onclick=()=>ajOpenAttachmentV2301C((current.attachments||[]).find(a=>a.id===b.dataset.openFile)));document.querySelectorAll('[data-remove-file]').forEach(b=>b.onclick=()=>{current.attachments=current.attachments.filter(a=>a.id!==b.dataset.removeFile);attachments();schedule()})}
