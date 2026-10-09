@@ -72,7 +72,24 @@ function collect(){
 }function sanitize(h){const d=document.createElement('div');d.innerHTML=h;d.querySelectorAll('script,style,iframe,object,embed,form').forEach(x=>x.remove());d.querySelectorAll('*').forEach(x=>[...x.attributes].forEach(a=>{if(/^on/i.test(a.name)||a.name==='srcdoc')x.removeAttribute(a.name)}));return d.innerHTML}
 async function localSave(explicit=false){if(!current)return;const contentChanged=collect();if(!contentChanged&&!noteContentDirty){if(explicit)toast('Nessuna modifica da salvare');return}if(!current.title&&!strip(current.body_html).trim()&&!(current.attachments||[]).length){if(current.is_new){notes=notes.filter(x=>x.id!==current.id);current=null;render()}return}await put(STORE,current);await put(QUEUE,{id:current.id,note:current});noteContentDirty=false;if(explicit)toast('Nota salvata');render();sync()}
 async function sync(){if(!navigator.onLine)return;const q=await all(QUEUE);for(const item of q){try{const saved=item.kind==='color'?await api('/api/notes/'+item.id+'/color',{method:'PATCH',body:JSON.stringify({color:item.color})}):await api('/api/notes/'+item.id,{method:'PUT',body:JSON.stringify(item.note)});saved.sync_state='synced';await put(STORE,saved);await del(QUEUE,item.id);notes=notes.map(n=>n.id===saved.id?saved:n);if(current?.id===saved.id)current=saved}catch(e){if(e.status===409||e.status===403){toast(e.message);break}}}render();$('.aj-note-sync').textContent='Sincronizzata'}
-async function load(){notes=await all(STORE);if(navigator.onLine){try{const d=await api('/api/notes?fresh='+Date.now(),{headers:{'Cache-Control':'no-store'}});window.ajNotesLimit=Number(d.limit);const serverIds=new Set(d.notes.map(n=>n.id));for(const local of notes)if(local.sync_state!=='pending'&&!serverIds.has(local.id))await del(STORE,local.id);for(const n of d.notes){n.sync_state='synced';await put(STORE,n)}notes=await all(STORE)}catch{}}render();sync()}
+// AIRJOTTER_NOTES_FAST_OPEN_V2306D
+let ajNotesRefreshPromiseV2306D=null;
+async function ajRefreshNotesInBackgroundV2306D(){
+ if(!navigator.onLine)return;
+ if(ajNotesRefreshPromiseV2306D)return ajNotesRefreshPromiseV2306D;
+ ajNotesRefreshPromiseV2306D=(async()=>{
+  try{
+   const d=await api('/api/notes?fresh='+Date.now(),{headers:{'Cache-Control':'no-store'}});
+   window.ajNotesLimit=Number(d.limit);
+   const localSnapshot=await all(STORE),serverIds=new Set(d.notes.map(n=>n.id)),localById=new Map(localSnapshot.map(n=>[n.id,n])),writes=[];
+   for(const local of localSnapshot)if(local.sync_state!=='pending'&&!serverIds.has(local.id))writes.push(del(STORE,local.id));
+   for(const serverNote of d.notes){if(localById.get(serverNote.id)?.sync_state==='pending')continue;serverNote.sync_state='synced';writes.push(put(STORE,serverNote))}
+   await Promise.all(writes);notes=await all(STORE);render();
+  }catch{}finally{ajNotesRefreshPromiseV2306D=null}
+ })();
+ return ajNotesRefreshPromiseV2306D;
+}
+async function load(){notes=await all(STORE);render();void ajRefreshNotesInBackgroundV2306D();void sync()}
 function newNote(){const limit=Number(window.ajNotesLimit ?? 10),used=notes.length;if(used>=limit){alert(`Limite Note raggiunto. Il tuo piano consente ${limit} Note complessive. Attualmente hai ${used} Note tra elenco e cestino. Per crearne una nuova devi eliminare definitivamente almeno una Nota dal cestino oppure passare a un piano superiore.`);return}const now=new Date().toISOString(),n={id:crypto.randomUUID(),title:'',body_html:'',color:'#ffffff',pinned:false,attachments:[],created_at:now,updated_at:now,deleted_at:null,is_new:true,sync_state:'pending'};notes.unshift(n);select(n);$('.aj-note-title').focus()}
 function insertImage(file,attachment=false){const r=new FileReader();r.onload=()=>{if(attachment){current.attachments=current.attachments||[];current.attachments.push({id:crypto.randomUUID(),name:file.name,type:file.type,size:file.size,data_url:r.result});attachments()}else{const img=document.createElement('img');img.src=r.result;img.alt=file.name||'Immagine';const sel=getSelection();if(lastRange){sel.removeAllRanges();sel.addRange(lastRange)}document.execCommand('insertHTML',false,img.outerHTML)}schedule()};r.readAsDataURL(file)}
 function attachments(){$('.aj-note-files').innerHTML=(current?.attachments||[]).map(a=>`<span class="aj-note-file"><button type="button" data-open-file="${a.id}">📎 ${esc(a.name)}</button><button type="button" data-remove-file="${a.id}" aria-label="Rimuovi allegato">×</button></span>`).join('');document.querySelectorAll('[data-open-file]').forEach(b=>b.onclick=()=>ajOpenAttachmentV2301C((current.attachments||[]).find(a=>a.id===b.dataset.openFile)));document.querySelectorAll('[data-remove-file]').forEach(b=>b.onclick=()=>{current.attachments=current.attachments.filter(a=>a.id!==b.dataset.removeFile);attachments();schedule()})}
