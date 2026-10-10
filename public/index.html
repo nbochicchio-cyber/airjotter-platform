@@ -8881,6 +8881,35 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
 <div id="ajPhotoSourceOverlayH11" aria-hidden="true"><div class="aj-photo-source-card-h11" role="dialog" aria-modal="true" aria-labelledby="ajPhotoSourceTitleH11"><h3 id="ajPhotoSourceTitleH11">Aggiungi una foto</h3><p>Scegli se scattare una nuova foto o caricarne una dalla memoria del dispositivo.</p><div class="aj-photo-source-actions-h11"><button id="ajPhotoCameraH11" type="button">Scatta una foto</button><button id="ajPhotoLibraryH11" type="button">Scegli dalla memoria</button><button id="ajPhotoCancelH11" type="button">Annulla</button></div></div></div>
 <input type="file" id="ajPhotoCameraInputH11" accept="image/*" capture="environment" aria-label="Scatta una foto" hidden>
 <script id="AIRJOTTER_MOBILE_PHOTO_SOURCE_H11">(()=>{const gallery=document.getElementById('fileInputRealImg'),camera=document.getElementById('ajPhotoCameraInputH11'),overlay=document.getElementById('ajPhotoSourceOverlayH11');if(!gallery||!camera||!overlay)return;const isMobilePhotoDevice=()=>window.matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;let allowGalleryOnce=false;const open=()=>{overlay.classList.add('open');overlay.setAttribute('aria-hidden','false')},close=()=>{overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true')};gallery.addEventListener('click',e=>{if(!isMobilePhotoDevice()||allowGalleryOnce){allowGalleryOnce=false;return}e.preventDefault();e.stopImmediatePropagation();open()},true);document.getElementById('ajPhotoCameraH11').addEventListener('click',()=>{close();camera.value='';resetStampUI();if(typeof ajCaptureImportPageV231==='function')ajCaptureImportPageV231();camera.click()});document.getElementById('ajPhotoLibraryH11').addEventListener('click',()=>{close();allowGalleryOnce=true;gallery.value='';resetStampUI();gallery.click()});document.getElementById('ajPhotoCancelH11').addEventListener('click',close);overlay.addEventListener('click',e=>{if(e.target===overlay)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open'))close()});camera.addEventListener('change',function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=event=>{rawImageObj=new Image();rawImageObj.onload=()=>{stampCanvas.width=rawImageObj.width;stampCanvas.height=rawImageObj.height;stampCtx.clearRect(0,0,stampCanvas.width,stampCanvas.height);stampCtx.drawImage(rawImageObj,0,0);activateStamp('photo',rawImageObj.width,rawImageObj.height)};rawImageObj.src=event.target.result};reader.readAsDataURL(file);this.value=''});camera.addEventListener('cancel',()=>{camera.value=''});document.documentElement.dataset.airjotterPhotoSource='H11'})();</script>
+<style id="AIRJOTTER_MOBILE_SIGNATURE_SOURCE_V2307J_STYLE">
+#ajSignatureSourceOverlayV2307J{display:none;position:fixed;inset:0;z-index:60000;background:rgba(22,35,54,.52);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;padding:18px}
+#ajSignatureSourceOverlayV2307J.open{display:flex}
+#ajSignatureCameraV2307J{background:#1769e8;color:#fff}
+#ajSignatureLibraryV2307J{background:#eaf2ff;color:#174f91}
+#ajSignatureCancelV2307J{background:#f1f3f6;color:#4d5b6c}
+@media(min-width:721px) and (pointer:fine){#ajSignatureSourceOverlayV2307J{display:none!important}}
+</style>
+<div id="ajSignatureSourceOverlayV2307J" aria-hidden="true"><div class="aj-photo-source-card-h11" role="dialog" aria-modal="true" aria-labelledby="ajSignatureSourceTitleV2307J"><h3 id="ajSignatureSourceTitleV2307J">Aggiungi una firma</h3><p>Scegli se scattare una foto della tua firma o caricarne una dalla memoria del tuo device.</p><div class="aj-photo-source-actions-h11"><button id="ajSignatureCameraV2307J" type="button">Scatta una foto</button><button id="ajSignatureLibraryV2307J" type="button">Scegli dalla memoria</button><button id="ajSignatureCancelV2307J" type="button">Annulla</button></div></div></div>
+<input type="file" id="ajSignatureCameraInputV2307J" accept="image/*" capture="environment" aria-label="Scatta una foto della firma" hidden>
+<script id="AIRJOTTER_MOBILE_SIGNATURE_SOURCE_V2307J">
+(()=>{'use strict';
+ const gallery=document.getElementById('fileInputSign'),camera=document.getElementById('ajSignatureCameraInputV2307J'),overlay=document.getElementById('ajSignatureSourceOverlayV2307J');
+ if(!gallery||!camera||!overlay)return;
+ const isMobileSignatureDevice=()=>window.matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
+ let allowGalleryOnce=false;
+ const open=()=>{overlay.classList.add('open');overlay.setAttribute('aria-hidden','false')};
+ const close=()=>{overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true')};
+ gallery.addEventListener('click',event=>{if(!isMobileSignatureDevice()||allowGalleryOnce){allowGalleryOnce=false;return}event.preventDefault();event.stopImmediatePropagation();open()},true);
+ document.getElementById('ajSignatureCameraV2307J').addEventListener('click',()=>{close();camera.value='';resetStampUI();if(typeof ajCaptureImportPageV231==='function')ajCaptureImportPageV231();camera.click()});
+ document.getElementById('ajSignatureLibraryV2307J').addEventListener('click',()=>{close();allowGalleryOnce=true;gallery.value='';resetStampUI();gallery.click()});
+ document.getElementById('ajSignatureCancelV2307J').addEventListener('click',close);
+ overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&overlay.classList.contains('open'))close()});
+ camera.addEventListener('change',function(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=loadEvent=>{rawImageObj=new Image();rawImageObj.onload=()=>{stampCanvas.width=rawImageObj.width;stampCanvas.height=rawImageObj.height;stampCtx.clearRect(0,0,stampCanvas.width,stampCanvas.height);currentStampType='signature';applyChromaKeyToStamp();activateStamp('signature',rawImageObj.width,rawImageObj.height)};rawImageObj.src=loadEvent.target.result};reader.readAsDataURL(file);this.value=''});
+ camera.addEventListener('cancel',()=>{camera.value=''});
+ document.documentElement.dataset.airjotterSignatureSource='V2307J';
+})();
+</script>
 <script id="AIRJOTTER_IPAD_PENCIL_RESPONSIVENESS_V2306E">document.documentElement.dataset.airjotterPencilResponsiveness='V2306E';</script><script id="AIRJOTTER_IPAD_PENCIL_HIDPI_V2306F">document.documentElement.dataset.airjotterPencilHiDpi='V2306F';</script><script id="AIRJOTTER_IPAD_PENCIL_ULTRA_LOW_LATENCY_V2306G">document.documentElement.dataset.airjotterPencilUltra='V2306G';</script><script id="AIRJOTTER_IPAD_PENCIL_ZERO_SHIFT_V2306H">document.documentElement.dataset.airjotterPencilZeroShift='V2306H';</script><style id="AIRJOTTER_MOBILE_CANVAS_FOOTER_V2307B_STYLE">
 @media (max-width:760px){
  #mobileViewport{box-sizing:border-box!important;padding-top:10px!important;padding-bottom:0!important}
