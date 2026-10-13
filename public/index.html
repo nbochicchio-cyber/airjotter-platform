@@ -3041,7 +3041,19 @@ const AJInk = (() => {
                 if (S && S.mode === 'eraser' && S.path === path) eraseIncrement(true);
                 // v21.6: niente asciugatura sul canvas multipagina a DPR ridotto.
                 // Il tratto definitivo viene renderizzato da redrawMainCanvas sul canvas HiDPI della pagina.
+                const finishingType = S && S.type;
                 wipe();
+                // AIRJOTTER_FIX_RESIDUO_WET_INK_TOUCH_V2307K1
+                // Safari/iPad puo lasciare pixel dell'anteprima touch fuori dalla dirtyBox
+                // finche uno zoom non rialloca il canvas. A fine tratto touch azzera quindi
+                // l'intero wet layer in coordinate dispositivo, senza toccare il tratto salvato.
+                if (finishingType === 'touch') {
+                    inkCtx.save();
+                    inkCtx.setTransform(1, 0, 0, 1, 0, 0);
+                    inkCtx.clearRect(0, 0, inkCanvas.width, inkCanvas.height);
+                    inkCtx.restore();
+                    dirtyBox = null;
+                }
                 S = null;
                 quietUntil = performance.now() + QUIET_MS;
             }
