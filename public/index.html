@@ -2780,7 +2780,7 @@ const AJInk = (() => {
                 S = {
                     id: e.pointerId, type: pt, mode, legacy, g, path: currentPath, toolWidth,
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
-                    done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
+                    done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [], touchAnchorSettled: pt !== 'touch',
                     filter: (mode === 'pen' && (pt === 'pen' || pt === 'touch')) ? makeFilter(pt) : null,
                     minDist: legacy ? 0 : (pt==='pen'?clamp(0.20/Math.max(vs,1e-3),0.07,0.34):clamp(0.26/Math.max(vs,1e-3),0.09,0.48)),
                     nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
@@ -2844,7 +2844,17 @@ const AJInk = (() => {
                 if (pos.x !== S.raw.x || pos.y !== S.raw.y) S.moved = true;
                 S.raw = pos;
                 const f = S.filter ? S.filter(pos.x, pos.y, dt) : pos;
-                if (Math.hypot(f.x - lastPt.x, f.y - lastPt.y) >= S.minDist) {
+                // AIRJOTTER_FIX_ANCORA_INIZIALE_TOUCH_V2307K1_R2
+                // Il pointerdown del dito puo partire dal centro di contatto non ancora stabilizzato.
+                // Il primo campione filtrato diventa l'ancora reale, senza segmento di raccordo fantasma.
+                if (S.type === 'touch' && !S.touchAnchorSettled) {
+                    pts[0] = { x: r2(f.x), y: r2(f.y), w: r2(S.sw) };
+                    S.raw = pos;
+                    S.touchAnchorSettled = true;
+                    lastEventData = { clientX: ev.clientX, clientY: ev.clientY, timeStamp: ev.timeStamp };
+                    return false;
+                }
+                if (Math.hypot(f.x - pts[pts.length - 1].x, f.y - pts[pts.length - 1].y) >= S.minDist) {
                     pts.push(ev.pointerType==='pen'?{x:Math.round(f.x*1000)/1000,y:Math.round(f.y*1000)/1000,w:Math.round(S.sw*1000)/1000}:{x:r2(f.x),y:r2(f.y),w:r2(S.sw)});
                     return true;
                 }
