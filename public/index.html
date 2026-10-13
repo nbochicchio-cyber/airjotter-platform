@@ -3012,13 +3012,20 @@ const AJInk = (() => {
                 try { list = e.getCoalescedEvents ? e.getCoalescedEvents() : null; } catch (err) { list = null; }
                 const evs = list && list.length ? list : [e];
                 const g = S && S.g;
-                for (const ev of evs) {
-                    const pos = g ? mapPt(g, ev) : getPointerPos(ev);
-                    const lastPt = pts[pts.length - 1];
-                    const distSq = (pos.x - lastPt.x) ** 2 + (pos.y - lastPt.y) ** 2;
-                    if (distSq > 1) {
-                        if (S && S.legacy) pts.push({ x: pos.x, y: pos.y, w: lastPt.w * 0.8 });
-                        else pts.push({ x: r2(pos.x), y: r2(pos.y), w: r2(lastPt.w * 0.8) });
+                // AIRJOTTER_FIX_PRIMO_TRATTO_TOUCH_FANTASMA_V2307K1
+                // Il pointerup touch di Safari puo contenere una coordinata finale incoerente,
+                // soprattutto prima della prima variazione di zoom. I campioni touch reali sono
+                // gia acquisiti da move() tramite sample(), filtro 1-Euro e minDist.
+                // Non aggiungere quindi il pointerup touch saltando filtri e controlli geometrici.
+                if (!(S && S.type === 'touch')) {
+                    for (const ev of evs) {
+                        const pos = g ? mapPt(g, ev) : getPointerPos(ev);
+                        const lastPt = pts[pts.length - 1];
+                        const distSq = (pos.x - lastPt.x) ** 2 + (pos.y - lastPt.y) ** 2;
+                        if (distSq > 1) {
+                            if (S && S.legacy) pts.push({ x: pos.x, y: pos.y, w: lastPt.w * 0.8 });
+                            else pts.push({ x: r2(pos.x), y: r2(pos.y), w: r2(lastPt.w * 0.8) });
+                        }
                     }
                 }
                 if (S && S.mode === 'eraser' && S.path === path) eraseIncrement(true);
