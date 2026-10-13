@@ -2509,7 +2509,8 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
             };
         }
 
-        const AJInk = (() => {
+        <!-- AIRJOTTER_TOUCH_CURVE_QUALITY_IPAD_V2307K1_R3: filtro touch AJInk attivo e densita punti touch aumentata; Pencil invariata. -->
+const AJInk = (() => {
             const TAU = Math.PI * 2;
             const QUIET_MS = 1200;          // finestra di "scrittura attiva" dopo ogni tratto
             const r2 = v => Math.round(v * 100) / 100;
@@ -2780,8 +2781,8 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
                     id: e.pointerId, type: pt, mode, legacy, g, path: currentPath, toolWidth,
                     sw: w, lastT: e.timeStamp, raw: pos, vx: 0, vy: 0, moved: false,
                     done: 0, hlNext: 1, bb: newBox(), tailBox: null, geomDirty: false, pieces: [],
-                    filter: (mode === 'pen' && pt === 'pen') ? makeFilter(pt) : null,
-                    minDist: legacy ? 0 : (pt==='pen'?clamp(0.20/Math.max(vs,1e-3),0.07,0.34):clamp(0.55/Math.max(vs,1e-3),0.2,1.2)),
+                    filter: (mode === 'pen' && (pt === 'pen' || pt === 'touch')) ? makeFilter(pt) : null,
+                    minDist: legacy ? 0 : (pt==='pen'?clamp(0.20/Math.max(vs,1e-3),0.07,0.34):clamp(0.26/Math.max(vs,1e-3),0.09,0.48)),
                     nominalDt: pt === 'pen' ? 1000 / 240 : (pt === 'touch' ? 1000 / 120 : 1000 / 60),
                     tauW: pt === 'pen' ? 9 : 23,
                     predict: mode === 'pen' && pt === 'pen'
