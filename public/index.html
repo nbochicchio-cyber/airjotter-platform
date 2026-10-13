@@ -4742,7 +4742,25 @@ document.addEventListener('click', function(event) {
  vp.addEventListener('touchmove',e=>{if(!pinch||e.touches.length!==2)return;const a=e.touches[0],b=e.touches[1],r=vp.getBoundingClientRect(),cx=(a.clientX+b.clientX)/2-r.left,cy=(a.clientY+b.clientY)/2-r.top,dist=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);pinch.smoothCx+=(cx-pinch.smoothCx)*.40;pinch.smoothCy+=(cy-pinch.smoothCy)*.40;pinch.smoothDistance+=(dist-pinch.smoothDistance)*.36;const ratio=pinch.smoothDistance/pinch.distance;let target=pinch.zoom*Math.pow(ratio,.82);if(Math.abs(target-pinch.lastZoom)<.0025)target=pinch.lastZoom;target=Math.max(pinch.lastZoom-.055,Math.min(pinch.lastZoom+.055,target));target=Math.max(.5,Math.min(3,target));const dead=.8,dx=pinch.smoothCx-pinch.lastCx,dy=pinch.smoothCy-pinch.lastCy;const stableCx=Math.abs(dx)<dead?pinch.lastCx:pinch.lastCx+dx*.72,stableCy=Math.abs(dy)<dead?pinch.lastCy:pinch.lastCy+dy*.72;pinch.lastCx=stableCx;pinch.lastCy=stableCy;pinch.lastZoom=target;pending={cx:stableCx,cy:stableCy,zoom:target};if(!raf)raf=requestAnimationFrame(paint);e.preventDefault();e.stopImmediatePropagation()},{capture:true,passive:false});
  function end(e){if(!pinch||e.touches.length>=2)return;if(raf){cancelAnimationFrame(raf);paint()}pinch=null;pending=null;grid()}
  vp.addEventListener('touchend',end,{capture:true,passive:true});vp.addEventListener('touchcancel',end,{capture:true,passive:true});
- const base=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop},out=base.apply(this,arguments);zoom=keep.zoom;grid();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label();grid()});return out};
+ // AIRJOTTER_TABLET_AUTO_ZOOM_FIT_NEW_JOTTER_V2307K1
+ // Su tablet, il primo layout di un Jotter vuoto viene inizializzato con una minima
+ // variazione reale della scala e subito riportato ad Adatta. Nessun evento pinch sintetico.
+ let ajAutoZoomFitBoardV2307K1=null,ajAutoZoomFitBusyV2307K1=false;
+ function ajBoardKeyV2307K1(){try{return String(ajBoard?.id||ajBoard?.roomCode||ACTUAL_ROOM_CODE||'')}catch{return ''}}
+ function ajWarmNewJotterV2307K1(){
+  const key=ajBoardKeyV2307K1();
+  if(!key||ajAutoZoomFitBusyV2307K1||ajAutoZoomFitBoardV2307K1===key)return;
+  let empty=false;try{empty=Array.isArray(commands)&&commands.length===0}catch{return}
+  if(!empty)return;
+  ajAutoZoomFitBoardV2307K1=key;ajAutoZoomFitBusyV2307K1=true;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   zoom=1.03;geom(fit()*zoom);label();grid();
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    reset();ajAutoZoomFitBusyV2307K1=false;
+   }));
+  }));
+ }
+ const base=initCanvas;initCanvas=function(){const keep={zoom,left:vp.scrollLeft,top:vp.scrollTop},out=base.apply(this,arguments);zoom=keep.zoom;grid();requestAnimationFrame(()=>{geom(fit()*zoom);vp.scrollLeft=keep.left;vp.scrollTop=keep.top;label();grid();ajWarmNewJotterV2307K1()});return out};
  new MutationObserver(()=>{ensureFit();grid()}).observe(wrapper,{childList:true});grid();setTimeout(reset,250);
 })();
 </script>
