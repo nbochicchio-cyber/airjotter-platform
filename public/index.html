@@ -8645,30 +8645,9 @@ html.aj-a3-after-stroke-apply-v221061331937 #ajPaperModalV221042{display:none!im
 #ajIpadA3FingerWetV1952{display:none;position:absolute;inset:0;width:100%;height:100%;z-index:12020;pointer-events:none;overflow:visible;background:transparent}
 html.aj-ipad-a3-finger-v1952 #ajIpadA3FingerWetV1952{display:block}
 </style>
-<script id="AIRJOTTER_V221061331952_ENGINE">
-(()=>{'use strict';
- const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
- ready(()=>{
-  const input=document.getElementById('draftBoard'),wrap=document.getElementById('canvas-wrapper');if(!input||!wrap)return;
-  const ipad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  if(!ipad)return;
-  const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg'),line=document.createElementNS(NS,'path');
-  svg.id='ajIpadA3FingerWetV1952';line.setAttribute('fill','none');line.setAttribute('stroke-linecap','round');line.setAttribute('stroke-linejoin','round');svg.appendChild(line);wrap.appendChild(svg);
-  let active=false,pid=-1,origin=null,last=null,rawLast=null,points=[],rect=null,cancelled=false;const AIRJOTTER_IPAD_PRO_FINGER_SMOOTH_V2307K1_R3=true;
-  const a3=()=>document.getElementById('ajPaperGlobalBtnV221042')?.textContent?.trim()==='A3';
-  const writable=()=>['pen','highlighter','eraser'].includes(typeof currentMode!=='undefined'?currentMode:'pen')&&!stampActive&&!textOverlayActive;
-  function pos(e){const r=rect||input.getBoundingClientRect();return{x:(e.clientX-r.left)*LOGICAL_W/r.width,y:(e.clientY-r.top)*LOGICAL_H/r.height}}
-  function clear(){line.removeAttribute('d');document.documentElement.classList.remove('aj-ipad-a3-finger-v1952')}
-  function paint(){if(!points.length)return;let d=`M${points[0].x} ${points[0].y}`;for(let i=1;i<points.length-1;i++){const q=points[i],n=points[i+1];d+=` Q${q.x} ${q.y} ${(q.x+n.x)/2} ${(q.y+n.y)/2}`}if(points.length>1){const z=points.at(-1);d+=` L${z.x} ${z.y}`}const mode=currentMode,width=Number(baseWidth||2.5);line.setAttribute('d',d);line.setAttribute('stroke',mode==='eraser'?'#fff':mode==='highlighter'?'#FFE000':currentColor);line.setAttribute('stroke-opacity',mode==='highlighter'?'.30':'1');line.setAttribute('stroke-width',String(mode==='highlighter'?width*3.2:width))}
-  function down(e){if(e.target!==input||!a3()||e.pointerType!=='touch'||!writable()||active)return;active=true;pid=e.pointerId;origin=last=rawLast=pos(e);points=[];rect=input.getBoundingClientRect();cancelled=false;document.documentElement.classList.add('aj-ipad-a3-finger-v1952');e.preventDefault();e.stopImmediatePropagation()}
-  function move(e){if(!active||e.pointerId!==pid)return;e.preventDefault();e.stopImmediatePropagation();let batch;try{const c=e.getCoalescedEvents?.();batch=c?.length?[...c]:[e]}catch{batch=[e]}batch.sort((a,b)=>(a.timeStamp||0)-(b.timeStamp||0));const width=Number(baseWidth||2.5);for(const sample of batch){const p=pos(sample);if(!rawLast)rawLast=p;const dx=p.x-rawLast.x,dy=p.y-rawLast.y,dist=Math.hypot(dx,dy);if(dist<.18)continue;const steps=Math.max(1,Math.ceil(dist/1.35));for(let i=1;i<=steps;i++){const t=i/steps,q={x:rawLast.x+dx*t,y:rawLast.y+dy*t};if(!points.length){if(Math.hypot(q.x-origin.x,q.y-origin.y)<1.15)continue;last={x:q.x,y:q.y}}else{const d=Math.hypot(q.x-last.x,q.y-last.y);if(d<.20)continue;const alpha=d>2.4?.88:d>1.2?.80:.72;last={x:last.x+(q.x-last.x)*alpha,y:last.y+(q.y-last.y)*alpha}}points.push({x:last.x,y:last.y,w:width})}rawLast=p}paint()}
-  function finish(e){if(!active||e.pointerId!==pid)return;e.preventDefault();e.stopImmediatePropagation();active=false;pid=-1;if(cancelled||points.length<2){points=[];clear();return}const mode=currentMode,cmd={type:'path',color:currentColor,points:points.map(p=>({x:Math.round(p.x*100)/100,y:Math.round(p.y*100)/100,w:Math.round(p.w*100)/100})),isEraser:mode==='eraser',isHighlighter:mode==='highlighter',opacity:mode==='highlighter'?.18:1,renderIndex:1};commands.push(cmd);redoCommands=[];document.getElementById('undoBtn').disabled=false;ajDrawPathOnPagesV224(cmd);ajSendStrokePreviewV224(cmd,true);ajSendCommand(cmd);ajInkPagesKeyV215='';redrawMainCanvas();points=[];clear()}
-  document.addEventListener('pointerdown',down,true);document.addEventListener('pointermove',move,true);document.addEventListener('pointerup',finish,true);document.addEventListener('pointercancel',e=>{if(active&&e.pointerId===pid){cancelled=true;finish(e)}},true);
-  document.addEventListener('touchstart',e=>{if(active&&e.touches.length>1){cancelled=true;points=[];clear()}},{capture:true,passive:true});
-  
- });
-})();
-</script>
+<!-- AIRJOTTER_UNIFIED_TOUCH_IPAD_SMARTPHONE_V2307K1
+     Il motore iPad finger V1952 e stato rimosso: il dito su iPad usa AJInk,
+     lo stesso percorso touch dello smartphone. Apple Pencil resta sul motore pen dedicato. -->
 <script id="AIRJOTTER_V221061331953_MARKER"></script>
 
 
