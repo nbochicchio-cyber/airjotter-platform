@@ -1,6 +1,56 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<style id="AIRJOTTER_FIX_FIRMA_FOTO_SHOWPICKER_WINDOWS_TOUCH_V2307K1_STYLE">
+html.aj-win-upload-picker-v2307k1 #importSignBtn,
+html.aj-win-upload-picker-v2307k1 #importRealImgBtn{
+ pointer-events:auto!important;
+ visibility:visible!important;
+}
+html.aj-win-upload-picker-v2307k1 #fileInputSign,
+html.aj-win-upload-picker-v2307k1 #fileInputRealImg{
+ pointer-events:none!important;
+}
+</style>
+<script id="AIRJOTTER_FIX_FIRMA_FOTO_SHOWPICKER_WINDOWS_TOUCH_V2307K1_SCRIPT">
+(()=>{'use strict';
+ const hybrid=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
+ if(!hybrid)return;
+ document.documentElement.classList.add('aj-win-upload-picker-v2307k1');
+ const map={importSignBtn:'fileInputSign',importRealImgBtn:'fileInputRealImg'};
+ let lastTouchOpen=0;
+ function prepare(){
+  for(const id of Object.keys(map)){
+   const b=document.getElementById(id),input=document.getElementById(map[id]);
+   if(b){b.removeAttribute('aria-hidden');b.removeAttribute('tabindex');b.disabled=false}
+   if(input){input.disabled=false;input.removeAttribute('hidden')}
+  }
+ }
+ function openFrom(event){
+  const button=event.target?.closest?.('#importSignBtn,#importRealImgBtn');
+  if(!button)return false;
+  const input=document.getElementById(map[button.id]);
+  if(!input||input.disabled)return false;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  input.value='';
+  try{
+   if(typeof input.showPicker==='function')input.showPicker();
+   else input.click();
+  }catch(error){console.error('AirJotter file picker '+button.id,error)}
+  return true;
+ }
+ document.addEventListener('pointerup',event=>{
+  if(event.pointerType!=='touch')return;
+  if(openFrom(event))lastTouchOpen=performance.now();
+ },{capture:true,passive:false});
+ document.addEventListener('click',event=>{
+  if(performance.now()-lastTouchOpen<700){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();return}
+  openFrom(event);
+ },true);
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',prepare,{once:true}):prepare();
+ new MutationObserver(prepare).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
 
 
 
