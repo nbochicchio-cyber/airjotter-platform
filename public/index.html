@@ -1,52 +1,68 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<script id="AIRJOTTER_FIX_UPLOAD_FIRMA_FOTO_WINDOWS_TOUCH_V2307K1">
+<style id="AIRJOTTER_FIX_DEFINITIVO_FIRMA_FOTO_HYBRID_WINDOWS_V2307K1_R2_STYLE">
+/* Il file input nativo copre fisicamente Firma e Foto sui PC Windows ibridi.
+   Nessun click sintetico: mouse, trackpad e dito attivano direttamente il picker del browser. */
+html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1{
+ position:relative!important;
+ display:inline-flex!important;
+ overflow:hidden!important;
+ pointer-events:auto!important;
+ isolation:isolate!important;
+}
+html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1>button{
+ pointer-events:none!important;
+}
+html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1>input[type="file"]{
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ visibility:visible!important;
+ width:100%!important;
+ height:100%!important;
+ min-width:100%!important;
+ min-height:100%!important;
+ opacity:.001!important;
+ cursor:pointer!important;
+ z-index:2147483647!important;
+ pointer-events:auto!important;
+ font-size:100px!important;
+ color:transparent!important;
+}
+</style>
+<script id="AIRJOTTER_FIX_DEFINITIVO_FIRMA_FOTO_HYBRID_WINDOWS_V2307K1_R2_SCRIPT">
 (() => {
-  'use strict';
+ 'use strict';
+ const hybrid = /Windows/i.test(navigator.userAgent) && (navigator.maxTouchPoints || 0) > 0;
+ if (!hybrid) return;
+ document.documentElement.classList.add('aj-win-hybrid-upload-v2307k1');
 
-  // Registrato all'inizio di <head>: precede i listener globali di disegno/gesture.
-  // Si attiva esclusivamente sui PC Windows dotati di touchscreen e solo per Firma/Foto.
-  const isWindowsTouch = /Windows/i.test(navigator.userAgent) && (navigator.maxTouchPoints || 0) > 0;
-  if (!isWindowsTouch) return;
+ function bind(id) {
+  const button = document.getElementById(id);
+  if (!button) return false;
+  const wrap = button.closest('.aj-native-file-picker-v218');
+  if (!wrap) return false;
+  const input = wrap.querySelector(':scope>input[type="file"],input[type="file"]');
+  if (!input) return false;
+  wrap.classList.add('aj-hybrid-upload-v2307k1');
+  input.disabled = false;
+  input.removeAttribute('hidden');
+  input.setAttribute('aria-label', id === 'importSignBtn' ? 'Carica firma' : 'Carica foto');
+  return true;
+ }
 
-  const selector = [
-    '#importSignBtn',
-    '#importRealImgBtn',
-    '.aj-native-file-picker-v218',
-    '.aj-native-file-picker-v218 input[type="file"]'
-  ].join(',');
+ function apply() {
+  bind('importSignBtn');
+  bind('importRealImgBtn');
+ }
 
-  let opening = false;
-
-  function resolveFileInput(target) {
-    const hit = target && target.closest ? target.closest(selector) : null;
-    if (!hit) return null;
-    if (hit.matches && hit.matches('input[type="file"]')) return hit;
-    const wrap = hit.closest?.('.aj-native-file-picker-v218') || hit.parentElement;
-    return wrap?.querySelector?.('input[type="file"]') || null;
-  }
-
-  document.addEventListener('pointerdown', event => {
-    if (event.pointerType !== 'touch' || opening) return;
-    const input = resolveFileInput(event.target);
-    if (!input || input.disabled) return;
-
-    // Impedisce ai listener globali touch di sottrarre il gesto al file picker.
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    opening = true;
-    try {
-      input.value = '';
-      input.click();
-    } finally {
-      queueMicrotask(() => { opening = false; });
-    }
-  }, { capture: true, passive: false });
+ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true });
+ else apply();
+ new MutationObserver(apply).observe(document.documentElement, { childList:true, subtree:true });
 })();
 </script>
+
 <style id="AIRJOTTER_LOBBY_NO_FLASH_V1932F5">
 html:not(.aj-lobby-ready-v1932f5) #ajLobby:not(.aj-hidden){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 html.aj-lobby-ready-v1932f5 #ajLobby{visibility:visible!important;opacity:1!important;transition:opacity .14s ease!important}
