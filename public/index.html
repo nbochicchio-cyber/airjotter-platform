@@ -1,67 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<style id="AIRJOTTER_FIX_DEFINITIVO_FIRMA_FOTO_HYBRID_WINDOWS_V2307K1_R2_STYLE">
-/* Il file input nativo copre fisicamente Firma e Foto sui PC Windows ibridi.
-   Nessun click sintetico: mouse, trackpad e dito attivano direttamente il picker del browser. */
-html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1{
- position:relative!important;
- display:inline-flex!important;
- overflow:hidden!important;
- pointer-events:auto!important;
- isolation:isolate!important;
-}
-html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1>button{
- pointer-events:none!important;
-}
-html.aj-win-hybrid-upload-v2307k1 .aj-native-file-picker-v218.aj-hybrid-upload-v2307k1>input[type="file"]{
- position:absolute!important;
- inset:0!important;
- display:block!important;
- visibility:visible!important;
- width:100%!important;
- height:100%!important;
- min-width:100%!important;
- min-height:100%!important;
- opacity:.001!important;
- cursor:pointer!important;
- z-index:2147483647!important;
- pointer-events:auto!important;
- font-size:100px!important;
- color:transparent!important;
-}
-</style>
-<script id="AIRJOTTER_FIX_DEFINITIVO_FIRMA_FOTO_HYBRID_WINDOWS_V2307K1_R2_SCRIPT">
-(() => {
- 'use strict';
- const hybrid = /Windows/i.test(navigator.userAgent) && (navigator.maxTouchPoints || 0) > 0;
- if (!hybrid) return;
- document.documentElement.classList.add('aj-win-hybrid-upload-v2307k1');
 
- function bind(id) {
-  const button = document.getElementById(id);
-  if (!button) return false;
-  const wrap = button.closest('.aj-native-file-picker-v218');
-  if (!wrap) return false;
-  const input = wrap.querySelector(':scope>input[type="file"],input[type="file"]');
-  if (!input) return false;
-  wrap.classList.add('aj-hybrid-upload-v2307k1');
-  input.disabled = false;
-  input.removeAttribute('hidden');
-  input.setAttribute('aria-label', id === 'importSignBtn' ? 'Carica firma' : 'Carica foto');
-  return true;
- }
 
- function apply() {
-  bind('importSignBtn');
-  bind('importRealImgBtn');
- }
-
- if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true });
- else apply();
- new MutationObserver(apply).observe(document.documentElement, { childList:true, subtree:true });
-})();
-</script>
 
 <style id="AIRJOTTER_LOBBY_NO_FLASH_V1932F5">
 html:not(.aj-lobby-ready-v1932f5) #ajLobby:not(.aj-hidden){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
@@ -1301,7 +1242,7 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
  const target=id=>id==='ajStampRotV1926'?document.getElementById('stamp-container'):id==='ajTextRotV1926'?document.getElementById('text-tool-input'):document.getElementById('ajShapePreviewV227');
  const apply=(id,value)=>{const n=document.getElementById(id);if(!n)return;const box=n.closest('.aj-rot-v1926'),r=box?.querySelector('input[type="range"]');if(!box||!r)return;const v=clamp(value);n.min=r.min='-180';n.max=r.max='180';n.step=r.step='1';n.value=r.value=String(v);target(id)?.style.setProperty('transform','rotate('+v+'deg)','important')};
  const rotations=()=>ids.forEach(id=>{const n=document.getElementById(id);if(!n)return;const box=n.closest('.aj-rot-v1926'),r=box?.querySelector('input[type="range"]');if(!box||!r)return;if(!box.dataset.ajSignedV1931c){box.dataset.ajSignedV1931c='1';r.addEventListener('input',e=>{e.stopImmediatePropagation();apply(id,e.currentTarget.value)},true);n.addEventListener('input',e=>{e.stopImmediatePropagation();apply(id,e.currentTarget.value)},true)}apply(id,0)});
- const tablet=()=>!(/Windows/i.test(navigator.userAgent))&&matchMedia('(min-width:761px) and (max-width:1400px) and (pointer:coarse)').matches;/* AIRJOTTER_FIX_TOOLBAR_WINDOWS_TOUCH_DESKTOP_IDENTICA_V2307K1 */
+ const tablet=()=>matchMedia('(min-width:761px) and (max-width:1400px) and (pointer:coarse)').matches;
  const notes=()=>{if(!tablet())return;const n=document.getElementById('ajNotesBtnV2301'),f=document.getElementById('ajFileTransferBtnV2291'),g=f?.closest('.aj-io-stack-v22107');if(!n||!f||!g)return;if(n.parentElement!==g||n.previousElementSibling!==f)f.insertAdjacentElement('afterend',n)};
  const install=()=>{rotations();notes()};const schedule=()=>{requestAnimationFrame(install);setTimeout(install,100);setTimeout(install,400)};
  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();addEventListener('pageshow',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});addEventListener('orientationchange',()=>setTimeout(schedule,150),{passive:true});document.addEventListener('click',e=>{if(e.target.closest('#toolTextBtn,[data-aj-shape],[data-aj-connector],#importPdfBtn,#importSignBtn,#importRealImgBtn'))setTimeout(rotations,0)},true);
@@ -2336,14 +2277,14 @@ html body #canvas-wrapper > #ajShapePreviewV227.open {
         }
 
         let mobileZoom=1;
-        function isMobileLayout(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches}
+        function isMobileLayout(){const winHybrid=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;return !winHybrid&&(window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches)}/* AIRJOTTER_FIX_PC_TOUCH_DESKTOP_REALE_V2307K1 */
         function mobileFitScale(){const vp=document.getElementById('mobileViewport');return Math.min(1,Math.max(.25,(vp.clientWidth-24)/LOGICAL_W))}
         function applyMobileZoom(center=true){
             const vp=document.getElementById('mobileViewport');const scale=mobileFitScale()*mobileZoom;
             wrapper.style.transform='scale('+scale+')';wrapper.style.transformOrigin='top left';wrapper.style.margin='0 auto';
             wrapper.style.marginBottom=(-(LOGICAL_H*(1-scale))+20)+'px';
             wrapper.parentElement.style.setProperty('--scaled-width',(LOGICAL_W*scale)+'px');
-            document.getElementById('mobileZoomValue').textContent=Math.round(scale*100)+'%';
+            const mobileZoomValue=document.getElementById('mobileZoomValue');if(mobileZoomValue)mobileZoomValue.textContent=Math.round(scale*100)+'%';
             if(center){requestAnimationFrame(()=>{vp.scrollLeft=Math.max(0,(vp.scrollWidth-vp.clientWidth)/2)})}
         }
         function handleResize(){
@@ -9067,5 +9008,27 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  function rename(){document.querySelectorAll('button').forEach(b=>{if((b.textContent||'').trim()==='Conferma acquisto')b.textContent='Acquista e paga con il Credito'})}new MutationObserver(rename).observe(document.body,{subtree:true,childList:true});rename();document.documentElement.dataset.airjotterLegalCompliance='V2307K';
 })();</script>
 
+<script id="AIRJOTTER_FIX_PC_TOUCH_DESKTOP_REALE_V2307K1_RUNTIME">
+(()=>{'use strict';
+ const hybrid=/Windows/i.test(navigator.userAgent)&&(navigator.maxTouchPoints||0)>0;
+ if(!hybrid)return;
+ const restore=()=>{
+  const owner=document.getElementById('ajUser');
+  const notes=document.getElementById('ajNotesBtnV2301');
+  if(owner&&notes&&(notes.parentElement!==owner.parentElement||notes.previousElementSibling!==owner))owner.insertAdjacentElement('afterend',notes);
+  document.documentElement.classList.remove('aj-win-hybrid-upload-v2307k1');
+  ['importSignBtn','importRealImgBtn'].forEach(id=>{
+   const button=document.getElementById(id),wrap=button?.closest('.aj-native-file-picker-v218'),input=wrap?.querySelector('input[type="file"]');
+   wrap?.classList.remove('aj-hybrid-upload-v2307k1');
+   if(button){button.style.removeProperty('pointer-events');button.removeAttribute('aria-hidden');button.removeAttribute('tabindex')}
+   if(input){input.style.cssText='';input.disabled=false}
+  });
+ };
+ const schedule=()=>{restore();requestAnimationFrame(restore);setTimeout(restore,100);setTimeout(restore,500)};
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',schedule,{once:true}):schedule();
+ addEventListener('pageshow',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});
+ new MutationObserver(restore).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
