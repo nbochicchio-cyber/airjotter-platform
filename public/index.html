@@ -1,6 +1,52 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script id="AIRJOTTER_FIX_UPLOAD_FIRMA_FOTO_WINDOWS_TOUCH_V2307K1">
+(() => {
+  'use strict';
+
+  // Registrato all'inizio di <head>: precede i listener globali di disegno/gesture.
+  // Si attiva esclusivamente sui PC Windows dotati di touchscreen e solo per Firma/Foto.
+  const isWindowsTouch = /Windows/i.test(navigator.userAgent) && (navigator.maxTouchPoints || 0) > 0;
+  if (!isWindowsTouch) return;
+
+  const selector = [
+    '#importSignBtn',
+    '#importRealImgBtn',
+    '.aj-native-file-picker-v218',
+    '.aj-native-file-picker-v218 input[type="file"]'
+  ].join(',');
+
+  let opening = false;
+
+  function resolveFileInput(target) {
+    const hit = target && target.closest ? target.closest(selector) : null;
+    if (!hit) return null;
+    if (hit.matches && hit.matches('input[type="file"]')) return hit;
+    const wrap = hit.closest?.('.aj-native-file-picker-v218') || hit.parentElement;
+    return wrap?.querySelector?.('input[type="file"]') || null;
+  }
+
+  document.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'touch' || opening) return;
+    const input = resolveFileInput(event.target);
+    if (!input || input.disabled) return;
+
+    // Impedisce ai listener globali touch di sottrarre il gesto al file picker.
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    opening = true;
+    try {
+      input.value = '';
+      input.click();
+    } finally {
+      queueMicrotask(() => { opening = false; });
+    }
+  }, { capture: true, passive: false });
+})();
+</script>
 <style id="AIRJOTTER_LOBBY_NO_FLASH_V1932F5">
 html:not(.aj-lobby-ready-v1932f5) #ajLobby:not(.aj-hidden){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 html.aj-lobby-ready-v1932f5 #ajLobby{visibility:visible!important;opacity:1!important;transition:opacity .14s ease!important}
@@ -9004,5 +9050,6 @@ document.documentElement.dataset.airjotterVersion=window.AIRJOTTER_FRONTEND_VERS
  const originalFetch=window.fetch.bind(window);let consentBusy=false;window.fetch=async function(input,init={}){const url=typeof input==='string'?input:input?.url||'',targets=['/api/billing/stripe/checkout','/api/billing/paypal/create','/api/billing/credit/purchase','/api/pay-use/spend','/api/billing/stripe/credit-checkout'];if(!targets.some(x=>url.includes(x))||init.__ajLegalConsent)return originalFetch(input,init);let body={};try{body=JSON.parse(init.body||'{}')}catch{};if(body.immediateExecutionConsent===true)return originalFetch(input,init);if(consentBusy)throw new Error('Consenso acquisto già in corso');consentBusy=true;const isExport=body.kind==='export';byId('ajPurchaseConsentTextV2307K').textContent=isExport?'L’esportazione PDF a uso singolo viene eseguita integralmente subito dopo l’acquisto.':'Il servizio o l’Extra sarà attivato immediatamente, durante il periodo di recesso.';byId('ajPurchaseConsentLabelV2307K').textContent=isExport?'Chiedo l’esecuzione immediata e accetto espressamente di perdere il diritto di recesso dopo la completa esecuzione dell’esportazione PDF.':'Chiedo espressamente che l’esecuzione inizi subito. In caso di recesso pagherò soltanto la parte di servizio già fruita.';byId('ajPurchaseConsentCheckV2307K').checked=false;open('ajPurchaseConsentV2307K');return new Promise((resolve,reject)=>{byId('ajPurchaseConsentCancelV2307K').onclick=()=>{consentBusy=false;close('ajPurchaseConsentV2307K');reject(new Error('Acquisto annullato'))};byId('ajPurchaseConsentConfirmV2307K').onclick=()=>{if(!byId('ajPurchaseConsentCheckV2307K').checked)return alert('Seleziona la casella per proseguire.');consentBusy=false;close('ajPurchaseConsentV2307K');body.immediateExecutionConsent=true;body.withdrawalWaiver=isExport;resolve(originalFetch(input,{...init,__ajLegalConsent:true,body:JSON.stringify(body)}))}})};
  function rename(){document.querySelectorAll('button').forEach(b=>{if((b.textContent||'').trim()==='Conferma acquisto')b.textContent='Acquista e paga con il Credito'})}new MutationObserver(rename).observe(document.body,{subtree:true,childList:true});rename();document.documentElement.dataset.airjotterLegalCompliance='V2307K';
 })();</script>
+
 </body>
 </html>
