@@ -1,0 +1,23 @@
+name: Aiven Keep-Alive
+
+on:
+  schedule:
+    # Esegue lo script alle 08:00 UTC ogni 2 giorni
+    - cron: '0 8 */2 * *'
+  workflow_dispatch: # Permette di testarlo manualmente con un clic
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Aiven Control Plane API
+        run: |
+          curl -s -f -H "Authorization: aivenv1 ${{ secrets.AIVEN_API_TOKEN }}" \
+          https://api.aiven.io/v1/project/airjotter/service/airjotter-db > /dev/null
+          echo "Ping API Aiven completato con successo."
+
+      - name: Execute PostgreSQL Query
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          psql "${{ secrets.AIVEN_DB_URI }}" -c "SELECT 1;"
+          echo "Query su airjotter-db eseguita con successo."
